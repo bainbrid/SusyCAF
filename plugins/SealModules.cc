@@ -25,7 +25,7 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_RecHit.h"
 
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
-typedef SusyCAF_MET<reco::CaloJet> SusyCAF_CaloJet;
+typedef SusyCAF_Jet<reco::CaloJet> SusyCAF_CaloJet;
 typedef SusyCAF_Electron<reco::GsfElectron> SusyCAF_GsfElectron;
 typedef SusyCAF_Muon<reco::Muon> SusyCAF_RecoMuon;
 typedef SusyCAF_RecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;

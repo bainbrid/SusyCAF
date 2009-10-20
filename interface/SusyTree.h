@@ -10,13 +10,8 @@
  *  tree of the selected variables, which it obtains from the EDM
  *  tree.  
  *
- *  See the file python/test_cfg.py for an example configuration.
- *
- *  See the file doc/README for more detailed documentation, including
- *  advantages, disadvantages, and use philosophy.
- *  
- *  $Date: 2009/10/06 16:05:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/15 08:10:46 $
+ *  $Revision: 1.2 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -67,7 +62,8 @@ public:
 		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       
 		 INT,     INT_V,             U_INT,   U_INT_V,
 		 FLOAT,   FLOAT_V,           DOUBLE,  DOUBLE_V,
-		 LONG,    LONG_V,	     U_LONG,  U_LONG_V   };
+		 LONG,    LONG_V,	     U_LONG,  U_LONG_V,
+		 LORENTZV_V};
 };
 
 #endif

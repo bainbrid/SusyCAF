@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "DataFormats/Provenance/interface/Selections.h"
+#include "Math/LorentzVector.h"
 
 #include <map>
 #include "boost/foreach.hpp"
@@ -52,6 +53,7 @@ beginJob(const edm::EventSetup&) {
   leafmap["double"]    = DOUBLE;     leafmap["doubles"]   = DOUBLE_V;
   leafmap["lint"]      = LONG;       leafmap["longs"]     = LONG_V;
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
+  leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -95,6 +97,7 @@ beginJob(const edm::EventSetup&) {
       case LONG_V   :  connectors.push_back( new TypedBranchConnector<std::vector          <long> >(selection,   "", tree) ); break;
       case U_LONG   :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
       case U_LONG_V :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
+      case LORENTZV_V: connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > > (selection, "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

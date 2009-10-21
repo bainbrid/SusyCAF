@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/Event.h"
 
 SusyCAF_Vertex::SusyCAF_Vertex(const edm::ParameterSet& iConfig) 
   : inputTag(iConfig.getParameter<edm::InputTag>("InputTag"))

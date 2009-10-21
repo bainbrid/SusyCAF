@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamSpot.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/Event.h"
 
 SusyCAF_BeamSpot::SusyCAF_BeamSpot(const edm::ParameterSet& iConfig) 
   : inputTag(iConfig.getParameter<edm::InputTag>("InputTag"))

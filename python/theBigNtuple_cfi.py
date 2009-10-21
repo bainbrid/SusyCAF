@@ -9,6 +9,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HLTTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_RecHit_cfi import *
 
@@ -26,21 +27,21 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep *_susycafvertex_*_*',
     'keep *_susycafbeamspot_*_*',
     'keep *_susycafl1globaltrigger_*_*',
+    'keep *_susycafhlttrigger_*_*',
     'keep *_susycafl1calotrigger_*_*',
     'keep *_susycafrechit_*_*',
     ))
 
 theBigNtuple = cms.Sequence( (susycafevent +
-                              susycafl1globaltrigger +
-                              susycafmet +
-                              susycafic5calojet +
-                              susycafkt4calojet +
-#                              susycafmuon +
-#                              susycafelectron) *
-                              susycafphoton +
-                              susycafmuon +
-                              susycafbeamspot +
-                              susycafvertex +
-                              susycafelectron) *
-                              susyTree
-                             )
+                               susycafl1globaltrigger +
+   			       susycafhlttrigger) *
+                               susycafmet +
+                               susycafic5calojet +
+                               susycafkt4calojet +
+                               susycafphoton +
+                               susycafmuon +
+                               susycafbeamspot +
+                               susycafvertex +
+                               susycafelectron) *
+                               susyTree
+                              )

@@ -25,39 +25,39 @@ SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  produces <std::vector<LorentzVector> > ( Prefix + "p4" + Suffix );
-  produces <std::vector<float> > (  Prefix + "charge" + Suffix);
-  produces <std::vector<float> > (  Prefix + "globalTracknormalizedChi2" + Suffix);
-  produces <std::vector<float> > (  Prefix + "globalTracknumberOfValidHits" + Suffix);
-  produces <std::vector<float> > (  Prefix + "globalTrackdxy" + Suffix);
-  produces <std::vector<float> > (  Prefix + "globalTrackdxyError" + Suffix);
-  produces <std::vector<float> > (  Prefix + "isolationR03sumPt" + Suffix);
-  produces <std::vector<float> > (  Prefix + "isolationR03emEt" + Suffix);
-  produces <std::vector<float> > (  Prefix + "isolationR03hadEt" + Suffix);
-  produces <std::vector<float> > (  Prefix + "vx" + Suffix);
-  produces <std::vector<float> > (  Prefix + "vy" + Suffix);
-  produces <std::vector<float> > (  Prefix + "vz" + Suffix);
-  produces <std::vector<float> > (  Prefix + "vertexChi2" + Suffix);
-  produces <std::vector<float> > (  Prefix + "vertexNdof" + Suffix);
+  produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
+  produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GlobalTrackdxy" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GlobalTrackdxyError" + Suffix);
+  produces <std::vector<float> > (  Prefix + "IsolationR03sumPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "IsolationR03emEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "IsolationR03hadEt" + Suffix);
+  produces <std::vector<double> > (  Prefix + "Vx" + Suffix);
+  produces <std::vector<double> > (  Prefix + "Vy" + Suffix);
+  produces <std::vector<double> > (  Prefix + "Vz" + Suffix);
+  produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
+  produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
 }
 
 template< typename T >
 void SusyCAF_Muon<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
-  std::auto_ptr<std::vector<float> >  charge   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  globalTrack_normalizedChi2   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  globalTrack_numberOfValidHits   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  globalTrack_dxy   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  globalTrack_dxyError   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  globalTrack_numberOfValidHits   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  globalTrack_dxyError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03sumPt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03emEt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03hadEt   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  vx   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  vy   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  vz   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  vertexChi2   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<float> >  vertexNdof   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<double> >  vx   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  vy   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  vz   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   
   edm::Handle<std::vector<T> > collection;
   iEvent.getByLabel(inputTag,collection);
@@ -80,20 +80,20 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vertexNdof->push_back(it->vertexNdof());
   }
   
-  iEvent.put( p4,  Prefix + "p4" + Suffix );
-  iEvent.put( charge,  Prefix + "charge" + Suffix );
-  iEvent.put( globalTrack_normalizedChi2,  Prefix + "globalTracknormalizedChi2" + Suffix );
-  iEvent.put( globalTrack_numberOfValidHits,  Prefix + "globalTracknumberOfValidHits" + Suffix );
-  iEvent.put( globalTrack_dxy,  Prefix + "globalTrackdxy" + Suffix );
-  iEvent.put( globalTrack_dxyError,  Prefix + "globalTrackdxyError" + Suffix );
-  iEvent.put( isolationR03sumPt,  Prefix + "isolationR03sumPt" + Suffix );
-  iEvent.put( isolationR03emEt,  Prefix + "isolationR03emEt" + Suffix );
-  iEvent.put( isolationR03hadEt,  Prefix + "isolationR03hadEt" + Suffix );
-  iEvent.put( vx,  Prefix + "vx" + Suffix );
-  iEvent.put( vy,  Prefix + "vy" + Suffix );
-  iEvent.put( vz,  Prefix + "vz" + Suffix );
-  iEvent.put( vertexChi2,  Prefix + "vertexChi2" + Suffix );
-  iEvent.put( vertexNdof,  Prefix + "vertexNdof" + Suffix );
+  iEvent.put( p4,  Prefix + "P4" + Suffix );
+  iEvent.put( charge,  Prefix + "Charge" + Suffix );
+  iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );
+  iEvent.put( globalTrack_numberOfValidHits,  Prefix + "GlobalTracknumberOfValidHits" + Suffix );
+  iEvent.put( globalTrack_dxy,  Prefix + "GlobalTrackdxy" + Suffix );
+  iEvent.put( globalTrack_dxyError,  Prefix + "GlobalTrackdxyError" + Suffix );
+  iEvent.put( isolationR03sumPt,  Prefix + "IsolationR03sumPt" + Suffix );
+  iEvent.put( isolationR03emEt,  Prefix + "IsolationR03emEt" + Suffix );
+  iEvent.put( isolationR03hadEt,  Prefix + "IsolationR03hadEt" + Suffix );
+  iEvent.put( vx,  Prefix + "Vx" + Suffix );
+  iEvent.put( vy,  Prefix + "Vy" + Suffix );
+  iEvent.put( vz,  Prefix + "Vz" + Suffix );
+  iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
+  iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
 }
 
 #endif

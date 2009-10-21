@@ -20,6 +20,8 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Electron.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Muon.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamSpot.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_RecHit.h"
@@ -37,6 +39,8 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloJet);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Photon);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_GsfElectron);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_RecoMuon);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_BeamSpot);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Vertex);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1GlobalTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1CaloTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);

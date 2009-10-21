@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "FWCore/Framework/interface/Event.h"
 
 SusyCAF_Photon::SusyCAF_Photon(const edm::ParameterSet& iConfig) 
   : inputTag(iConfig.getParameter<edm::InputTag>("InputTag"))

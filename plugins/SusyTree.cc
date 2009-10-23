@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "Math/LorentzVector.h"
+#include "Math/Vector3D.h"
 
 #include <map>
 #include "boost/foreach.hpp"
@@ -54,6 +55,7 @@ beginJob(const edm::EventSetup&) {
   leafmap["lint"]      = LONG;       leafmap["longs"]     = LONG_V;
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
+  leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3Ds"] = VECTOR_V;
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -98,6 +100,7 @@ beginJob(const edm::EventSetup&) {
       case U_LONG   :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
       case U_LONG_V :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
       case LORENTZV_V: connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > > (selection, "", tree) ); break;
+      case VECTOR_V: connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > > (selection, "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

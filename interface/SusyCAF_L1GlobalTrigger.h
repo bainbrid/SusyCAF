@@ -9,9 +9,18 @@ class SusyCAF_L1GlobalTrigger : public edm::EDProducer {
   explicit SusyCAF_L1GlobalTrigger(const edm::ParameterSet&);
  private: 
   void produce( edm::Event &, const edm::EventSetup & );
+  void endJob();
+  void fillAlgoNameListNoUnderScores();
 
   const edm::InputTag inputTag;
   int nBxOutput;
+  bool storeByName;
+
+  std::vector<std::string> algoNameList;
+  std::vector<std::string> algoNameListNoUnderScores;  
+
+  std::set<std::string> algosPresentInData;
+  std::set<std::string> menusAlreadyParsed;
 };
 
 #endif

@@ -3,6 +3,11 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/HcalDetId>
+<use name=CondFormats/HcalObjects>
+<use name=CalibCalorimetry/HcalAlgos>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+
 <use name=SUSYBSMAnalysis/SusyCAF>
 <library file="*.cc" name=SUSYBSMAnalysisSusyCAFPlugins>
     <flags EDM_PLUGIN=1>

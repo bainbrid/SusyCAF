@@ -16,8 +16,6 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 
->>>>>>> 1.7
-
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
     'drop *',

@@ -11,9 +11,12 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HLTTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_RecHit_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
+#from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalTrigPrim_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 
+>>>>>>> 1.7
 
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
@@ -31,13 +34,17 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep *_susycafl1globaltrigger_*_*',
     'keep *_susycafhlttrigger_*_*',
     'keep *_susycafl1calotrigger_*_*',
-    'keep *_susycafrechit_*_*',
+    'keep *_susycafl1extra_*_*',
+#    'keep *_susycafhcaltrigprim_*_*',
+    'keep *_susycafhbherechit_*_*',
+    'keep *_susycafhfrechit_*_*',
+    'keep *_susycafhorechit_*_*',
     'keep *_susycafcalotowers_*_*',
     ))
 
 theBigNtuple = cms.Sequence( (susycafevent +
                                susycafl1globaltrigger +
-#  			       susycafhlttrigger +
+   			       susycafhlttrigger +
                                susycafmet +
                                susycafic5calojet +
                                susycafkt4calojet +

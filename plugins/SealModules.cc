@@ -27,6 +27,9 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
+//#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalTrigPrim.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_RecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
 
@@ -34,6 +37,9 @@ typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_Jet<reco::CaloJet> SusyCAF_CaloJet;
 typedef SusyCAF_Electron<reco::GsfElectron> SusyCAF_GsfElectron;
 typedef SusyCAF_Muon<reco::Muon> SusyCAF_RecoMuon;
+typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
+typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
+typedef SusyCAF_HcalRecHit<HORecHitCollection> SusyCAF_HORecHitsSorted;
 typedef SusyCAF_RecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
@@ -48,5 +54,9 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_BeamSpot);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Vertex);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1GlobalTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1CaloTrigger);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Extra);
+//DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalTrigPrim);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);

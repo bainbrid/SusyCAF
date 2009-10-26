@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <set>
 
 class SusyCAF_L1GlobalTrigger : public edm::EDProducer {
  public: 

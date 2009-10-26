@@ -22,7 +22,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<unsigned int> > l1mhthw     ( new std::vector<unsigned int>() );
   std::auto_ptr<std::vector<unsigned int> > l1mhtphihw  ( new std::vector<unsigned int>() );
 
-  //todo: l1 jets, electrons, extra particles
+  //todo: l1 jets, electrons
 
   //ET
   edm::Handle<L1GctEtTotalCollection> l1GctEtTotals;

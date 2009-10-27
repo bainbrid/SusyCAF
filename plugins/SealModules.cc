@@ -14,6 +14,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
+#include "DataFormats/TauReco/interface/CaloTau.h"
+
 DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
@@ -32,6 +34,8 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
 
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTau.h"
+
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_Jet<reco::CaloJet> SusyCAF_CaloJet;
 typedef SusyCAF_Electron<reco::GsfElectron> SusyCAF_GsfElectron;
@@ -41,6 +45,8 @@ typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_HcalRecHit<HORecHitCollection> SusyCAF_HORecHitsSorted;
 typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
+
+typedef SusyCAF_CaloTau<reco::CaloTau> SusyCAF_CalTau;
 
 DEFINE_ANOTHER_FWK_MODULE(SusyTree);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Event);
@@ -59,3 +65,5 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
+
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CalTau);

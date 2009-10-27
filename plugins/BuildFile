@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>

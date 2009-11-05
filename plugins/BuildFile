@@ -8,6 +8,7 @@
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=DataFormats/PatCandidates>
 
 <use name=SUSYBSMAnalysis/SusyCAF>
 <library file="*.cc" name=SUSYBSMAnalysisSusyCAFPlugins>

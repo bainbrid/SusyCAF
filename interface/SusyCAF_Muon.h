@@ -12,7 +12,15 @@ class SusyCAF_Muon : public edm::EDProducer {
  public: 
   explicit SusyCAF_Muon(const edm::ParameterSet&);
  private: 
+  void initTemplate(edm::Handle<reco::Muon> &);
+  void initTemplate(edm::Handle<pat::Muon> &);
+  void initRECO();
+  void initPAT();
   void produce(edm::Event &, const edm::EventSetup & );
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::Muon> > &);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Muon> > &);
+  void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
   typedef reco::Candidate::LorentzVector LorentzVector;
   const edm::InputTag inputTag;
@@ -24,6 +32,28 @@ SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
+{
+  edm::Handle<T> dataType;
+  initTemplate(dataType);
+}
+
+// init method in case of RECO data
+template< typename T >
+void SusyCAF_Muon<T>::initTemplate(edm::Handle<reco::Muon>& dataType)
+{
+  initRECO();
+}
+
+// init method in case of PAT data
+template< typename T >
+void SusyCAF_Muon<T>::initTemplate(edm::Handle<pat::Muon>& dataType)
+{
+  initRECO();
+  initPAT();
+}
+
+template< typename T >
+void SusyCAF_Muon<T>::initRECO()
 {
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
@@ -41,9 +71,41 @@ SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
 }
 
+// extra information stored for PAT data
+template< typename T >
+void SusyCAF_Muon<T>::initPAT()
+{
+  produces <std::vector<bool> > (  Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
+}
+
+
 template< typename T >
 void SusyCAF_Muon<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<std::vector<T> > collection;
+  iEvent.getByLabel(inputTag,collection);
+
+  produceTemplate(iEvent, iSetup, collection);
+}
+
+// produce method in case of RECO data
+template< typename T >
+void SusyCAF_Muon<T>::
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::Muon> >& collection) {
+  produceRECO(iEvent, iSetup, collection);
+}
+
+// produce method in case of PAT data
+template< typename T >
+void SusyCAF_Muon<T>::
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Muon> >& collection) {
+  produceRECO(iEvent, iSetup, collection);
+  producePAT(iEvent, iSetup, collection);
+}
+
+template< typename T >
+void SusyCAF_Muon<T>::
+produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -59,8 +121,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   
-  edm::Handle<std::vector<T> > collection;
-  iEvent.getByLabel(inputTag,collection);
   
   for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
     if( !it->isGlobalMuon()) continue;
@@ -94,6 +154,20 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( vz,  Prefix + "Vz" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
+}
+
+// extra information stored for PAT data
+template< typename T >
+void SusyCAF_Muon<T>::
+producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+  std::auto_ptr<std::vector<bool> >  muonIDXX   ( new std::vector<bool>()  ) ;
+  
+  for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+    if( !it->isGlobalMuon()) continue;
+    muonIDXX->push_back(it->muonID("GlobalMuonPromptTight"));
+  }
+  
+  iEvent.put( muonIDXX,  Prefix + "MuonIDGlobalMuonPromptTight" + Suffix );
 }
 
 #endif

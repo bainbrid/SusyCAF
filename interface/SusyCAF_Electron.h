@@ -11,8 +11,18 @@ template< typename T >
 class SusyCAF_Electron : public edm::EDProducer {
  public: 
   explicit SusyCAF_Electron(const edm::ParameterSet&);
- private: 
+ private:
+  void initTemplate(edm::Handle<reco::GsfElectron> &);
+  void initTemplate(edm::Handle<pat::Electron> &);
+  void initRECO();
+  void initPAT();
   void produce(edm::Event &, const edm::EventSetup & );
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::GsfElectron> > &);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Electron> > &);
+  void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+
+  typedef reco::Candidate::LorentzVector LorentzVector; 
 
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
@@ -23,6 +33,28 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
+{
+  edm::Handle<T> dataType;
+  initTemplate(dataType);
+}
+
+// init method in case of RECO data
+template< typename T >
+void SusyCAF_Electron<T>::initTemplate(edm::Handle<reco::GsfElectron>& dataType)
+{
+  initRECO();
+}
+
+// init method in case of PAT data
+template< typename T >
+void SusyCAF_Electron<T>::initTemplate(edm::Handle<pat::Electron>& dataType)
+{
+  initRECO();
+  initPAT();
+}
+
+template< typename T >
+void SusyCAF_Electron<T>::initRECO()
 {
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
@@ -70,9 +102,46 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
 }
 
+// extra information stored for PAT data
+template< typename T >
+void SusyCAF_Electron<T>::initPAT()
+{
+  produces <std::vector<float> >  (Prefix + "EcalIso"                   + Suffix);
+  produces <std::vector<float> >  (Prefix + "HcalIso"                   + Suffix);
+  produces <std::vector<float> >  (Prefix + "TrackIso"                  + Suffix);
+  produces <std::vector<float> >  (Prefix + "EIDTight"                  + Suffix);
+  produces <std::vector<float> >  (Prefix + "EIDRobustTight"            + Suffix);
+  produces <std::vector<float> >  (Prefix + "EIDLoose"                  + Suffix);
+  produces <std::vector<float> >  (Prefix + "EIDRobustLoose"            + Suffix);
+}
+
 template< typename T >
 void SusyCAF_Electron<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<std::vector<T> > collection;
+  iEvent.getByLabel(inputTag,collection);
+
+  produceTemplate(iEvent, iSetup, collection);
+}
+
+// produce method in case of RECO data
+template< typename T >
+void SusyCAF_Electron<T>::
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::GsfElectron> >& collection) {
+  produceRECO(iEvent, iSetup, collection);
+}
+
+// produce method in case of PAT data
+template< typename T >
+void SusyCAF_Electron<T>::
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Electron> >& collection) {
+  produceRECO(iEvent, iSetup, collection);
+  producePAT(iEvent, iSetup, collection);
+}
+
+template< typename T >
+void SusyCAF_Electron<T>::
+produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4 ( new std::vector<reco::Candidate::LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -117,9 +186,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> >  vz   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
-  
-  edm::Handle<std::vector<T> > collection;
-  iEvent.getByLabel(inputTag,collection);
   
   for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
     p4->push_back(it->p4());
@@ -212,6 +278,38 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( vz,  Prefix + "Vz" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
+}
+
+// extra information stored for PAT data
+template< typename T >
+void SusyCAF_Electron<T>::
+producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+  std::auto_ptr<std::vector<float> >  ecalIso                  ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  hcalIso                  ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  trackIso                 ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  eIDTight                 ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  eIDRobustTight           ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  eIDLoose                 ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  eIDRobustLoose           ( new std::vector<float>()  ) ;
+
+  for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) { 
+    ecalIso                 ->push_back(it->ecalIso                   ());
+    hcalIso                 ->push_back(it->hcalIso                   ());
+    trackIso                ->push_back(it->trackIso                  ());
+    eIDTight                ->push_back(it->electronID("eidTight"));
+    eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
+    eIDLoose                ->push_back(it->electronID("eidLoose"));
+    eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
+  } // end loop over electrons
+
+
+  iEvent.put(ecalIso                 , Prefix + "EcalIso"                  + Suffix);
+  iEvent.put(hcalIso                 , Prefix + "HcalIso"                  + Suffix);
+  iEvent.put(trackIso                , Prefix + "TrackIso"                 + Suffix);
+  iEvent.put(eIDTight                , Prefix + "EIDTight"                 + Suffix);
+  iEvent.put(eIDRobustTight          , Prefix + "EIDRobustTight"           + Suffix);
+  iEvent.put(eIDLoose                , Prefix + "EIDLoose"                 + Suffix);
+  iEvent.put(eIDRobustLoose          , Prefix + "EIDRobustLoose"           + Suffix);
 }
 
 #endif

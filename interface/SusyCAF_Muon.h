@@ -75,7 +75,10 @@ void SusyCAF_Muon<T>::initRECO()
 template< typename T >
 void SusyCAF_Muon<T>::initPAT()
 {
-  produces <std::vector<bool> > (  Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
+  produces <std::vector<bool> > (Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
+  produces <std::vector<float> > (Prefix + "EcalIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "HcalIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "TrackIso" + Suffix);
 }
 
 
@@ -160,14 +163,23 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Muon<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<bool> >  muonIDXX   ( new std::vector<bool>()  ) ;
+  std::auto_ptr<std::vector<bool> >  muonIDGlobalMuonPromptTight( new std::vector<bool>() );
+  std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
   
   for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
     if( !it->isGlobalMuon()) continue;
-    muonIDXX->push_back(it->muonID("GlobalMuonPromptTight"));
+    muonIDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
+    ecalIso->push_back(it->ecalIso());
+    hcalIso->push_back(it->hcalIso());
+    trackIso->push_back(it->trackIso());
   }
   
-  iEvent.put( muonIDXX,  Prefix + "MuonIDGlobalMuonPromptTight" + Suffix );
+  iEvent.put(muonIDGlobalMuonPromptTight, Prefix + "MuonIDGlobalMuonPromptTight" + Suffix );
+  iEvent.put(ecalIso, Prefix + "EcalIso" + Suffix);
+  iEvent.put(hcalIso, Prefix + "HcalIso" + Suffix);
+  iEvent.put(trackIso, Prefix + "TrackIso" + Suffix);
 }
 
 #endif

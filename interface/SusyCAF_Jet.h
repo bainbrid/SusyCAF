@@ -35,8 +35,9 @@ SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > ( Prefix + "HadEnergyInHF"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EmEnergyInEB"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EmEnergyInEE"  + Suffix );
-  //  produces <std::vector<double> > ( Prefix + "N60"  + Suffix ); 
-  //  produces <std::vector<double> > ( Prefix + "N90"  + Suffix ); 
+  produces <std::vector<double> > ( Prefix + "EmEnergyInHF"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "N60"  + Suffix ); 
+  produces <std::vector<int> > ( Prefix + "N90"  + Suffix ); 
 }
 
 template< typename T >
@@ -55,8 +56,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> >  hadEnergyInHF   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  emEnergyInEB   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  emEnergyInEE   ( new std::vector<double>()  ) ;
-  //  std::auto_ptr<std::vector<double> >  n60   ( new std::vector<double>()  ) ; 
-  //  std::auto_ptr<std::vector<double> >  n90   ( new std::vector<double>()  ) ; 
+  std::auto_ptr<std::vector<double> >  emEnergyInHF   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<int> >  n60   ( new std::vector<int>()  ) ; 
+  std::auto_ptr<std::vector<int> >  n90   ( new std::vector<int>()  ) ; 
 
   
   edm::Handle<std::vector<T> > jetcollection;
@@ -75,8 +77,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     hadEnergyInHF->push_back(it->hadEnergyInHF());
     emEnergyInEB->push_back(it->emEnergyInEB());
     emEnergyInEE->push_back(it->emEnergyInEE());
-    //    n60->push_back(it->n60()); 
-    //    n90->push_back(it->n90()); 
+    emEnergyInHF->push_back(it->emEnergyInHF());
+    n60->push_back(it->n60()); 
+    n90->push_back(it->n90()); 
   }
   
   iEvent.put( p4,  Prefix + "P4"  + Suffix );
@@ -91,8 +94,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( hadEnergyInHF,  Prefix + "HadEnergyInHF"  + Suffix );
   iEvent.put( emEnergyInEB,  Prefix + "EmEnergyInEB"  + Suffix );
   iEvent.put( emEnergyInEE,  Prefix + "EmEnergyInEE"  + Suffix );
-  //  iEvent.put( n60,  Prefix + "N60"  + Suffix ); 
-  //  iEvent.put( n90,  Prefix + "N90"  + Suffix ); 
+  iEvent.put( emEnergyInHF,  Prefix + "EmEnergyInHF"  + Suffix );
+  iEvent.put( n60,  Prefix + "N60"  + Suffix ); 
+  iEvent.put( n90,  Prefix + "N90"  + Suffix ); 
 }
 
 #endif

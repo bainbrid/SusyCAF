@@ -6,8 +6,8 @@ susycafic5calojet = cms.EDProducer("SusyCAF_CaloJet",
                             Suffix = cms.string('Calo')
                             )
 
-susycafkt4calojet = cms.EDProducer("SusyCAF_CaloJet",
-                            InputTag = cms.InputTag('kt4CaloJets'),
-                            Prefix = cms.string('kt4Jet'),
+susycafak5calojet = cms.EDProducer("SusyCAF_CaloJet",
+                            InputTag = cms.InputTag('antikt5CaloJets'),
+                            Prefix = cms.string('ak5Jet'),
                             Suffix = cms.string('Calo')
                             )

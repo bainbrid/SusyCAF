@@ -17,6 +17,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTau_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
 
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
@@ -40,7 +41,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep *_susycafhfrechit_*_*',
     'keep *_susycafhorechit_*_*',
     'keep *_susycafcalotowers_*_*',
-
+    'keep *_susycafPFtau_*_*',
     'keep *_susycafcalotau_*_*',
     ))
 
@@ -56,6 +57,7 @@ theBigNtuple = cms.Sequence( (susycafevent +
                                susycafvertex +
 #                               susycafelectron +
                             #   susycafcalotowers +
-                              susycafcalotau) *
+                              susycafcalotau +
+                              susycafPFtau) *
                                susyTree
                               )

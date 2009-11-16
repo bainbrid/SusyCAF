@@ -12,11 +12,13 @@ process.add_( cms.Service( "TFileService",
 baseLocation="/store/data/Commissioning09/Calo/RECO/v8/000/116/736"
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
+
 process.source = cms.Source (
     "PoolSource",
     fileNames = cms.untracked.vstring(
-'file:/home/arlogb/SSDLportPF/SUSY_LM0_PAT.root'),
-#      "/store/relval/CMSSW_3_1_4/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0005/901ABD8A-E5B0-DE11-8AE6-000423D98DD4.root"),
+ "file:/home/arlogb/SSDLportPF/SUSY_LM0_PAT.root"),
+#   "/store/relval/CMSSW_3_1_4/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0005/901ABD8A-E5B0-DE11-8AE6-000423D98DD4.root"),
 # (baseLocation+"/04A68558-83B4-DE11-B565-001D09F29533.root")),
 #  cms.untracked.vstring("/store/relval/CMSSW_3_1_4/RelValSingleGammaPt35/GEN-SIM-RECO/MC_31X_V3-v1/0006/12715145-72B1-DE11-BA39-001D09F2462D.root","/store/relval/CMSSW_3_1_4/RelValSingleGammaPt35/GEN-SIM-RECO/MC_31X_V3-v1/0005/6C81A44F-74B0-DE11-818C-001D09F282F5.root"),
 duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),

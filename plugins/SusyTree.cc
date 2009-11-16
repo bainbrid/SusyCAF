@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "Math/LorentzVector.h"
 #include "Math/Vector3D.h"
+#include "Math/Point3D.h"
 
 #include <map>
 #include "boost/foreach.hpp"
@@ -56,6 +57,7 @@ beginJob(const edm::EventSetup&) {
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3Ds"] = VECTOR_V;
+  leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3Ds"] = POINT_V;
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -81,26 +83,27 @@ beginJob(const edm::EventSetup&) {
 
       //Create SusyTree branch
       switch(leafmap.find( selection->friendlyClassName() )->second) {
-      case BOOL     :  connectors.push_back( new TypedBranchConnector                      <bool>  (selection, "/O", tree) ); break;
-      case BOOL_V   :  connectors.push_back( new TypedBranchConnector<std::vector          <bool> >(selection,   "", tree) ); break;
-      case INT      :  connectors.push_back( new TypedBranchConnector                       <int>  (selection, "/I", tree) ); break;
-      case INT_V    :  connectors.push_back( new TypedBranchConnector<std::vector           <int> >(selection,   "", tree) ); break;
-      case U_INT    :  connectors.push_back( new TypedBranchConnector              <unsigned int>  (selection, "/i", tree) ); break;
-      case U_INT_V  :  connectors.push_back( new TypedBranchConnector<std::vector  <unsigned int> >(selection,   "", tree) ); break;
-      case SHORT    :  connectors.push_back( new TypedBranchConnector                     <short>  (selection, "/S", tree) ); break;
-      case SHORT_V  :  connectors.push_back( new TypedBranchConnector<std::vector         <short> >(selection,   "", tree) ); break;
-      case U_SHORT  :  connectors.push_back( new TypedBranchConnector            <unsigned short>  (selection, "/s", tree) ); break;
-      case U_SHORT_V:  connectors.push_back( new TypedBranchConnector<std::vector<unsigned short> >(selection,   "", tree) ); break;
-      case FLOAT    :  connectors.push_back( new TypedBranchConnector                     <float>  (selection, "/F", tree) ); break;
-      case FLOAT_V  :  connectors.push_back( new TypedBranchConnector<std::vector         <float> >(selection,   "", tree) ); break;
-      case DOUBLE   :  connectors.push_back( new TypedBranchConnector                    <double>  (selection, "/D", tree) ); break;
-      case DOUBLE_V :  connectors.push_back( new TypedBranchConnector<std::vector        <double> >(selection,   "", tree) ); break;
-      case LONG     :  connectors.push_back( new TypedBranchConnector                      <long>  (selection, "/L", tree) ); break;
-      case LONG_V   :  connectors.push_back( new TypedBranchConnector<std::vector          <long> >(selection,   "", tree) ); break;
-      case U_LONG   :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
-      case U_LONG_V :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
-      case LORENTZV_V: connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > > (selection, "", tree) ); break;
-      case VECTOR_V: connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > > (selection, "", tree) ); break;
+      case BOOL       :  connectors.push_back( new TypedBranchConnector                      <bool>  (selection, "/O", tree) ); break;
+      case BOOL_V     :  connectors.push_back( new TypedBranchConnector<std::vector          <bool> >(selection,   "", tree) ); break;
+      case INT        :  connectors.push_back( new TypedBranchConnector                       <int>  (selection, "/I", tree) ); break;
+      case INT_V      :  connectors.push_back( new TypedBranchConnector<std::vector           <int> >(selection,   "", tree) ); break;
+      case U_INT      :  connectors.push_back( new TypedBranchConnector              <unsigned int>  (selection, "/i", tree) ); break;
+      case U_INT_V    :  connectors.push_back( new TypedBranchConnector<std::vector  <unsigned int> >(selection,   "", tree) ); break;
+      case SHORT      :  connectors.push_back( new TypedBranchConnector                     <short>  (selection, "/S", tree) ); break;
+      case SHORT_V    :  connectors.push_back( new TypedBranchConnector<std::vector         <short> >(selection,   "", tree) ); break;
+      case U_SHORT    :  connectors.push_back( new TypedBranchConnector            <unsigned short>  (selection, "/s", tree) ); break;
+      case U_SHORT_V  :  connectors.push_back( new TypedBranchConnector<std::vector<unsigned short> >(selection,   "", tree) ); break;
+      case FLOAT      :  connectors.push_back( new TypedBranchConnector                     <float>  (selection, "/F", tree) ); break;
+      case FLOAT_V    :  connectors.push_back( new TypedBranchConnector<std::vector         <float> >(selection,   "", tree) ); break;
+      case DOUBLE     :  connectors.push_back( new TypedBranchConnector                    <double>  (selection, "/D", tree) ); break;
+      case DOUBLE_V   :  connectors.push_back( new TypedBranchConnector<std::vector        <double> >(selection,   "", tree) ); break;
+      case LONG       :  connectors.push_back( new TypedBranchConnector                      <long>  (selection, "/L", tree) ); break;
+      case LONG_V     :  connectors.push_back( new TypedBranchConnector<std::vector          <long> >(selection,   "", tree) ); break;
+      case U_LONG     :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
+      case U_LONG_V   :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
+      case LORENTZV_V :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >          (selection, "", tree) ); break;
+      case VECTOR_V   :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > > (selection, "", tree) ); break;
+      case POINT_V    :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > > >     (selection, "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

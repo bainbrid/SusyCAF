@@ -11,3 +11,16 @@ susycafmetnohf = cms.EDProducer("SusyCAF_CaloMET",
                             Prefix = cms.string('metnohf'),
                             Suffix = cms.string('Calo')
                             )
+
+susycafmetIC5 = cms.EDProducer("SusyCAF_PatMET",
+                            InputTag = cms.InputTag('layer1METsIC5'),
+                            Prefix = cms.string('met'),
+                            Suffix = cms.string('ic5')
+                            )
+
+susycafmetAK5 = cms.EDProducer("SusyCAF_PatMET",
+                            InputTag = cms.InputTag('layer1METsAK5'),
+                            Prefix = cms.string('met'),
+                            Suffix = cms.string('ak5')
+                            )
+

@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Triggers_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_MET_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Photon_cfi import *
@@ -9,14 +12,9 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HLTTrigger_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
 #from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalTrigPrim_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
-
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTau_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
 
@@ -25,6 +23,9 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'drop *',
     'keep *_susycafevent_*_*',
     'keep *_susycaftriggers_*_*',
+    'keep *_susycafL1triggers*_*_*',
+    'keep *_susycafl1calotrigger_*_*',
+    'keep *_susycafl1extra_*_*',
     'keep *_susycafic5calojetreco_*_*',
     'keep *_susycafak5calojetreco_*_*',
     'keep *_susycafmet_*_*',
@@ -34,10 +35,6 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep *_susycafelectronreco_*_*',
     'keep *_susycafvertex_*_*',
     'keep *_susycafbeamspot_*_*',
-    'keep *_susycafl1globaltrigger_*_*',
-    'keep *_susycafhlttrigger_*_*',
-    'keep *_susycafl1calotrigger_*_*',
-    'keep *_susycafl1extra_*_*',
 #    'keep *_susycafhcaltrigprim_*_*',
     'keep *_susycafhbherechit_*_*',
     'keep *_susycafhfrechit_*_*',
@@ -49,8 +46,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
 
 theBigNtuple = cms.Sequence( (susycafevent +
                               susycaftriggers +
-                              susycafl1globaltrigger +
-                              susycafhlttrigger +
+                              susycafL1triggers + # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
                               susycafmet +
                               susycafic5calojetreco +
                               susycafak5calojetreco +

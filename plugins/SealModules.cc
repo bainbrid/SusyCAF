@@ -23,11 +23,11 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-
 DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_MET.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Jet.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
@@ -70,6 +70,7 @@ typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
 DEFINE_ANOTHER_FWK_MODULE(SusyTree);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Event);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Triggers);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloMET);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatMET);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloJet);
@@ -95,3 +96,4 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CalTau);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
+

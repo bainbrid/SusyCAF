@@ -58,6 +58,7 @@ beginJob(const edm::EventSetup&) {
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3Ds"] = VECTOR_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3Ds"] = POINT_V;
+  leafmap["Stringboolstdmap"] = STRING_BOOL_M;
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -104,6 +105,8 @@ beginJob(const edm::EventSetup&) {
       case LORENTZV_V :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >          (selection, "", tree) ); break;
       case VECTOR_V   :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > > (selection, "", tree) ); break;
       case POINT_V    :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > > >     (selection, "", tree) ); break;
+      case STRING_BOOL_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,bool> >(selection, "", tree) ); break;
+      case STRING_UINT_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,unsigned> >(selection, "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

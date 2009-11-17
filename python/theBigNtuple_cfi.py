@@ -25,13 +25,13 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'drop *',
     'keep *_susycafevent_*_*',
     'keep *_susycaftriggers_*_*',
-    'keep *_susycafic5calojet_*_*',
-    'keep *_susycafak5calojet_*_*',
+    'keep *_susycafic5calojetreco_*_*',
+    'keep *_susycafak5calojetreco_*_*',
     'keep *_susycafmet_*_*',
     'keep *_susycafmetnohf_*_*',
     'keep *_susycafphoton_*_*',
-    'keep *_susycafmuon_*_*',
-    'keep *_susycafelectron_*_*',
+    'keep *_susycafmuonreco_*_*',
+    'keep *_susycafelectronreco_*_*',
     'keep *_susycafvertex_*_*',
     'keep *_susycafbeamspot_*_*',
     'keep *_susycafl1globaltrigger_*_*',
@@ -52,13 +52,13 @@ theBigNtuple = cms.Sequence( (susycafevent +
                               susycafl1globaltrigger +
                               susycafhlttrigger +
                               susycafmet +
-                              susycafic5calojet +
-                              susycafak5calojet +
+                              susycafic5calojetreco +
+                              susycafak5calojetreco +
                               susycafphoton +
-                              susycafmuon +
+                              susycafmuonreco +
                               susycafbeamspot +
                               susycafvertex +
-                              #susycafelectron +
+                              #susycafelectronreco +
                               #susycafcalotowers +
                               susycafcalotau +
                               susycafPFtau) *

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_MET_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Photon_cfi import *
@@ -23,6 +24,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
     'drop *',
     'keep *_susycafevent_*_*',
+    'keep *_susycaftriggers_*_*',
     'keep *_susycafic5calojet_*_*',
     'keep *_susycafak5calojet_*_*',
     'keep *_susycafmet_*_*',
@@ -46,18 +48,19 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 theBigNtuple = cms.Sequence( (susycafevent +
-                               susycafl1globaltrigger +
-   			                   susycafhlttrigger +
-                               susycafmet +
-                               susycafic5calojet +
-                               susycafak5calojet +
-                               susycafphoton +
-                               susycafmuon +
-                               susycafbeamspot +
-                               susycafvertex +
-#                               susycafelectron +
-                            #   susycafcalotowers +
+                              susycaftriggers +
+                              susycafl1globaltrigger +
+                              susycafhlttrigger +
+                              susycafmet +
+                              susycafic5calojet +
+                              susycafak5calojet +
+                              susycafphoton +
+                              susycafmuon +
+                              susycafbeamspot +
+                              susycafvertex +
+                              #susycafelectron +
+                              #susycafcalotowers +
                               susycafcalotau +
                               susycafPFtau) *
-                               susyTree
-                              )
+                             susyTree
+                             )

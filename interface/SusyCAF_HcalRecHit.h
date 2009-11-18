@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "TMath.h"
 
 template< typename T >
@@ -17,13 +18,19 @@ class SusyCAF_HcalRecHit : public edm::EDProducer {
  private: 
   void produce(edm::Event &, const edm::EventSetup & );
   void setupCrudeGeometry();
+  int getRbxSector(const int iRbx) const {return (iRbx%18)+1;}
+  int getRbxZ(const int iRbx) const;
+
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
   bool outputAllRecHits;
+  std::vector<double> singleRbxThresholds;
+  std::vector<double> singleRmThresholds;
+  double singleChannelThreshold;
 
   //workaround for a bug in DataFormats/HcalDetId/HcalFrontEndId
-  //static const int rbxBitShift=18;//for CMSSW_3_3_0_pre2 and later
-  static const int rbxBitShift=17;//for CMSSW_3_3_0_pre1 and earlier
+  static const int rbxBitShift=18;//for CMSSW_3_3_0_pre2 and later
+  //static const int rbxBitShift=17;//for CMSSW_3_3_0_pre1 and earlier
   static const int maxRbxIndex=0xFF;
   static const int maxRmIndex=0x3FF;
   int rbxIndex(const HcalFrontEndId& hFeid) const {return (hFeid.rawId()>>rbxBitShift)&maxRbxIndex;}
@@ -31,8 +38,11 @@ class SusyCAF_HcalRecHit : public edm::EDProducer {
   //end workaround
 
   HcalLogicalMap *logicalMap;
-  double rbxEnergies[maxRbxIndex+1]; //energy sum for each readout box
-  double rmEnergies  [maxRmIndex+1]; //energy sum for each readout module
+  double rbxEnergies      [maxRbxIndex+1]; //energy sum for each readout box
+  int    rbxMultiplicities[maxRbxIndex+1]; //# of hits in each RBX
+
+  double rmEnergies       [maxRmIndex+1]; //energy sum for each readout module
+  int    rmMultiplicities [maxRmIndex+1]; //# of hits in each RM
 
   //for crude geometry
   static const int nEtaAbs=42; //41+1
@@ -45,23 +55,41 @@ class SusyCAF_HcalRecHit : public edm::EDProducer {
 template< typename T >
 SusyCAF_HcalRecHit<T>::SusyCAF_HcalRecHit(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
-  Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix")),
-  outputAllRecHits(iConfig.getParameter<bool>("OutputAllRecHits"))
+     Prefix(iConfig.getParameter<std::string>("Prefix")),
+     Suffix(iConfig.getParameter<std::string>("Suffix")),
+     singleRbxThresholds(iConfig.getParameter<std::vector<double> >("SingleRbxThresholds")),
+     singleRmThresholds(iConfig.getParameter<std::vector<double> >("SingleRmThresholds")),
+     singleChannelThreshold(iConfig.getParameter<double>("SingleChannelThreshold"))
 {
-  produces <float>                ( Prefix + "etMax"    + Suffix );
-  produces <float>                ( Prefix + "tMax"     + Suffix );
-  produces <int>                  ( Prefix + "ietaMax"  + Suffix );
-  produces <int>                  ( Prefix + "iphiMax"  + Suffix );
-  produces <int>                  ( Prefix + "depthMax" + Suffix );
+  produces <float>                ( Prefix + "etMax"           + Suffix );
+  produces <float>                ( Prefix + "tMax"            + Suffix );
+  produces <int>                  ( Prefix + "iEtaMax"         + Suffix );
+  produces <int>                  ( Prefix + "iPhiMax"         + Suffix );
+  produces <int>                  ( Prefix + "depthMax"        + Suffix );
+							       
+  produces <int>                  ( Prefix + "multFlagCount"   + Suffix );
+  produces <int>                  ( Prefix + "psFlagCount"     + Suffix );
 
-  produces <int>                  ( Prefix + "rbxcount" + Suffix );
-  produces <int>                  ( Prefix + "rmcount"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "rbxE"     + Suffix );
-  produces <std::vector<double> > ( Prefix + "rmE"      + Suffix );
 
-  produces <std::vector<float> >  ( Prefix + "et"       + Suffix );
-  produces <std::vector<int> >    ( Prefix + "ietaabs"  + Suffix );
+  for (unsigned int iRbxThreshold=0;iRbxThreshold<singleRbxThresholds.size();++iRbxThreshold) {
+    std::stringstream tempss;
+    tempss << iRbxThreshold;
+
+    produces <int>                  ( Prefix + "rbxCount" + tempss.str() + Suffix );
+    produces <std::vector<double> > ( Prefix + "rbxE"     + tempss.str() + Suffix );
+    produces <std::vector<int> >    ( Prefix + "rbxMult"  + tempss.str() + Suffix );
+    produces <std::vector<int> >    ( Prefix + "rbxSector"+ tempss.str() + Suffix );
+    produces <std::vector<int> >    ( Prefix + "rbxZ"     + tempss.str() + Suffix );
+  }
+
+  for (unsigned int iRmThreshold=0;iRmThreshold<singleRmThresholds.size();++iRmThreshold) {
+    std::stringstream tempss;
+    tempss << iRmThreshold;
+
+    produces <int>                  ( Prefix + "rmCount" + tempss.str() + Suffix );
+    produces <std::vector<double> > ( Prefix + "rmE"     + tempss.str() + Suffix );
+    produces <std::vector<int> >    ( Prefix + "rmMult"  + tempss.str() + Suffix );
+  }
 
   HcalLogicalMapGenerator gen;
   logicalMap=new HcalLogicalMap(gen.createMap());
@@ -76,31 +104,44 @@ SusyCAF_HcalRecHit<T>::~SusyCAF_HcalRecHit()
 }
 
 template< typename T >
+int SusyCAF_HcalRecHit<T>::getRbxZ(const int iRbx) const {
+  int base=iRbx/18;//integer division
+  int theMap[4]={-1,1,-2,2}; //{HBM,HBP,HEM,HEP}
+  if (base>=0 && base<=3) return theMap[base];
+  else                    return 0;
+}
+
+template< typename T >
 void SusyCAF_HcalRecHit<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<float>                etMax     ( new float()               ) ;
-  std::auto_ptr<float>                tMax      ( new float()               ) ;
-  std::auto_ptr<int>                  ietaMax   ( new int()                 ) ;
-  std::auto_ptr<int>                  iphiMax   ( new int()                 ) ;
-  std::auto_ptr<int>                  depthMax  ( new int()                 ) ;
+  std::auto_ptr<float>                etMax          ( new float()               ) ;
+  std::auto_ptr<float>                tMax           ( new float()               ) ;
+  std::auto_ptr<int>                  iEtaMax        ( new int()                 ) ;
+  std::auto_ptr<int>                  iPhiMax        ( new int()                 ) ;
+  std::auto_ptr<int>                  depthMax       ( new int()                 ) ;
 
-  std::auto_ptr<int>                  rbxcount  ( new int()                 ) ;
-  std::auto_ptr<int>                  rmcount   ( new int()                 ) ;
-  std::auto_ptr<std::vector<double> > rbxE      ( new std::vector<double>() ) ;
-  std::auto_ptr<std::vector<double> > rmE       ( new std::vector<double>() ) ;
+  std::auto_ptr<int>                  multFlagCount  ( new int()                 ) ;
+  std::auto_ptr<int>                  psFlagCount    ( new int()                 ) ;
 
-  std::auto_ptr<std::vector<float> >  et        ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<int> >    ietaabs   ( new std::vector<int>  ()  ) ;
-
-  for (int iRbx=0;iRbx<=maxRbxIndex;iRbx++) rbxEnergies[iRbx]=0.0;
-  for (int iRm=0;iRm<=maxRmIndex;iRm++) rmEnergies[iRm]=0.0;
+  //initialize variables
+  for (int iRbx=0;iRbx<=maxRbxIndex;++iRbx) {
+    rbxEnergies[iRbx]=0.0;
+    rbxMultiplicities[iRbx]=0;
+  }
+  for (int iRm=0;iRm<=maxRmIndex;++iRm) {
+    rmEnergies[iRm]=0.0;
+    rmMultiplicities[iRm]=0;
+  }
   
-  edm::Handle<T> hcalrechitcollection;
-  iEvent.getByLabel(inputTag, hcalrechitcollection);
-
   float etMaxLocal=-1000.0;
   typename T::const_iterator itMax;
 
+  int multFlagCountLocal=0;
+  int psFlagCountLocal=0;
+
+  //loop over rechits
+  edm::Handle<T> hcalrechitcollection;
+  iEvent.getByLabel(inputTag, hcalrechitcollection);
   for(typename T::const_iterator it = hcalrechitcollection->begin(); it != hcalrechitcollection->end(); ++it) {
     const float energy=it->energy();
     const int iEtaAbsLocal=it->id().ietaAbs();
@@ -111,75 +152,121 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       itMax=it;
     }
 
-    if (outputAllRecHits && iEtaAbsLocal<15) {
-      et->push_back(etLocal);
-      ietaabs->push_back(iEtaAbsLocal);
-    }
-
     const HcalFrontEndId& hFeid=logicalMap->getHcalFrontEndId(it->detid());
     int rbxIndexValue=rbxIndex(hFeid);
     int rmIndexValue=rmIndex(hFeid);
     rbxEnergies[rbxIndexValue]+=energy;
     rmEnergies  [rmIndexValue]+=energy;
+    
+    if (energy>singleChannelThreshold) {
+      rbxMultiplicities[rbxIndexValue]++;
+      rmMultiplicities[rmIndexValue]++;
+    }
+
     //std::cout 
     //  << hFeid.rbx() << " " << hFeid.rm() 
     //  << " has rbxIndex=" << rbxIndexValue 
     //  << " and  rmIndex=" << rmIndexValue 
     //  << std::endl;
-  }
 
-  int rbxCount=0;
-  double rbxThreshold=15.0; //GeV
-  for (int iRbx=0;iRbx<=maxRbxIndex;iRbx++) {
-    if (rbxEnergies[iRbx]>rbxThreshold) {
-      //HcalFrontEndId hFeid(iRbx<<rbxBitShift);
-      //std::cout << iRbx << " " << hFeid.rbx() << std::endl;
-      rbxE->push_back(rbxEnergies[iRbx]);
-      rbxCount++;
+    //increment flag counters
+    HcalSubdetector subdet=it->id().subdet();
+    if (subdet==HcalBarrel || subdet==HcalEndcap) {
+      if (it->flags()&0x1) {  //eventually, HcalCaloFlagLabels::HBHEHpdHitMultiplicity
+	multFlagCountLocal++;
+      }
+      if (it->flags()&0x2) { //eventually, HcalCaloFlagLabels::HBHEPulseShape
+	psFlagCountLocal++;
+      }
     }
-  }
-  *rbxcount.get()=rbxCount;
 
-  int rmCount=0;
-  double rmThreshold=15.0; //GeV
-  for (int iRm=0;iRm<=maxRmIndex;iRm++) {
-    if (rmEnergies[iRm]>rmThreshold) {
-      rmCount++;
-      rmE->push_back(rmEnergies[iRm]);
+  }
+
+  //fill flag variables
+  *multFlagCount.get()=multFlagCountLocal;
+  *psFlagCount.get()=psFlagCountLocal;
+
+  //fill RBX variables
+  for (unsigned int iRbxThreshold=0;iRbxThreshold<singleRbxThresholds.size();++iRbxThreshold) {
+    double threshold=singleRbxThresholds.at(iRbxThreshold);
+
+    std::auto_ptr<int>                  rbxCount       ( new int()                 ) ;
+    std::auto_ptr<std::vector<double> > rbxE           ( new std::vector<double>() ) ;
+    std::auto_ptr<std::vector<int> >    rbxMult        ( new std::vector<int>()    ) ;
+    std::auto_ptr<std::vector<int> >    rbxSector      ( new std::vector<int>()    ) ;
+    std::auto_ptr<std::vector<int> >    rbxZ           ( new std::vector<int>()    ) ;
+
+    int rbxCountLocal=0;
+    for (int iRbx=0;iRbx<=maxRbxIndex;++iRbx) {
+      if (rbxEnergies[iRbx]>threshold) {
+	rbxE->push_back(rbxEnergies[iRbx]);
+	rbxSector->push_back(getRbxSector(iRbx));
+	rbxZ->push_back(getRbxZ(iRbx));
+	rbxMult->push_back(rbxMultiplicities[iRbx]);
+	rbxCountLocal++;
+      }
     }
+    *rbxCount.get()=rbxCountLocal;
+
+    std::stringstream tempss;
+    tempss << iRbxThreshold;
+    iEvent.put( rbxCount           , Prefix + "rbxCount"       + tempss.str() + Suffix );
+    iEvent.put( rbxE               , Prefix + "rbxE"           + tempss.str() + Suffix );
+    iEvent.put( rbxMult            , Prefix + "rbxMult"        + tempss.str() + Suffix );
+    iEvent.put( rbxSector          , Prefix + "rbxSector"      + tempss.str() + Suffix );
+    iEvent.put( rbxZ               , Prefix + "rbxZ"           + tempss.str() + Suffix );
   }
-  *rmcount.get()=rmCount;
 
-  //std::cout << Suffix << " rbxCount=" << rbxCount << "; rmCount=" << rmCount << std::endl;
+  //fill RM variables
+  for (unsigned int iRmThreshold=0;iRmThreshold<singleRmThresholds.size();++iRmThreshold) {
+    double threshold=singleRmThresholds.at(iRmThreshold);
 
+    std::auto_ptr<int>                  rmCount       ( new int()                 ) ;
+    std::auto_ptr<std::vector<double> > rmE           ( new std::vector<double>() ) ;
+    std::auto_ptr<std::vector<int> >    rmMult        ( new std::vector<int>()    ) ;
+
+    int rmCountLocal=0;
+    for (int iRm=0;iRm<=maxRmIndex;++iRm) {
+      if (rmEnergies[iRm]>threshold) {
+	rmE->push_back(rmEnergies[iRm]);
+	rmMult->push_back(rmMultiplicities[iRm]);
+	rmCountLocal++;
+      }
+    }
+    *rmCount.get()=rmCountLocal;
+
+    std::stringstream tempss;
+    tempss << iRmThreshold;
+    iEvent.put( rmCount           , Prefix + "rmCount"       + tempss.str() + Suffix );
+    iEvent.put( rmE               , Prefix + "rmE"           + tempss.str() + Suffix );
+    iEvent.put( rmMult            , Prefix + "rmMult"        + tempss.str() + Suffix );
+  }
+
+  //fill max variables
   if (etMaxLocal>-1000.0) {
     *etMax.get()=etMaxLocal;
     *tMax.get()=itMax->time();
-    *ietaMax.get()=itMax->id().ieta();
-    *iphiMax.get()=itMax->id().iphi();
+    *iEtaMax.get()=itMax->id().ieta();
+    *iPhiMax.get()=itMax->id().iphi();
     *depthMax.get()=itMax->id().depth();
   }
   else {  //dummy values
     *etMax.get()=-1000.0;
     *tMax.get()=-1000.0;
-    *ietaMax.get() =-100;
-    *iphiMax.get() =-100;
+    *iEtaMax.get() =-100;
+    *iPhiMax.get() =-100;
     *depthMax.get()=-100;
   }
 
-  iEvent.put( etMax     , Prefix + "etMax"    + Suffix );
-  iEvent.put( tMax      , Prefix + "tMax"     + Suffix );
-  iEvent.put( ietaMax   , Prefix + "ietaMax"  + Suffix );
-  iEvent.put( iphiMax   , Prefix + "iphiMax"  + Suffix );
-  iEvent.put( depthMax  , Prefix + "depthMax" + Suffix );
-
-  iEvent.put( rbxcount  , Prefix + "rbxcount" + Suffix );
-  iEvent.put( rmcount   , Prefix + "rmcount"  + Suffix );
-  iEvent.put( rbxE      , Prefix + "rbxE"     + Suffix );
-  iEvent.put( rmE       , Prefix + "rmE"      + Suffix );
-
-  iEvent.put( et        , Prefix + "et"       + Suffix );
-  iEvent.put( ietaabs   , Prefix + "ietaabs"  + Suffix );
+  //put remaining stuff in the event
+  iEvent.put( etMax              , Prefix + "etMax"          + Suffix );
+  iEvent.put( tMax               , Prefix + "tMax"           + Suffix );
+  iEvent.put( iEtaMax            , Prefix + "iEtaMax"        + Suffix );
+  iEvent.put( iPhiMax            , Prefix + "iPhiMax"        + Suffix );
+  iEvent.put( depthMax           , Prefix + "depthMax"       + Suffix );
+						             
+  iEvent.put( multFlagCount      , Prefix + "multFlagCount"  + Suffix );
+  iEvent.put( psFlagCount        , Prefix + "psFlagCount"    + Suffix );
 }
 
 template< typename T >
@@ -187,7 +274,7 @@ void SusyCAF_HcalRecHit<T>::setupCrudeGeometry() {
   //from http://www.hep.wisc.edu/cms/trig/RCTDocu/towers_ieta_iphi.pdf
 
   phi[0]=0.0; //iPhi=0 not defined
-  for (int iPhi=1;iPhi<nPhi;iPhi++) {
+  for (int iPhi=1;iPhi<nPhi;++iPhi) {
     phi[iPhi]=2.0*TMath::Pi()*(iPhi-1.0)/nPhi;
     if (phi[iPhi]>TMath::Pi()) phi[iPhi]-=2.0*TMath::Pi();
   }

@@ -12,7 +12,6 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
-#from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalTrigPrim_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTau_cfi import *
@@ -35,7 +34,6 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep *_susycafelectronreco_*_*',
     'keep *_susycafvertex_*_*',
     'keep *_susycafbeamspot_*_*',
-#    'keep *_susycafhcaltrigprim_*_*',
     'keep *_susycafhbherechit_*_*',
     'keep *_susycafhfrechit_*_*',
     'keep *_susycafhorechit_*_*',

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HLTTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
@@ -22,11 +23,12 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'drop *',
     'keep *_susycafevent_*_*',
     'keep *_susycaftriggers_*_*',
+    'keep *_susycafhlttrigger_*_*',
     'keep *_susycafL1triggers*_*_*',
     'keep *_susycafl1calotrigger_*_*',
     'keep *_susycafl1extra_*_*',
-    'keep *_susycafic5calojetreco_*_*',
-    'keep *_susycafak5calojetreco_*_*',
+    #'keep *_susycafic5calojetreco_*_*',
+    #'keep *_susycafak5calojetreco_*_*',
     'keep *_susycafmet_*_*',
     'keep *_susycafmetnohf_*_*',
     'keep *_susycafphoton_*_*',
@@ -44,17 +46,18 @@ susyTree = cms.EDAnalyzer("SusyTree",
 
 theBigNtuple = cms.Sequence( (susycafevent +
                               susycaftriggers +
-                              susycafL1triggers + # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
+                              susycafhlttrigger +
+                              susycafL1triggers + 
                               susycafmet +
-                              susycafic5calojetreco +
-                              susycafak5calojetreco +
+                              #susycafic5calojetreco +
+                              #susycafak5calojetreco +
                               susycafphoton +
                               susycafmuonreco +
                               susycafbeamspot +
-                              susycafvertex +
+                              susycafvertex)*
                               #susycafelectronreco +
                               #susycafcalotowers +
-                              susycafcalotau +
-                              susycafPFtau) *
+                              #susycafcalotau +
+                              #susycafPFtau) *
                              susyTree
                              )

@@ -27,7 +27,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   L1GlobalTriggerReadoutRecord const* gtrr = l1GtReadoutRecord.product();
   L1GtFdlWord fdlWord 	                   = gtrr->gtFdlWord();
  
-  std::cout << " Physics declared " <<  fdlWord.physicsDeclared() << std::endl;
+//  std::cout << " Physics declared " <<  fdlWord.physicsDeclared() << std::endl;
   
   double sec  = iEvent.time().value() >> 32 ;
   double usec = 0xFFFFFFFF & iEvent.time().value();

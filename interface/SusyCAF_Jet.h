@@ -192,15 +192,15 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
     corrfactor->push_back(it->energy()/pJunc.energy());
     nAssoTracks->push_back(it->associatedTracks().size());
-    fHPD->push_back(it->fHPD());
-    fRBX->push_back(it->fRBX());
-    fSubDet1->push_back(it->fSubDetector1());
-    fSubDet2->push_back(it->fSubDetector2());
-    fSubDet3->push_back(it->fSubDetector3());
-    fSubDet4->push_back(it->fSubDetector4());
-    resEMS->push_back(it->restrictedEMF());
-    NECALTowers->push_back(it->nECALTowers());
-    NHCALTowers->push_back(it->nHCALTowers());
+    fHPD->push_back(it->jetID().fHPD);
+    fRBX->push_back(it->jetID().fRBX);
+    fSubDet1->push_back(it->jetID().fSubDetector1);
+    fSubDet2->push_back(it->jetID().fSubDetector2);
+    fSubDet3->push_back(it->jetID().fSubDetector3);
+    fSubDet4->push_back(it->jetID().fSubDetector4);
+    resEMS->push_back(it->jetID().restrictedEMF);
+    NECALTowers->push_back(it->jetID().nECALTowers);
+    NHCALTowers->push_back(it->jetID().nHCALTowers);
 
   }
   iEvent.put( corrfactor,  Prefix + "CorrFactor"  + Suffix );

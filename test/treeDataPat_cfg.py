@@ -18,6 +18,7 @@ process.add_( cms.Service( "TFileService",
 #-- Input Source --------------------------------------------------------------
 process.source.fileNames = [
 '/store/relval/CMSSW_3_3_4/RelValZmumuJets_Pt_20_300_GEN/GEN-SIM-RECO/MC_31X_V9_LowLumiPileUp-v1/0001/EAA68F81-01D6-DE11-8EE8-002618943953.root'
+# 'file:/home/arlogb/SSDLportPF/SUSY_LM0_PAT.root'
     ]
 process.maxEvents.input = 100
 # Due to problem in production of LM samples: same event number appears multiple times

@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-#include "DataFormats/TauReco/interface/CaloTau.h"
+
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
@@ -44,7 +44,6 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
 
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTau.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
 
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
@@ -58,9 +57,9 @@ typedef SusyCAF_Electron<pat::Electron> SusyCAF_PatElectron;
 typedef SusyCAF_Muon<reco::Muon> SusyCAF_RecoMuon;
 typedef SusyCAF_Muon<pat::Muon> SusyCAF_PatMuon;
 
-typedef SusyCAF_CaloTau<reco::CaloTau> SusyCAF_CalTau;
-typedef SusyCAF_PFTau<reco::PFTau> SusyCAF_pfTau; //is this the right reco type?
-typedef SusyCAF_CaloTau<pat::Tau> SusyCAF_PatTau;
+
+typedef SusyCAF_PFTau<reco::PFTau> SusyCAF_pfTau;
+
 
 typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
 typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
@@ -95,7 +94,7 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
 
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CalTau);
+
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
+
 

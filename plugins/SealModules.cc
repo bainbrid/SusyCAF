@@ -26,25 +26,30 @@
 DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Triggers.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Triggers.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_MET.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Jet.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Electron.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Muon.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamSpot.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HLTTrigger.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
-//#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalTrigPrim.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Event.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Triggers.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_L1Triggers.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_MET.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Jet.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Photon.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Electron.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Muon.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_BeamSpot.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_Vertex.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_L1GlobalTrigger.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_L1CaloTrigger.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_HLTTrigger.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_L1Extra.h"
+//#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_HcalTrigPrim.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_HcalRecHit.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_CaloTowers.h"
 
+<<<<<<< SealModules.cc
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_CaloTau.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/ICFntup_PFTau.h"
+=======
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
+>>>>>>> 1.16
 
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_MET<pat::MET> SusyCAF_PatMET;

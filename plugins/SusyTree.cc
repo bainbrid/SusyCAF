@@ -1,4 +1,4 @@
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
+#include "UserCode/ArloGB/ICFNtupliser/interface/SusyTree.h"
 
 #include "FWCore/Framework/interface/ConstProductRegistry.h" 
 #include "FWCore/Framework/interface/GroupSelector.h"

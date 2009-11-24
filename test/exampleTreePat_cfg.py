@@ -28,9 +28,9 @@ process.maxEvents.input = 100
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
 # First Collision Data
-process.GlobalTag.globaltag = 'GR09_P_V6::All'
+#process.GlobalTag.globaltag = 'GR09_P_V6::All'
 # MinBias MC STARTUP
-#process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
+process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
 
 
 ############################# START SUSYPAT specifics ####################################

@@ -59,6 +59,7 @@ typedef SusyCAF_Muon<pat::Muon> SusyCAF_PatMuon;
 
 
 typedef SusyCAF_PFTau<reco::PFTau> SusyCAF_pfTau;
+typedef SusyCAF_PFTau<pat::Tau> SusyCAF_PatTau;
 
 
 typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
@@ -95,6 +96,7 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
 
 
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
 
 

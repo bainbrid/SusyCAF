@@ -14,19 +14,19 @@ def addDefaultSUSYPAT(process):
     loadPATTriggers(process)
 
     #-- Remove MC dependence ------------------------------------------------------
-    #from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    #removeMCMatching(process, 'All')
+    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
+    removeMCMatching(process, 'All')
 
     # Full path
-    process.seqSUSYDefaultSequence = cms.Sequence( process.addTrackJets
+    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
                                                    *process.patDefaultSequence
                                                    * process.patTrigger*process.patTriggerEvent )
 
 def loadPAT(process):
     #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
-    from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC
+    #from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC
 #    run33xOn31xMC(process, "ak5GenJets")
-    run33xOnReRecoMC( process, "ak5GenJets" )
+    #run33xOnReRecoMC( process, "ak5GenJets" )
     
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -65,7 +65,7 @@ def addJetMET(process):
     
     #-- Jet plus tracks -----------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
-    process.jpt = cms.Path( process.jptCaloJets )
+    process.jpt = cms.Sequence( process.jptCaloJets )
     #process.load('JetMETCorrections.Configuration.JetPlusTrackCorrections_cff')
 	
     # CaloJets
@@ -168,11 +168,41 @@ def addJetMET(process):
         module.addTagInfos = False    # Remove tag infos
         module.addJetID    = False     # Do not add JetID variables since they are in AOD
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
+   	## remove mc extra configs for jets
+        module.addGenPartonMatch   = False
+        module.embedGenPartonMatch = False
+        module.genPartonMatch      = ''
+        module.addGenJetMatch      = False
+        module.genJetMatch         = ''
+        module.getJetMCFlavour     = False
+        module.JetPartonMapSource  = ''       
+    process.patDefaultSequence.remove(process.jetPartonMatch)
+    process.patDefaultSequence.remove(process.jetGenJetMatch)
+    process.patDefaultSequence.remove(process.jetFlavourId)
+    process.patDefaultSequence.remove(process.jetPartonMatchIC5)
+    process.patDefaultSequence.remove(process.jetGenJetMatchIC5)
+    process.patDefaultSequence.remove(process.jetPartonMatchSC5)
+    process.patDefaultSequence.remove(process.jetGenJetMatchSC5)
+    process.patDefaultSequence.remove(process.jetPartonMatchAK5PF)
+    process.patDefaultSequence.remove(process.jetGenJetMatchAK5PF)
+    process.patDefaultSequence.remove(process.jetPartonMatchSC5PF)
+    process.patDefaultSequence.remove(process.jetGenJetMatchSC5PF)
+    process.patDefaultSequence.remove(process.jetPartonMatchAK5JPT)
+    process.patDefaultSequence.remove(process.jetGenJetMatchAK5JPT)
+    process.patDefaultSequence.remove(process.jetPartonMatchAK5Track)
+    process.patDefaultSequence.remove(process.jetGenJetMatchAK5Track)
+        
 
     # Add tcMET and PFMET
     from PhysicsTools.PatAlgos.tools.metTools import addTcMET, addPfMET
     addTcMET(process,'TC')
     addPfMET(process,'PF')
+   
+    ## remove mc extra configs for met
+    for MetName in ( '', 'IC5', 'SC5' , 'PF', 'TC'):# , 'SC5JPT', 'SC5Track' ):
+        module = getattr(process, 'layer1METs'+MetName)        
+        module.addGenMET           = False
+        module.genMETSource        = ''
 
     # Rename default jet collection for uniformity
     process.cleanLayer1JetsAK5 = process.cleanLayer1Jets

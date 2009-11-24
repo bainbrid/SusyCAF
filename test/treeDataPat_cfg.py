@@ -17,8 +17,7 @@ process.add_( cms.Service( "TFileService",
 
 #-- Input Source --------------------------------------------------------------
 process.source.fileNames = [
-'/store/relval/CMSSW_3_3_4/RelValZmumuJets_Pt_20_300_GEN/GEN-SIM-RECO/MC_31X_V9_LowLumiPileUp-v1/0001/EAA68F81-01D6-DE11-8EE8-002618943953.root'
-# 'file:/home/arlogb/SSDLportPF/SUSY_LM0_PAT.root'
+'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/122/314/F6E6E5CD-60D8-DE11-A93B-0019B9F705A3.root'
     ]
 process.maxEvents.input = 100
 # Due to problem in production of LM samples: same event number appears multiple times
@@ -26,7 +25,7 @@ process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
 ############################# START SUSYPAT specifics ####################################
 from SUSYBSMAnalysis.SusyCAF.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands

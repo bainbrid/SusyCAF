@@ -13,6 +13,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
 #from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
@@ -36,6 +37,7 @@ theBigNtuple = cms.Sequence( (susycafevent +
                               susycafbeamspot +
                               susycafvertex +
                               susycafelectronreco +
+                              susycafhcalnoisesummary +
                               susycafcalotowers +
                               susycafPFtau) *
                              susyTree

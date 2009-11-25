@@ -1,0 +1,7 @@
+<use name=SUSYBSMAnalysis/SusyCAF>
+<use name=DataFormats/StdDictionaries>
+<use name=DataFormats/WrappedStdDictionaries>
+<use name=DataFormats/Math>
+<use name=root>
+<use name=rootinteractive>
+<bin name=SusyCAF_example_macro file=SusyCAF_example_macro.cc></bin>

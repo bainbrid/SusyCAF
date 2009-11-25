@@ -132,34 +132,36 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<bool> >  isTrackerMuon   ( new std::vector<bool>()  ) ;
   std::auto_ptr<std::vector<bool> >  isStandAloneMuon   ( new std::vector<bool>()  ) ;
   
-  
-  for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-    p4->push_back(it->p4());
-    charge->push_back(it->charge());
-    if( it->isGlobalMuon()){
+
+  if (collection.isValid()){
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+      p4->push_back(it->p4());
+      charge->push_back(it->charge());
+      if( it->isGlobalMuon()){
     	globalTrack_normalizedChi2->push_back(it->globalTrack()->normalizedChi2());
     	globalTrack_numberOfValidHits->push_back(it->globalTrack()->numberOfValidHits());
     	globalTrack_dxy->push_back(it->globalTrack()->dxy());
     	globalTrack_dxyError->push_back(it->globalTrack()->dxyError());
-    }
-    else {
+      }
+      else {
     	globalTrack_normalizedChi2->push_back(999999999.);
     	globalTrack_numberOfValidHits->push_back(-1.);
     	globalTrack_dxy->push_back(999999999.);
     	globalTrack_dxyError->push_back(999999999.);
-    }	
-    caloCompatibility->push_back(it->caloCompatibility());
-    isolationR03sumPt->push_back(it->isolationR03().sumPt);
-    isolationR03emEt->push_back(it->isolationR03().emEt);
-    isolationR03hadEt->push_back(it->isolationR03().hadEt);
-    vx->push_back(it->vx());
-    vy->push_back(it->vy());
-    vz->push_back(it->vz());
-    vertexChi2->push_back(it->vertexChi2());
-    vertexNdof->push_back(it->vertexNdof());
-    isGlobalMuon->push_back(it->isGlobalMuon());
-    isTrackerMuon->push_back(it->isTrackerMuon());
-    isStandAloneMuon->push_back(it->isStandAloneMuon());
+      }	
+      caloCompatibility->push_back(it->caloCompatibility());
+      isolationR03sumPt->push_back(it->isolationR03().sumPt);
+      isolationR03emEt->push_back(it->isolationR03().emEt);
+      isolationR03hadEt->push_back(it->isolationR03().hadEt);
+      vx->push_back(it->vx());
+      vy->push_back(it->vy());
+      vz->push_back(it->vz());
+      vertexChi2->push_back(it->vertexChi2());
+      vertexNdof->push_back(it->vertexNdof());
+      isGlobalMuon->push_back(it->isGlobalMuon());
+      isTrackerMuon->push_back(it->isTrackerMuon());
+      isStandAloneMuon->push_back(it->isStandAloneMuon());
+    }
   }
   
   iEvent.put( p4,  Prefix + "P4" + Suffix );
@@ -191,12 +193,14 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
   
-  for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-    if( !it->isGlobalMuon()) continue;
-    muonIDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
-    ecalIso->push_back(it->ecalIso());
-    hcalIso->push_back(it->hcalIso());
-    trackIso->push_back(it->trackIso());
+  if (collection.isValid()){
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+      if( !it->isGlobalMuon()) continue;
+      muonIDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
+      ecalIso->push_back(it->ecalIso());
+      hcalIso->push_back(it->hcalIso());
+      trackIso->push_back(it->trackIso());
+    }
   }
   
   iEvent.put(muonIDGlobalMuonPromptTight, Prefix + "MuonIDGlobalMuonPromptTight" + Suffix );

@@ -187,51 +187,53 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   
-  for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-    p4->push_back(it->p4());
-    charge->push_back(it->charge());
-    gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
-    gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
-    gsfTrack_dxy->push_back(it->gsfTrack()->dxy());
-    gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
-    e1x5->push_back(it->e1x5());
-    e5x5->push_back(it->e5x5());
-    e2x5Max->push_back(it->e2x5Max());
-    fbrem->push_back(it->fbrem());
-    hcalOverEcal->push_back(it->hcalOverEcal());
-    hcalDepth1OverEcal->push_back(it->hcalDepth1OverEcal());
-    hcalDepth2OverEcal->push_back(it->hcalDepth2OverEcal());
-    eEleClusterOverPout->push_back(it->eEleClusterOverPout());
-    eSeedClusterOverPout->push_back(it->eSeedClusterOverPout());
-    eSeedClusterOverP->push_back(it->eSeedClusterOverP());
-    eSuperClusterOverP->push_back(it->eSuperClusterOverP());
-    deltaPhiSuperClusterTrackAtVtx->push_back(it->deltaPhiSuperClusterTrackAtVtx());
-    deltaEtaSuperClusterTrackAtVtx->push_back(it->deltaEtaSuperClusterTrackAtVtx());
-    deltaPhiSeedClusterTrackAtCalo->push_back(it->deltaPhiSeedClusterTrackAtCalo());
-    deltaEtaSeedClusterTrackAtCalo->push_back(it->deltaEtaSeedClusterTrackAtCalo());
-    deltaEtaEleClusterTrackAtCalo->push_back(it->deltaEtaEleClusterTrackAtCalo());
-    deltaPhiEleClusterTrackAtCalo->push_back(it->deltaPhiEleClusterTrackAtCalo());
-    sigmaEtaEta->push_back(it->sigmaEtaEta());
-    sigmaIetaIeta->push_back(it->sigmaIetaIeta());
-    classification->push_back(it->classification());
-    mva->push_back(it->mva());
-    dr03TkSumPt->push_back(it->dr03TkSumPt());
-    dr03EcalRecHitSumEt->push_back(it->dr03EcalRecHitSumEt());
-    dr03HcalTowerSumEt->push_back(it->dr03HcalTowerSumEt());
-    dr03HcalDepth1TowerSumEt->push_back(it->dr03HcalDepth1TowerSumEt());
-    dr03HcalDepth2TowerSumEt->push_back(it->dr03HcalDepth2TowerSumEt());
-    caloEnergy->push_back(it->caloEnergy());
-    ecalEnergy->push_back(it->ecalEnergy());
-    ecalEnergyError->push_back(it->ecalEnergyError());
-    electronMomentumError->push_back(it->electronMomentumError());
-    numberOfTracks->push_back(it->numberOfTracks());
-    numberOfBrems->push_back(it->numberOfBrems());
-    shFracInnerHits->push_back(it->shFracInnerHits());
-    vx->push_back(it->vx());
-    vy->push_back(it->vy());
-    vz->push_back(it->vz());
-    vertexChi2->push_back(it->vertexChi2());
-    vertexNdof->push_back(it->vertexNdof());
+  if (collection.isValid()){
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+      p4->push_back(it->p4());
+      charge->push_back(it->charge());
+      gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
+      gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
+      gsfTrack_dxy->push_back(it->gsfTrack()->dxy());
+      gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
+      e1x5->push_back(it->e1x5());
+      e5x5->push_back(it->e5x5());
+      e2x5Max->push_back(it->e2x5Max());
+      fbrem->push_back(it->fbrem());
+      hcalOverEcal->push_back(it->hcalOverEcal());
+      hcalDepth1OverEcal->push_back(it->hcalDepth1OverEcal());
+      hcalDepth2OverEcal->push_back(it->hcalDepth2OverEcal());
+      eEleClusterOverPout->push_back(it->eEleClusterOverPout());
+      eSeedClusterOverPout->push_back(it->eSeedClusterOverPout());
+      eSeedClusterOverP->push_back(it->eSeedClusterOverP());
+      eSuperClusterOverP->push_back(it->eSuperClusterOverP());
+      deltaPhiSuperClusterTrackAtVtx->push_back(it->deltaPhiSuperClusterTrackAtVtx());
+      deltaEtaSuperClusterTrackAtVtx->push_back(it->deltaEtaSuperClusterTrackAtVtx());
+      deltaPhiSeedClusterTrackAtCalo->push_back(it->deltaPhiSeedClusterTrackAtCalo());
+      deltaEtaSeedClusterTrackAtCalo->push_back(it->deltaEtaSeedClusterTrackAtCalo());
+      deltaEtaEleClusterTrackAtCalo->push_back(it->deltaEtaEleClusterTrackAtCalo());
+      deltaPhiEleClusterTrackAtCalo->push_back(it->deltaPhiEleClusterTrackAtCalo());
+      sigmaEtaEta->push_back(it->sigmaEtaEta());
+      sigmaIetaIeta->push_back(it->sigmaIetaIeta());
+      classification->push_back(it->classification());
+      mva->push_back(it->mva());
+      dr03TkSumPt->push_back(it->dr03TkSumPt());
+      dr03EcalRecHitSumEt->push_back(it->dr03EcalRecHitSumEt());
+      dr03HcalTowerSumEt->push_back(it->dr03HcalTowerSumEt());
+      dr03HcalDepth1TowerSumEt->push_back(it->dr03HcalDepth1TowerSumEt());
+      dr03HcalDepth2TowerSumEt->push_back(it->dr03HcalDepth2TowerSumEt());
+      caloEnergy->push_back(it->caloEnergy());
+      ecalEnergy->push_back(it->ecalEnergy());
+      ecalEnergyError->push_back(it->ecalEnergyError());
+      electronMomentumError->push_back(it->electronMomentumError());
+      numberOfTracks->push_back(it->numberOfTracks());
+      numberOfBrems->push_back(it->numberOfBrems());
+      shFracInnerHits->push_back(it->shFracInnerHits());
+      vx->push_back(it->vx());
+      vy->push_back(it->vy());
+      vz->push_back(it->vz());
+      vertexChi2->push_back(it->vertexChi2());
+      vertexNdof->push_back(it->vertexNdof());
+    }
   }
  
   iEvent.put( p4,  Prefix + "P4" + Suffix ); 
@@ -292,15 +294,17 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  eIDLoose                 ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  eIDRobustLoose           ( new std::vector<float>()  ) ;
 
-  for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) { 
-    ecalIso                 ->push_back(it->ecalIso                   ());
-    hcalIso                 ->push_back(it->hcalIso                   ());
-    trackIso                ->push_back(it->trackIso                  ());
-    eIDTight                ->push_back(it->electronID("eidTight"));
-    eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
-    eIDLoose                ->push_back(it->electronID("eidLoose"));
-    eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
-  } // end loop over electrons
+  if (collection.isValid()){
+    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) { 
+      ecalIso                 ->push_back(it->ecalIso                   ());
+      hcalIso                 ->push_back(it->hcalIso                   ());
+      trackIso                ->push_back(it->trackIso                  ());
+      eIDTight                ->push_back(it->electronID("eidTight"));
+      eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
+      eIDLoose                ->push_back(it->electronID("eidLoose"));
+      eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
+    } // end loop over electrons
+  }
 
 
   iEvent.put(ecalIso                 , Prefix + "EcalIso"                  + Suffix);

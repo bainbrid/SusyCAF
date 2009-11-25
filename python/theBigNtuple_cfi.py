@@ -32,6 +32,7 @@ theBigNtuple = cms.Sequence( (susycafevent +
                               susycafmetnohf +
                               susycafic5calojetreco +
                               susycafak5calojetreco +
+                              susycafsc5calojetreco +
                               susycafphotonreco +
                               susycafmuonreco +
                               susycafbeamspot +

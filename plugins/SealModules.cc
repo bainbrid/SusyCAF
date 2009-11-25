@@ -41,6 +41,7 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HLTTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummary.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseRBX.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
 
@@ -90,6 +91,7 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1CaloTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HLTTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Extra);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseSummary);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseRBX);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);

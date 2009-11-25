@@ -16,7 +16,7 @@ process.add_( cms.Service( "TFileService",
 )
 
 #-- Input Source --------------------------------------------------------------
-process.load("MinBias-Summer09-STARTUP3X_V8D_900GeV-v1-GEN-SIM-RECO_cff")
+process.load("SUSYBSMAnalysis.SusyCAF.dataSamples.MinBias-Summer09-STARTUP3X_V8D_900GeV-v1-GEN-SIM-RECO_cff")
 
 
 process.maxEvents.input = 100

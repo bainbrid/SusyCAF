@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
 
@@ -34,6 +36,7 @@ private:
   const std::string     prefix,suffix;
   
   typedef reco::Candidate::LorentzVector  LorentzVector;
+  typedef reco::Candidate::Vector         Vector;
   typedef reco::Candidate::Point          Point;
 };
 
@@ -56,18 +59,32 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
 template< typename T >
 void SusyCAF_Photon<T>::initRECO()
 {
-  produces <std::vector<LorentzVector> >(prefix + "P4"                    + suffix);
-  produces <std::vector<Point        > >(prefix + "CaloPosition"          + suffix);
-  produces <std::vector<float        > >(prefix + "HadronicDepth1OverEm"  + suffix);
-  produces <std::vector<float        > >(prefix + "HadronicDepth2OverEm"  + suffix);
-  produces <std::vector<float        > >(prefix + "HadronicOverEm"        + suffix);
-  produces <std::vector<bool         > >(prefix + "HasConversionTracks"   + suffix);
-  produces <std::vector<bool         > >(prefix + "HasPixelSeed"          + suffix);
-  produces <std::vector<bool         > >(prefix + "IsEB"                  + suffix);
-  produces <std::vector<bool         > >(prefix + "IsEE"                  + suffix);
-  produces <std::vector<bool         > >(prefix + "IsEBGap"               + suffix);
-  produces <std::vector<bool         > >(prefix + "IsEEGap"               + suffix);
-  produces <std::vector<bool         > >(prefix + "IsEBEEGap"             + suffix);
+  produces <bool                        >(prefix + "HandleValid"          + suffix);
+  produces <std::vector<LorentzVector > >(prefix + "P4"                   + suffix);
+  produces <std::vector<Point         > >(prefix + "CaloPosition"         + suffix);
+  produces <std::vector<float         > >(prefix + "HadronicDepth1OverEm" + suffix);
+  produces <std::vector<float         > >(prefix + "HadronicDepth2OverEm" + suffix);
+  produces <std::vector<float         > >(prefix + "HadronicOverEm"       + suffix);
+  produces <std::vector<bool          > >(prefix + "HasConversionTracks"  + suffix);
+  produces <std::vector<bool          > >(prefix + "HasPixelSeed"         + suffix);
+  produces <std::vector<bool          > >(prefix + "IsEB"                 + suffix);
+  produces <std::vector<bool          > >(prefix + "IsEE"                 + suffix);
+  produces <std::vector<bool          > >(prefix + "IsEBGap"              + suffix);
+  produces <std::vector<bool          > >(prefix + "IsEEGap"              + suffix);
+  produces <std::vector<bool          > >(prefix + "IsEBEEGap"            + suffix);
+  //---------------------------------------------------------------------------
+  /*  Since it is not possible (as far as author knows) to store vector of vectors,
+      here we select a "best" conversion according to the following criteria:
+        - Exactly two conversion tracks.
+        - At least 7 hits per track.
+        - At least one track with chi^2/NDF < 6.
+        - If still ambiguous, the highest pair-pT one is chosen.
+  */
+  produces <std::vector<Vector        > >(prefix + "BestConversionP3"     + suffix);
+  produces <std::vector<Point         > >(prefix + "BestConversionVertex" + suffix);
+  produces <std::vector<float         > >(prefix + "BestConversionEoverP" + suffix);
+  produces <std::vector<float         > >(prefix + "BestConversionMass"   + suffix);
+  //---------------------------------------------------------------------------
 }
 
 // extra information stored for PAT data
@@ -108,21 +125,28 @@ void SusyCAF_Photon<T>::produceTemplate(edm::Event& iEvent, const edm::EventSetu
 
 template< typename T >
 void SusyCAF_Photon<T>::
-produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<LorentzVector> >  p4                  ( new std::vector<LorentzVector>() );
-  std::auto_ptr<std::vector<Point        > >  caloPosition        ( new std::vector<Point        >() );
-  std::auto_ptr<std::vector<float        > >  hadronicDepth1OverEm( new std::vector<float        >() );
-  std::auto_ptr<std::vector<float        > >  hadronicDepth2OverEm( new std::vector<float        >() );
-  std::auto_ptr<std::vector<float        > >  hadronicOverEm      ( new std::vector<float        >() );
-  std::auto_ptr<std::vector<bool         > >  hasConversionTracks ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  hasPixelSeed        ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  isEB                ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  isEE                ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  isEBGap             ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  isEEGap             ( new std::vector<bool         >() );
-  std::auto_ptr<std::vector<bool         > >  isEBEEGap           ( new std::vector<bool         >() );
+produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) 
+{
+  std::auto_ptr<bool                        > isHandleValid       ( new bool(collection.isValid())    );
+  std::auto_ptr<std::vector<LorentzVector > > p4                  ( new std::vector<LorentzVector >() );
+  std::auto_ptr<std::vector<Point         > > caloPosition        ( new std::vector<Point         >() );
+  std::auto_ptr<std::vector<float         > > hadronicDepth1OverEm( new std::vector<float         >() );
+  std::auto_ptr<std::vector<float         > > hadronicDepth2OverEm( new std::vector<float         >() );
+  std::auto_ptr<std::vector<float         > > hadronicOverEm      ( new std::vector<float         >() );
+  std::auto_ptr<std::vector<bool          > > hasConversionTracks ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > hasPixelSeed        ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > isEB                ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > isEE                ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > isEBGap             ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > isEEGap             ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<bool          > > isEBEEGap           ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<Vector        > > bestConversionP3    ( new std::vector<Vector        >() );
+  std::auto_ptr<std::vector<Point         > > bestConversionVertex( new std::vector<Point         >() );
+  std::auto_ptr<std::vector<float         > > bestConversionEoverP( new std::vector<float         >() ); 
+  std::auto_ptr<std::vector<float         > > bestConversionMass  ( new std::vector<float         >() );
 
 
+  if (collection.isValid()) {
   const typename std::vector<T>::const_iterator   endOfStuff  = collection->end();
   for (typename std::vector<T>::const_iterator it = collection->begin(); it != endOfStuff; ++it) {
     const reco::Photon&                             photon      = *it;
@@ -138,9 +162,40 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     isEBGap             ->push_back(photon.isEBGap              ());
     isEEGap             ->push_back(photon.isEEGap              ());
     isEBEEGap           ->push_back(photon.isEBEEGap            ());
+    
+  	reco::ConversionRefVector           conversions     = photon.conversions();
+    const unsigned int                  numConversions  = conversions.size();
+    reco::ConversionRef                 bestConversion;
+    for (unsigned int iConv = 0; iConv < numConversions; ++iConv) {
+      const reco::ConversionRef&        conversion      = conversions[iConv];
+      if  (   conversion->nTracks()          != 2)      continue;
+      std::vector<reco::TrackRef>       tracks          = conversion->tracks();
+      if  (   tracks[0]->numberOfValidHits()  < 7)      continue;
+      if  (   tracks[1]->numberOfValidHits()  < 7)      continue;
+      if  (   tracks[0]->normalizedChi2()     > 6 
+          &&  tracks[1]->normalizedChi2()     > 6)      continue;
+
+      if (bestConversion.isNull() || bestConversion->EoverP() > conversion->EoverP())
+        bestConversion  = conversion;
+    } // end loop over conversions
+
+    if (bestConversion.isNonnull()) {
+      GlobalVector                      momentum        = bestConversion->pairMomentum();
+      bestConversionP3    ->push_back(Vector(momentum.x(), momentum.y(), momentum.z()));
+      bestConversionVertex->push_back(bestConversion->conversionVertex().position());
+      bestConversionEoverP->push_back(bestConversion->EoverP());
+      bestConversionMass  ->push_back(bestConversion->pairInvariantMass());
+    } else {
+      bestConversionP3    ->push_back(Vector());
+      bestConversionVertex->push_back(Point ());
+      bestConversionEoverP->push_back(0);
+      bestConversionMass  ->push_back(0);
+    }
   } // end loop over photons
+  }
 
 
+  iEvent.put(isHandleValid        , prefix + "HandleValid"          + suffix);
   iEvent.put(p4                   , prefix + "P4"                   + suffix);
   iEvent.put(caloPosition         , prefix + "CaloPosition"         + suffix);
   iEvent.put(hadronicDepth1OverEm , prefix + "HadronicDepth1OverEm" + suffix);
@@ -153,6 +208,10 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(isEBGap              , prefix + "IsEBGap"              + suffix);
   iEvent.put(isEEGap              , prefix + "IsEEGap"              + suffix);
   iEvent.put(isEBEEGap            , prefix + "IsEBEEGap"            + suffix);
+  iEvent.put(bestConversionP3     , prefix + "BestConversionP3"     + suffix);
+  iEvent.put(bestConversionVertex , prefix + "BestConversionVertex" + suffix);
+  iEvent.put(bestConversionEoverP , prefix + "BestConversionEoverP" + suffix);
+  iEvent.put(bestConversionMass   , prefix + "BestConversionMass"   + suffix);
 }
 
 // extra information stored for PAT data

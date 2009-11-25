@@ -134,25 +134,26 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  n90   ( new std::vector<int>()  ) ; 
 
   
-
-  for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-    p4->push_back(it->p4());
-    emEnergyFraction->push_back(it->emEnergyFraction());
-    energyFractionHadronic->push_back(it->energyFractionHadronic());
-    towersArea->push_back(it->towersArea());
-    maxEInEmTowers->push_back(it->maxEInEmTowers());
-    maxEInHadTowers->push_back(it->maxEInHadTowers());
-    hadEnergyInHB->push_back(it->hadEnergyInHB());
-    hadEnergyInHE->push_back(it->hadEnergyInHE());
-    hadEnergyInHO->push_back(it->hadEnergyInHO());
-    hadEnergyInHF->push_back(it->hadEnergyInHF());
-    emEnergyInEB->push_back(it->emEnergyInEB());
-    emEnergyInEE->push_back(it->emEnergyInEE());
-    emEnergyInHF->push_back(it->emEnergyInHF());
-    n60->push_back(it->n60()); 
-    n90->push_back(it->n90()); 
+  if (collection.isValid()){
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+      p4->push_back(it->p4());
+      emEnergyFraction->push_back(it->emEnergyFraction());
+      energyFractionHadronic->push_back(it->energyFractionHadronic());
+      towersArea->push_back(it->towersArea());
+      maxEInEmTowers->push_back(it->maxEInEmTowers());
+      maxEInHadTowers->push_back(it->maxEInHadTowers());
+      hadEnergyInHB->push_back(it->hadEnergyInHB());
+      hadEnergyInHE->push_back(it->hadEnergyInHE());
+      hadEnergyInHO->push_back(it->hadEnergyInHO());
+      hadEnergyInHF->push_back(it->hadEnergyInHF());
+      emEnergyInEB->push_back(it->emEnergyInEB());
+      emEnergyInEE->push_back(it->emEnergyInEE());
+      emEnergyInHF->push_back(it->emEnergyInHF());
+      n60->push_back(it->n60()); 
+      n90->push_back(it->n90()); 
+    }
   }
-  
+
   iEvent.put( p4,  Prefix + "P4"  + Suffix );
   iEvent.put( emEnergyFraction,  Prefix + "EmEnergyFraction"  + Suffix );
   iEvent.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
@@ -188,21 +189,23 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
-  for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-    pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
-    corrfactor->push_back(it->energy()/pJunc.energy());
-    nAssoTracks->push_back(it->associatedTracks().size());
-    fHPD->push_back(it->jetID().fHPD);
-    fRBX->push_back(it->jetID().fRBX);
-    fSubDet1->push_back(it->jetID().fSubDetector1);
-    fSubDet2->push_back(it->jetID().fSubDetector2);
-    fSubDet3->push_back(it->jetID().fSubDetector3);
-    fSubDet4->push_back(it->jetID().fSubDetector4);
-    resEMS->push_back(it->jetID().restrictedEMF);
-    NECALTowers->push_back(it->jetID().nECALTowers);
-    NHCALTowers->push_back(it->jetID().nHCALTowers);
-
+  if (collection.isValid()){
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+      pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
+      corrfactor->push_back(it->energy()/pJunc.energy());
+      nAssoTracks->push_back(it->associatedTracks().size());
+      fHPD->push_back(it->jetID().fHPD);
+      fRBX->push_back(it->jetID().fRBX);
+      fSubDet1->push_back(it->jetID().fSubDetector1);
+      fSubDet2->push_back(it->jetID().fSubDetector2);
+      fSubDet3->push_back(it->jetID().fSubDetector3);
+      fSubDet4->push_back(it->jetID().fSubDetector4);
+      resEMS->push_back(it->jetID().restrictedEMF);
+      NECALTowers->push_back(it->jetID().nECALTowers);
+      NHCALTowers->push_back(it->jetID().nHCALTowers);      
+    }
   }
+
   iEvent.put( corrfactor,  Prefix + "CorrFactor"  + Suffix );
   iEvent.put( nAssoTracks,  Prefix + "NAssoTracks"  + Suffix );
   iEvent.put( fHPD,  Prefix + "FHPD"  + Suffix );

@@ -27,8 +27,8 @@ SusyCAF_PFTau<T>::SusyCAF_PFTau(const edm::ParameterSet& iConfig) :
 {
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
-
-  // produces <std::vector<float> > ( Prefix + "SignalPFChargedHadrCands" + Suffix);
+  produces <std::vector<float> > (Prefix + "IsoPFGammaCandsEtSum" + Suffix);
+  produces <std::vector<float> > (Prefix + "MaxHcalPFCluster" + Suffix);
   produces <std::vector<float> > ( Prefix + "IsoPFChargHadrCandsPtSum" + Suffix);
  
 }
@@ -39,8 +39,9 @@ void SusyCAF_PFTau<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<float> > isoPFCands (new std::vector<float>() );
-
+  std::auto_ptr<std::vector<float> > isoPFChargeCands (new std::vector<float>() );
+ std::auto_ptr<std::vector<float> > isoPFGammaCands (new std::vector<float>() );
+ std::auto_ptr<std::vector<float> > maxHcalPFCluster (new std::vector<float>() );
  
   
   edm::Handle<std::vector<T> > collection;
@@ -52,19 +53,21 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     p4->push_back(it->p4());
     charge->push_back(it->charge());
-    isoPFCands->push_back(it->isolationPFChargedHadrCandsPtSum());
-
-    
-    /*  isoECALhitsEtSum->push_back(it->isolationECALhitsEtSum()); */
+    isoPFChargeCands->push_back(it->isolationPFChargedHadrCandsPtSum());
+    isoPFGammaCands->push_back(it->isolationPFGammaCandsEtSum());
+    maxHcalPFCluster->push_back(it->maximumHCALPFClusterEt());
+ 
      
 
   }
   
   iEvent.put( p4,  Prefix + "P4" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
-  iEvent.put (isoPFCands, Prefix + "IsoPFChargHadrCandsPtSum" + Suffix);
+  iEvent.put (isoPFChargeCands, Prefix + "IsoPFChargHadrCandsPtSum" + Suffix);
+  iEvent.put (isoPFGammaCands, Prefix + "IsoPFGammaCandsEtSum" + Suffix);
+  iEvent.put (maxHcalPFCluster, Prefix + "MaxHcalPFCluster" + Suffix);
  
-  //iEvent.put (leadTrkHCAL3x3hitsEtSum,  Prefix + "leadTrkHCAL3x3hitsEtSum" + Suffix);
+
 
 }
 

@@ -11,6 +11,13 @@ susycafak5calojetreco = cms.EDProducer("SusyCAF_CaloJet",
                             Prefix = cms.string('ak5Jet'),
                             Suffix = cms.string('Calo')
                             )
+susycafsc5calojetreco = cms.EDProducer("SusyCAF_CaloJet",
+                            InputTag = cms.InputTag('sisCone5CaloJets'),
+                            Prefix = cms.string('sc5Jet'),
+                            Suffix = cms.string('Calo')
+                            )
+
+
 
 susycafic5calojet = cms.EDProducer("SusyCAF_PatJet",
                             InputTag = cms.InputTag('cleanLayer1JetsIC5'),
@@ -21,5 +28,10 @@ susycafic5calojet = cms.EDProducer("SusyCAF_PatJet",
 susycafak5calojet = cms.EDProducer("SusyCAF_PatJet",
                             InputTag = cms.InputTag('cleanLayer1JetsAK5'),
                             Prefix = cms.string('ak5Jet'),
+                            Suffix = cms.string('Pat')
+                            )
+susycafsc5calojet = cms.EDProducer("SusyCAF_PatJet",
+                            InputTag = cms.InputTag('cleanLayer1JetsSC5'),
+                            Prefix = cms.string('sc5Jet'),
                             Suffix = cms.string('Pat')
                             )

@@ -187,7 +187,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-      if( !it->isGlobalMuon()) continue;
       muonIDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());

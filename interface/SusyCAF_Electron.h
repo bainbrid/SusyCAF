@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include <string>
 
 template< typename T >
@@ -12,13 +15,11 @@ class SusyCAF_Electron : public edm::EDProducer {
  public: 
   explicit SusyCAF_Electron(const edm::ParameterSet&);
  private:
-  void initTemplate(edm::Handle<reco::GsfElectron> &);
-  void initTemplate(edm::Handle<pat::Electron> &);
+  void initTemplate();
   void initRECO();
   void initPAT();
   void produce(edm::Event &, const edm::EventSetup & );
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::GsfElectron> > &);
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Electron> > &);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
@@ -34,28 +35,14 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  edm::Handle<T> dataType;
-  initTemplate(dataType);
+  initTemplate();
 }
 
-// init method in case of RECO data
-template< typename T >
-void SusyCAF_Electron<T>::initTemplate(edm::Handle<reco::GsfElectron>& dataType)
-{
-  initRECO();
-}
-
-// init method in case of PAT data
-template< typename T >
-void SusyCAF_Electron<T>::initTemplate(edm::Handle<pat::Electron>& dataType)
-{
-  initRECO();
-  initPAT();
-}
 
 template< typename T >
 void SusyCAF_Electron<T>::initRECO()
 {
+  produces <bool> (  Prefix + "HandleValid" + Suffix);
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTracknormalizedChi2" + Suffix);
@@ -122,24 +109,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   produceTemplate(iEvent, iSetup, collection);
 }
 
-// produce method in case of RECO data
-template< typename T >
-void SusyCAF_Electron<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::GsfElectron> >& collection) {
-  produceRECO(iEvent, iSetup, collection);
-}
-
-// produce method in case of PAT data
-template< typename T >
-void SusyCAF_Electron<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Electron> >& collection) {
-  produceRECO(iEvent, iSetup, collection);
-  producePAT(iEvent, iSetup, collection);
-}
 
 template< typename T >
 void SusyCAF_Electron<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4 ( new std::vector<reco::Candidate::LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -230,6 +204,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     }
   }
  
+  iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix ); 
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
   iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );

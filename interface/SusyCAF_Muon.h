@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include <string>
 
 template< typename T >
@@ -12,13 +15,11 @@ class SusyCAF_Muon : public edm::EDProducer {
  public: 
   explicit SusyCAF_Muon(const edm::ParameterSet&);
  private: 
-  void initTemplate(edm::Handle<reco::Muon> &);
-  void initTemplate(edm::Handle<pat::Muon> &);
+  void initTemplate();
   void initRECO();
   void initPAT();
   void produce(edm::Event &, const edm::EventSetup & );
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::Muon> > &);
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Muon> > &);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
@@ -33,28 +34,13 @@ SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  edm::Handle<T> dataType;
-  initTemplate(dataType);
-}
-
-// init method in case of RECO data
-template< typename T >
-void SusyCAF_Muon<T>::initTemplate(edm::Handle<reco::Muon>& dataType)
-{
-  initRECO();
-}
-
-// init method in case of PAT data
-template< typename T >
-void SusyCAF_Muon<T>::initTemplate(edm::Handle<pat::Muon>& dataType)
-{
-  initRECO();
-  initPAT();
+  initTemplate();
 }
 
 template< typename T >
 void SusyCAF_Muon<T>::initRECO()
 {
+  produces <bool> (  Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
@@ -93,24 +79,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   produceTemplate(iEvent, iSetup, collection);
 }
 
-// produce method in case of RECO data
-template< typename T >
-void SusyCAF_Muon<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::Muon> >& collection) {
-  produceRECO(iEvent, iSetup, collection);
-}
-
-// produce method in case of PAT data
-template< typename T >
-void SusyCAF_Muon<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Muon> >& collection) {
-  produceRECO(iEvent, iSetup, collection);
-  producePAT(iEvent, iSetup, collection);
-}
 
 template< typename T >
 void SusyCAF_Muon<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -158,6 +131,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     }
   }
   
+  iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );

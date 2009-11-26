@@ -6,111 +6,139 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 template< typename T >
 class SusyCAF_MET : public edm::EDProducer {
  public: 
   explicit SusyCAF_MET(const edm::ParameterSet&);
  private: 
-  void produce(edm::Event &, const edm::EventSetup & );
+  void produce(edm::Event&, const edm::EventSetup& );
+  void produceSpecial(edm::Event&, const T& );
+  void produceCalo(edm::Event&, const T& );
+  void initSpecial();
+  void initCalo();
 
   const edm::InputTag inputTag;
+  const bool special;
   const std::string Prefix,Suffix;
 };
 
+
 template< typename T >
-SusyCAF_MET<T>::SusyCAF_MET(const edm::ParameterSet& iConfig) :
-  inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
-  Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+SusyCAF_MET<T>::SusyCAF_MET(const edm::ParameterSet& cfg) :
+  inputTag(cfg.getParameter<edm::InputTag>("InputTag")),
+  special(cfg.getParameter<bool>("ProduceSpecial")),
+  Prefix(cfg.getParameter<std::string>("Prefix")),
+  Suffix(cfg.getParameter<std::string>("Suffix"))
 {
-  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "MetSignificance"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloMETInmHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloMETInpHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloMETPhiInmHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloMETPhiInpHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloSETInmHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "CaloSETInpHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEtFraction"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EtFractionHadronic"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "MaxEtInEmTowers"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "MaxEtInHadTowers"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEtInEB"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEtInEE"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEtInHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEtInHB"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEtInHE"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEtInHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEtInHO"  + Suffix );
-  }
+  produces <reco::Candidate::LorentzVector> ( Prefix + "P4"  + Suffix );
+  produces <double>                         ( Prefix + "SumEt" + Suffix );
+  /* Methods not available or const correct in 3_3_4
+  produces <double>                         ( Prefix + "Significance"  + Suffix );
+  produces <std::vector<double> >           ( Prefix + "DmEx" + Suffix );
+  produces <std::vector<double> >           ( Prefix + "DmEy" + Suffix );
+  produces <std::vector<double> >           ( Prefix + "DsumEt" + Suffix );
+  produces <std::vector<double> >           ( Prefix + "Dsignificance" + Suffix );
+  */
+  if(special) initSpecial();
+}
+
+template<> void SusyCAF_MET<reco::CaloMET>::initSpecial() { initCalo(); }
+template<> void SusyCAF_MET<pat::MET>::initSpecial() { initCalo(); }
+template<> void SusyCAF_MET<reco::PFMET>::initSpecial() {
+  /* Methods not available in 3_3_4 
+  produces<double>(Prefix+ "NeutralEMEtFraction"+Suffix);  
+  produces<double>(Prefix+ "NeutralHadEtFraction"+Suffix);
+  produces<double>(Prefix+ "ChargedEMEtFraction"+Suffix);
+  produces<double>(Prefix+ "ChargedHadEtFraction"+Suffix);
+  produces<double>(Prefix+ "MuonEtFraction"+Suffix);
+  produces<double>(Prefix+ "Type6EtFraction"+Suffix);
+  produces<double>(Prefix+ "Type7EtFraction"+Suffix);
+  */
+}
+
+template<class T>
+void SusyCAF_MET<T>::
+initCalo() {
+  produces <double> ( Prefix + "CaloMETInmHF"  + Suffix );
+  produces <double> ( Prefix + "CaloMETInpHF"  + Suffix );
+  produces <double> ( Prefix + "CaloMETPhiInmHF"  + Suffix );
+  produces <double> ( Prefix + "CaloMETPhiInpHF"  + Suffix );
+  produces <double> ( Prefix + "CaloSETInmHF"  + Suffix );
+  produces <double> ( Prefix + "CaloSETInpHF"  + Suffix );
+  produces <double> ( Prefix + "EmEtFraction"  + Suffix );
+  produces <double> ( Prefix + "EtFractionHadronic"  + Suffix );
+  produces <double> ( Prefix + "MaxEtInEmTowers"  + Suffix );
+  produces <double> ( Prefix + "MaxEtInHadTowers"  + Suffix );
+  produces <double> ( Prefix + "EmEtInEB"  + Suffix );
+  produces <double> ( Prefix + "EmEtInEE"  + Suffix );
+  produces <double> ( Prefix + "EmEtInHF"  + Suffix );
+  produces <double> ( Prefix + "HadEtInHB"  + Suffix );
+  produces <double> ( Prefix + "HadEtInHE"  + Suffix );
+  produces <double> ( Prefix + "HadEtInHF"  + Suffix );
+  produces <double> ( Prefix + "HadEtInHO"  + Suffix );             
+}
+
 
 template< typename T >
 void SusyCAF_MET<T>::
-produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  ) ;
-  std::auto_ptr<std::vector<double> >  metSignificance    ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloMETInmHF       ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloMETInpHF       ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloMETPhiInmHF    ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloMETPhiInpHF    ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloSETInmHF       ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  CaloSETInpHF       ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEtFraction       ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  etFractionHadronic ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  maxEtInEmTowers    ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  maxEtInHadTowers   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEtInEB           ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEtInEE           ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEtInHF           ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEtInHB          ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEtInHE          ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEtInHF          ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEtInHO          ( new std::vector<double>()  ) ;
-
+produce(edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<std::vector<T> > metcollection;
-  iEvent.getByLabel(inputTag, metcollection);
+  event.getByLabel(inputTag, metcollection);
+  const T& met = metcollection->at(0);
 
-  for(typename std::vector<T>::const_iterator it = metcollection->begin(); it != metcollection->end(); ++it) {
-    p4->push_back(it->p4());
-    metSignificance->push_back(it->metSignificance());
-    CaloMETInmHF->push_back(it->CaloMETInmHF());
-    CaloMETInpHF->push_back(it->CaloMETInpHF());
-    CaloMETPhiInmHF->push_back(it->CaloMETPhiInmHF());
-    CaloMETPhiInpHF->push_back(it->CaloMETPhiInpHF());
-    CaloSETInmHF->push_back(it->CaloSETInmHF());
-    CaloSETInpHF->push_back(it->CaloSETInpHF());
-    emEtFraction->push_back(it->emEtFraction());
-    etFractionHadronic->push_back(it->etFractionHadronic());
-    maxEtInEmTowers->push_back(it->maxEtInEmTowers());
-    maxEtInHadTowers->push_back(it->maxEtInHadTowers());
-    emEtInEB->push_back(it->emEtInEB());
-    emEtInEE->push_back(it->emEtInEE());
-    emEtInHF->push_back(it->emEtInHF());
-    hadEtInHB->push_back(it->hadEtInHB());
-    hadEtInHE->push_back(it->hadEtInHE());
-    hadEtInHF->push_back(it->hadEtInHF());
-    hadEtInHO->push_back(it->hadEtInHO());         
-  }
+  event.put(std::auto_ptr<reco::Candidate::LorentzVector>( new reco::Candidate::LorentzVector(met.p4()) ), Prefix+"P4"+Suffix);
+  event.put(std::auto_ptr<double>( new double(     met.sumEt() )),         Prefix+"SumEt"        +Suffix);
+  /* Methods not available or  const correct in 3_3_4
+  event.put(std::auto_ptr<double>( new double(     met.significance() )),  Prefix+"Significance" +Suffix);
+  event.put(std::auto_ptr<std::vector<double> >( &(met.dmEx()) ),          Prefix+"DmEx"         +Suffix);
+  event.put(std::auto_ptr<std::vector<double> >( &(met.dmEy()) ),          Prefix+"DmEy"         +Suffix);
+  event.put(std::auto_ptr<std::vector<double> >( &(met.dsumEt()) ),        Prefix+"DsumEt"       +Suffix);
+  event.put(std::auto_ptr<std::vector<double> >( &(met.dsignificance()) ), Prefix+"Dsignificance"+Suffix);
+  */
+  if(special) produceSpecial(event, met);
+}
 
-  iEvent.put( p4,  Prefix + "P4"  + Suffix );
-  iEvent.put( metSignificance   ,  Prefix + "MetSignificance"  + Suffix );
-  iEvent.put( CaloMETInmHF      ,  Prefix + "CaloMETInmHF"  + Suffix );
-  iEvent.put( CaloMETInpHF      ,  Prefix + "CaloMETInpHF"  + Suffix );
-  iEvent.put( CaloMETPhiInmHF   ,  Prefix + "CaloMETPhiInmHF"  + Suffix );
-  iEvent.put( CaloMETPhiInpHF   ,  Prefix + "CaloMETPhiInpHF"  + Suffix );
-  iEvent.put( CaloSETInmHF      ,  Prefix + "CaloSETInmHF"  + Suffix );
-  iEvent.put( CaloSETInpHF      ,  Prefix + "CaloSETInpHF"  + Suffix );
-  iEvent.put( emEtFraction      ,  Prefix + "EmEtFraction"  + Suffix );
-  iEvent.put( etFractionHadronic,  Prefix + "EtFractionHadronic"  + Suffix );
-  iEvent.put( maxEtInEmTowers   ,  Prefix + "MaxEtInEmTowers"  + Suffix );
-  iEvent.put( maxEtInHadTowers  ,  Prefix + "MaxEtInHadTowers"  + Suffix );
-  iEvent.put( emEtInEB          ,  Prefix + "EmEtInEB"  + Suffix );
-  iEvent.put( emEtInEE          ,  Prefix + "EmEtInEE"  + Suffix );
-  iEvent.put( emEtInHF          ,  Prefix + "EmEtInHF"  + Suffix );
-  iEvent.put( hadEtInHB         ,  Prefix + "HadEtInHB"  + Suffix );
-  iEvent.put( hadEtInHE         ,  Prefix + "HadEtInHE"  + Suffix );
-  iEvent.put( hadEtInHF         ,  Prefix + "HadEtInHF"  + Suffix );
-  iEvent.put( hadEtInHO         ,  Prefix + "HadEtInHO"  + Suffix );
+template<> void SusyCAF_MET<reco::CaloMET>::produceSpecial(edm::Event& event, const reco::CaloMET& met) { produceCalo(event,met);}
+template<> void SusyCAF_MET<pat::MET>::produceSpecial(edm::Event& event, const pat::MET& met) { produceCalo(event,met);}
+template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, const reco::PFMET& met) {
+  /* Methods not available in 3_3_4 
+  event.put( std::auto_ptr<double>( new double(met.NeutralEMEtFraction()) ) , Prefix+ "NeutralEMEtFraction"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.NeutralHadEtFraction())),  Prefix+ "NeutralHadEtFraction"+Suffix); 
+  event.put( std::auto_ptr<double>( new double(met.ChargedEMEtFraction())),   Prefix+ "ChargedEMEtFraction"+Suffix);  
+  event.put( std::auto_ptr<double>( new double(met.ChargedHadEtFraction())),  Prefix+ "ChargedHadEtFraction"+Suffix); 
+  event.put( std::auto_ptr<double>( new double(met.MuonEtFraction())),        Prefix+ "MuonEtFraction"+Suffix);	   
+  event.put( std::auto_ptr<double>( new double(met.Type6EtFraction())),       Prefix+ "Type6EtFraction"+Suffix);	   
+  event.put( std::auto_ptr<double>( new double(met.Type7EtFraction())),       Prefix+ "Type7EtFraction"+Suffix);	   
+  */
+}
+
+template< typename T>
+void SusyCAF_MET<T>::
+produceCalo(edm::Event& event, const T& met) {
+  event.put( std::auto_ptr<double>( new double(met.CaloMETInmHF())), Prefix+"CaloMETInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.CaloMETInpHF())), Prefix+"CaloMETInpHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.CaloMETPhiInmHF())), Prefix+"CaloMETInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.CaloMETPhiInpHF())), Prefix+"CaloMETInpHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.CaloSETInmHF())), Prefix+"CaloSETInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.CaloSETInpHF())), Prefix+"CaloSETInpHF"+Suffix);
+
+  event.put( std::auto_ptr<double>( new double(met.emEtFraction())), Prefix+"EmEtFraction"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.etFractionHadronic())), Prefix+"EtFractionHadronic"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.maxEtInEmTowers())), Prefix+"MaxEtInEmTowers"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.maxEtInHadTowers())), Prefix+"MaxEtInHadTowers"+Suffix);
+
+  event.put( std::auto_ptr<double>( new double(met.emEtInEB())), Prefix+"EmEtInEB"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.emEtInEE())), Prefix+"EmEtInEE"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.emEtInHF())), Prefix+"EmEtInHF"+Suffix);
+
+  event.put( std::auto_ptr<double>( new double(met.hadEtInHB())), Prefix+"HadEtInHB"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.hadEtInHE())), Prefix+"HadEtInHE"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.hadEtInHF())), Prefix+"HadEtInHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(met.hadEtInHF())), Prefix+"HadEtInHO"+Suffix);
 }
 
 #endif

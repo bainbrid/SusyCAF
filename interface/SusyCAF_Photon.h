@@ -225,6 +225,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  sigmaIetaIeta ( new std::vector<float>() );
 
 
+  if (collection.isValid()){
   const typename std::vector<T>::const_iterator   endOfStuff  = collection->end();
   for (typename std::vector<T>::const_iterator it = collection->begin(); it != endOfStuff; ++it) {
     const pat::Photon&                              photon      = *it;
@@ -240,6 +241,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     for (unsigned int iID = 0; iID < numIDs; ++iID)
       std::cout << ids[iID].first << std::endl;
   } // end loop over photons
+  }
 
 
   iEvent.put(caloIso      , prefix + "CaloIso"        + suffix);

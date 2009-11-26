@@ -58,16 +58,14 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
-  produces <std::vector<double> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTrackdxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTrackdxyError" + Suffix);
   produces <std::vector<float> > (  Prefix + "CaloCompatibility" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03sumPt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03emEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03hadEt" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vx" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vy" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vz" + Suffix);
+  produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
   produces <std::vector<bool> > (  Prefix + "IsGlobalMuon" + Suffix);
@@ -116,16 +114,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  globalTrack_numberOfValidHits   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxyError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<float> >  caloCompatibility   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03sumPt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03emEt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03hadEt   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<double> >  vx   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  vy   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  vz   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<math::XYZPoint> > vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<bool> >  isGlobalMuon   ( new std::vector<bool>()  ) ;
@@ -144,18 +140,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     	globalTrack_dxyError->push_back(it->globalTrack()->dxyError());
       }
       else {
-    	globalTrack_normalizedChi2->push_back(999999999.);
-    	globalTrack_numberOfValidHits->push_back(-1.);
+    	globalTrack_normalizedChi2->push_back(-1);
+    	globalTrack_numberOfValidHits->push_back(0);
     	globalTrack_dxy->push_back(999999999.);
-    	globalTrack_dxyError->push_back(999999999.);
+    	globalTrack_dxyError->push_back(-10000);
       }	
       caloCompatibility->push_back(it->caloCompatibility());
       isolationR03sumPt->push_back(it->isolationR03().sumPt);
       isolationR03emEt->push_back(it->isolationR03().emEt);
       isolationR03hadEt->push_back(it->isolationR03().hadEt);
-      vx->push_back(it->vx());
-      vy->push_back(it->vy());
-      vz->push_back(it->vz());
+      vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
       vertexNdof->push_back(it->vertexNdof());
       isGlobalMuon->push_back(it->isGlobalMuon());
@@ -174,9 +168,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isolationR03sumPt,  Prefix + "IsolationR03sumPt" + Suffix );
   iEvent.put( isolationR03emEt,  Prefix + "IsolationR03emEt" + Suffix );
   iEvent.put( isolationR03hadEt,  Prefix + "IsolationR03hadEt" + Suffix );
-  iEvent.put( vx,  Prefix + "Vx" + Suffix );
-  iEvent.put( vy,  Prefix + "Vy" + Suffix );
-  iEvent.put( vz,  Prefix + "Vz" + Suffix );
+  iEvent.put( vertex,      Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
   iEvent.put( isGlobalMuon,  Prefix + "IsGlobalMuon" + Suffix );

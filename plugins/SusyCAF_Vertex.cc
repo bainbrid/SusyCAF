@@ -1,36 +1,38 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
-SusyCAF_Vertex::SusyCAF_Vertex(const edm::ParameterSet& iConfig) 
-  : inputTag(iConfig.getParameter<edm::InputTag>("InputTag"))
-  , prefix  (iConfig.getParameter<std::string>  ("Prefix"  ))
-  , suffix  (iConfig.getParameter<std::string>  ("Suffix"  ))
+SusyCAF_Vertex::SusyCAF_Vertex(const edm::ParameterSet& cfg) 
+  : inputTag(cfg.getParameter<edm::InputTag>("InputTag"))
+  , prefix  (cfg.getParameter<std::string>  ("Prefix"  ))
+  , suffix  (cfg.getParameter<std::string>  ("Suffix"  ))
 {
-  produces <std::vector<double> >  (prefix + "X"                  + suffix);
-  produces <std::vector<double> >  (prefix + "Y"                  + suffix);
-  produces <std::vector<double> >  (prefix + "Z"                  + suffix);
+  produces <std::vector<math::XYZPoint> >  (prefix + "Position" + suffix);
+  produces <std::vector<math::XYZVector> > (prefix + "PositionError" + suffix);
+  produces <std::vector<double> > (prefix + "Chi2" + suffix);
+  produces <std::vector<double> > (prefix + "Ndof" + suffix);
 }
 
 void SusyCAF_Vertex::
-produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+produce(edm::Event& event, const edm::EventSetup& ) 
 {
-  std::auto_ptr<std::vector<double> >  x                 ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  y                 ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  z                 ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<math::XYZPoint> > position ( new std::vector<math::XYZPoint>()  ) ;
+  std::auto_ptr<std::vector<math::XYZVector> > positionError ( new std::vector<math::XYZVector>()  ) ;
+  std::auto_ptr<std::vector<double> > chi2 ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> > ndof ( new std::vector<double>()  ) ;
 
+  edm::Handle<std::vector<reco::Vertex> > verticies;  
+  event.getByLabel(inputTag, verticies);
+  for (std::vector<reco::Vertex>::const_iterator it = verticies->begin(); it != verticies->end(); ++it) {
+    position->push_back(it->position());
+    positionError->push_back(math::XYZVector(it->xError(),it->yError(),it->zError()));
+    chi2->push_back(it->chi2());
+    ndof->push_back(it->ndof());
+  }
 
-  edm::Handle<std::vector<reco::Vertex> >           collection;
-  iEvent.getByLabel(inputTag, collection);
-  
-  for (std::vector<reco::Vertex>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-    x                 ->push_back(it->x());
-    y                 ->push_back(it->y());
-    z                 ->push_back(it->z());
-  } // end loop over vertices
-
-
-  iEvent.put(x                 , prefix + "X"                  + suffix);
-  iEvent.put(y                 , prefix + "Y"                  + suffix);
-  iEvent.put(z                 , prefix + "Z"                  + suffix);
+  event.put( position, prefix+"Position"+suffix);
+  event.put( positionError, prefix+"PositionError"+suffix);
+  event.put( chi2, prefix+"Chi2"+suffix);
+  event.put( ndof, prefix+"Ndof"+suffix);
 }

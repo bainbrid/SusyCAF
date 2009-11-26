@@ -59,7 +59,7 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTracknormalizedChi2" + Suffix);
-  produces <std::vector<double> > (  Prefix + "GsfTracknumberOfValidHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "GsfTracknumberOfValidHits" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackdxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackdxyError" + Suffix);
   produces <std::vector<float> > (  Prefix + "E1x5" + Suffix);
@@ -95,9 +95,7 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "NumberOfTracks" + Suffix);
   produces <std::vector<int> >   (  Prefix + "NumberOfBrems" + Suffix);
   produces <std::vector<float> > (  Prefix + "ShFracInnerHits" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vx" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vy" + Suffix);
-  produces <std::vector<double> > (  Prefix + "Vz" + Suffix);
+  produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
 }
@@ -145,7 +143,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4 ( new std::vector<reco::Candidate::LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  gsfTrack_numberOfValidHits   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >  gsfTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxyError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<float> >  e1x5   ( new std::vector<float>()  ) ;
@@ -181,9 +179,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> >  numberOfTracks   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<int> >    numberOfBrems   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<float> >  shFracInnerHits   ( new std::vector<float>()  ) ;
-  std::auto_ptr<std::vector<double> >  vx   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  vy   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  vz   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<math::XYZPoint> >  vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   
@@ -228,9 +224,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       numberOfTracks->push_back(it->numberOfTracks());
       numberOfBrems->push_back(it->numberOfBrems());
       shFracInnerHits->push_back(it->shFracInnerHits());
-      vx->push_back(it->vx());
-      vy->push_back(it->vy());
-      vz->push_back(it->vz());
+      vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
       vertexNdof->push_back(it->vertexNdof());
     }
@@ -275,9 +269,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( numberOfTracks,  Prefix + "NumberOfTracks" + Suffix );
   iEvent.put( numberOfBrems,  Prefix + "NumberOfBrems" + Suffix );
   iEvent.put( shFracInnerHits,  Prefix + "ShFracInnerHits" + Suffix );
-  iEvent.put( vx,  Prefix + "Vx" + Suffix );
-  iEvent.put( vy,  Prefix + "Vy" + Suffix );
-  iEvent.put( vz,  Prefix + "Vz" + Suffix );
+  iEvent.put( vertex,  Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
 }

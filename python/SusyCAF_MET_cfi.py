@@ -17,14 +17,27 @@ susycafmetnohf = cms.EDProducer("SusyCAF_CaloMET",
 susycafmetIC5 = cms.EDProducer("SusyCAF_PatMET",
                             InputTag = cms.InputTag('layer1METsIC5'),
                             Prefix = cms.string('met'),
-                            Suffix = cms.string('ic5'),
+                            Suffix = cms.string('IC5'),
                             ProduceSpecial = cms.bool(False)
                             )
 
 susycafmetAK5 = cms.EDProducer("SusyCAF_PatMET",
                             InputTag = cms.InputTag('layer1METsAK5'),
                             Prefix = cms.string('met'),
-                            Suffix = cms.string('ak5'),
+                            Suffix = cms.string('AK5'),
                             ProduceSpecial = cms.bool(False)
                             )
 
+susycafmetPF = cms.EDProducer("SusyCAF_PatMET",
+                            InputTag = cms.InputTag('layer1METsPF'),
+                            Prefix = cms.string('met'),
+                            Suffix = cms.string('PF'),
+                            ProduceSpecial = cms.bool(False)
+                            )
+
+susycafmetTC = cms.EDProducer("SusyCAF_PatMET",
+                            InputTag = cms.InputTag('layer1METsTC'),
+                            Prefix = cms.string('met'),
+                            Suffix = cms.string('TC'),
+                            ProduceSpecial = cms.bool(False)
+                            )

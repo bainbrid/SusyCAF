@@ -32,6 +32,8 @@ theBigNtuplePat = cms.Sequence( (susycafevent +
                                susycafmetnohf +
                                susycafmetIC5 +
                                susycafmetAK5 +
+                               susycafmetPF +
+                               susycafmetTC +
                                susycafic5calojet +
                                susycafak5calojet +
                                susycafsc5calojet +

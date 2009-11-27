@@ -55,4 +55,7 @@ process.load('SUSYBSMAnalysis.SusyCAF.theBigNtuplePat_cfi')
 #-- Execution path ------------------------------------------------------------
 # Full path
 process.p = cms.Path( process.seqSUSYDefaultSequence * process.theBigNtuplePat)
+if hasattr(process,"out"): # remove outpath 
+    del process.out
+    del process.outpath
 

@@ -7,46 +7,46 @@ SusyCAF_HcalNoiseSummary::SusyCAF_HcalNoiseSummary(const edm::ParameterSet& iCon
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  produces <bool>  ( Prefix + "handleValid" + Suffix);
+  produces <bool>  ( Prefix + "HandleValid" + Suffix);
 
   //descriptions of variables here: http://cmslxr.fnal.gov/lxr/source/DataFormats/METReco/interface/HcalNoiseSummary.h
 
-  produces <bool>  ( Prefix + "passLooseNoiseFilter" + Suffix);
-  produces <bool>  ( Prefix + "passTightNoiseFilter" + Suffix);
-  produces <bool>  ( Prefix + "passHighLevelNoiseFilter" + Suffix);
+  produces <bool>  ( Prefix + "PassLooseNoiseFilter" + Suffix);
+  produces <bool>  ( Prefix + "PassTightNoiseFilter" + Suffix);
+  produces <bool>  ( Prefix + "PassHighLevelNoiseFilter" + Suffix);
 
-  produces <int>   ( Prefix + "noiseFilterStatus" + Suffix);
-  produces <int>   ( Prefix + "noiseType" + Suffix);
+  produces <int>   ( Prefix + "NoiseFilterStatus" + Suffix);
+  produces <int>   ( Prefix + "NoiseType" + Suffix);
 
-  produces <float> ( Prefix + "eventEMEnergy" + Suffix);
-  produces <float> ( Prefix + "eventHadEnergy" + Suffix);
-  produces <float> ( Prefix + "eventTrackEnergy" + Suffix);
-  produces <float> ( Prefix + "eventEMFraction" + Suffix);
-  produces <float> ( Prefix + "eventChargeFraction" + Suffix);
+  produces <float> ( Prefix + "EventEMEnergy" + Suffix);
+  produces <float> ( Prefix + "EventHadEnergy" + Suffix);
+  produces <float> ( Prefix + "EventTrackEnergy" + Suffix);
+  produces <float> ( Prefix + "EventEMFraction" + Suffix);
+  produces <float> ( Prefix + "EventChargeFraction" + Suffix);
 
-  produces <float> ( Prefix + "min10GeVHitTime" + Suffix);
-  produces <float> ( Prefix + "max10GeVHitTime" + Suffix);
-  produces <float> ( Prefix + "rms10GeVHitTime" + Suffix);
-  produces <float> ( Prefix + "min25GeVHitTime" + Suffix);
-  produces <float> ( Prefix + "max25GeVHitTime" + Suffix);
-  produces <float> ( Prefix + "rms25GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Min10GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Max10GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Rms10GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Min25GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Max25GeVHitTime" + Suffix);
+  produces <float> ( Prefix + "Rms25GeVHitTime" + Suffix);
 
-  produces <int>   ( Prefix + "num10GeVHits" + Suffix);
-  produces <int>   ( Prefix + "num25GeVHits" + Suffix);
+  produces <int>   ( Prefix + "Num10GeVHits" + Suffix);
+  produces <int>   ( Prefix + "Num25GeVHits" + Suffix);
 
-  produces <float> ( Prefix + "minE2TS" + Suffix);
-  produces <float> ( Prefix + "minE10TS" + Suffix);
-  produces <float> ( Prefix + "minE2Over10TS" + Suffix);
+  produces <float> ( Prefix + "MinE2TS" + Suffix);
+  produces <float> ( Prefix + "MinE10TS" + Suffix);
+  produces <float> ( Prefix + "MinE2Over10TS" + Suffix);
 
-  produces <int>   ( Prefix + "maxZeros" + Suffix);
+  produces <int>   ( Prefix + "MaxZeros" + Suffix);
 
-  produces <int>   ( Prefix + "maxHPDHits" + Suffix);
-  produces <int>   ( Prefix + "maxRBXHits" + Suffix);
+  produces <int>   ( Prefix + "MaxHPDHits" + Suffix);
+  produces <int>   ( Prefix + "MaxRBXHits" + Suffix);
 
-  produces <float> ( Prefix + "minHPDEMF" + Suffix);
-  produces <float> ( Prefix + "minRBXEMF" + Suffix);
+  produces <float> ( Prefix + "MinHPDEMF" + Suffix);
+  produces <float> ( Prefix + "MinRBXEMF" + Suffix);
 
-  produces <int>   ( Prefix + "numProblematicRBXs" + Suffix);
+  produces <int>   ( Prefix + "NumProblematicRBXs" + Suffix);
 }
 
 void SusyCAF_HcalNoiseSummary::
@@ -137,42 +137,42 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //put
-  iEvent.put( handleValid, Prefix + "handleValid" + Suffix );
+  iEvent.put( handleValid, Prefix + "HandleValid" + Suffix );
 
-  iEvent.put( passLooseNoiseFilter, Prefix + "passLooseNoiseFilter" + Suffix );
-  iEvent.put( passTightNoiseFilter, Prefix + "passTightNoiseFilter" + Suffix );
-  iEvent.put( passHighLevelNoiseFilter, Prefix + "passHighLevelNoiseFilter" + Suffix );
+  iEvent.put( passLooseNoiseFilter, Prefix + "PassLooseNoiseFilter" + Suffix );
+  iEvent.put( passTightNoiseFilter, Prefix + "PassTightNoiseFilter" + Suffix );
+  iEvent.put( passHighLevelNoiseFilter, Prefix + "PassHighLevelNoiseFilter" + Suffix );
   
-  iEvent.put( noiseFilterStatus, Prefix + "noiseFilterStatus" + Suffix );
-  iEvent.put( noiseType, Prefix + "noiseType" + Suffix );
+  iEvent.put( noiseFilterStatus, Prefix + "NoiseFilterStatus" + Suffix );
+  iEvent.put( noiseType, Prefix + "NoiseType" + Suffix );
 
-  iEvent.put( eventEMEnergy, Prefix + "eventEMEnergy" + Suffix );
-  iEvent.put( eventHadEnergy, Prefix + "eventHadEnergy" + Suffix );
-  iEvent.put( eventTrackEnergy, Prefix + "eventTrackEnergy" + Suffix );
-  iEvent.put( eventEMFraction, Prefix + "eventEMFraction" + Suffix );
-  iEvent.put( eventChargeFraction, Prefix + "eventChargeFraction" + Suffix );
+  iEvent.put( eventEMEnergy, Prefix + "EventEMEnergy" + Suffix );
+  iEvent.put( eventHadEnergy, Prefix + "EventHadEnergy" + Suffix );
+  iEvent.put( eventTrackEnergy, Prefix + "EventTrackEnergy" + Suffix );
+  iEvent.put( eventEMFraction, Prefix + "EventEMFraction" + Suffix );
+  iEvent.put( eventChargeFraction, Prefix + "EventChargeFraction" + Suffix );
 
-  iEvent.put( min10GeVHitTime, Prefix + "min10GeVHitTime" + Suffix );
-  iEvent.put( max10GeVHitTime, Prefix + "max10GeVHitTime" + Suffix );
-  iEvent.put( rms10GeVHitTime, Prefix + "rms10GeVHitTime" + Suffix );
-  iEvent.put( min25GeVHitTime, Prefix + "min25GeVHitTime" + Suffix );
-  iEvent.put( max25GeVHitTime, Prefix + "max25GeVHitTime" + Suffix );
-  iEvent.put( rms25GeVHitTime, Prefix + "rms25GeVHitTime" + Suffix );
+  iEvent.put( min10GeVHitTime, Prefix + "Min10GeVHitTime" + Suffix );
+  iEvent.put( max10GeVHitTime, Prefix + "Max10GeVHitTime" + Suffix );
+  iEvent.put( rms10GeVHitTime, Prefix + "Rms10GeVHitTime" + Suffix );
+  iEvent.put( min25GeVHitTime, Prefix + "Min25GeVHitTime" + Suffix );
+  iEvent.put( max25GeVHitTime, Prefix + "Max25GeVHitTime" + Suffix );
+  iEvent.put( rms25GeVHitTime, Prefix + "Rms25GeVHitTime" + Suffix );
 
-  iEvent.put( num10GeVHits, Prefix + "num10GeVHits" + Suffix );
-  iEvent.put( num25GeVHits, Prefix + "num25GeVHits" + Suffix );
+  iEvent.put( num10GeVHits, Prefix + "Num10GeVHits" + Suffix );
+  iEvent.put( num25GeVHits, Prefix + "Num25GeVHits" + Suffix );
 
-  iEvent.put( minE2TS, Prefix + "minE2TS" + Suffix );
-  iEvent.put( minE10TS, Prefix + "minE10TS" + Suffix );
-  iEvent.put( minE2Over10TS, Prefix + "minE2Over10TS" + Suffix );
+  iEvent.put( minE2TS, Prefix + "MinE2TS" + Suffix );
+  iEvent.put( minE10TS, Prefix + "MinE10TS" + Suffix );
+  iEvent.put( minE2Over10TS, Prefix + "MinE2Over10TS" + Suffix );
 
-  iEvent.put( maxZeros, Prefix + "maxZeros" + Suffix );
+  iEvent.put( maxZeros, Prefix + "MaxZeros" + Suffix );
 
-  iEvent.put( maxHPDHits, Prefix + "maxHPDHits" + Suffix );
-  iEvent.put( maxRBXHits, Prefix + "maxRBXHits" + Suffix );
+  iEvent.put( maxHPDHits, Prefix + "MaxHPDHits" + Suffix );
+  iEvent.put( maxRBXHits, Prefix + "MaxRBXHits" + Suffix );
 
-  iEvent.put( minHPDEMF, Prefix + "minHPDEMF" + Suffix );
-  iEvent.put( minRBXEMF, Prefix + "minRBXEMF" + Suffix );
+  iEvent.put( minHPDEMF, Prefix + "MinHPDEMF" + Suffix );
+  iEvent.put( minRBXEMF, Prefix + "MinRBXEMF" + Suffix );
 
-  iEvent.put( numProblematicRBXs, Prefix + "numProblematicRBXs" + Suffix );
+  iEvent.put( numProblematicRBXs, Prefix + "NumProblematicRBXs" + Suffix );
 }

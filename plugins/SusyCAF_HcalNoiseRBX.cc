@@ -11,53 +11,53 @@ SusyCAF_HcalNoiseRBX::SusyCAF_HcalNoiseRBX(const edm::ParameterSet& iConfig) :
   energyThresholdForRecHitTimeHpd(iConfig.getParameter<double>("EnergyThresholdForRecHitTimeHpd"))
 {
   //descriptions of variables here: http://cmslxr.fnal.gov/lxr/source/DataFormats/METReco/interface/HcalNoiseRBX.h
-  produces < bool >                ( Prefix + "handleValid"          + Suffix);
-  produces < std::vector<int>    > ( Prefix + "idnumber"             + Suffix);
-  produces < std::vector<float>  > ( Prefix + "allChargeTotal"       + Suffix);
-  produces < std::vector<float>  > ( Prefix + "allChargeHighest2TS"  + Suffix);
-  produces < std::vector<float>  > ( Prefix + "allChargeHighest3TS"  + Suffix);
-  produces < std::vector<int>    > ( Prefix + "totalZeros"           + Suffix);
-  produces < std::vector<int>    > ( Prefix + "maxZeros"             + Suffix);
-  produces < std::vector<double> > ( Prefix + "recHitEnergy"         + Suffix);
-  produces < std::vector<double> > ( Prefix + "minRecHitTime"        + Suffix);
-  produces < std::vector<double> > ( Prefix + "maxRecHitTime"        + Suffix);
-  produces < std::vector<int>    > ( Prefix + "numRecHits"           + Suffix);
-  produces < std::vector<double> > ( Prefix + "caloTowerHadE"        + Suffix);
-  produces < std::vector<double> > ( Prefix + "caloTowerEmE"         + Suffix);
-  produces < std::vector<double> > ( Prefix + "caloTowerTotalE"      + Suffix);
-  produces < std::vector<double> > ( Prefix + "caloTowerEmFraction"  + Suffix);
+  produces < bool >                ( Prefix + "HandleValid"          + Suffix);
+  produces < std::vector<int>    > ( Prefix + "IdNumber"             + Suffix);
+  produces < std::vector<float>  > ( Prefix + "AllChargeTotal"       + Suffix);
+  produces < std::vector<float>  > ( Prefix + "AllChargeHighest2TS"  + Suffix);
+  produces < std::vector<float>  > ( Prefix + "AllChargeHighest3TS"  + Suffix);
+  produces < std::vector<int>    > ( Prefix + "TotalZeros"           + Suffix);
+  produces < std::vector<int>    > ( Prefix + "MaxZeros"             + Suffix);
+  produces < std::vector<double> > ( Prefix + "RecHitEnergy"         + Suffix);
+  produces < std::vector<double> > ( Prefix + "MinRecHitTime"        + Suffix);
+  produces < std::vector<double> > ( Prefix + "MaxRecHitTime"        + Suffix);
+  produces < std::vector<int>    > ( Prefix + "NumRecHits"           + Suffix);
+  produces < std::vector<double> > ( Prefix + "CaloTowerHadE"        + Suffix);
+  produces < std::vector<double> > ( Prefix + "CaloTowerEmE"         + Suffix);
+  produces < std::vector<double> > ( Prefix + "CaloTowerTotalE"      + Suffix);
+  produces < std::vector<double> > ( Prefix + "CaloTowerEmFraction"  + Suffix);
 
   if (outputHpdVariables) {
-    produces < bool >              ( Prefix + "hpdVariablesValid"    + Suffix);
+    produces < bool >              ( Prefix + "HpdVariablesValid"    + Suffix);
 
     for (unsigned int iHpd=0;iHpd<nHpdsPerHbheRbx;iHpd++) {
       std::stringstream tempss;
       tempss << iHpd;
       std::string hpdString=tempss.str();
       
-      produces < std::vector<int>    > ( Prefix + "hpd"+hpdString+"idnumber"              + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"bigChargeTotal"        + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"bigChargeHighest2TS"   + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"bigChargeHighest3TS"   + Suffix );
+      produces < std::vector<int>    > ( Prefix + "Hpd"+hpdString+"IdNumber"              + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"BigChargeTotal"        + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"BigChargeHighest2TS"   + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"BigChargeHighest3TS"   + Suffix );
 
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"big5ChargeTotal"       + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"big5ChargeHighest2TS"  + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"big5ChargeHighest3TS"  + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"Big5ChargeTotal"       + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"Big5ChargeHighest2TS"  + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"Big5ChargeHighest3TS"  + Suffix );
 
-      produces < std::vector<int>    > ( Prefix + "hpd"+hpdString+"totalZeros"            + Suffix );
-      produces < std::vector<int>    > ( Prefix + "hpd"+hpdString+"maxZeros"              + Suffix );
+      produces < std::vector<int>    > ( Prefix + "Hpd"+hpdString+"TotalZeros"            + Suffix );
+      produces < std::vector<int>    > ( Prefix + "Hpd"+hpdString+"MaxZeros"              + Suffix );
 
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"recHitEnergy"          + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"RecHitEnergy"          + Suffix );
 
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"minRecHitTime"         + Suffix );
-      produces < std::vector<float>  > ( Prefix + "hpd"+hpdString+"maxRecHitTime"         + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"MinRecHitTime"         + Suffix );
+      produces < std::vector<float>  > ( Prefix + "Hpd"+hpdString+"MaxRecHitTime"         + Suffix );
 
-      produces < std::vector<int>    > ( Prefix + "hpd"+hpdString+"numRecHits"            + Suffix );
+      produces < std::vector<int>    > ( Prefix + "Hpd"+hpdString+"NumRecHits"            + Suffix );
 
-      produces < std::vector<double> > ( Prefix + "hpd"+hpdString+"caloTowerHadE"         + Suffix );
-      produces < std::vector<double> > ( Prefix + "hpd"+hpdString+"caloTowerEmE"          + Suffix );
-      produces < std::vector<double> > ( Prefix + "hpd"+hpdString+"caloTowerTotalE"       + Suffix );
-      produces < std::vector<double> > ( Prefix + "hpd"+hpdString+"caloTowerEmFraction"   + Suffix );
+      produces < std::vector<double> > ( Prefix + "Hpd"+hpdString+"CaloTowerHadE"         + Suffix );
+      produces < std::vector<double> > ( Prefix + "Hpd"+hpdString+"CaloTowerEmE"          + Suffix );
+      produces < std::vector<double> > ( Prefix + "Hpd"+hpdString+"CaloTowerTotalE"       + Suffix );
+      produces < std::vector<double> > ( Prefix + "Hpd"+hpdString+"CaloTowerEmFraction"   + Suffix );
     }
   }
 
@@ -112,21 +112,21 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //put RBX variables
-  iEvent.put( handleValid         , Prefix + "handleValid"          + Suffix );
-  iEvent.put( idnumber            , Prefix + "idnumber"             + Suffix );
-  iEvent.put( allChargeTotal      , Prefix + "allChargeTotal"       + Suffix );
-  iEvent.put( allChargeHighest2TS , Prefix + "allChargeHighest2TS"  + Suffix );
-  iEvent.put( allChargeHighest3TS , Prefix + "allChargeHighest3TS"  + Suffix );
-  iEvent.put( totalZeros          , Prefix + "totalZeros"           + Suffix );
-  iEvent.put( maxZeros            , Prefix + "maxZeros"             + Suffix );
-  iEvent.put( recHitEnergy        , Prefix + "recHitEnergy"         + Suffix );
-  iEvent.put( minRecHitTime       , Prefix + "minRecHitTime"        + Suffix );
-  iEvent.put( maxRecHitTime       , Prefix + "maxRecHitTime"        + Suffix );
-  iEvent.put( numRecHits          , Prefix + "numRecHits"           + Suffix );
-  iEvent.put( caloTowerHadE       , Prefix + "caloTowerHadE"        + Suffix );
-  iEvent.put( caloTowerEmE        , Prefix + "caloTowerEmE"         + Suffix );
-  iEvent.put( caloTowerTotalE     , Prefix + "caloTowerTotalE"      + Suffix );
-  iEvent.put( caloTowerEmFraction , Prefix + "caloTowerEmFraction"  + Suffix );
+  iEvent.put( handleValid         , Prefix + "HandleValid"          + Suffix );
+  iEvent.put( idnumber            , Prefix + "IdNumber"             + Suffix );
+  iEvent.put( allChargeTotal      , Prefix + "AllChargeTotal"       + Suffix );
+  iEvent.put( allChargeHighest2TS , Prefix + "AllChargeHighest2TS"  + Suffix );
+  iEvent.put( allChargeHighest3TS , Prefix + "AllChargeHighest3TS"  + Suffix );
+  iEvent.put( totalZeros          , Prefix + "TotalZeros"           + Suffix );
+  iEvent.put( maxZeros            , Prefix + "MaxZeros"             + Suffix );
+  iEvent.put( recHitEnergy        , Prefix + "RecHitEnergy"         + Suffix );
+  iEvent.put( minRecHitTime       , Prefix + "MinRecHitTime"        + Suffix );
+  iEvent.put( maxRecHitTime       , Prefix + "MaxRecHitTime"        + Suffix );
+  iEvent.put( numRecHits          , Prefix + "NumRecHits"           + Suffix );
+  iEvent.put( caloTowerHadE       , Prefix + "CaloTowerHadE"        + Suffix );
+  iEvent.put( caloTowerEmE        , Prefix + "CaloTowerEmE"         + Suffix );
+  iEvent.put( caloTowerTotalE     , Prefix + "CaloTowerTotalE"      + Suffix );
+  iEvent.put( caloTowerEmFraction , Prefix + "CaloTowerEmFraction"  + Suffix );
 }
 
 void SusyCAF_HcalNoiseRBX::
@@ -186,26 +186,26 @@ doHpdVariables(edm::Event& iEvent, edm::Handle<reco::HcalNoiseRBXCollection> hca
     tempss << iHpd;
     std::string hpdString=tempss.str();
 
-    iEvent.put( hpdidnumber              , Prefix + "hpd"+hpdString+"idnumber"              + Suffix );
-    iEvent.put( hpdbigChargeTotal        , Prefix + "hpd"+hpdString+"bigChargeTotal"        + Suffix );
-    iEvent.put( hpdbigChargeHighest2TS   , Prefix + "hpd"+hpdString+"bigChargeHighest2TS"   + Suffix );
-    iEvent.put( hpdbigChargeHighest3TS   , Prefix + "hpd"+hpdString+"bigChargeHighest3TS"   + Suffix );
-    iEvent.put( hpdbig5ChargeTotal       , Prefix + "hpd"+hpdString+"big5ChargeTotal"       + Suffix );
-    iEvent.put( hpdbig5ChargeHighest2TS  , Prefix + "hpd"+hpdString+"big5ChargeHighest2TS"  + Suffix );
-    iEvent.put( hpdbig5ChargeHighest3TS  , Prefix + "hpd"+hpdString+"big5ChargeHighest3TS"  + Suffix );
-    iEvent.put( hpdtotalZeros            , Prefix + "hpd"+hpdString+"totalZeros"            + Suffix );
-    iEvent.put( hpdmaxZeros              , Prefix + "hpd"+hpdString+"maxZeros"              + Suffix );
-    iEvent.put( hpdrecHitEnergy          , Prefix + "hpd"+hpdString+"recHitEnergy"          + Suffix );
-    iEvent.put( hpdminRecHitTime         , Prefix + "hpd"+hpdString+"minRecHitTime"         + Suffix );
-    iEvent.put( hpdmaxRecHitTime         , Prefix + "hpd"+hpdString+"maxRecHitTime"         + Suffix );
-    iEvent.put( hpdnumRecHits            , Prefix + "hpd"+hpdString+"numRecHits"            + Suffix );
-    iEvent.put( hpdcaloTowerHadE         , Prefix + "hpd"+hpdString+"caloTowerHadE"         + Suffix );
-    iEvent.put( hpdcaloTowerEmE          , Prefix + "hpd"+hpdString+"caloTowerEmE"          + Suffix );
-    iEvent.put( hpdcaloTowerTotalE       , Prefix + "hpd"+hpdString+"caloTowerTotalE"       + Suffix );
-    iEvent.put( hpdcaloTowerEmFraction   , Prefix + "hpd"+hpdString+"caloTowerEmFraction"   + Suffix );
+    iEvent.put( hpdidnumber              , Prefix + "Hpd"+hpdString+"IdNumber"              + Suffix );
+    iEvent.put( hpdbigChargeTotal        , Prefix + "Hpd"+hpdString+"BigChargeTotal"        + Suffix );
+    iEvent.put( hpdbigChargeHighest2TS   , Prefix + "Hpd"+hpdString+"BigChargeHighest2TS"   + Suffix );
+    iEvent.put( hpdbigChargeHighest3TS   , Prefix + "Hpd"+hpdString+"BigChargeHighest3TS"   + Suffix );
+    iEvent.put( hpdbig5ChargeTotal       , Prefix + "Hpd"+hpdString+"Big5ChargeTotal"       + Suffix );
+    iEvent.put( hpdbig5ChargeHighest2TS  , Prefix + "Hpd"+hpdString+"Big5ChargeHighest2TS"  + Suffix );
+    iEvent.put( hpdbig5ChargeHighest3TS  , Prefix + "Hpd"+hpdString+"Big5ChargeHighest3TS"  + Suffix );
+    iEvent.put( hpdtotalZeros            , Prefix + "Hpd"+hpdString+"TotalZeros"            + Suffix );
+    iEvent.put( hpdmaxZeros              , Prefix + "Hpd"+hpdString+"MaxZeros"              + Suffix );
+    iEvent.put( hpdrecHitEnergy          , Prefix + "Hpd"+hpdString+"RecHitEnergy"          + Suffix );
+    iEvent.put( hpdminRecHitTime         , Prefix + "Hpd"+hpdString+"MinRecHitTime"         + Suffix );
+    iEvent.put( hpdmaxRecHitTime         , Prefix + "Hpd"+hpdString+"MaxRecHitTime"         + Suffix );
+    iEvent.put( hpdnumRecHits            , Prefix + "Hpd"+hpdString+"NumRecHits"            + Suffix );
+    iEvent.put( hpdcaloTowerHadE         , Prefix + "Hpd"+hpdString+"CaloTowerHadE"         + Suffix );
+    iEvent.put( hpdcaloTowerEmE          , Prefix + "Hpd"+hpdString+"CaloTowerEmE"          + Suffix );
+    iEvent.put( hpdcaloTowerTotalE       , Prefix + "Hpd"+hpdString+"CaloTowerTotalE"       + Suffix );
+    iEvent.put( hpdcaloTowerEmFraction   , Prefix + "Hpd"+hpdString+"CaloTowerEmFraction"   + Suffix );
 
   } //end loop over HPDs
 
-  iEvent.put( hpdVariablesValid          , Prefix + "hpdVariablesValid"                     + Suffix );
+  iEvent.put( hpdVariablesValid          , Prefix + "HpdVariablesValid"                     + Suffix );
 
 }

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 susycafl1globaltrigger = cms.EDProducer("SusyCAF_L1GlobalTrigger",
                             InputTag = cms.InputTag('gtDigis'),
-                            NBxOutput = cms.int32(1), #support for either 1 or 3
+                            NBxOutput = cms.int32(3), #support for either 1 or 3
                             StoreByName = cms.bool(False),
 
                             # This list is intended to be exhaustive,

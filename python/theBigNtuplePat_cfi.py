@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_Track_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
@@ -25,25 +26,26 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 theBigNtuplePat = cms.Sequence( (susycafevent +
-                               susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
-                               susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
-   			       susycaftriggers +
-                               susycafmet +
-                               susycafmetnohf +
-                               susycafmetIC5 +
-                               susycafmetAK5 +
-                               susycafmetPF +
-                               susycafmetTC +
-                               susycafic5calojet +
-                               susycafak5calojet +
-                               susycafsc5calojet +
-                               susycafphoton +
-                               susycafmuon +
-                               susycafbeamspot +
-                               susycafvertex +
-                               susycafelectron +
-                               susycafhcalnoisesummary +
-                               susycafcalotowers +
-                               susycaftau) *
-                               susyTree
-                              )
+                                 susycaftrack +
+                                 susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
+                                 susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
+   			                         susycaftriggers +
+                                 susycafmet +
+                                 susycafmetnohf +
+                                 susycafmetIC5 +
+                                 susycafmetAK5 +
+                                 susycafmetPF +
+                                 susycafmetTC +
+                                 susycafic5calojet +
+                                 susycafak5calojet +
+                                 susycafsc5calojet +
+                                 susycafphoton +
+                                 susycafmuon +
+                                 susycafbeamspot +
+                                 susycafvertex +
+                                 susycafelectron +
+                                 susycafhcalnoisesummary +
+                                 susycafcalotowers +
+                                 susycaftau) *
+                                 susyTree
+                                )

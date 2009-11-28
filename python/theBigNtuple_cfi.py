@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_Track_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Triggers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
@@ -25,6 +26,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 theBigNtuple = cms.Sequence( (susycafevent +
+                              susycaftrack +
                               susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
                               susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 + 
                               susycaftriggers +
@@ -41,5 +43,5 @@ theBigNtuple = cms.Sequence( (susycafevent +
                               susycafhcalnoisesummary +
                               susycafcalotowers +
                               susycafPFtau) *
-                             susyTree
+                              susyTree
                              )

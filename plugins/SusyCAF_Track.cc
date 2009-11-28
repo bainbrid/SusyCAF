@@ -10,6 +10,7 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   , primaryVertexTag(iConfig.getParameter<edm::InputTag>("PrimaryVertexTag" ))
   , prefix          (iConfig.getParameter<std::string>  ("Prefix"           ))
   , suffix          (iConfig.getParameter<std::string>  ("Suffix"           ))
+  , maxChi2         (iConfig.getParameter<double>       ("MaxChi2"          ))
   , maxD0           (iConfig.getParameter<double>       ("MaxD0"            ))
   , minPT           (iConfig.getParameter<double>       ("MinPT"            ))
   , maxPT           (iConfig.getParameter<double>       ("MaxPT"            ))
@@ -18,18 +19,18 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
     Multiple versions of MPT are calculated, since we don't want to store 
     all tracks. However it is probably undesirable to ever use very-high-pT
     tracks in the calculation, so all of the MPT versions only use tracks
-    within the given pT range, and compatible with the primary vertex via
-    the d0 cut. Since they may be of interest for problem diagnosing, we 
-    do store the list of tracks that exceed the pT threshold.
+    within small chi2, the given pT range, and compatible with the primary 
+    vertex via the d0 cut. Since they may be of interest for problem diagnosing, 
+    we do store the list of tracks that exceed the pT threshold.
   */
   produces<std::vector<Vector> >(prefix + "VeryHighPTTracks" + suffix);  // exceeds MaxPT, sorted by pT
-  produces<Vector>   (prefix + "MPTwithEverything"           + suffix);  // no pT or d0 cuts
-  produces<Vector>   (prefix + "MPTwithAllTracks"            + suffix);  // with pT, d0 cuts, no quality criteria
-  produces<Vector>   (prefix + "MPTwithLooseTracks"          + suffix);  // with pT, d0 cuts, and the stated quality 
-  produces<Vector>   (prefix + "MPTwithTightTracks"          + suffix);  // with pT, d0 cuts, and the stated quality 
-  produces<Vector>   (prefix + "MPTwithHighPurityTracks"     + suffix);  // with pT, d0 cuts, and the stated quality 
-  produces<Vector>   (prefix + "MPTwithConfirmedTracks"      + suffix);  // with pT, d0 cuts, and the stated quality 
-  produces<Vector>   (prefix + "MPTwithGoodIterativeTracks"  + suffix);  // with pT, d0 cuts, and the stated quality 
+  produces<Vector>   (prefix + "MPTwithEverything"           + suffix);  // no chi2, pT or d0 cuts
+  produces<Vector>   (prefix + "MPTwithAllTracks"            + suffix);  // with chi2, pT, d0 cuts, no quality criteria
+  produces<Vector>   (prefix + "MPTwithLooseTracks"          + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
+  produces<Vector>   (prefix + "MPTwithTightTracks"          + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
+  produces<Vector>   (prefix + "MPTwithHighPurityTracks"     + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
+  produces<Vector>   (prefix + "MPTwithConfirmedTracks"      + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
+  produces<Vector>   (prefix + "MPTwithGoodIterativeTracks"  + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
 }
 
 void SusyCAF_Track::
@@ -52,14 +53,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<bool>               preselectedTracks(tracks->size(), true);    // maxD0, minPT, maxPT
     std::vector<Vector>      veryHighPTTracks;                           // within maxD0 but exceeds maxPT
 
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithEverything         );
+    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithEverything         );
     preselectTracks(*tracks, vertices->front(), preselectedTracks, veryHighPTTracks);
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithAllTracks          );
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithLooseTracks        );
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithTightTracks        );
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithHighPurityTracks   );
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithConfirmedTracks    );
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality, *MPTwithGoodIterativeTracks);
+    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllTracks          );
+    computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLooseTracks        );
+    computeMHT(*tracks, preselectedTracks, reco::Track::tight         , *MPTwithTightTracks        );
+    computeMHT(*tracks, preselectedTracks, reco::Track::highPurity    , *MPTwithHighPurityTracks   );
+    computeMHT(*tracks, preselectedTracks, reco::Track::confirmed     , *MPTwithConfirmedTracks    );
+    computeMHT(*tracks, preselectedTracks, reco::Track::goodIterative , *MPTwithGoodIterativeTracks);
 
   }
 
@@ -84,10 +85,10 @@ preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primary
 
   for (unsigned int iTrack = 0; iTrack < numTracks; ++iTrack) {
     const reco::Track&    track     = tracks[iTrack];
-    const bool            withinD0  = fabs(track.dxy(primaryVertex.position())) < maxD0;
-    preselectedTracks[iTrack]       = ( withinD0 && minPT <= track.pt() && track.pt() <= maxPT );
+    const bool            isOK      = fabs(track.dxy(primaryVertex.position())) < maxD0 && track.chi2() < maxChi2;
+    preselectedTracks[iTrack]       = ( isOK && minPT <= track.pt() && track.pt() <= maxPT );
 
-    if (withinD0 && track.pt() > maxPT)
+    if (isOK && track.pt() > maxPT)
       veryHighPTTracks.push_back(track.momentum());
   } // end loop over tracks
 

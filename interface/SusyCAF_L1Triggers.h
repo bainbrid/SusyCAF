@@ -17,9 +17,10 @@ public:
   explicit SusyCAF_L1Triggers(const edm::ParameterSet& conf) : 
     nBx(conf.getParameter<int>("NBx")),
     inputTag(conf.getParameter<edm::InputTag>("InputTag")),
-    outputName("L1triggered" + (nBx==0? "" : ( nBx<0 ? "M" : "P") + boost::lexical_cast<std::string>(abs(nBx)) ) )
+    outputName( (nBx==0? "" : ( nBx<0 ? "M" : "P") + boost::lexical_cast<std::string>(abs(nBx)) ) )
       {
-	produces <std::map<std::string,bool> > ( outputName );
+	produces <std::map<std::string,bool> > ( "L1triggered"    +outputName );
+	produces <unsigned int>                ( "physicsDeclared"+outputName );
       }
 
 private: 
@@ -31,12 +32,15 @@ private:
     edm::Handle<L1GlobalTriggerReadoutRecord> L1record;  event.getByLabel(inputTag, L1record);
     edm::ESHandle<L1GtTriggerMenu> L1menu;               setup.get<L1GtTriggerMenuRcd>().get(L1menu) ;
 
+    std::auto_ptr<unsigned int>  physicsDeclared ( new unsigned int(L1record->gtFdlWord(nBx).physicsDeclared()) );
+ 
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
 
     record( triggered, L1record->decisionWord(nBx),         L1menu->gtAlgorithmMap() );
     record( triggered, L1record->technicalTriggerWord(nBx), L1menu->gtTechnicalTriggerMap() );
 
-    event.put( triggered, outputName );
+    event.put( physicsDeclared,"physicsDeclared"+outputName );
+    event.put( triggered,      "L1triggered"    +outputName );
     
   }
 

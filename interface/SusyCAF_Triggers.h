@@ -15,6 +15,7 @@ public:
   explicit SusyCAF_Triggers(const edm::ParameterSet& conf)
     : inputTag(conf.getParameter<edm::InputTag>("InputTag"))
     {
+      produces <bool> ( "hltHandleValid");
       produces <std::map<std::string,bool> >  ("triggered");
     }
 
@@ -23,11 +24,16 @@ private:
 
   void produce( edm::Event& event, const edm::EventSetup& ) {
     edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
+    std::auto_ptr<bool> isHandleValid ( new bool(results.isValid()) );
+    std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
+    if (results.isValid()){
     /* edm::TriggerNames& names = event.triggerNames(); */   edm::TriggerNames names; names.init(*results);  
     
-    std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
     for(unsigned i=0; i < results->size(); i++)
       (*triggered)[names.triggerName(i)] = results->accept(i) ;
+    
+    }
+    event.put( isHandleValid, "hltHandleValid" );
     event.put( triggered,"triggered");
   }
 

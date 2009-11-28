@@ -19,6 +19,7 @@ public:
     inputTag(conf.getParameter<edm::InputTag>("InputTag")),
     outputName( (nBx==0? "" : ( nBx<0 ? "M" : "P") + boost::lexical_cast<std::string>(abs(nBx)) ) )
       {
+	produces <bool>                        ( "L1HandleValid"  +outputName );
 	produces <std::map<std::string,bool> > ( "L1triggered"    +outputName );
 	produces <unsigned int>                ( "physicsDeclared"+outputName );
       }
@@ -29,19 +30,23 @@ private:
   const std::string outputName;
 
   void produce( edm::Event& event, const edm::EventSetup& setup) {
+    std::auto_ptr<bool>                        handleValid    (new bool(false));
+    std::auto_ptr<unsigned int>                physicsDeclared(new unsigned int());
+    std::auto_ptr<std::map<std::string,bool> > triggered      (new std::map<std::string,bool>());
+
     edm::Handle<L1GlobalTriggerReadoutRecord> L1record;  event.getByLabel(inputTag, L1record);
     edm::ESHandle<L1GtTriggerMenu> L1menu;               setup.get<L1GtTriggerMenuRcd>().get(L1menu) ;
 
-    std::auto_ptr<unsigned int>  physicsDeclared ( new unsigned int(L1record->gtFdlWord(nBx).physicsDeclared()) );
- 
-    std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
+    if (L1record.isValid() && L1menu.isValid()) {
+      *handleValid.get()=true;
+      *physicsDeclared.get()=L1record->gtFdlWord(nBx).physicsDeclared();
+      record( triggered, L1record->decisionWord(nBx),         L1menu->gtAlgorithmMap() );
+      record( triggered, L1record->technicalTriggerWord(nBx), L1menu->gtTechnicalTriggerMap() );
+    }
 
-    record( triggered, L1record->decisionWord(nBx),         L1menu->gtAlgorithmMap() );
-    record( triggered, L1record->technicalTriggerWord(nBx), L1menu->gtTechnicalTriggerMap() );
-
+    event.put( handleValid,    "L1HandleValid"  +outputName );
     event.put( physicsDeclared,"physicsDeclared"+outputName );
     event.put( triggered,      "L1triggered"    +outputName );
-    
   }
 
   void record(std::auto_ptr<std::map<std::string,bool> >& mapSb, std::vector<bool> vbool, const AlgorithmMap& algoMap) const {

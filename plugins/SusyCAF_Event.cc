@@ -1,15 +1,13 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
 #include "FWCore/Framework/interface/Event.h"
 
-SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) : 
-inputTag(iConfig.getParameter<edm::InputTag>("InputTag"))
-{
+SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"   );
   produces <unsigned int> ( "event" );
   produces <unsigned int> ( "bunch" );
   produces <unsigned int> ( "ls"    );
   produces <unsigned int> ( "orbit" );
-  produces <double>       ( "time" );   
+  produces <double>       ( "time" );
 }
 
 void SusyCAF_Event::

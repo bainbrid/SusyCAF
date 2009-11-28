@@ -9,7 +9,6 @@ class SusyCAF_Event : public edm::EDProducer {
   explicit SusyCAF_Event(const edm::ParameterSet&);
  private: 
   void produce( edm::Event &, const edm::EventSetup & );
-  const edm::InputTag inputTag;
 };
 
 #endif

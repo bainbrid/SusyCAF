@@ -25,6 +25,7 @@ DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Track.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_MET.h"
@@ -67,6 +68,7 @@ typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
 DEFINE_ANOTHER_FWK_MODULE(SusyTree);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Event);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Track);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Triggers);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Triggers);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloMET);

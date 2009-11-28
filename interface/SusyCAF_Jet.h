@@ -5,12 +5,17 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 template< typename T >
 class SusyCAF_Jet : public edm::EDProducer {
  public: 
   explicit SusyCAF_Jet(const edm::ParameterSet&);
  private: 
+  typedef reco::TrackBase::Vector     Vector; 
   //
   void initTemplate(edm::Handle<reco::CaloJet> &);
   void initTemplate(edm::Handle<pat::Jet> &);
@@ -18,18 +23,27 @@ class SusyCAF_Jet : public edm::EDProducer {
   void initPAT();
   //
   void produce(edm::Event &, const edm::EventSetup & );
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::CaloJet> > &);
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Jet> > &);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::CaloJet> > &, edm::Handle<reco::VertexCollection>& vertices);
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Jet> > &, edm::Handle<reco::VertexCollection>& vertices);
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
-  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::VertexCollection>& vertices);
 
-  const edm::InputTag inputTag;
+  const edm::InputTag inputTag, primaryVertexTag;
   const std::string Prefix,Suffix;
+  const double maxPttrk;
+  const double minPttrk;
+  const double maxD0trk;
+  const double maxChi2trk;
 };
 
 template< typename T >
 SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
+  primaryVertexTag(iConfig.getParameter<edm::InputTag>("PrimaryVertexTag")),
+  maxD0trk(iConfig.getParameter<double>("MaxD0Trk")),
+  minPttrk(iConfig.getParameter<double>("MinPtTrk")),
+  maxPttrk(iConfig.getParameter<double>("MaxPtTrk")),
+  maxChi2trk(iConfig.getParameter<double>("MaxChi2Trk")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
@@ -56,7 +70,7 @@ void SusyCAF_Jet<T>::initTemplate(edm::Handle<pat::Jet>& dataType)
 template< typename T >
 void SusyCAF_Jet<T>::initRECO()
   {
-  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"  + Suffix );
+  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EmEnergyFraction"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EnergyFractionHadronic"  + Suffix );
   produces <std::vector<double> > ( Prefix + "TowersArea"  + Suffix );
@@ -78,7 +92,20 @@ template< typename T >
 void SusyCAF_Jet<T>::initPAT()
 {
   produces <std::vector<double> > ( Prefix + "CorrFactor"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracks"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksEverything"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksAll"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksLoose"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksTight"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksHighPurity"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksConfirmed"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksGoodIterative"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithEverything"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithAllTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithLooseTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithTightTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithConfirmedTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
   produces <std::vector<double> > ( Prefix + "FHPD"  + Suffix );
   produces <std::vector<double> > ( Prefix + "FRBX"  + Suffix );
   produces <std::vector<double> > ( Prefix + "FSubDet1"  + Suffix );
@@ -96,22 +123,26 @@ void SusyCAF_Jet<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > jetcollection;
   iEvent.getByLabel(inputTag, jetcollection);
-  produceTemplate(iEvent, iSetup, jetcollection);
+  //
+  edm::Handle<reco::VertexCollection> vertices;   
+  iEvent.getByLabel(primaryVertexTag, vertices);
+  //
+  produceTemplate(iEvent, iSetup, jetcollection, vertices);
 }
 
 // produce method in case of RECO data
 template< typename T >
 void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::CaloJet> >& collection) {
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::CaloJet> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
   produceRECO(iEvent, iSetup, collection);
 }
 
 // produce method in case of PAT data
 template< typename T >
 void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Jet> >& collection) {
+produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Jet> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
   produceRECO(iEvent, iSetup, collection);
-  producePAT(iEvent, iSetup, collection);
+  producePAT(iEvent, iSetup, collection, vertices);
 }
 
 template< typename T >
@@ -133,7 +164,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  n60   ( new std::vector<int>()  ) ; 
   std::auto_ptr<std::vector<int> >  n90   ( new std::vector<int>()  ) ; 
 
-  
+
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       p4->push_back(it->p4());
@@ -154,7 +185,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     }
   }
 
-  iEvent.put( p4,  Prefix + "P4"  + Suffix );
+  iEvent.put( p4,  Prefix + "CorrectedP4"  + Suffix );
   iEvent.put( emEnergyFraction,  Prefix + "EmEnergyFraction"  + Suffix );
   iEvent.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
   iEvent.put( towersArea,  Prefix + "TowersArea"  + Suffix );
@@ -169,31 +200,104 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( emEnergyInHF,  Prefix + "EmEnergyInHF"  + Suffix );
   iEvent.put( n60,  Prefix + "N60"  + Suffix ); 
   iEvent.put( n90,  Prefix + "N90"  + Suffix ); 
+
 }
 
 
 // extra information stored for PAT data
 template< typename T >
 void SusyCAF_Jet<T>::
-producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
 
   std::auto_ptr<std::vector<double> >  corrfactor   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracks  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<double> >  fHPD  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  fRBX  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  fSubDet1  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  fSubDet2  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  fSubDet3  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  fSubDet4  ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksTight  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksConfirmed  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksGoodIterative  ( new std::vector<int>()  ) ;
+  std::auto_ptr<Vector>  jetMPTwithEverything  ( new Vector ) ;
+  std::auto_ptr<Vector>  jetMPTwithAllTracks  ( new Vector  ) ;
+  std::auto_ptr<Vector>  jetMPTwithLooseTracks  ( new Vector ) ;
+  std::auto_ptr<Vector>  jetMPTwithTightTracks  ( new Vector ) ;
+  std::auto_ptr<Vector>  jetMPTwithHighPurityTracks  ( new Vector ) ;
+  std::auto_ptr<Vector>  jetMPTwithConfirmedTracks  ( new Vector ) ;
+  std::auto_ptr<Vector>  jetMPTwithGoodIterativeTracks  ( new Vector ) ;
+  std::auto_ptr<std::vector<double> >  fHPD  ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> >  fRBX  ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> >  fSubDet1  ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> >  fSubDet2  ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> >  fSubDet3  ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> >  fSubDet4  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  resEMS  ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
+  const reco::Vertex PrimaryVertex = vertices->front();
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
+      //set to zero the vectorial sum of associated tracks momenta
+      jetMPTwithEverything->SetCoordinates(0., 0., 0.);
+      jetMPTwithAllTracks->SetCoordinates(0., 0., 0.);
+      jetMPTwithLooseTracks->SetCoordinates(0., 0., 0.);
+      jetMPTwithTightTracks->SetCoordinates(0., 0., 0.);
+      jetMPTwithHighPurityTracks->SetCoordinates(0., 0., 0.);
+      jetMPTwithConfirmedTracks->SetCoordinates(0., 0., 0.);
+      jetMPTwithGoodIterativeTracks->SetCoordinates(0., 0., 0.);
+      //
+      const pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
       corrfactor->push_back(it->energy()/pJunc.energy());
-      nAssoTracks->push_back(it->associatedTracks().size());
+      nAssoTracksEverything->push_back(it->associatedTracks().size());
+      int nATAll=0;
+      int nATLoose=0;
+      int nATTight=0;
+      int nATHighPurity=0;
+      int nATConfirmed=0;
+      int nATGoodIterative=0;
+      for (reco::TrackRefVector::iterator trk = it->associatedTracks().begin(); trk != it->associatedTracks().end(); ++trk) {
+	 *jetMPTwithEverything += (*trk)->momentum();
+	//preselection cuts
+	if((*trk)->pt()>minPttrk && (*trk)->pt()<maxPttrk && fabs((*trk)->dxy(PrimaryVertex.position()))<maxD0trk && (*trk)->chi2()<maxChi2trk){
+	  //undefined
+	  if((*trk)->quality(reco::Track::undefQuality)){
+	    nATAll++;
+	    *jetMPTwithAllTracks += (*trk)->momentum();
+	  }
+	  //loose
+	  if((*trk)->quality(reco::Track::loose)) {
+	    nATLoose++;
+	    *jetMPTwithLooseTracks += (*trk)->momentum();
+	  }
+	  //tight
+	  if((*trk)->quality(reco::Track::tight)) {
+	    nATTight++;
+	    *jetMPTwithTightTracks += (*trk)->momentum();
+	  }
+	  //highpurity
+	  if((*trk)->quality(reco::Track::highPurity)) {
+	    nATHighPurity++;
+	    *jetMPTwithHighPurityTracks+= (*trk)->momentum();
+	  }
+	  //confirmed
+	  if((*trk)->quality(reco::Track::confirmed)) {
+	    nATConfirmed++;
+	    *jetMPTwithConfirmedTracks+= (*trk)->momentum();
+	  }
+	  //gooditerative
+	  if((*trk)->quality(reco::Track::goodIterative)) {
+	    nATGoodIterative++;
+	    *jetMPTwithGoodIterativeTracks+= (*trk)->momentum();
+	  }
+	}
+      }
+      
+      nAssoTracksAll->push_back(nATAll);
+      nAssoTracksLoose->push_back(nATLoose);
+      nAssoTracksTight->push_back(nATTight);
+      nAssoTracksHighPurity->push_back(nATHighPurity);
+      nAssoTracksConfirmed->push_back(nATConfirmed);
+      nAssoTracksGoodIterative->push_back(nATGoodIterative);
       fHPD->push_back(it->jetID().fHPD);
       fRBX->push_back(it->jetID().fRBX);
       fSubDet1->push_back(it->jetID().fSubDetector1);
@@ -202,12 +306,25 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       fSubDet4->push_back(it->jetID().fSubDetector4);
       resEMS->push_back(it->jetID().restrictedEMF);
       NECALTowers->push_back(it->jetID().nECALTowers);
-      NHCALTowers->push_back(it->jetID().nHCALTowers);      
+      NHCALTowers->push_back(it->jetID().nHCALTowers);  
     }
   }
 
   iEvent.put( corrfactor,  Prefix + "CorrFactor"  + Suffix );
-  iEvent.put( nAssoTracks,  Prefix + "NAssoTracks"  + Suffix );
+  iEvent.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
+  iEvent.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );
+  iEvent.put( nAssoTracksLoose,  Prefix + "NAssoTracksLoose"  + Suffix );
+  iEvent.put( nAssoTracksTight,  Prefix + "NAssoTracksTight"  + Suffix );
+  iEvent.put( nAssoTracksHighPurity,  Prefix + "NAssoTracksHighPurity"  + Suffix );
+  iEvent.put( nAssoTracksConfirmed,  Prefix + "NAssoTracksConfirmed"  + Suffix );
+  iEvent.put( nAssoTracksGoodIterative,  Prefix + "NAssoTracksGoodIterative"  + Suffix );
+  iEvent.put( jetMPTwithEverything,  Prefix + "MPTwithEverything"  + Suffix );
+  iEvent.put( jetMPTwithAllTracks,  Prefix + "MPTwithAllTracks"  + Suffix );
+  iEvent.put( jetMPTwithLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
+  iEvent.put( jetMPTwithTightTracks,  Prefix + "MPTwithTightTracks"  + Suffix );
+  iEvent.put( jetMPTwithHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  iEvent.put( jetMPTwithConfirmedTracks,  Prefix + "MPTwithConfirmedTracks"  + Suffix );
+  iEvent.put( jetMPTwithGoodIterativeTracks,  Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
   iEvent.put( fHPD,  Prefix + "FHPD"  + Suffix );
   iEvent.put( fRBX,  Prefix + "FRBX"  + Suffix );
   iEvent.put( fSubDet1,  Prefix + "FSubDet1"  + Suffix );

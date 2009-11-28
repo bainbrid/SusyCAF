@@ -163,7 +163,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     isEEGap             ->push_back(photon.isEEGap              ());
     isEBEEGap           ->push_back(photon.isEBEEGap            ());
     
-  	reco::ConversionRefVector           conversions     = photon.conversions();
+    reco::ConversionRefVector           conversions     = photon.conversions();
     const unsigned int                  numConversions  = conversions.size();
     reco::ConversionRef                 bestConversion;
     for (unsigned int iConv = 0; iConv < numConversions; ++iConv) {
@@ -236,6 +236,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     sigmaIetaIeta->push_back(photon.sigmaIetaIeta());
 
     // The following is for printing out the available IDs for inspection purposes.
+    // Want to store, but doesn't look like there's anything to store in the current reco...
     const std::vector<pat::Photon::IdPair>&         ids         = photon.photonIDs();
     const unsigned int                              numIDs      = ids.size();
     for (unsigned int iID = 0; iID < numIDs; ++iID)

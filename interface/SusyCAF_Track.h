@@ -22,6 +22,7 @@ private:
   const edm::InputTag                 inputTag;
   const edm::InputTag                 primaryVertexTag;
   const std::string                   prefix, suffix;
+  const double                        maxChi2;
   const double                        maxD0;
   const double                        minPT;
   const double                        maxPT;

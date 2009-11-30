@@ -2,7 +2,8 @@
 // scram b ; cmsenv ; SusyCaf_example_macro;
 
 #include "SusyCAFLinkDef.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/TTREE_FOREACH_ENTRY.hh"
+//#include "SUSYBSMAnalysis/SusyCAF/interface/TTREE_FOREACH_ENTRY.hh"
+#include "../interface/TTREE_FOREACH_ENTRY.hh"
 #include <iostream>
 
 #include "TH1F.h"
@@ -19,24 +20,23 @@ void SusyCAF_example_macro() {
   TH1F* mht = new TH1F("mht","", 100,0,25);  
   TH1F* mht_uncorr = new TH1F("mht_uncorr","", 100,0,25);  
   TTREE_FOREACH_ENTRY(getChain(),
-		      std::vector<LorentzV>* LEAF(ic5JetP4Pat)
-		      std::vector<LorentzV>* LEAF(metP4Calo)
+		      std::vector<LorentzV>* LEAF(ic5JetCorrectedP4Pat)
+		      LorentzV*              LEAF(metP4Calo)
 		      trigger_t*             LEAF(triggered)
 		      std::vector<double>*   LEAF(ic5JetResEMFPat)
 		      std::vector<double>*   LEAF(ic5JetCorrFactorPat)
 		      ) {
-
     std::vector<LorentzV> clean_jets;
     std::vector<LorentzV> clean_jets_uncorr;
-    for(unsigned i = 0; i<ic5JetP4Pat->size(); i++) {
+    for(unsigned i = 0; i<ic5JetCorrectedP4Pat->size(); i++) {
       if((*ic5JetResEMFPat)[i] > 0.01) {
-	clean_jets.push_back( (*ic5JetP4Pat)[i] );
-	clean_jets_uncorr.push_back( (*ic5JetP4Pat)[i] / (*ic5JetCorrFactorPat)[i] );
+	clean_jets.push_back( (*ic5JetCorrectedP4Pat)[i] );
+	clean_jets_uncorr.push_back( (*ic5JetCorrectedP4Pat)[i] / (*ic5JetCorrFactorPat)[i] );
       }
     }
-
+    
     if( (*triggered)["HLT_HcalNZS_8E29"] && clean_jets.size() ) {
-      met->Fill( (*metP4Calo)[0].pt());
+      met->Fill( metP4Calo->pt());
       mht->Fill( MHT(clean_jets).pt() );
       mht_uncorr->Fill( MHT(clean_jets_uncorr).pt() );
     }
@@ -47,7 +47,7 @@ void SusyCAF_example_macro() {
 
 
 TChain* getChain() {
-  std::string fileName = "/d1/henning/SUSYCAF/CMSSW_3_3_4/src/SUSYBSMAnalysis/SusyCAF/test/patTree.root";
+  std::string fileName = "./patTree.root";
   std::string treeName = "/susyTree/tree";
   TChain * chain = new TChain("chain");
   chain->Add((fileName+treeName).c_str());

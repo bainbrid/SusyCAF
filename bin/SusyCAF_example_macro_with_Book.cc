@@ -16,8 +16,8 @@ TChain* getChain();
 int main() {
   Book book;
   TTREE_FOREACH_ENTRY(getChain(),
-		      std::vector<LorentzV>* LEAF(ic5JetP4Pat)
-		      std::vector<LorentzV>* LEAF(metP4Calo)
+		      std::vector<LorentzV>* LEAF(ic5JetCorrectedP4Pat)
+		      LorentzV*              LEAF(metP4Calo)
 		      trigger_t*             LEAF(triggered)
 		      std::vector<double>*   LEAF(ic5JetResEMFPat)
 		      std::vector<double>*   LEAF(ic5JetCorrFactorPat)
@@ -25,15 +25,15 @@ int main() {
 
     std::vector<LorentzV> clean_jets;
     std::vector<LorentzV> clean_jets_uncorr;
-    for(unsigned i = 0; i<ic5JetP4Pat->size(); i++) {
+    for(unsigned i = 0; i<ic5JetCorrectedP4Pat->size(); i++) {
       if((*ic5JetResEMFPat)[i] > 0.01) {
-	clean_jets.push_back( (*ic5JetP4Pat)[i] );
-	clean_jets_uncorr.push_back( (*ic5JetP4Pat)[i] / (*ic5JetCorrFactorPat)[i] );
+	clean_jets.push_back( (*ic5JetCorrectedP4Pat)[i] );
+	clean_jets_uncorr.push_back( (*ic5JetCorrectedP4Pat)[i] / (*ic5JetCorrFactorPat)[i] );
       }
     }
 
     if( (*triggered)["HLT_HcalNZS_8E29"] && clean_jets.size() ) {
-      book.fill( (*metP4Calo)[0].pt(),        "met",       100,0,25);
+      book.fill( metP4Calo->pt(),             "met",       100,0,25);
       book.fill( MHT(clean_jets).pt(),        "mht",       100,0,25);
       book.fill( MHT(clean_jets_uncorr).pt(), "mht_uncorr",100,0,25);
     }
@@ -44,7 +44,7 @@ int main() {
 
 
 TChain* getChain() {
-  std::string fileName = "/d1/henning/SUSYCAF/CMSSW_3_3_4/src/SUSYBSMAnalysis/SusyCAF/test/patTree.root";
+  std::string fileName = "./patTree.root";
   std::string treeName = "/susyTree/tree";
   TChain * chain = new TChain("chain");
   chain->Add((fileName+treeName).c_str());

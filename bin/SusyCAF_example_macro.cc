@@ -1,25 +1,13 @@
-// root -b -q SusyCAF_example_macro.cc+ | compiles and runs
-// scram b                              | compiles and makes binary SusyCAF_example_macro, which segfaults for lack of map<string,bool> dictionary
+// root -b -q SusyCAF_example_macro.cc+ 
+// scram b ; cmsenv ; SusyCaf_example_macro;
 
 #include "TTREE_FOREACH_ENTRY.hh"
-#include "Math/LorentzVector.h"
-#include <map>
-#include <vector>
+#include "SusyCAFLinkDef.h"
 #include <iostream>
-
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzV;
-typedef std::map<std::string,bool> trigger_t;
 
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TChain.h"
-
-#ifdef __MAKECINT__
-#pragma link C++ class std::vector<LorentzV>+;
-#pragma link C++ class trigger_t+;
-#pragma link C++ class std::pair<std::string,bool>+;
-#pragma link C++ class std::pair<const std::string,bool>+;
-#endif
 
 LorentzV MHT(std::vector<LorentzV>&);
 void drawSame(TH1*, TH1*, const char*);

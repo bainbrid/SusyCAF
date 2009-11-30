@@ -3,7 +3,7 @@
  * > cmsenv
  * > cmsRun test/treeDataPat_cfg.py
  * choose either:
- * > SusyCaf_example_macro_with_Book
+ * > SusyCaf_example_macro
  * > root -b -q bin/SusyCAF_example_macro.cc+
  */
 

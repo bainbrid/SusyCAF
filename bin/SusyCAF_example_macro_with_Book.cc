@@ -1,7 +1,7 @@
 /* From SUSYBSMAnalysis/SusyCAF/
  * > scram b
  * > cmsenv
- * > cmsRun test/treeDataPat_cfg.py
+ * > cmsRun test/exampleTreePat_cfg.py
  * > SusyCaf_example_macro_with_Book
  */
 

@@ -29,11 +29,8 @@ class SusyCAF_Jet : public edm::EDProducer {
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::VertexCollection>& vertices);
 
   const edm::InputTag inputTag, primaryVertexTag;
+  const double maxD0trk,minPttrk,maxPttrk,maxChi2trk;
   const std::string Prefix,Suffix;
-  const double maxPttrk;
-  const double minPttrk;
-  const double maxD0trk;
-  const double maxChi2trk;
 };
 
 template< typename T >

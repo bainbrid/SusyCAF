@@ -1,4 +1,9 @@
-// scram b ; cmsenv ; SusyCaf_example_macro_with_Book;
+/* From SUSYBSMAnalysis/SusyCAF/
+ * > scram b
+ * > cmsenv
+ * > cmsRun test/treeDataPat_cfg.py
+ * > SusyCaf_example_macro_with_Book
+ */
 
 #include "SusyCAFLinkDef.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/TTREE_FOREACH_ENTRY.hh"

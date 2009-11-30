@@ -1,8 +1,13 @@
-// root -b -q SusyCAF_example_macro.cc+ 
-// scram b ; cmsenv ; SusyCaf_example_macro;
+/* From SUSYBSMAnalysis/SusyCAF/
+ * > scram b
+ * > cmsenv
+ * > cmsRun test/treeDataPat_cfg.py
+ * choose either:
+ * > SusyCaf_example_macro_with_Book
+ * > root -b -q bin/SusyCAF_example_macro.cc+
+ */
 
 #include "SusyCAFLinkDef.h"
-//#include "SUSYBSMAnalysis/SusyCAF/interface/TTREE_FOREACH_ENTRY.hh"
 #include "../interface/TTREE_FOREACH_ENTRY.hh"
 #include <iostream>
 

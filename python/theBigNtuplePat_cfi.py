@@ -15,6 +15,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 #from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
@@ -29,7 +30,7 @@ theBigNtuplePat = cms.Sequence( (susycafevent +
                                  susycaftrack +
                                  susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
                                  susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
-   			                         susycaftriggers +
+   			         susycaftriggers +
                                  susycafmet +
                                  susycafmetnohf +
                                  susycafmetIC5 +
@@ -45,6 +46,7 @@ theBigNtuplePat = cms.Sequence( (susycafevent +
                                  susycafvertex +
                                  susycafelectron +
                                  susycafhcalnoisesummary +
+                                 susycafhcalnoiserbx +
                                  susycafcalotowers +
                                  susycaftau) *
                                  susyTree

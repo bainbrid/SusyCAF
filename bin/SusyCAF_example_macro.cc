@@ -1,8 +1,8 @@
 // root -b -q SusyCAF_example_macro.cc+ 
 // scram b ; cmsenv ; SusyCaf_example_macro;
 
-#include "TTREE_FOREACH_ENTRY.hh"
 #include "SusyCAFLinkDef.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/TTREE_FOREACH_ENTRY.hh"
 #include <iostream>
 
 #include "TH1F.h"

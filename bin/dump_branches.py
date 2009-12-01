@@ -259,7 +259,9 @@ if __name__ == '__main__':
     
     # Needs a bit of detective work to find the class name
     branchType              = branch.GetClassName()
+    branchPointer           = "*"
     if branchType == "":
+      branchPointer         = " "
       aLeaf                 = branch.GetListOfLeaves().At(0)
       leafType              = aLeaf.ClassName()[-1]
       for (postfix, typeName) in Settings.unsignedTypes:
@@ -294,10 +296,10 @@ if __name__ == '__main__':
     if branchTag:
       maxCollLen            = max(maxCollLen, len(branchTag))
       maxNameLen            = max(maxNameLen, len(branchName))
-      taggedColls.append((branchTag, branchName, branchType))
+      taggedColls.append((branchTag, branchName, branchType, branchPointer))
     else:
       maxCollLen            = max(maxCollLen, len(branchName))
-      plainColls.append((branchName, branchType))
+      plainColls.append((branchName, branchType, branchPointer))
 
 
   #.. Sort and display ........................................................
@@ -314,10 +316,10 @@ if __name__ == '__main__':
   if len(taggedColls) > 0:  maxDeclarationLen = 12    # RENAMED_LEAF
   
   print "TTREE_FOREACH_ENTRY(getChain(),"
-  for (branchName, branchType) in plainColls:
-    print "  %-*s * %-*s(%-*s)" % (maxTypeLen, branchType, maxDeclarationLen, "LEAF", maxCollLen, branchName)
-  for (branchTag, branchName, branchType) in taggedColls:
-    print "  %-*s * %-*s(%-*s, %-*s)" % (maxTypeLen, branchType, maxDeclarationLen, "RENAMED_LEAF", maxCollLen, branchTag, maxNameLen+2, '"'+branchName+'"')
+  for (branchName, branchType, branchPointer) in plainColls:
+    print "  %-*s %s %-*s(%-*s)" % (maxTypeLen, branchType, branchPointer, maxDeclarationLen, "LEAF", maxCollLen, branchName)
+  for (branchTag, branchName, branchType, branchPointer) in taggedColls:
+    print "  %-*s %s %-*s(%-*s, %-*s)" % (maxTypeLen, branchType, branchPointer, maxDeclarationLen, "RENAMED_LEAF", maxCollLen, branchTag, maxNameLen+2, '"'+branchName+'"')
   print ")"
   print
   print

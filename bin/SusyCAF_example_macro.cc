@@ -8,6 +8,7 @@
  */
 
 #include "SusyCAFLinkDef.h"
+#include "../interface/alpha_T.h"
 #include "../interface/TTREE_FOREACH_ENTRY.hh"
 #include <iostream>
 
@@ -24,6 +25,8 @@ void SusyCAF_example_macro() {
   TH1F* met = new TH1F("met","", 100,0,25);
   TH1F* mht = new TH1F("mht","", 100,0,25);  
   TH1F* mht_uncorr = new TH1F("mht_uncorr","", 100,0,25);  
+  TH1F* alphaT = new TH1F("alphaT","",100,0,4);
+  TH1F* alphaT_uncorr = new TH1F("alphaT_uncorr","",100,0,4);
   TTREE_FOREACH_ENTRY(getChain(),
 		      std::vector<LorentzV>* LEAF(ic5JetCorrectedP4Pat)
 		      LorentzV*              LEAF(metP4Calo)
@@ -44,10 +47,13 @@ void SusyCAF_example_macro() {
       met->Fill( metP4Calo->pt());
       mht->Fill( MHT(clean_jets).pt() );
       mht_uncorr->Fill( MHT(clean_jets_uncorr).pt() );
+      alphaT->Fill( alpha_T(clean_jets) );
+      alphaT->Fill( alpha_T(clean_jets_uncorr) );
     }
   }
   drawSame(met, mht, "met_mht.eps");
   drawSame(met, mht_uncorr, "met_mht_uncorr.eps");
+  drawSame(alphaT, alphaT_uncorr, "alphaT.eps");
 }
 
 

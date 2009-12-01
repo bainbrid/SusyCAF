@@ -6,7 +6,6 @@ import os
 import sys
 import string
 import re
-import commands
 
 
 #---Settings----#000000#FFFFFF--------------------------------------------------
@@ -118,11 +117,6 @@ def convertSetting(setting, convertor, errorMessage):
 
   return
 
-def toList(streeng, delimiter = ";"):
-  streeng = streeng.strip()
-  if streeng == "":   return []
-  return string.split(streeng, delimiter)
-
 
 def parseArgs(args):
   "Parses command-line arguments into options and variables"
@@ -179,36 +173,6 @@ def parseArgs(args):
 
   return (filePaths, patternTags)
 
-
-def runJob(commandLine, errorMessage=None, logPath=None, verbose=True):
-  """
-  Runs the specified command, saving the output and checking the status.
-  """
-
-  if Settings.options["dry-run"]:
-    print "     ", commandLine
-    return
-
-  (status, output)  = commands.getstatusoutput(commandLine);
-  if logPath:
-    logFile = open(logPath, "w")
-    logFile.write(output)
-    logFile.close()
-
-  if (errorMessage == None and status != 0) or (errorMessage != None and errorMessage in output):
-    print Color.hilight + "###", Color.none
-    print Color.hilight + "###  PROBLEM    :", Color.none, commandLine.split(" ",1)[0], "exited with error code", status
-    print Color.hilight + "###  Command    :", Color.none, commandLine
-    print Color.hilight + "###  Output was :", Color.none
-    print Color.hilight + "###", Color.none
-    print output
-    sys.exit(Error.execution)
-
-  if verbose:
-    print Color.info, commandLine, Color.none
-  if logPath:     print "  ... successful, logged in", logPath
-  elif verbose:   print Color.deemphasis + output, Color.none
-  return
 
 def compareList(xList, yList):
   for (x, y) in zip(xList, yList):

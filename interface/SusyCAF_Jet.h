@@ -316,7 +316,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       fSubDet3->push_back(it->jetID().fSubDetector3);
       fSubDet4->push_back(it->jetID().fSubDetector4);
       resEMF->push_back(it->jetID().restrictedEMF);
-      n90Hits->push_back(it->jetID().n90Hits);
+      n90Hits->push_back((int)(it->jetID().n90Hits));
       std::strbitset    passMinimalCuts = minimalJetID.getBitTemplate();
       std::strbitset    passLooseCuts   = looseJetID  .getBitTemplate();
       std::strbitset    passTightCuts   = tightJetID  .getBitTemplate();

@@ -9,6 +9,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+
 
 template< typename T >
 class SusyCAF_Jet : public edm::EDProducer {
@@ -31,6 +33,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   const edm::InputTag inputTag, primaryVertexTag;
   const double maxD0trk,minPttrk,maxPttrk,maxChi2trk;
   const std::string Prefix,Suffix;
+  JetIDSelectionFunctor   minimalJetID, looseJetID, tightJetID;
 };
 
 template< typename T >
@@ -42,7 +45,10 @@ SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
   maxPttrk(iConfig.getParameter<double>("MaxPtTrk")),
   maxChi2trk(iConfig.getParameter<double>("MaxChi2Trk")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+  Suffix(iConfig.getParameter<std::string>("Suffix")),
+  minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
+  looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
+  tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT)
 {
   edm::Handle<T> dataType;
   initTemplate(dataType);
@@ -307,6 +313,17 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       n90Hits->push_back(it->jetID().n90Hits);
       NECALTowers->push_back(it->jetID().nECALTowers);
       NHCALTowers->push_back(it->jetID().nHCALTowers);  
+
+      //std::strbitset    passMinimalCuts, passLooseCuts, passTightCuts;
+      //minimalJetID.print(std::cout);
+      //looseJetID  .print(std::cout);
+      //tightJetID  .print(std::cout);
+      //bool              passMinimal = minimalJetID(*it, passMinimalCuts);
+      //bool              passLoose   = looseJetID  (*it, passLooseCuts  );
+      //bool              passTight   = tightJetID  (*it, passTightCuts  );
+      //std::cout << " Minimal ID : " << (passMinimal ? "yes" : "no") << std::endl;  passMinimalCuts.print(std::cout);
+      //std::cout << " Loose ID   : " << (passLoose   ? "yes" : "no") << std::endl;  passLooseCuts  .print(std::cout);
+      //std::cout << " Tight ID   : " << (passTight   ? "yes" : "no") << std::endl;  passTightCuts  .print(std::cout);
     }
   }
 

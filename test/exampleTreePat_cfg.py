@@ -19,7 +19,7 @@ process.add_( cms.Service( "TFileService",
 process.load("SUSYBSMAnalysis.SusyCAF.dataSamples.MinBias-Summer09-STARTUP3X_V8D_900GeV-v1-GEN-SIM-RECO_cff")
 
 
-process.maxEvents.input = 100
+process.maxEvents.input = -1
 
 # Due to problem in production of LM samples: same event number appears multiple times
 #process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')

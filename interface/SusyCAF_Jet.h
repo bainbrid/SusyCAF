@@ -80,8 +80,8 @@ void SusyCAF_Jet<T>::initRECO()
   produces <std::vector<double> > ( Prefix + "EmEnergyInEB"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EmEnergyInEE"  + Suffix );
   produces <std::vector<double> > ( Prefix + "EmEnergyInHF"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "N60"  + Suffix ); 
-  produces <std::vector<int> > ( Prefix + "N90"  + Suffix ); 
+  produces <std::vector<int> > ( Prefix + "N60Towers"  + Suffix ); 
+  produces <std::vector<int> > ( Prefix + "N90Towers"  + Suffix ); 
 }
 
 // extra information stored for PAT data
@@ -103,13 +103,14 @@ void SusyCAF_Jet<T>::initPAT()
   produces <Vector> ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
   produces <Vector> ( Prefix + "MPTwithConfirmedTracks"  + Suffix );
   produces <Vector> ( Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FHPD"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FRBX"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FSubDet1"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FSubDet2"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FSubDet3"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "FSubDet4"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "ResEMF"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFHPD"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFRBX"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFSubDet1"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFSubDet2"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFSubDet3"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDFSubDet4"  + Suffix );
+  produces <std::vector<double> > ( Prefix + "JetIDResEMF"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "JetIDN90Hits"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NECALTowers"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NHCALTowers"  + Suffix );
 
@@ -195,8 +196,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( emEnergyInEB,  Prefix + "EmEnergyInEB"  + Suffix );
   iEvent.put( emEnergyInEE,  Prefix + "EmEnergyInEE"  + Suffix );
   iEvent.put( emEnergyInHF,  Prefix + "EmEnergyInHF"  + Suffix );
-  iEvent.put( n60,  Prefix + "N60"  + Suffix ); 
-  iEvent.put( n90,  Prefix + "N90"  + Suffix ); 
+  iEvent.put( n60,  Prefix + "N60Towers"  + Suffix ); 
+  iEvent.put( n90,  Prefix + "N90Towers"  + Suffix ); 
 
 }
 
@@ -227,7 +228,8 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<double> >  fSubDet2  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fSubDet3  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fSubDet4  ( new std::vector<double>() ) ;
-  std::auto_ptr<std::vector<double> >  resEMS  ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  resEMF  ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<int> >  n90Hits  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
@@ -301,7 +303,8 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       fSubDet2->push_back(it->jetID().fSubDetector2);
       fSubDet3->push_back(it->jetID().fSubDetector3);
       fSubDet4->push_back(it->jetID().fSubDetector4);
-      resEMS->push_back(it->jetID().restrictedEMF);
+      resEMF->push_back(it->jetID().restrictedEMF);
+      n90Hits->push_back(it->jetID().n90Hits);
       NECALTowers->push_back(it->jetID().nECALTowers);
       NHCALTowers->push_back(it->jetID().nHCALTowers);  
     }
@@ -322,13 +325,14 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put( jetMPTwithHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
   iEvent.put( jetMPTwithConfirmedTracks,  Prefix + "MPTwithConfirmedTracks"  + Suffix );
   iEvent.put( jetMPTwithGoodIterativeTracks,  Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
-  iEvent.put( fHPD,  Prefix + "FHPD"  + Suffix );
-  iEvent.put( fRBX,  Prefix + "FRBX"  + Suffix );
-  iEvent.put( fSubDet1,  Prefix + "FSubDet1"  + Suffix );
-  iEvent.put( fSubDet2,  Prefix + "FSubDet2"  + Suffix );
-  iEvent.put( fSubDet3,  Prefix + "FSubDet3"  + Suffix );
-  iEvent.put( fSubDet4,  Prefix + "FSubDet4"  + Suffix );
-  iEvent.put( resEMS,  Prefix + "ResEMF"  + Suffix );
+  iEvent.put( fHPD,  Prefix + "JetIDFHPD"  + Suffix );
+  iEvent.put( fRBX,  Prefix + "JetIDFRBX"  + Suffix );
+  iEvent.put( fSubDet1,  Prefix + "JetIDFSubDet1"  + Suffix );
+  iEvent.put( fSubDet2,  Prefix + "JetIDFSubDet2"  + Suffix );
+  iEvent.put( fSubDet3,  Prefix + "JetIDFSubDet3"  + Suffix );
+  iEvent.put( fSubDet4,  Prefix + "JetIDFSubDet4"  + Suffix );
+  iEvent.put( resEMF,  Prefix + "JetIDResEMF"  + Suffix );
+  iEvent.put( n90Hits,  Prefix + "JetIDN90Hits"  + Suffix );
   iEvent.put( NECALTowers,  Prefix + "NECALTowers"  + Suffix );
   iEvent.put( NHCALTowers,  Prefix + "NHCALTowers"  + Suffix );
 

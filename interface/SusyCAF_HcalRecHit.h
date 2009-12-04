@@ -61,6 +61,8 @@ SusyCAF_HcalRecHit<T>::SusyCAF_HcalRecHit(const edm::ParameterSet& iConfig) :
      singleRmThresholds(iConfig.getParameter<std::vector<double> >("SingleRmThresholds")),
      singleChannelThreshold(iConfig.getParameter<double>("SingleChannelThreshold"))
 {
+  produces <float>                ( Prefix + "totalEPlus"      + Suffix );
+  produces <float>                ( Prefix + "totalEMinus"     + Suffix );
   produces <float>                ( Prefix + "etMax"           + Suffix );
   produces <float>                ( Prefix + "tMax"            + Suffix );
   produces <int>                  ( Prefix + "iEtaMax"         + Suffix );
@@ -114,6 +116,8 @@ int SusyCAF_HcalRecHit<T>::getRbxZ(const int iRbx) const {
 template< typename T >
 void SusyCAF_HcalRecHit<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::auto_ptr<float>                totalEPlus     ( new float()               ) ;
+  std::auto_ptr<float>                totalEMinus    ( new float()               ) ;
   std::auto_ptr<float>                etMax          ( new float()               ) ;
   std::auto_ptr<float>                tMax           ( new float()               ) ;
   std::auto_ptr<int>                  iEtaMax        ( new int()                 ) ;
@@ -133,6 +137,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     rmMultiplicities[iRm]=0;
   }
   
+  float totalEPlusLocal=0.0;
+  float totalEMinusLocal=0.0;
+  
   float etMaxLocal=-1000.0;
   typename T::const_iterator itMax;
 
@@ -145,6 +152,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(typename T::const_iterator it = hcalrechitcollection->begin(); it != hcalrechitcollection->end(); ++it) {
     const float energy=it->energy();
     const int iEtaAbsLocal=it->id().ietaAbs();
+    const int zsideLocal=it->id().zside();
     const float etLocal=energy/cosh(etaabs[iEtaAbsLocal]);
 
     if (etLocal>etMaxLocal) {
@@ -161,6 +169,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (energy>singleChannelThreshold) {
       rbxMultiplicities[rbxIndexValue]++;
       rmMultiplicities[rmIndexValue]++;
+      if (zsideLocal>0) totalEPlusLocal+=energy;
+      if (zsideLocal<0) totalEMinusLocal+=energy;
     }
 
     //std::cout 
@@ -185,6 +195,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //fill flag variables
   *multFlagCount.get()=multFlagCountLocal;
   *psFlagCount.get()=psFlagCountLocal;
+
+  *totalEPlus.get()=totalEPlusLocal;
+  *totalEMinus.get()=totalEMinusLocal;
 
   //fill RBX variables
   for (unsigned int iRbxThreshold=0;iRbxThreshold<singleRbxThresholds.size();++iRbxThreshold) {
@@ -259,6 +272,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //put remaining stuff in the event
+  iEvent.put( totalEPlus         , Prefix + "totalEPlus"     + Suffix );
+  iEvent.put( totalEMinus        , Prefix + "totalEMinus"    + Suffix );
+
   iEvent.put( etMax              , Prefix + "etMax"          + Suffix );
   iEvent.put( tMax               , Prefix + "tMax"           + Suffix );
   iEvent.put( iEtaMax            , Prefix + "iEtaMax"        + Suffix );

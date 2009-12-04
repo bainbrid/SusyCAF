@@ -9,6 +9,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+
 
 template< typename T >
 class SusyCAF_Jet : public edm::EDProducer {
@@ -31,6 +33,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   const edm::InputTag inputTag, primaryVertexTag;
   const double maxD0trk,minPttrk,maxPttrk,maxChi2trk;
   const std::string Prefix,Suffix;
+  JetIDSelectionFunctor   minimalJetID, looseJetID, tightJetID;
 };
 
 template< typename T >
@@ -42,7 +45,10 @@ SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
   maxPttrk(iConfig.getParameter<double>("MaxPtTrk")),
   maxChi2trk(iConfig.getParameter<double>("MaxChi2Trk")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+  Suffix(iConfig.getParameter<std::string>("Suffix")),
+  minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
+  looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
+  tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT)
 {
   edm::Handle<T> dataType;
   initTemplate(dataType);
@@ -111,6 +117,9 @@ void SusyCAF_Jet<T>::initPAT()
   produces <std::vector<double> > ( Prefix + "JetIDFSubDet4"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDResEMF"  + Suffix );
   produces <std::vector<int> > ( Prefix + "JetIDN90Hits"  + Suffix );
+  produces <std::vector<bool> > ( Prefix + "JetIDminimal"  + Suffix );
+  produces <std::vector<bool> > ( Prefix + "JetIDloose"  + Suffix );
+  produces <std::vector<bool> > ( Prefix + "JetIDtight"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NECALTowers"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NHCALTowers"  + Suffix );
 
@@ -230,6 +239,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<double> >  fSubDet4  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  resEMF  ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<int> >  n90Hits  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<bool> >  jetidminimal  ( new std::vector<bool>()  ) ;
+  std::auto_ptr<std::vector<bool> >  jetidloose  ( new std::vector<bool>()  ) ;
+  std::auto_ptr<std::vector<bool> >  jetidtight  ( new std::vector<bool>()  ) ;
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
@@ -305,8 +317,26 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       fSubDet4->push_back(it->jetID().fSubDetector4);
       resEMF->push_back(it->jetID().restrictedEMF);
       n90Hits->push_back(it->jetID().n90Hits);
+      std::strbitset    passMinimalCuts = minimalJetID.getBitTemplate();
+      std::strbitset    passLooseCuts   = looseJetID  .getBitTemplate();
+      std::strbitset    passTightCuts   = tightJetID  .getBitTemplate();
+      jetidminimal->push_back(minimalJetID(*it, passMinimalCuts));
+      jetidloose->push_back(looseJetID(*it, passLooseCuts  ));
+      jetidtight->push_back(tightJetID(*it, passTightCuts  ));
       NECALTowers->push_back(it->jetID().nECALTowers);
       NHCALTowers->push_back(it->jetID().nHCALTowers);  
+
+      /*
+      std::strbitset    passMinimalCuts = minimalJetID.getBitTemplate();
+      std::strbitset    passLooseCuts   = looseJetID  .getBitTemplate();
+      std::strbitset    passTightCuts   = tightJetID  .getBitTemplate();
+      bool              passMinimal = minimalJetID(*it, passMinimalCuts);
+      bool              passLoose   = looseJetID  (*it, passLooseCuts  );
+      bool              passTight   = tightJetID  (*it, passTightCuts  );
+      std::cout << " Minimal ID : " << (passMinimal ? "yes" : "no") << std::endl;  passMinimalCuts.print(std::cout);
+      std::cout << " Loose ID   : " << (passLoose   ? "yes" : "no") << std::endl;  passLooseCuts  .print(std::cout);
+      std::cout << " Tight ID   : " << (passTight   ? "yes" : "no") << std::endl;  passTightCuts  .print(std::cout);*/
+
     }
   }
 
@@ -333,6 +363,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put( fSubDet4,  Prefix + "JetIDFSubDet4"  + Suffix );
   iEvent.put( resEMF,  Prefix + "JetIDResEMF"  + Suffix );
   iEvent.put( n90Hits,  Prefix + "JetIDN90Hits"  + Suffix );
+  iEvent.put( jetidminimal,  Prefix + "JetIDminimal"  + Suffix );
+  iEvent.put( jetidloose,  Prefix + "JetIDloose"  + Suffix );
+  iEvent.put( jetidtight,  Prefix + "JetIDtight"  + Suffix );
   iEvent.put( NECALTowers,  Prefix + "NECALTowers"  + Suffix );
   iEvent.put( NHCALTowers,  Prefix + "NHCALTowers"  + Suffix );
 

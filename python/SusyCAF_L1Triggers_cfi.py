@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
-
 susycafL1triggers = cms.EDProducer("SusyCAF_L1Triggers",
                                    InputTag = cms.InputTag('gtDigis'),
                                    NBx = cms.int32(0)

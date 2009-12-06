@@ -37,7 +37,6 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
-#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HLTTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummary.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseRBX.h"
@@ -86,7 +85,6 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_BeamSpot);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Vertex);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1GlobalTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1CaloTrigger);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HLTTrigger);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Extra);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseSummary);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseRBX);

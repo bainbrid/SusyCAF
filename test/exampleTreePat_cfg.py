@@ -36,7 +36,7 @@ process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands, removeMCDependence
 removeMCDependence(process)
-addDefaultSUSYPAT(process)
+addDefaultSUSYPAT(process,'HLT','900GeV')
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 

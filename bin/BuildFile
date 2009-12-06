@@ -1,8 +1,0 @@
-<use name=SUSYBSMAnalysis/SusyCAF>
-<use name=DataFormats/Math>
-<use name=root>
-<use name=rootinteractive>
-<library file=empty.cc name=SusyCAFTypes></library>
-
-<bin name=SusyCAF_example_macro file=SusyCAF_example_macro.cc><lib name=SusyCAFTypes></bin>
-<bin name=SusyCAF_example_macro_with_Book file=SusyCAF_example_macro_with_Book.cc><lib name=SusyCAFTypes></bin>

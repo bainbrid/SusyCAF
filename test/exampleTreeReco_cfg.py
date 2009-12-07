@@ -10,7 +10,7 @@ process.add_( cms.Service( "TFileService",
                            closeFileFast = cms.untracked.bool(True)  ) )
 
 
-process.load("SUSYBSMAnalysis.SusyCAF.dataSamples.MinBias-Summer09-STARTUP3X_V8D_900GeV-v1-GEN-SIM-RECO_cff")
+process.load("SUSYBSMAnalysis.SusyCAF.dataSamples.MinBias_Summer09_STARTUP3X_V8D_900GeV_v1_GEN_SIM_RECO_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 

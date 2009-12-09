@@ -25,30 +25,22 @@ class SusyCAF_Jet : public edm::EDProducer {
   void initPAT();
   //
   void produce(edm::Event &, const edm::EventSetup & );
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<reco::CaloJet> > &, edm::Handle<reco::VertexCollection>& vertices);
-  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<pat::Jet> > &, edm::Handle<reco::VertexCollection>& vertices);
-  void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
-  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::VertexCollection>& vertices);
+  void produceTemplate(edm::Event &, edm::Handle<std::vector<reco::CaloJet> > &);
+  void produceTemplate(edm::Event &, edm::Handle<std::vector<pat::Jet> > &);
+  void produceRECO(edm::Event &, edm::Handle<std::vector<T> > &);
+  void producePAT(edm::Event &, edm::Handle<std::vector<T> > &);
 
-  const edm::InputTag inputTag, primaryVertexTag;
-  const double maxD0trk,minPttrk,maxPttrk,maxChi2trk;
+  const edm::ParameterSet& config;
+  const edm::InputTag jetsInputTag;
   const std::string Prefix,Suffix;
-  JetIDSelectionFunctor   minimalJetID, looseJetID, tightJetID;
 };
 
 template< typename T >
 SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
-  inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
-  primaryVertexTag(iConfig.getParameter<edm::InputTag>("PrimaryVertexTag")),
-  maxD0trk(iConfig.getParameter<double>("MaxD0Trk")),
-  minPttrk(iConfig.getParameter<double>("MinPtTrk")),
-  maxPttrk(iConfig.getParameter<double>("MaxPtTrk")),
-  maxChi2trk(iConfig.getParameter<double>("MaxChi2Trk")),
+  config(iConfig),
+  jetsInputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix")),
-  minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
-  looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
-  tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT)
+  Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
   edm::Handle<T> dataType;
   initTemplate(dataType);
@@ -129,32 +121,29 @@ template< typename T >
 void SusyCAF_Jet<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > jetcollection;
-  iEvent.getByLabel(inputTag, jetcollection);
-  //
-  edm::Handle<reco::VertexCollection> vertices;   
-  iEvent.getByLabel(primaryVertexTag, vertices);
-  //
-  produceTemplate(iEvent, iSetup, jetcollection, vertices);
+  iEvent.getByLabel(jetsInputTag, jetcollection);
+
+  produceTemplate(iEvent, jetcollection);
 }
 
 // produce method in case of RECO data
 template< typename T >
 void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::CaloJet> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
-  produceRECO(iEvent, iSetup, collection);
+produceTemplate(edm::Event& iEvent, edm::Handle<std::vector<reco::CaloJet> >& collection) {
+  produceRECO(iEvent, collection);
 }
 
 // produce method in case of PAT data
 template< typename T >
 void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<pat::Jet> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
-  produceRECO(iEvent, iSetup, collection);
-  producePAT(iEvent, iSetup, collection, vertices);
+produceTemplate(edm::Event& iEvent, edm::Handle<std::vector<pat::Jet> >& collection) {
+  produceRECO(iEvent, collection);
+  producePAT(iEvent, collection);
 }
 
 template< typename T >
 void SusyCAF_Jet<T>::
-produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+produceRECO(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  ) ;
   std::auto_ptr<std::vector<double> >  emEnergyFraction  ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  energyFractionHadronic ( new std::vector<double>()  ) ;
@@ -214,7 +203,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 // extra information stored for PAT data
 template< typename T >
 void SusyCAF_Jet<T>::
-producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection, edm::Handle<reco::VertexCollection>& vertices) {
+producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
 
   std::auto_ptr<std::vector<double> >  corrfactor   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
@@ -244,6 +233,20 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<bool> >  jetidtight  ( new std::vector<bool>()  ) ;
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
+
+
+  JetIDSelectionFunctor
+    minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
+    looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
+    tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
+  const double 
+    maxD0trk(config.getParameter<double>("MaxD0Trk")),
+    minPttrk(config.getParameter<double>("MinPtTrk")),
+    maxPttrk(config.getParameter<double>("MaxPtTrk")),
+    maxChi2trk(config.getParameter<double>("MaxChi2Trk"));
+  const edm::InputTag primaryVertexTag(config.getParameter<edm::InputTag>("PrimaryVertexTag"));
+  edm::Handle<reco::VertexCollection> vertices;   
+  iEvent.getByLabel(primaryVertexTag, vertices);
 
   const reco::Vertex PrimaryVertex = vertices->front();
   if (collection.isValid()){

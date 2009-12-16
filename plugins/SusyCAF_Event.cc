@@ -4,8 +4,8 @@
 SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"   );
   produces <unsigned int> ( "event" );
+  produces <unsigned int> ( "lumiSection" );
   produces <unsigned int> ( "bunch" );
-  produces <unsigned int> ( "ls"    );
   produces <unsigned int> ( "orbit" );
   produces <double>       ( "time" );
 }
@@ -27,7 +27,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   iEvent.put( run,   "run"   );
   iEvent.put( event, "event" );
-  iEvent.put( ls   , "ls"    );
+  iEvent.put( ls   , "lumiSection" );
   iEvent.put( bunch, "bunch" );
   iEvent.put( orbit, "orbit" );
   iEvent.put( time,  "time"  );

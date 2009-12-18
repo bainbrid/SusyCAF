@@ -104,6 +104,23 @@ void SusyCAF_PFTau<T>::initPAT()
   produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
   produces <std::vector<float> > (Prefix + "PhotonIso" + Suffix);
 
+  produces <std::vector<float> > (Prefix + "TauIdagainstElectron" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdagainstMuon" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyIsolation" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyTaNC" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyTaNCfrHalfPercent" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyTaNCfrOnePercent" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyTaNCfrQuarterPercent" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyTaNCfrTenthPercent" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdecalIsolation" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdecalIsolationUsingLeadingPion" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdleadingPionPtCut" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdleadingTrackFinding" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdleadingTrackPtCut" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdtrackIsolation" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdtrackIsolationUsingLeadingPion" + Suffix);
+  produces <std::vector<float> > (Prefix + "TauIdbyIsolationUsingLeadingPion" + Suffix);
+
 }
 
 
@@ -178,6 +195,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     SumPtIsoTrks->push_back(sumptisotrks);
 
     double ecaltauen = 0.0, hcaltauen = 0.0;
+
     if(it->signalPFNeutrHadrCands().isAvailable()){
 	for(reco::PFCandidateRefVector::const_iterator sigNCands = (it->signalPFNeutrHadrCands()).begin(); sigNCands!=(it->signalPFNeutrHadrCands()).end(); sigNCands++){
 	  ecaltauen += (*sigNCands)->ecalEnergy();
@@ -267,8 +285,40 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
     std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
     std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
+
+    //tau disciminators
+//     std::auto_ptr<std::vector<float> > againstEl (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > againstMu (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byIso (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byIsoleadPion (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byTaNC (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byTaNCfrHalfPercent (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byTaNCfrQuartPercent (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > byTaNCfrTenthPercent (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > ecalIso (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > ecalIsoleadPion (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > leadPionptCut (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > leadTrkFinding (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > trkIso (new std::vector<float>());
+//     std::auto_ptr<std::vector<float> > trkIsoleadPion (new std::vector<float>());
     
-    
+    std::map<std::string, std::vector<float> *> TauDiscs; //fill map with pointers rather than auto_ptr
+    TauDiscs["againstElectron"] = new std::vector<float>();
+    TauDiscs["againstMuon"] = new std::vector<float>();
+    TauDiscs["byIsolation"] = new std::vector<float>();
+    TauDiscs["byTaNC"] = new std::vector<float>();
+    TauDiscs["byTaNCfrHalfPercent"] = new std::vector<float>();
+    TauDiscs["byTaNCfrOnePercent"] = new std::vector<float>();
+    TauDiscs ["byTaNCfrQuarterPercent"] = new std::vector<float>();
+    TauDiscs ["byTaNCfrTenthPercent"] = new std::vector<float>();
+    TauDiscs ["ecalIsolation"] = new std::vector<float>();
+    TauDiscs ["ecalIsolationUsingLeadingPion"] = new std::vector<float>();
+    TauDiscs ["leadingPionPtCut"] = new std::vector<float>();
+    TauDiscs ["leadingTrackFinding"] = new std::vector<float>();
+    TauDiscs ["leadingTrackPtCut"] = new std::vector<float>();
+    TauDiscs ["trackIsolation"] = new std::vector<float>();
+    TauDiscs ["trackIsolationUsingLeadingPion"] = new std::vector<float>();
+    TauDiscs ["byIsolationUsingLeadingPion"] = new std::vector<float>();
     
     for(std::vector<pat::Tau>::const_iterator it = collection->begin(); it!=collection->end(); it++){
       
@@ -282,10 +332,17 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       neutHadIso->push_back(it->neutralHadronIso());
       photIso->push_back(it->photonIso());
       
+      
       for(std::vector<std::pair<std::string, float> >::const_iterator tauid=it->tauIDs().begin(); tauid!=it->tauIDs().end(); tauid++)
 	{
-	  //this would be better if we had a map of string/float
-	  std::cout<<"TAUID "<<tauid->first<<"  "<<tauid->second<<std::endl;
+	  if(TauDiscs.count(tauid->first)){
+
+	    TauDiscs[tauid->first]->push_back(tauid->second);
+
+	  }
+	  else{
+	    std::cout<<"Unrecoginsed TauDiscriminator =" << tauid->first << std::endl;
+	  }
 	  
 	}
       
@@ -300,8 +357,11 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
     iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
     iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
+    for(std::map<std::string, std::vector<float> *>::iterator tauid = TauDiscs.begin();
+	tauid != TauDiscs.end(); tauid++){
+	  iEvent.put(std::auto_ptr<std::vector<float> >(tauid->second), Prefix + "TauId" + tauid->first + Suffix);
+    }
 
-    
   }
   
 #endif

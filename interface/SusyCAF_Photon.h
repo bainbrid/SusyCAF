@@ -237,10 +237,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 
     // The following is for printing out the available IDs for inspection purposes.
     // Want to store, but doesn't look like there's anything to store in the current reco...
-    const std::vector<pat::Photon::IdPair>&         ids         = photon.photonIDs();
-    const unsigned int                              numIDs      = ids.size();
-    for (unsigned int iID = 0; iID < numIDs; ++iID)
-      std::cout << ids[iID].first << std::endl;
+  /*   const std::vector<pat::Photon::IdPair>&         ids         = photon.photonIDs(); */
+/*     const unsigned int                              numIDs      = ids.size(); */
+    //removed cout - AGB 17/12/09
   } // end loop over photons
   }
 

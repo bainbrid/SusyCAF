@@ -11,3 +11,9 @@ susycafelectron = cms.EDProducer("SusyCAF_PatElectron",
                             Prefix = cms.string('electron'),
                             Suffix = cms.string('Pat')
                             )
+
+susycafpfelectron = cms.EDProducer("SusyCAF_PatElectron",
+                                   InputTag = cms.InputTag('pfLayer1Electrons'),
+                                   Prefix = cms.string('electron'),
+                                   Suffix = cms.string('PF')
+                                   )

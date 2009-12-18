@@ -67,6 +67,14 @@ void SusyCAF_Muon<T>::initPAT()
   produces <std::vector<float> > (Prefix + "EcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "HcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "TrackIso" + Suffix);
+
+//pf muons - AGB 18/12/09
+  produces <std::vector<int> > (Prefix + "ProducedFromPF" + Suffix);
+  produces <std::vector<float> > (Prefix + "ParticleIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "PhotonIso" + Suffix);
+
 }
 
 
@@ -100,6 +108,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<bool> >  isGlobalMuon   ( new std::vector<bool>()  ) ;
   std::auto_ptr<std::vector<bool> >  isTrackerMuon   ( new std::vector<bool>()  ) ;
   std::auto_ptr<std::vector<bool> >  isStandAloneMuon   ( new std::vector<bool>()  ) ;
+
+ 
   
 
   if (collection.isValid()){
@@ -129,6 +139,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isTrackerMuon->push_back(it->isTrackerMuon());
       isStandAloneMuon->push_back(it->isStandAloneMuon());
     }
+
+
+
   }
   
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
@@ -158,6 +171,14 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
+
+//pf
+  
+  std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
+  std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
   
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
@@ -165,6 +186,18 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());
       trackIso->push_back(it->trackIso());
+    
+
+ //pf
+      ispf->push_back(it->pfCandidateRef().isAvailable()); //just for safety, could be removed later
+      
+      if(it->pfCandidateRef().isAvailable()){
+
+	partIso->push_back(it->particleIso());
+	charHadIso->push_back(it->chargedHadronIso());
+	neutHadIso->push_back(it->neutralHadronIso());
+	photIso->push_back(it->photonIso());
+      }
     }
   }
   
@@ -172,6 +205,12 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(ecalIso, Prefix + "EcalIso" + Suffix);
   iEvent.put(hcalIso, Prefix + "HcalIso" + Suffix);
   iEvent.put(trackIso, Prefix + "TrackIso" + Suffix);
+ //pf stuff
+  iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
+  iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
+  iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
+  iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
+  iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
 }
 
 #endif

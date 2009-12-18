@@ -11,3 +11,10 @@ susycafmuon = cms.EDProducer("SusyCAF_PatMuon",
                             Prefix = cms.string('muon'),
                             Suffix = cms.string('Pat')
                             )
+
+
+susycafpfmuon = cms.EDProducer("SusyCAF_PatMuon",
+                               InputTag = cms.InputTag('pfLayer1Muons'),
+                               Prefix = cms.string('muon'),
+                               Suffix = cms.string('PF'),
+                               )

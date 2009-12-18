@@ -29,7 +29,7 @@ susycafmetAK5 = cms.EDProducer("SusyCAF_PatMET",
                             )
 
 susycafmetPF = cms.EDProducer("SusyCAF_PatMET",
-                            InputTag = cms.InputTag('layer1METsPF'),
+                            InputTag = cms.InputTag('pfLayer1METs'),
                             Prefix = cms.string('met'),
                             Suffix = cms.string('PF'),
                             ProduceSpecial = cms.bool(False)

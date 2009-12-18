@@ -47,6 +47,18 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GsfTracknumberOfValidHits" + Suffix);
+  //added variables - AGB 08/12/09
+  produces <std::vector<float> > (  Prefix + "GsfTrackD0" + Suffix); 
+  produces <std::vector<float> > (  Prefix + "GsfTrackDz" + Suffix); 
+  produces <std::vector<float> > (  Prefix + "GsfTrackChargeMode" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackPtMode" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackQoverPErrorMode" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackCharge" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackQoverPError" + Suffix);
+  produces <std::vector<float> > (  Prefix + "GsfTrackLostHits" + Suffix);
+  //
+
   produces <std::vector<double> > (  Prefix + "GsfTrackdxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackdxyError" + Suffix);
   produces <std::vector<float> > (  Prefix + "E1x5" + Suffix);
@@ -85,6 +97,8 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
+
+   produces <std::vector<float> > (Prefix + "KfTrackCharge" + Suffix);
 }
 
 // extra information stored for PAT data
@@ -98,6 +112,18 @@ void SusyCAF_Electron<T>::initPAT()
   produces <std::vector<float> >  (Prefix + "EIDRobustTight"            + Suffix);
   produces <std::vector<float> >  (Prefix + "EIDLoose"                  + Suffix);
   produces <std::vector<float> >  (Prefix + "EIDRobustLoose"            + Suffix);
+  //added - AGB 08/12/09
+  produces <std::vector<float> > (Prefix + "EcalIsoDep" + Suffix);
+  produces <std::vector<float> > (Prefix + "HcalIsoDep" + Suffix);
+  //pf electrons - AGB 18/12/09
+  produces <std::vector<int> > (Prefix + "ProducedFromPF" + Suffix);
+  produces <std::vector<float> > (Prefix + "IdPfevspi" + Suffix);
+  produces <std::vector<float> > (Prefix + "ParticleIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
+  produces <std::vector<float> > (Prefix + "PhotonIso" + Suffix);
+
+
 }
 
 template< typename T >
@@ -116,10 +142,19 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4 ( new std::vector<reco::Candidate::LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
+   std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >  gsfTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxyError   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<float> > gsfTrkD0 (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkDz (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkChargeMode (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkPtMode (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkQoverPErrMode (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkCharge (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkPt (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkQoverPErr (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > gsfTrkLostHits (new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  e1x5   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  e5x5   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  e2x5Max   ( new std::vector<float>()  ) ;
@@ -156,15 +191,30 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<math::XYZPoint> >  vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
+
+  std::auto_ptr<std::vector<float> > kfcharge (new std::vector<float>() );
+
   
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+
+ 
+
       p4->push_back(it->p4());
       charge->push_back(it->charge());
       gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
       gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
       gsfTrack_dxy->push_back(it->gsfTrack()->dxy());
       gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
+      gsfTrkD0->push_back(it->gsfTrack()->d0());
+      gsfTrkDz->push_back(it->gsfTrack()->dz());
+      gsfTrkChargeMode->push_back(it->gsfTrack()->chargeMode());
+      gsfTrkPtMode->push_back(it->gsfTrack()->ptMode());
+      gsfTrkQoverPErrMode->push_back(it->gsfTrack()->qoverpModeError());
+      gsfTrkCharge->push_back(it->gsfTrack()->charge());
+      gsfTrkPt->push_back(it->gsfTrack()->pt());
+      gsfTrkQoverPErr->push_back(it->gsfTrack()->qoverpError());
+      gsfTrkLostHits->push_back(it->gsfTrack()->lost());
       e1x5->push_back(it->e1x5());
       e5x5->push_back(it->e5x5());
       e2x5Max->push_back(it->e2x5Max());
@@ -201,16 +251,29 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
       vertexNdof->push_back(it->vertexNdof());
+      if(it->track().isAvailable()){
+      kfcharge->push_back(it->track()->charge());
+      }    
     }
   }
  
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix ); 
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
+
   iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );
   iEvent.put( gsfTrack_numberOfValidHits,  Prefix + "GsfTracknumberOfValidHits" + Suffix );
   iEvent.put( gsfTrack_dxy,  Prefix + "GsfTrackdxy" + Suffix );
   iEvent.put( gsfTrack_dxyError,  Prefix + "GsfTrackdxyError" + Suffix );
+ iEvent.put( gsfTrkD0,  Prefix + "GsfTrackD0" + Suffix );
+  iEvent.put( gsfTrkDz,  Prefix + "GsfTrackDz" + Suffix );
+  iEvent.put( gsfTrkChargeMode,  Prefix + "GsfTrackChargeMode" + Suffix );
+  iEvent.put( gsfTrkPtMode,  Prefix + "GsfTrackPtMode" + Suffix );
+  iEvent.put( gsfTrkQoverPErrMode,  Prefix + "GsfTrackQoverPErrorMode" + Suffix );
+ iEvent.put( gsfTrkCharge,  Prefix + "GsfTrackCharge" + Suffix );
+ iEvent.put( gsfTrkPt, Prefix+ "GsfTrackPt" + Suffix);
+ iEvent.put( gsfTrkQoverPErr,  Prefix + "GsfTrackQoverPError" + Suffix );
+ iEvent.put( gsfTrkLostHits,  Prefix + "GsfTrackLostHits" + Suffix );
   iEvent.put( e1x5,  Prefix + "E1x5" + Suffix );
   iEvent.put( e5x5,  Prefix + "E5x5" + Suffix );
   iEvent.put( e2x5Max,  Prefix + "E2x5Max" + Suffix );
@@ -247,6 +310,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( vertex,  Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
+
+  iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix); 
 }
 
 // extra information stored for PAT data
@@ -260,18 +325,56 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  eIDRobustTight           ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  eIDLoose                 ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  eIDRobustLoose           ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> > ecalIsoDep( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > hcalIsoDep( new std::vector<float>() );
 
+  //pf
+  
+  std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
+  std::auto_ptr<std::vector<float> > ElId_pf_evspi (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
+
+
+  
   if (collection.isValid()){
-    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) { 
-      ecalIso                 ->push_back(it->ecalIso                   ());
+    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+      
+      ecalIso->push_back(it->ecalIso());
       hcalIso                 ->push_back(it->hcalIso                   ());
       trackIso                ->push_back(it->trackIso                  ());
       eIDTight                ->push_back(it->electronID("eidTight"));
       eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
       eIDLoose                ->push_back(it->electronID("eidLoose"));
       eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
+      if(!it->pfCandidateRef().isAvailable()){//this is needed to avoid the code seg faulting when running over pfelectrons - AGB 17/12/09
+	ecalIsoDep->push_back(it->ecalIsoDeposit()->candEnergy());
+	hcalIsoDep->push_back(it->hcalIsoDeposit()->candEnergy());
+      }
+      
+      //pf
+      ispf->push_back(it->pfCandidateRef().isAvailable()); //just for safety, could be removed later
+      if(it->pfCandidateRef().isAvailable()){
+	
+	for(std::vector<std::pair<std::string, float> >::const_iterator ElIds = (it->electronIDs()).begin(); ElIds!=(it->electronIDs()).end(); ElIds++){
+	  if(ElIds->first=="pf_evspi"){
+	    ElId_pf_evspi ->push_back(ElIds->second);
+	  }
+	}
+	partIso->push_back(it->particleIso());
+	charHadIso->push_back(it->chargedHadronIso());
+	neutHadIso->push_back(it->neutralHadronIso());
+	photIso->push_back(it->photonIso());
+	
+      }
+    }
+    
+      
+ 
     } // end loop over electrons
-  }
+  
 
 
   iEvent.put(ecalIso                 , Prefix + "EcalIso"                  + Suffix);
@@ -281,6 +384,15 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(eIDRobustTight          , Prefix + "EIDRobustTight"           + Suffix);
   iEvent.put(eIDLoose                , Prefix + "EIDLoose"                 + Suffix);
   iEvent.put(eIDRobustLoose          , Prefix + "EIDRobustLoose"           + Suffix);
+  iEvent.put(ecalIsoDep, Prefix + "EcalIsoDep" + Suffix);
+  iEvent.put(hcalIsoDep, Prefix + "HcalIsoDep" + Suffix);
+  //pf stuff
+  iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
+  iEvent.put(ElId_pf_evspi, Prefix + "IdPfevspi" + Suffix);
+  iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
+  iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
+  iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
+  iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
 }
 
 #endif

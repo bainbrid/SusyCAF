@@ -10,10 +10,8 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   , primaryVertexTag(iConfig.getParameter<edm::InputTag>("PrimaryVertexTag" ))
   , prefix          (iConfig.getParameter<std::string>  ("Prefix"           ))
   , suffix          (iConfig.getParameter<std::string>  ("Suffix"           ))
-  , maxChi2         (iConfig.getParameter<double>       ("MaxChi2"          ))
+  , ptErrFrac       (iConfig.getParameter<double>       ("PTErrFrac"        ))
   , maxD0           (iConfig.getParameter<double>       ("MaxD0"            ))
-  , minPT           (iConfig.getParameter<double>       ("MinPT"            ))
-  , maxPT           (iConfig.getParameter<double>       ("MaxPT"            ))
 {
   /**
     Multiple versions of MPT are calculated, since we don't want to store 
@@ -23,7 +21,6 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
     vertex via the d0 cut. Since they may be of interest for problem diagnosing, 
     we do store the list of tracks that exceed the pT threshold.
   */
-  produces<std::vector<Vector> >(prefix + "VeryHighPTTracks"    + suffix);  // exceeds MaxPT, sorted by pT
   produces<Vector>  (prefix + "MPTwithEverything"               + suffix);  // no chi2, pT or d0 cuts
   produces<Vector>  (prefix + "MPTwithAllTracks"                + suffix);  // with chi2, pT, d0 cuts, no quality criteria
   produces<Vector>  (prefix + "MPTwithLooseTracks"              + suffix);  // with chi2, pT, d0 cuts, and the stated quality 
@@ -51,40 +48,38 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
 void SusyCAF_Track::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
-  std::auto_ptr<std::vector<Vector> >  veryHighPTTracks     ( new std::vector<Vector> );
-  std::auto_ptr<Vector>     MPTwithEverything               ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithAllTracks                ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithLooseTracks              ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithTightTracks              ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithHighPurityTracks         ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithConfirmedTracks          ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithGoodIterativeTracks      ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithAllPixelTracks           ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithLoosePixelTracks         ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithTightPixelTracks         ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithHighPurityPixelTracks    ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithConfirmedPixelTracks     ( new Vector              );
-  std::auto_ptr<Vector>     MPTwithGoodIterativePixelTracks ( new Vector              );
-  std::auto_ptr<int>        NEtaLT0p9LooseTracks            ( new int                 );
-  std::auto_ptr<int>        NEtaLT0p9TightTracks            ( new int                 );
-  std::auto_ptr<int>        NEtaLT0p9HighPurityTracks       ( new int                 );
-  std::auto_ptr<int>        NEta0p9to1p5LooseTracks         ( new int                 );
-  std::auto_ptr<int>        NEta0p9to1p5TightTracks         ( new int                 );
-  std::auto_ptr<int>        NEta0p9to1p5HighPurityTracks    ( new int                 );
-  std::auto_ptr<int>        NEtaGT1p5LooseTracks            ( new int                 );
-  std::auto_ptr<int>        NEtaGT1p5TightTracks            ( new int                 );
-  std::auto_ptr<int>        NEtaGT1p5HighPurityTracks       ( new int                 );
+  std::auto_ptr<Vector>     MPTwithEverything               ( new Vector );
+  std::auto_ptr<Vector>     MPTwithAllTracks                ( new Vector );
+  std::auto_ptr<Vector>     MPTwithLooseTracks              ( new Vector );
+  std::auto_ptr<Vector>     MPTwithTightTracks              ( new Vector );
+  std::auto_ptr<Vector>     MPTwithHighPurityTracks         ( new Vector );
+  std::auto_ptr<Vector>     MPTwithConfirmedTracks          ( new Vector );
+  std::auto_ptr<Vector>     MPTwithGoodIterativeTracks      ( new Vector );
+  std::auto_ptr<Vector>     MPTwithAllPixelTracks           ( new Vector );
+  std::auto_ptr<Vector>     MPTwithLoosePixelTracks         ( new Vector );
+  std::auto_ptr<Vector>     MPTwithTightPixelTracks         ( new Vector );
+  std::auto_ptr<Vector>     MPTwithHighPurityPixelTracks    ( new Vector );
+  std::auto_ptr<Vector>     MPTwithConfirmedPixelTracks     ( new Vector );
+  std::auto_ptr<Vector>     MPTwithGoodIterativePixelTracks ( new Vector );
+  std::auto_ptr<int>        NEtaLT0p9LooseTracks            ( new int    );
+  std::auto_ptr<int>        NEtaLT0p9TightTracks            ( new int    );
+  std::auto_ptr<int>        NEtaLT0p9HighPurityTracks       ( new int    );
+  std::auto_ptr<int>        NEta0p9to1p5LooseTracks         ( new int    );
+  std::auto_ptr<int>        NEta0p9to1p5TightTracks         ( new int    );
+  std::auto_ptr<int>        NEta0p9to1p5HighPurityTracks    ( new int    );
+  std::auto_ptr<int>        NEtaGT1p5LooseTracks            ( new int    );
+  std::auto_ptr<int>        NEtaGT1p5TightTracks            ( new int    );
+  std::auto_ptr<int>        NEtaGT1p5HighPurityTracks       ( new int    );
 
 
   edm::Handle<reco::VertexCollection> vertices;   iEvent.getByLabel(primaryVertexTag, vertices);
   edm::Handle<reco::TrackCollection>  tracks;     iEvent.getByLabel(inputTag        , tracks  );
   if (vertices.isValid() && tracks.isValid()) {
 
-    std::vector<bool>       preselectedTracks(tracks->size(), true);    // maxD0, minPT, maxPT
-    std::vector<Vector>     veryHighPTTracks;                           // within maxD0 but exceeds maxPT
+    std::vector<bool>       preselectedTracks(tracks->size(), true);
 
     computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithEverything              , false);
-    preselectTracks(*tracks, vertices->front(), preselectedTracks, veryHighPTTracks);
+    preselectTracks(*tracks, vertices->front(), preselectedTracks);
     computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllTracks               , false);
     computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLooseTracks             , false);
     computeMHT(*tracks, preselectedTracks, reco::Track::tight         , *MPTwithTightTracks             , false);
@@ -105,7 +100,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-  iEvent.put(veryHighPTTracks               , prefix + "VeryHighPTTracks"                 + suffix);
   iEvent.put(MPTwithEverything              , prefix + "MPTwithEverything"                + suffix);
   iEvent.put(MPTwithAllTracks               , prefix + "MPTwithAllTracks"                 + suffix);
   iEvent.put(MPTwithLooseTracks             , prefix + "MPTwithLooseTracks"               + suffix);
@@ -131,8 +125,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void SusyCAF_Track::
-preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primaryVertex, 
-                std::vector<bool>& preselectedTracks, std::vector<Vector>& veryHighPTTracks) const
+preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primaryVertex, std::vector<bool>& preselectedTracks) const
 {
   const unsigned int      numTracks = tracks.size();
   if (preselectedTracks.size() != numTracks)
@@ -140,14 +133,11 @@ preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primary
 
   for (unsigned int iTrack = 0; iTrack < numTracks; ++iTrack) {
     const reco::Track&    track     = tracks[iTrack];
-    const bool            isOK      = fabs(track.dxy(primaryVertex.position())) < maxD0 && track.chi2() < maxChi2;
-    preselectedTracks[iTrack]       = ( isOK && minPT <= track.pt() && track.pt() <= maxPT );
-
-    if (isOK && track.pt() > maxPT)
-      veryHighPTTracks.push_back(track.momentum());
+    const bool            isOK      = ( maxD0     < 0 || fabs(track.dxy(primaryVertex.position())) < maxD0                )
+                                   && ( ptErrFrac < 0 || track.ptError()*track.normalizedChi2()    < ptErrFrac*track.pt() )
+                                    ;
+    preselectedTracks[iTrack]       = isOK;
   } // end loop over tracks
-
-  std::sort(veryHighPTTracks.begin(), veryHighPTTracks.end(), GreaterByPerp2<Vector>());
 }
 
 void SusyCAF_Track::

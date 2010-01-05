@@ -15,18 +15,16 @@ public:
 private: 
   typedef reco::TrackBase::Vector     Vector;
   
-  void produce        (edm::Event &, const edm::EventSetup &);
-  void preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primaryVertex, std::vector<bool>& preselectedTracks, std::vector<Vector>& veryHighPTTracks) const;
-  void computeMHT     (const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, const bool pixelSeedOnly) const;
-  void countTracks    (const reco::TrackCollection& tracks, reco::Track::TrackQuality quality, int& nEtaLT0p9, int& nEta0p9to1p5, int& nEtaGT1p5) const;
+  void produce          (edm::Event&, const edm::EventSetup&);
+  void preselectTracks  (const reco::TrackCollection& tracks, const reco::Vertex& primaryVertex, std::vector<bool>& preselectedTracks) const;
+  void computeMHT       (const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, const bool pixelSeedOnly) const;
+  void countTracks      (const reco::TrackCollection& tracks, reco::Track::TrackQuality quality, int& nEtaLT0p9, int& nEta0p9to1p5, int& nEtaGT1p5) const;
 
-  const edm::InputTag                 inputTag;
-  const edm::InputTag                 primaryVertexTag;
-  const std::string                   prefix, suffix;
-  const double                        maxChi2;
-  const double                        maxD0;
-  const double                        minPT;
-  const double                        maxPT;
+  const edm::InputTag   inputTag;
+  const edm::InputTag   primaryVertexTag;
+  const std::string     prefix, suffix;
+  const double          ptErrFrac;
+  const double          maxD0;
 
   template<typename T>
   struct GreaterByPerp2 {

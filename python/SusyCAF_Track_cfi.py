@@ -5,9 +5,8 @@ susycaftrack = cms.EDProducer ( "SusyCAF_Track"
                               , PrimaryVertexTag  = cms.InputTag('offlinePrimaryVertices')
                               , Prefix            = cms.string('tracks')
                               , Suffix            = cms.string('')
-                              , MaxChi2           = cms.double(100)
-                              , MaxD0             = cms.double(0.02)
-                              , MinPT             = cms.double(0.3)
-                              , MaxPT             = cms.double(500)
+                              , PTErrFrac         = cms.double(0.2)
+                              , MaxD0             = cms.double(-9)
+                             #, MaxD0             = cms.double(0.02)
                               )
 

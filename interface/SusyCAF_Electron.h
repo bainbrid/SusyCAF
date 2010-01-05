@@ -349,7 +349,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
       eIDLoose                ->push_back(it->electronID("eidLoose"));
       eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
-      if(!it->pfCandidateRef().isAvailable()){//this is needed to avoid the code seg faulting when running over pfelectrons - AGB 17/12/09
+      if(it->ecalIsoDeposit() && it->hcalIsoDeposit()){//this is needed to avoid the code seg faulting in 341 - NM 05/01/10
 	ecalIsoDep->push_back(it->ecalIsoDeposit()->candEnergy());
 	hcalIsoDep->push_back(it->hcalIsoDeposit()->candEnergy());
       }

@@ -241,9 +241,7 @@ producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
     tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
   const double 
     maxD0trk(config.getParameter<double>("MaxD0Trk")),
-    minPttrk(config.getParameter<double>("MinPtTrk")),
-    maxPttrk(config.getParameter<double>("MaxPtTrk")),
-    maxChi2trk(config.getParameter<double>("MaxChi2Trk"));
+    ptErrFractrk(config.getParameter<double>("PtErrFracTrk"));
   const edm::InputTag primaryVertexTag(config.getParameter<edm::InputTag>("PrimaryVertexTag"));
   edm::Handle<reco::VertexCollection> vertices;   
   iEvent.getByLabel(primaryVertexTag, vertices);
@@ -272,7 +270,7 @@ producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
       for (reco::TrackRefVector::iterator trk = it->associatedTracks().begin(); trk != it->associatedTracks().end(); ++trk) {
 	 *jetMPTwithEverything += (*trk)->momentum();
 	//preselection cuts
-	if((*trk)->pt()>minPttrk && (*trk)->pt()<maxPttrk && fabs((*trk)->dxy(PrimaryVertex.position()))<maxD0trk && (*trk)->chi2()<maxChi2trk){
+	if(fabs((*trk)->dxy(PrimaryVertex.position()))<maxD0trk && (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFractrk*(*trk)->pt() ){
 	  //undefined
 	  if((*trk)->quality(reco::Track::undefQuality)){
 	    nATAll++;

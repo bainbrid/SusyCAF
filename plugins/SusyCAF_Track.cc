@@ -34,12 +34,15 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   produces<Vector>  (prefix + "MPTwithHighPurityPixelTracks"    + suffix);  // pixel seed, with chi2, pT, d0 cuts, and the stated quality 
   produces<Vector>  (prefix + "MPTwithConfirmedPixelTracks"     + suffix);  // pixel seed, with chi2, pT, d0 cuts, and the stated quality 
   produces<Vector>  (prefix + "MPTwithGoodIterativePixelTracks" + suffix);  // pixel seed, with chi2, pT, d0 cuts, and the stated quality 
+  produces<int>     (prefix + "NEtaLT0p9AllTracks"              + suffix);
   produces<int>     (prefix + "NEtaLT0p9LooseTracks"            + suffix);
   produces<int>     (prefix + "NEtaLT0p9TightTracks"            + suffix);
   produces<int>     (prefix + "NEtaLT0p9HighPurityTracks"       + suffix);
+  produces<int>     (prefix + "NEta0p9to1p5AllTracks"           + suffix);
   produces<int>     (prefix + "NEta0p9to1p5LooseTracks"         + suffix);
   produces<int>     (prefix + "NEta0p9to1p5TightTracks"         + suffix);
   produces<int>     (prefix + "NEta0p9to1p5HighPurityTracks"    + suffix);
+  produces<int>     (prefix + "NEtaGT1p5AllTracks"              + suffix);
   produces<int>     (prefix + "NEtaGT1p5LooseTracks"            + suffix);
   produces<int>     (prefix + "NEtaGT1p5TightTracks"            + suffix);
   produces<int>     (prefix + "NEtaGT1p5HighPurityTracks"       + suffix);
@@ -61,12 +64,15 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<Vector>     MPTwithHighPurityPixelTracks    ( new Vector );
   std::auto_ptr<Vector>     MPTwithConfirmedPixelTracks     ( new Vector );
   std::auto_ptr<Vector>     MPTwithGoodIterativePixelTracks ( new Vector );
+  std::auto_ptr<int>        NEtaLT0p9AllTracks              ( new int    );
   std::auto_ptr<int>        NEtaLT0p9LooseTracks            ( new int    );
   std::auto_ptr<int>        NEtaLT0p9TightTracks            ( new int    );
   std::auto_ptr<int>        NEtaLT0p9HighPurityTracks       ( new int    );
+  std::auto_ptr<int>        NEta0p9to1p5AllTracks           ( new int    );
   std::auto_ptr<int>        NEta0p9to1p5LooseTracks         ( new int    );
   std::auto_ptr<int>        NEta0p9to1p5TightTracks         ( new int    );
   std::auto_ptr<int>        NEta0p9to1p5HighPurityTracks    ( new int    );
+  std::auto_ptr<int>        NEtaGT1p5AllTracks              ( new int    );
   std::auto_ptr<int>        NEtaGT1p5LooseTracks            ( new int    );
   std::auto_ptr<int>        NEtaGT1p5TightTracks            ( new int    );
   std::auto_ptr<int>        NEtaGT1p5HighPurityTracks       ( new int    );
@@ -93,9 +99,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     computeMHT(*tracks, preselectedTracks, reco::Track::confirmed     , *MPTwithConfirmedPixelTracks    , true );
     computeMHT(*tracks, preselectedTracks, reco::Track::goodIterative , *MPTwithGoodIterativePixelTracks, true );
 
-    countTracks(*tracks, reco::Track::loose     , *NEtaLT0p9LooseTracks     , *NEta0p9to1p5LooseTracks      , *NEtaGT1p5LooseTracks     );
-    countTracks(*tracks, reco::Track::tight     , *NEtaLT0p9TightTracks     , *NEta0p9to1p5TightTracks      , *NEtaGT1p5TightTracks     );
-    countTracks(*tracks, reco::Track::highPurity, *NEtaLT0p9HighPurityTracks, *NEta0p9to1p5HighPurityTracks , *NEtaGT1p5HighPurityTracks);
+    countTracks(*tracks, reco::Track::undefQuality, *NEtaLT0p9AllTracks       , *NEta0p9to1p5AllTracks        , *NEtaGT1p5AllTracks       );
+    countTracks(*tracks, reco::Track::loose       , *NEtaLT0p9LooseTracks     , *NEta0p9to1p5LooseTracks      , *NEtaGT1p5LooseTracks     );
+    countTracks(*tracks, reco::Track::tight       , *NEtaLT0p9TightTracks     , *NEta0p9to1p5TightTracks      , *NEtaGT1p5TightTracks     );
+    countTracks(*tracks, reco::Track::highPurity  , *NEtaLT0p9HighPurityTracks, *NEta0p9to1p5HighPurityTracks , *NEtaGT1p5HighPurityTracks);
 
   }
 
@@ -113,12 +120,15 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(MPTwithHighPurityPixelTracks   , prefix + "MPTwithHighPurityPixelTracks"     + suffix);
   iEvent.put(MPTwithConfirmedPixelTracks    , prefix + "MPTwithConfirmedPixelTracks"      + suffix);
   iEvent.put(MPTwithGoodIterativePixelTracks, prefix + "MPTwithGoodIterativePixelTracks"  + suffix);
+  iEvent.put(NEtaLT0p9AllTracks             , prefix + "NEtaLT0p9AllTracks"               + suffix);
   iEvent.put(NEtaLT0p9LooseTracks           , prefix + "NEtaLT0p9LooseTracks"             + suffix);
   iEvent.put(NEtaLT0p9TightTracks           , prefix + "NEtaLT0p9TightTracks"             + suffix);
   iEvent.put(NEtaLT0p9HighPurityTracks      , prefix + "NEtaLT0p9HighPurityTracks"        + suffix);
+  iEvent.put(NEta0p9to1p5AllTracks          , prefix + "NEta0p9to1p5AllTracks"            + suffix);
   iEvent.put(NEta0p9to1p5LooseTracks        , prefix + "NEta0p9to1p5LooseTracks"          + suffix);
   iEvent.put(NEta0p9to1p5TightTracks        , prefix + "NEta0p9to1p5TightTracks"          + suffix);
   iEvent.put(NEta0p9to1p5HighPurityTracks   , prefix + "NEta0p9to1p5HighPurityTracks"     + suffix);
+  iEvent.put(NEtaGT1p5AllTracks             , prefix + "NEtaGT1p5AllTracks"               + suffix);
   iEvent.put(NEtaGT1p5LooseTracks           , prefix + "NEtaGT1p5LooseTracks"             + suffix);
   iEvent.put(NEtaGT1p5TightTracks           , prefix + "NEtaGT1p5TightTracks"             + suffix);
   iEvent.put(NEtaGT1p5HighPurityTracks      , prefix + "NEtaGT1p5HighPurityTracks"        + suffix);

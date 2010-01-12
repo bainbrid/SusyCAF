@@ -45,6 +45,8 @@ DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
 
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Gen.h"
+
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_MET<reco::PFMET> SusyCAF_PFMET;
 typedef SusyCAF_MET<pat::MET> SusyCAF_PatMET;
@@ -58,6 +60,7 @@ typedef SusyCAF_Muon<reco::Muon> SusyCAF_RecoMuon;
 typedef SusyCAF_Muon<pat::Muon> SusyCAF_PatMuon;
 typedef SusyCAF_PFTau<reco::PFTau> SusyCAF_pfTau;
 typedef SusyCAF_PFTau<pat::Tau> SusyCAF_PatTau;
+typedef SusyCAF_Gen<reco::GenParticle> SusyCAF_GenParticle;
 
 typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
 typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
@@ -96,5 +99,7 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
 
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
+
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_GenParticle);
 
 

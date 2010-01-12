@@ -21,7 +21,7 @@ source = cms.Source('PoolSource',
 fileNames = cms.untracked.vstring('/castor/cern.ch/user/n/nmohr/V7production/QCDDiJet_Pt380to470_MC_31X_V9_ReReco332.root')
 )
 
-process.maxEvents.input = 100
+process.maxEvents.input = 1000
 
 # Due to problem in production of LM samples: same event number appears multiple times
 #process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -32,13 +32,13 @@ process.maxEvents.input = 100
 # First Collision Data
 #process.GlobalTag.globaltag = 'GR09_P_V6::All'
 # MinBias MC STARTUP
-process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands, removeMCDependence
 #removeMCDependence(process)
-addDefaultSUSYPAT(process, True,'HLT','900GeV')
+addDefaultSUSYPAT(process, False,'HLT')
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
@@ -57,7 +57,7 @@ process.load('SUSYBSMAnalysis.SusyCAF.theBigNtuplePatOnFly_cfi')
 #-- Execution path ------------------------------------------------------------
 # Full path
 process.p = cms.Path( process.seqSUSYDefaultSequence * process.theBigNtuplePat)
-# if hasattr(process,"out"): # remove outpath 
-#     del process.out
-#     del process.outpath
+if hasattr(process,"out"): # remove outpath 
+    del process.out
+    del process.outpath
 

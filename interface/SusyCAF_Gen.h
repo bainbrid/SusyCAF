@@ -1,5 +1,5 @@
-#ifndef ICF_GEN
-#define ICF_GEN
+#ifndef SusyCAF_GEN
+#define SusyCAF_GEN
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -9,9 +9,9 @@
 #include <map>
 
 template< typename T >
-class ICF_Gen : public edm::EDProducer {
+class SusyCAF_Gen : public edm::EDProducer {
  public:
-  explicit ICF_Gen(const edm::ParameterSet&);
+  explicit SusyCAF_Gen(const edm::ParameterSet&);
  private:
   void produce(edm::Event &, const edm::EventSetup & );
   typedef reco::Candidate::LorentzVector LorentzVector;
@@ -20,7 +20,7 @@ class ICF_Gen : public edm::EDProducer {
 };
 
 template< typename T >
-ICF_Gen<T>::ICF_Gen(const edm::ParameterSet& iConfig) :
+SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
@@ -35,7 +35,7 @@ ICF_Gen<T>::ICF_Gen(const edm::ParameterSet& iConfig) :
 }
 
 template< typename T >
-void ICF_Gen<T>::
+void SusyCAF_Gen<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > collection;
   iEvent.getByLabel(inputTag,collection);

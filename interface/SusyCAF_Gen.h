@@ -49,7 +49,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::map<const reco::Candidate*,int> refs;
   if(collection.isValid()){
     int idx_gen=0;
-    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it,++idx_gen) {
+    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       if(it->status()==3 ||
          (abs(it->pdgId())==11 | abs(it->pdgId())==13)){
         p4->push_back(it->p4());

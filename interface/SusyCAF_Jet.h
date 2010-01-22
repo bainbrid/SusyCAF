@@ -249,6 +249,16 @@ producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
   const reco::Vertex PrimaryVertex = vertices->front();
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+      
+      // If pat::Jet is missing a pat::JetCorrFactors object, add a default one (to protect against Exceptions later)
+      if ( !it->hasCorrFactors() ) { 
+	pat::Jet& ref = const_cast<pat::Jet&>(static_cast<const pat::Jet&>(*it));
+	pat::JetCorrFactors::FlavourCorrections f;
+	pat::JetCorrFactors c("",1.,1.,1.,1.,f,f,f,std::vector<float>(17,0.));
+	ref.setCorrFactors(c);
+	ref.setCorrStep(pat::JetCorrFactors::L3);
+      } 
+      
       //set to zero the vectorial sum of associated tracks momenta
       jetMPTwithEverything->SetCoordinates(0., 0., 0.);
       jetMPTwithAllTracks->SetCoordinates(0., 0., 0.);

@@ -29,9 +29,9 @@ SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <std::vector<LorentzVector> > ( Prefix + "P4"  + Suffix );
   produces <std::vector<int> > (Prefix + "PdgId" + Suffix);
   produces <std::vector<int> > (Prefix + "Status" + Suffix);
-  produces <std::vector<bool> > (Prefix + "HasMother" + Suffix);
+  produces <std::vector<int> > (Prefix + "HasMother" + Suffix);
   produces <std::vector<int> > (Prefix + "Mother" + Suffix);
-  produces <std::vector<bool> > (Prefix + "MotherStored" + Suffix);
+  produces <std::vector<int> > (Prefix + "MotherStored" + Suffix);
 }
 
 template< typename T >
@@ -43,9 +43,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<LorentzVector> >  p4  ( new std::vector<LorentzVector>()  ) ;
   std::auto_ptr<std::vector<int> > status ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
-  std::auto_ptr<std::vector<bool> > hasMother ( new std::vector<bool>() ) ;
+  std::auto_ptr<std::vector<int> > hasMother ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > mother ( new std::vector<int>() );
-  std::auto_ptr<std::vector<bool> > motherStored ( new std::vector<bool>() );
+  std::auto_ptr<std::vector<int> > motherStored ( new std::vector<int>() );
   std::map<const reco::Candidate*,int> refs;
   if(collection.isValid()){
     int idx_gen=0;

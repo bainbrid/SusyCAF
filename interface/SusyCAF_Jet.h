@@ -109,9 +109,9 @@ void SusyCAF_Jet<T>::initPAT()
   produces <std::vector<double> > ( Prefix + "JetIDFSubDet4"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDResEMF"  + Suffix );
   produces <std::vector<int> > ( Prefix + "JetIDN90Hits"  + Suffix );
-  produces <std::vector<bool> > ( Prefix + "JetIDminimal"  + Suffix );
-  produces <std::vector<bool> > ( Prefix + "JetIDloose"  + Suffix );
-  produces <std::vector<bool> > ( Prefix + "JetIDtight"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "JetIDminimal"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "JetIDloose"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "JetIDtight"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NECALTowers"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NHCALTowers"  + Suffix );
 
@@ -228,9 +228,9 @@ producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<std::vector<double> >  fSubDet4  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  resEMF  ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<int> >  n90Hits  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<bool> >  jetidminimal  ( new std::vector<bool>()  ) ;
-  std::auto_ptr<std::vector<bool> >  jetidloose  ( new std::vector<bool>()  ) ;
-  std::auto_ptr<std::vector<bool> >  jetidtight  ( new std::vector<bool>()  ) ;
+  std::auto_ptr<std::vector<int> >  jetidminimal  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  jetidloose  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  jetidtight  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 

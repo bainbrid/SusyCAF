@@ -13,7 +13,7 @@ SusyCAF_L1CaloTrigger::SusyCAF_L1CaloTrigger(const edm::ParameterSet& iConfig) :
   produces <std::vector<unsigned int> > ( Prefix + "et"                       + Suffix);
   produces <std::vector<unsigned int> > ( Prefix + "met"                      + Suffix);
   produces <std::vector<unsigned int> > ( Prefix + "metPhi"                   + Suffix);
-  produces <std::vector<bool> >         ( Prefix + "metOverflow"              + Suffix);
+  produces <std::vector<unsigned int> > ( Prefix + "metOverflow"              + Suffix);
   produces <std::vector<unsigned int> > ( Prefix + "mht"                      + Suffix);
   produces <std::vector<unsigned int> > ( Prefix + "mhtPhi"                   + Suffix);
   produces <double>                     ( Prefix + "regionMet"                + Suffix);
@@ -40,7 +40,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<unsigned int> > et                        ( new std::vector<unsigned int>() );
   std::auto_ptr<std::vector<unsigned int> > met                       ( new std::vector<unsigned int>() );
   std::auto_ptr<std::vector<unsigned int> > metPhi                    ( new std::vector<unsigned int>() );
-  std::auto_ptr<std::vector<bool> >         metOverflow               ( new std::vector<bool>()         );
+  std::auto_ptr<std::vector<unsigned int> > metOverflow               ( new std::vector<unsigned int>()         );
   std::auto_ptr<std::vector<unsigned int> > mht                       ( new std::vector<unsigned int>() );
   std::auto_ptr<std::vector<unsigned int> > mhtPhi                    ( new std::vector<unsigned int>() );
   std::auto_ptr<double>                     regionMet                 ( new double()                    );

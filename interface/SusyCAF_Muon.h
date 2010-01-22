@@ -54,16 +54,16 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
-  produces <std::vector<bool> > (  Prefix + "IsGlobalMuon" + Suffix);
-  produces <std::vector<bool> > (  Prefix + "IsTrackerMuon" + Suffix);
-  produces <std::vector<bool> > (  Prefix + "IsStandAloneMuon" + Suffix);
+  produces <std::vector<int> > (  Prefix + "IsGlobalMuon" + Suffix);
+  produces <std::vector<int> > (  Prefix + "IsTrackerMuon" + Suffix);
+  produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
 }
 
 // extra information stored for PAT data
 template< typename T >
 void SusyCAF_Muon<T>::initPAT()
 {
-  produces <std::vector<bool> > (Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
   produces <std::vector<float> > (Prefix + "EcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "HcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "TrackIso" + Suffix);
@@ -105,9 +105,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<math::XYZPoint> > vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<bool> >  isGlobalMuon   ( new std::vector<bool>()  ) ;
-  std::auto_ptr<std::vector<bool> >  isTrackerMuon   ( new std::vector<bool>()  ) ;
-  std::auto_ptr<std::vector<bool> >  isStandAloneMuon   ( new std::vector<bool>()  ) ;
+  std::auto_ptr<std::vector<int> >  isGlobalMuon   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  isTrackerMuon   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
 
  
   
@@ -167,7 +167,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Muon<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<bool> >  muonIDGlobalMuonPromptTight( new std::vector<bool>() );
+  std::auto_ptr<std::vector<int> >  muonIDGlobalMuonPromptTight( new std::vector<int>() );
   std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );

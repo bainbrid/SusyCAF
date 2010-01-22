@@ -65,13 +65,13 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<float         > >(prefix + "HadronicDepth1OverEm" + suffix);
   produces <std::vector<float         > >(prefix + "HadronicDepth2OverEm" + suffix);
   produces <std::vector<float         > >(prefix + "HadronicOverEm"       + suffix);
-  produces <std::vector<bool          > >(prefix + "HasConversionTracks"  + suffix);
-  produces <std::vector<bool          > >(prefix + "HasPixelSeed"         + suffix);
-  produces <std::vector<bool          > >(prefix + "IsEB"                 + suffix);
-  produces <std::vector<bool          > >(prefix + "IsEE"                 + suffix);
-  produces <std::vector<bool          > >(prefix + "IsEBGap"              + suffix);
-  produces <std::vector<bool          > >(prefix + "IsEEGap"              + suffix);
-  produces <std::vector<bool          > >(prefix + "IsEBEEGap"            + suffix);
+  produces <std::vector<int           > >(prefix + "HasConversionTracks"  + suffix);
+  produces <std::vector<int           > >(prefix + "HasPixelSeed"         + suffix);
+  produces <std::vector<int           > >(prefix + "IsEB"                 + suffix);
+  produces <std::vector<int           > >(prefix + "IsEE"                 + suffix);
+  produces <std::vector<int           > >(prefix + "IsEBGap"              + suffix);
+  produces <std::vector<int           > >(prefix + "IsEEGap"              + suffix);
+  produces <std::vector<int           > >(prefix + "IsEBEEGap"            + suffix);
   //---------------------------------------------------------------------------
   /*  Since it is not possible (as far as author knows) to store vector of vectors,
       here we select a "best" conversion according to the following criteria:
@@ -133,13 +133,13 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float         > > hadronicDepth1OverEm( new std::vector<float         >() );
   std::auto_ptr<std::vector<float         > > hadronicDepth2OverEm( new std::vector<float         >() );
   std::auto_ptr<std::vector<float         > > hadronicOverEm      ( new std::vector<float         >() );
-  std::auto_ptr<std::vector<bool          > > hasConversionTracks ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > hasPixelSeed        ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > isEB                ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > isEE                ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > isEBGap             ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > isEEGap             ( new std::vector<bool          >() );
-  std::auto_ptr<std::vector<bool          > > isEBEEGap           ( new std::vector<bool          >() );
+  std::auto_ptr<std::vector<int           > > hasConversionTracks ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > hasPixelSeed        ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > isEB                ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > isEE                ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > isEBGap             ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > isEEGap             ( new std::vector<int           >() );
+  std::auto_ptr<std::vector<int           > > isEBEEGap           ( new std::vector<int           >() );
   std::auto_ptr<std::vector<Vector        > > bestConversionP3    ( new std::vector<Vector        >() );
   std::auto_ptr<std::vector<Point         > > bestConversionVertex( new std::vector<Point         >() );
   std::auto_ptr<std::vector<float         > > bestConversionEoverP( new std::vector<float         >() ); 

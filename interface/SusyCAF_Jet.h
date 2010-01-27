@@ -50,6 +50,8 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
 {
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
   produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
+  produces <std::vector<float> >                          ( Prefix + "Eta2Moment" + Suffix );
+  produces <std::vector<float> >                          ( Prefix + "Phi2Moment" + Suffix );
   initSpecial();
 }
 
@@ -60,10 +62,18 @@ produce(edm::Event& evt, const edm::EventSetup&) {
   evt.getByLabel(jetsInputTag, jets);
   
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  )  ;
-  if(jets.isValid()) transform(jets->begin(),jets->end(), back_inserter(*(p4.get())), std::mem_fun_ref(&T::p4));
-  
+  std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
+  std::auto_ptr<std::vector<float> >  phi2mom  ( new std::vector<float>()  )  ;
+
+  for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
+    p4->push_back((*jets)[i].p4());
+    eta2mom->push_back((*jets)[i].etaetaMoment());
+    phi2mom->push_back((*jets)[i].phiphiMoment());
+  }  
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
+  evt.put(                 eta2mom, Prefix + "Eta2Moment" + Suffix );
+  evt.put(                 phi2mom, Prefix + "Phi2Moment" + Suffix );
   
   produceSpecial(evt, jets);
 }
@@ -71,7 +81,7 @@ produce(edm::Event& evt, const edm::EventSetup&) {
 template<class T> 
 std::auto_ptr<std::vector<double> > SusyCAF_Jet<T>::
 correctionFactors(const edm::Handle<std::vector<T> >& jets) {
-  if(jets.isValid()) return std::auto_ptr<std::vector<double> >(new std::vector<double>(1.0, jets->size()) ) ;
+  if(jets.isValid()) return std::auto_ptr<std::vector<double> >(new std::vector<double>(jets->size(),1.0) ) ;
   else return std::auto_ptr<std::vector<double> >(new std::vector<double>());
 }
 
@@ -139,9 +149,9 @@ producePF(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!pfSpe
     FchargedEm->push_back( (*jets)[i].chargedEmEnergyFraction() );
     FneutralEm->push_back( (*jets)[i].neutralEmEnergyFraction() );
     FchargedMu->push_back( (*jets)[i].chargedMuEnergyFraction() );
-    Ncharged->push_back( (*jets)[i].chargedMultiplicity() );
-    Nneutral->push_back( (*jets)[i].neutralMultiplicity() );
-    Nmuon->push_back( (*jets)[i].muonMultiplicity() );
+    Ncharged->push_back( (unsigned) (*jets)[i].chargedMultiplicity() );
+    Nneutral->push_back( (unsigned) (*jets)[i].neutralMultiplicity() );
+    Nmuon->push_back( (unsigned) (*jets)[i].muonMultiplicity() );
   }
   evt.put(FchargedHad, Prefix + "FchargedHad" + Suffix);
   evt.put(FneutralHad, Prefix + "FneutralHad" + Suffix);

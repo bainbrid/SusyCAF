@@ -37,7 +37,9 @@ nTupleCommonSequence = cms.Sequence( susycafevent +
                                  susycafcalotowers)
 
 nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF + susycafmetTC + 
-                                  susycafic5calojet + susycafak5calojet + susycafsc5calojet +
+                                  susycafic5calojet + susycafsc5calojet +
+                                  susycafak5calojet + susycafak7calojet + 
+                                  susycafak5jptjet +
                                   susycafphoton +
                                   susycafelectron + susycafpfelectron +
                                   susycafmuon + susycafpfmuon +
@@ -46,11 +48,13 @@ nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 
 nTupleRecoSequence = cms.Sequence( nTupleRecoMetSequence +
-                                    susycafic5calojetreco + susycafak5calojetreco + susycafsc5calojetreco +
-                                    susycafphotonreco +
-                                    susycafelectronreco +                                    
-                                    susycafmuonreco +
-                                    susycafPFtau)
+                                   susycafic5calojetreco + susycafsc5calojetreco +
+                                   susycafak5calojetreco + susycafak7calojetreco + 
+                                   susycafak5jptjetreco +
+                                   susycafphotonreco +
+                                   susycafelectronreco +                                    
+                                   susycafmuonreco +
+                                   susycafPFtau)
 
 nTupleGenSequence = cms.Sequence( susycafgen )
 

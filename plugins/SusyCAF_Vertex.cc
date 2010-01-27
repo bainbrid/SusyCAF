@@ -12,6 +12,7 @@ SusyCAF_Vertex::SusyCAF_Vertex(const edm::ParameterSet& cfg)
   produces <std::vector<math::XYZVector> > (prefix + "PositionError" + suffix);
   produces <std::vector<double> > (prefix + "Chi2" + suffix);
   produces <std::vector<double> > (prefix + "Ndof" + suffix);
+  produces <std::vector<int> > (prefix + "IsFake" + suffix);
   produces <std::vector<int> > (prefix + "Ntrks" + suffix);
 }
 
@@ -22,6 +23,7 @@ produce(edm::Event& event, const edm::EventSetup& )
   std::auto_ptr<std::vector<math::XYZVector> > positionError ( new std::vector<math::XYZVector>()  ) ;
   std::auto_ptr<std::vector<double> > chi2 ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> > ndof ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<int> > isFake ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> > ntrks ( new std::vector<int>()  ) ;
 
   edm::Handle<std::vector<reco::Vertex> > verticies;  
@@ -31,12 +33,19 @@ produce(edm::Event& event, const edm::EventSetup& )
     positionError->push_back(math::XYZVector(it->xError(),it->yError(),it->zError()));
     chi2->push_back(it->chi2());
     ndof->push_back(it->ndof());
-    ntrks->push_back(it->tracksSize());
+    isFake->push_back(it->isFake());
+    
+    ///ntrks->push_back(it->tracksSize());
+    int   numUsedTracks = 0;
+    for (reco::Vertex::trackRef_iterator ittrk = it->tracks_begin(); ittrk!=it->tracks_end(); ++ittrk)
+      if (it->trackWeight(*ittrk) > 0.5)  ++numUsedTracks;
+    ntrks->push_back(numUsedTracks);
   }
 
   event.put( position, prefix+"Position"+suffix);
   event.put( positionError, prefix+"PositionError"+suffix);
   event.put( chi2, prefix+"Chi2"+suffix);
   event.put( ndof, prefix+"Ndof"+suffix);
+  event.put( isFake, prefix+"IsFake"+suffix);
   event.put( ntrks, prefix+"Ntrks"+suffix);
 }

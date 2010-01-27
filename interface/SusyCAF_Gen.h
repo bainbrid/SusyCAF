@@ -51,7 +51,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int idx_gen=0;
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       if(it->status()==3 ||
-         (abs(it->pdgId())==11 | abs(it->pdgId())==13)){
+         (abs(it->pdgId())==11 || abs(it->pdgId())==13)){
         p4->push_back(it->p4());
         status->push_back(it->status());
         pdgId->push_back(it->pdgId());

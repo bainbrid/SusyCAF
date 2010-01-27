@@ -4,103 +4,228 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
-
 
 template< typename T >
 class SusyCAF_Jet : public edm::EDProducer {
  public: 
   explicit SusyCAF_Jet(const edm::ParameterSet&);
  private: 
-  typedef reco::TrackBase::Vector     Vector; 
-  //
-  void initTemplate(edm::Handle<reco::CaloJet> &);
-  void initTemplate(edm::Handle<pat::Jet> &);
-  void initRECO();
-  void initPAT();
-  //
-  void produce(edm::Event &, const edm::EventSetup & );
-  void produceTemplate(edm::Event &, edm::Handle<std::vector<reco::CaloJet> > &);
-  void produceTemplate(edm::Event &, edm::Handle<std::vector<pat::Jet> > &);
-  void produceRECO(edm::Event &, edm::Handle<std::vector<T> > &);
-  void producePAT(edm::Event &, edm::Handle<std::vector<T> > &);
+  void produce(edm::Event&, const edm::EventSetup& );
+  void initSpecial(); void produceSpecial(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initPF();      void producePF(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initCalo();    void produceCalo(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initJetID();   void produceJetID(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initMPT();     void produceMPT(edm::Event&, const edm::Handle<std::vector<T> >&);
+  
+  std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<std::vector<T> >&);
 
   const edm::ParameterSet& config;
   const edm::InputTag jetsInputTag;
   const std::string Prefix,Suffix;
+  const bool caloSpecific, pfSpecific, mpt, jetid;
 };
 
-template< typename T >
-SusyCAF_Jet<T>::SusyCAF_Jet(const edm::ParameterSet& iConfig) :
-  config(iConfig),
-  jetsInputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
-  Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+
+template<class T> SusyCAF_Jet<T>::
+SusyCAF_Jet(const edm::ParameterSet& cfg) :
+  config(cfg),
+  jetsInputTag(cfg.getParameter<edm::InputTag>("InputTag")),
+  Prefix(cfg.getParameter<std::string>("Prefix")),
+  Suffix(cfg.getParameter<std::string>("Suffix")),
+  caloSpecific(cfg.getParameter<bool>("Calo")),
+  pfSpecific(cfg.getParameter<bool>("PF")),
+  mpt(cfg.getParameter<bool>("MPT")),
+  jetid(cfg.getParameter<bool>("JetID"))
 {
-  edm::Handle<T> dataType;
-  initTemplate(dataType);
-}
-
-
-// init method in case of RECO data
-template< typename T >
-void SusyCAF_Jet<T>::initTemplate(edm::Handle<reco::CaloJet>& dataType)
-{
-  initRECO();
-}
-
-// init method in case of PAT data
-template< typename T >
-void SusyCAF_Jet<T>::initTemplate(edm::Handle<pat::Jet>& dataType)
-{
-  initRECO();
-  initPAT();
-}
-
-template< typename T >
-void SusyCAF_Jet<T>::initRECO()
-  {
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEnergyFraction"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EnergyFractionHadronic"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "TowersArea"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "MaxEInEmTowers"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "MaxEInHadTowers"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEnergyInHB"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEnergyInHE"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEnergyInHO"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "HadEnergyInHF"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEnergyInEB"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEnergyInEE"  + Suffix );
-  produces <std::vector<double> > ( Prefix + "EmEnergyInHF"  + Suffix );
+  produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
+  initSpecial();
+}
+
+template< typename T > 
+void SusyCAF_Jet<T>::
+produce(edm::Event& evt, const edm::EventSetup&) {
+  edm::Handle<std::vector<T> > jets;
+  evt.getByLabel(jetsInputTag, jets);
+  
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  )  ;
+  if(jets.isValid()) transform(jets->begin(),jets->end(), back_inserter(*(p4.get())), std::mem_fun_ref(&T::p4));
+  
+  evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
+  evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
+  
+  produceSpecial(evt, jets);
+}
+
+template<class T> 
+std::auto_ptr<std::vector<double> > SusyCAF_Jet<T>::
+correctionFactors(const edm::Handle<std::vector<T> >& jets) {
+  if(jets.isValid()) return std::auto_ptr<std::vector<double> >(new std::vector<double>(1.0, jets->size()) ) ;
+  else return std::auto_ptr<std::vector<double> >(new std::vector<double>());
+}
+
+template<> 
+std::auto_ptr<std::vector<double> > SusyCAF_Jet<pat::Jet>::
+correctionFactors(const edm::Handle<std::vector<pat::Jet> >& jets) {
+  std::auto_ptr<std::vector<double> > correction ( new std::vector<double>() );
+  for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++)
+    correction->push_back( (*jets)[i].hasCorrFactors() ? 
+			   (*jets)[i].energy() / (*jets)[i].correctedJet("RAW").energy() :
+			   1.0 );
+  return correction;
+}
+
+
+
+
+template<> void SusyCAF_Jet<reco::PFJet>::initSpecial() { initPF(); }
+template<> void SusyCAF_Jet<reco::CaloJet>::initSpecial() { initCalo(); }
+template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
+  initPF();
+  initCalo();
+  initMPT();
+  initJetID();
+}
+
+template<> void SusyCAF_Jet<reco::PFJet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<reco::PFJet> >& h) {producePF(e,h);}
+template<> void SusyCAF_Jet<reco::CaloJet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<reco::CaloJet> >& h) {produceCalo(e,h);}
+template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<pat::Jet> >& h) {
+  producePF(e,h);
+  produceCalo(e,h);
+  produceMPT(e,h);
+  produceJetID(e,h);
+}
+
+
+
+
+template<class T> void SusyCAF_Jet<T>::
+initPF() { if(!pfSpecific) return;
+  produces <std::vector<float> > (Prefix + "FchargedHad" + Suffix);
+  produces <std::vector<float> > (Prefix + "FneutralHad" + Suffix);
+  produces <std::vector<float> > (Prefix + "FchargedEm" + Suffix);
+  produces <std::vector<float> > (Prefix + "FneutralEm" + Suffix);
+  produces <std::vector<float> > (Prefix + "FchargedMu" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "Ncharged" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "Nneutral" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "Nmuon" + Suffix);
+}
+
+template<class T> void SusyCAF_Jet<T>::
+producePF(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!pfSpecific) return;
+  std::auto_ptr<std::vector<float> > FchargedHad( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > FneutralHad( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > FchargedEm( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > FneutralEm( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > FchargedMu( new std::vector<float>() );
+  std::auto_ptr<std::vector<unsigned> > Ncharged( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > Nneutral( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > Nmuon( new std::vector<unsigned>() );
+
+  for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
+    FchargedHad->push_back( (*jets)[i].chargedHadronEnergyFraction() );
+    FneutralHad->push_back( (*jets)[i].neutralHadronEnergyFraction() );
+    FchargedEm->push_back( (*jets)[i].chargedEmEnergyFraction() );
+    FneutralEm->push_back( (*jets)[i].neutralEmEnergyFraction() );
+    FchargedMu->push_back( (*jets)[i].chargedMuEnergyFraction() );
+    Ncharged->push_back( (*jets)[i].chargedMultiplicity() );
+    Nneutral->push_back( (*jets)[i].neutralMultiplicity() );
+    Nmuon->push_back( (*jets)[i].muonMultiplicity() );
+  }
+  evt.put(FchargedHad, Prefix + "FchargedHad" + Suffix);
+  evt.put(FneutralHad, Prefix + "FneutralHad" + Suffix);
+  evt.put(FchargedEm, Prefix + "FchargedEm" + Suffix);
+  evt.put(FneutralEm, Prefix + "FneutralEm" + Suffix);
+  evt.put(FchargedMu, Prefix + "FchargedMu" + Suffix);
+  evt.put(Ncharged, Prefix + "Ncharged" + Suffix);
+  evt.put(Nneutral, Prefix + "Nneutral" + Suffix);
+  evt.put(Nmuon, Prefix + "Nmuon" + Suffix);
+}
+
+
+
+template<class T> void SusyCAF_Jet<T>::
+initCalo() { if(!caloSpecific) return;
+  produces <std::vector<float> > ( Prefix + "EmEnergyFraction"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "EnergyFractionHadronic"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "TowersArea"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "MaxEInEmTowers"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "MaxEInHadTowers"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "HadEnergyInHB"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "HadEnergyInHE"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "HadEnergyInHO"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "HadEnergyInHF"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "EmEnergyInEB"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "EmEnergyInEE"  + Suffix );
+  produces <std::vector<float> > ( Prefix + "EmEnergyInHF"  + Suffix );
   produces <std::vector<int> > ( Prefix + "N60Towers"  + Suffix ); 
   produces <std::vector<int> > ( Prefix + "N90Towers"  + Suffix ); 
 }
 
-// extra information stored for PAT data
-template< typename T >
-void SusyCAF_Jet<T>::initPAT()
-{
-  produces <std::vector<double> > ( Prefix + "CorrFactor"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksEverything"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksAll"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksLoose"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksTight"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksHighPurity"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksConfirmed"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksGoodIterative"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithEverything"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithAllTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithLooseTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithTightTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithConfirmedTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
+template<class T> void SusyCAF_Jet<T>::
+produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!caloSpecific) return;
+  std::auto_ptr<std::vector<float> >  emEnergyFraction  ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  energyFractionHadronic ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  towersArea   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  maxEInEmTowers   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  maxEInHadTowers   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  hadEnergyInHB   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  hadEnergyInHE   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  hadEnergyInHO   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  hadEnergyInHF   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  emEnergyInEB   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  emEnergyInEE   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<float> >  emEnergyInHF   ( new std::vector<float>()  ) ;
+  std::auto_ptr<std::vector<int> >             n60   ( new std::vector<int>()  ) ; 
+  std::auto_ptr<std::vector<int> >             n90   ( new std::vector<int>()  ) ; 
+
+  for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
+    emEnergyFraction->push_back((*jets)[i].emEnergyFraction());
+    energyFractionHadronic->push_back((*jets)[i].energyFractionHadronic());
+    towersArea->push_back((*jets)[i].towersArea());
+    maxEInEmTowers->push_back((*jets)[i].maxEInEmTowers());
+    maxEInHadTowers->push_back((*jets)[i].maxEInHadTowers());
+    hadEnergyInHB->push_back((*jets)[i].hadEnergyInHB());
+    hadEnergyInHE->push_back((*jets)[i].hadEnergyInHE());
+    hadEnergyInHO->push_back((*jets)[i].hadEnergyInHO());
+    hadEnergyInHF->push_back((*jets)[i].hadEnergyInHF());
+    emEnergyInEB->push_back((*jets)[i].emEnergyInEB());
+    emEnergyInEE->push_back((*jets)[i].emEnergyInEE());
+    emEnergyInHF->push_back((*jets)[i].emEnergyInHF());
+    n60->push_back((*jets)[i].n60()); 
+    n90->push_back((*jets)[i].n90()); 
+  }
+  evt.put( emEnergyFraction,        Prefix + "EmEnergyFraction"  + Suffix );
+  evt.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
+  evt.put( towersArea,              Prefix + "TowersArea"  + Suffix );
+  evt.put( maxEInEmTowers,          Prefix + "MaxEInEmTowers"  + Suffix );
+  evt.put( maxEInHadTowers,         Prefix + "MaxEInHadTowers"  + Suffix );
+  evt.put( hadEnergyInHB,           Prefix + "HadEnergyInHB"  + Suffix );
+  evt.put( hadEnergyInHE,           Prefix + "HadEnergyInHE"  + Suffix );
+  evt.put( hadEnergyInHO,           Prefix + "HadEnergyInHO"  + Suffix );
+  evt.put( hadEnergyInHF,           Prefix + "HadEnergyInHF"  + Suffix );
+  evt.put( emEnergyInEB,            Prefix + "EmEnergyInEB"  + Suffix );
+  evt.put( emEnergyInEE,            Prefix + "EmEnergyInEE"  + Suffix );
+  evt.put( emEnergyInHF,            Prefix + "EmEnergyInHF"  + Suffix );
+  evt.put( n60,                     Prefix + "N60Towers"  + Suffix ); 
+  evt.put( n90,                     Prefix + "N90Towers"  + Suffix ); 
+}
+
+
+
+template<class T> void SusyCAF_Jet<T>::
+initJetID() { if(!caloSpecific || !jetid) return;
   produces <std::vector<double> > ( Prefix + "JetIDFHPD"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDFRBX"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDFSubDet1"  + Suffix );
@@ -112,114 +237,12 @@ void SusyCAF_Jet<T>::initPAT()
   produces <std::vector<int> > ( Prefix + "JetIDminimal"  + Suffix );
   produces <std::vector<int> > ( Prefix + "JetIDloose"  + Suffix );
   produces <std::vector<int> > ( Prefix + "JetIDtight"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NECALTowers"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NHCALTowers"  + Suffix );
-
+  produces <std::vector<int> > ( Prefix + "JetIDnECALTowers"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "JetIDnHCALTowers"  + Suffix );
 }
 
-template< typename T >
-void SusyCAF_Jet<T>::
-produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<std::vector<T> > jetcollection;
-  iEvent.getByLabel(jetsInputTag, jetcollection);
-
-  produceTemplate(iEvent, jetcollection);
-}
-
-// produce method in case of RECO data
-template< typename T >
-void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, edm::Handle<std::vector<reco::CaloJet> >& collection) {
-  produceRECO(iEvent, collection);
-}
-
-// produce method in case of PAT data
-template< typename T >
-void SusyCAF_Jet<T>::
-produceTemplate(edm::Event& iEvent, edm::Handle<std::vector<pat::Jet> >& collection) {
-  produceRECO(iEvent, collection);
-  producePAT(iEvent, collection);
-}
-
-template< typename T >
-void SusyCAF_Jet<T>::
-produceRECO(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEnergyFraction  ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  energyFractionHadronic ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  towersArea   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  maxEInEmTowers   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  maxEInHadTowers   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEnergyInHB   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEnergyInHE   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEnergyInHO   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  hadEnergyInHF   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEnergyInEB   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEnergyInEE   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<double> >  emEnergyInHF   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<int> >  n60   ( new std::vector<int>()  ) ; 
-  std::auto_ptr<std::vector<int> >  n90   ( new std::vector<int>()  ) ; 
-
-
-  if (collection.isValid()){
-    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      p4->push_back(it->p4());
-      emEnergyFraction->push_back(it->emEnergyFraction());
-      energyFractionHadronic->push_back(it->energyFractionHadronic());
-      towersArea->push_back(it->towersArea());
-      maxEInEmTowers->push_back(it->maxEInEmTowers());
-      maxEInHadTowers->push_back(it->maxEInHadTowers());
-      hadEnergyInHB->push_back(it->hadEnergyInHB());
-      hadEnergyInHE->push_back(it->hadEnergyInHE());
-      hadEnergyInHO->push_back(it->hadEnergyInHO());
-      hadEnergyInHF->push_back(it->hadEnergyInHF());
-      emEnergyInEB->push_back(it->emEnergyInEB());
-      emEnergyInEE->push_back(it->emEnergyInEE());
-      emEnergyInHF->push_back(it->emEnergyInHF());
-      n60->push_back(it->n60()); 
-      n90->push_back(it->n90()); 
-    }
-  }
-
-  iEvent.put( p4,  Prefix + "CorrectedP4"  + Suffix );
-  iEvent.put( emEnergyFraction,  Prefix + "EmEnergyFraction"  + Suffix );
-  iEvent.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
-  iEvent.put( towersArea,  Prefix + "TowersArea"  + Suffix );
-  iEvent.put( maxEInEmTowers,  Prefix + "MaxEInEmTowers"  + Suffix );
-  iEvent.put( maxEInHadTowers,  Prefix + "MaxEInHadTowers"  + Suffix );
-  iEvent.put( hadEnergyInHB,  Prefix + "HadEnergyInHB"  + Suffix );
-  iEvent.put( hadEnergyInHE,  Prefix + "HadEnergyInHE"  + Suffix );
-  iEvent.put( hadEnergyInHO,  Prefix + "HadEnergyInHO"  + Suffix );
-  iEvent.put( hadEnergyInHF,  Prefix + "HadEnergyInHF"  + Suffix );
-  iEvent.put( emEnergyInEB,  Prefix + "EmEnergyInEB"  + Suffix );
-  iEvent.put( emEnergyInEE,  Prefix + "EmEnergyInEE"  + Suffix );
-  iEvent.put( emEnergyInHF,  Prefix + "EmEnergyInHF"  + Suffix );
-  iEvent.put( n60,  Prefix + "N60Towers"  + Suffix ); 
-  iEvent.put( n90,  Prefix + "N90Towers"  + Suffix ); 
-
-}
-
-
-// extra information stored for PAT data
-template< typename T >
-void SusyCAF_Jet<T>::
-producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
-
-  std::auto_ptr<std::vector<double> >  corrfactor   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksTight  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksConfirmed  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksGoodIterative  ( new std::vector<int>()  ) ;
-  std::auto_ptr<Vector>  jetMPTwithEverything  ( new Vector ) ;
-  std::auto_ptr<Vector>  jetMPTwithAllTracks  ( new Vector  ) ;
-  std::auto_ptr<Vector>  jetMPTwithLooseTracks  ( new Vector ) ;
-  std::auto_ptr<Vector>  jetMPTwithTightTracks  ( new Vector ) ;
-  std::auto_ptr<Vector>  jetMPTwithHighPurityTracks  ( new Vector ) ;
-  std::auto_ptr<Vector>  jetMPTwithConfirmedTracks  ( new Vector ) ;
-  std::auto_ptr<Vector>  jetMPTwithGoodIterativeTracks  ( new Vector ) ;
+template<class T> void SusyCAF_Jet<T>::
+produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!caloSpecific || !jetid) return;
   std::auto_ptr<std::vector<double> >  fHPD  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fRBX  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fSubDet1  ( new std::vector<double>() ) ;
@@ -234,151 +257,123 @@ producePAT(edm::Event& iEvent, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<std::vector<int> >  NECALTowers  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
-
   JetIDSelectionFunctor
     minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
     looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
     tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
+  std::strbitset 
+    passMinimalCuts( minimalJetID.getBitTemplate() ),
+    passLooseCuts(   looseJetID  .getBitTemplate() ),
+    passTightCuts(   tightJetID  .getBitTemplate() );
+
+  for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
+    fHPD->push_back((*jets)[i].jetID().fHPD);
+    fRBX->push_back((*jets)[i].jetID().fRBX);
+    fSubDet1->push_back((*jets)[i].jetID().fSubDetector1);
+    fSubDet2->push_back((*jets)[i].jetID().fSubDetector2);
+    fSubDet3->push_back((*jets)[i].jetID().fSubDetector3);
+    fSubDet4->push_back((*jets)[i].jetID().fSubDetector4);
+    resEMF->push_back((*jets)[i].jetID().restrictedEMF);
+    n90Hits->push_back((int)((*jets)[i].jetID().n90Hits));
+    jetidminimal->push_back(minimalJetID((*jets)[i], passMinimalCuts));
+    jetidloose->push_back(looseJetID((*jets)[i], passLooseCuts  ));
+    jetidtight->push_back(tightJetID((*jets)[i], passTightCuts  ));
+    NECALTowers->push_back((*jets)[i].jetID().nECALTowers);
+    NHCALTowers->push_back((*jets)[i].jetID().nHCALTowers);  
+  }
+  evt.put( fHPD,  Prefix + "JetIDFHPD"  + Suffix );
+  evt.put( fRBX,  Prefix + "JetIDFRBX"  + Suffix );
+  evt.put( fSubDet1,  Prefix + "JetIDFSubDet1"  + Suffix );
+  evt.put( fSubDet2,  Prefix + "JetIDFSubDet2"  + Suffix );
+  evt.put( fSubDet3,  Prefix + "JetIDFSubDet3"  + Suffix );
+  evt.put( fSubDet4,  Prefix + "JetIDFSubDet4"  + Suffix );
+  evt.put( resEMF,  Prefix + "JetIDResEMF"  + Suffix );
+  evt.put( n90Hits,  Prefix + "JetIDN90Hits"  + Suffix );
+  evt.put( jetidminimal,  Prefix + "JetIDminimal"  + Suffix );
+  evt.put( jetidloose,  Prefix + "JetIDloose"  + Suffix );
+  evt.put( jetidtight,  Prefix + "JetIDtight"  + Suffix );
+  evt.put( NECALTowers,  Prefix + "JetIDnECALTowers"  + Suffix );
+  evt.put( NHCALTowers,  Prefix + "JetIDnHCALTowers"  + Suffix );
+}
+
+
+
+template<class T> void SusyCAF_Jet<T>::
+initMPT() { if(!mpt) return;
+  typedef reco::TrackBase::Vector Vector; 
+  produces <std::vector<int> > ( Prefix + "NAssoTracksEverything"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksAll"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksLoose"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "NAssoTracksHighPurity"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithEverything"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithAllTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithLooseTracks"  + Suffix );
+  produces <Vector> ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
+}
+
+template<class T> void SusyCAF_Jet<T>::
+produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt) return;
+  typedef reco::TrackBase::Vector Vector; 
+  std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksTight  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksConfirmed  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  nAssoTracksGoodIterative  ( new std::vector<int>()  ) ;
+  std::auto_ptr<Vector>  mptEverything  ( new Vector() ) ;
+  std::auto_ptr<Vector>  mptAllTracks  ( new Vector()  ) ;
+  std::auto_ptr<Vector>  mptLooseTracks  ( new Vector() ) ;
+  std::auto_ptr<Vector>  mptTightTracks  ( new Vector() ) ;
+  std::auto_ptr<Vector>  mptHighPurityTracks  ( new Vector() ) ;
+  std::auto_ptr<Vector>  mptConfirmedTracks  ( new Vector() ) ;
+  std::auto_ptr<Vector>  mptGoodIterativeTracks  ( new Vector() ) ;
+
   const double 
-    maxD0trk(config.getParameter<double>("MaxD0Trk")),
-    ptErrFractrk(config.getParameter<double>("PtErrFracTrk"));
-  const edm::InputTag primaryVertexTag(config.getParameter<edm::InputTag>("PrimaryVertexTag"));
+    maxD0(config.getParameter<double>("MaxD0Trk")),
+    ptErrFrac(config.getParameter<double>("PtErrFracTrk"));
+
   edm::Handle<reco::VertexCollection> vertices;   
-  iEvent.getByLabel(primaryVertexTag, vertices);
-
-  const reco::Vertex PrimaryVertex = vertices->front();
-  if (collection.isValid()){
-    for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      
-      // If pat::Jet is missing a pat::JetCorrFactors object, add a default one (to protect against Exceptions later)
-      if ( !it->hasCorrFactors() ) { 
-	pat::Jet& ref = const_cast<pat::Jet&>(static_cast<const pat::Jet&>(*it));
-	pat::JetCorrFactors::FlavourCorrections f;
-	pat::JetCorrFactors c("",1.,1.,1.,1.,f,f,f,std::vector<float>(17,0.));
-	ref.setCorrFactors(c);
-	ref.setCorrStep(pat::JetCorrFactors::L3);
-      } 
-      
-      //set to zero the vectorial sum of associated tracks momenta
-      jetMPTwithEverything->SetCoordinates(0., 0., 0.);
-      jetMPTwithAllTracks->SetCoordinates(0., 0., 0.);
-      jetMPTwithLooseTracks->SetCoordinates(0., 0., 0.);
-      jetMPTwithTightTracks->SetCoordinates(0., 0., 0.);
-      jetMPTwithHighPurityTracks->SetCoordinates(0., 0., 0.);
-      jetMPTwithConfirmedTracks->SetCoordinates(0., 0., 0.);
-      jetMPTwithGoodIterativeTracks->SetCoordinates(0., 0., 0.);
-      //
-      const pat::Jet pJunc = (static_cast<const pat::Jet*>(&(*it)))->correctedJet("RAW"); 
-      corrfactor->push_back(it->energy()/pJunc.energy());
-      nAssoTracksEverything->push_back(it->associatedTracks().size());
-      int nATAll=0;
-      int nATLoose=0;
-      int nATTight=0;
-      int nATHighPurity=0;
-      int nATConfirmed=0;
-      int nATGoodIterative=0;
-      for (reco::TrackRefVector::iterator trk = it->associatedTracks().begin(); trk != it->associatedTracks().end(); ++trk) {
-	 *jetMPTwithEverything += (*trk)->momentum();
-	//preselection cuts
-	if(fabs((*trk)->dxy(PrimaryVertex.position()))<maxD0trk && (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFractrk*(*trk)->pt() ){
-	  //undefined
-	  if((*trk)->quality(reco::Track::undefQuality)){
-	    nATAll++;
-	    *jetMPTwithAllTracks += (*trk)->momentum();
-	  }
-	  //loose
-	  if((*trk)->quality(reco::Track::loose)) {
-	    nATLoose++;
-	    *jetMPTwithLooseTracks += (*trk)->momentum();
-	  }
-	  //tight
-	  if((*trk)->quality(reco::Track::tight)) {
-	    nATTight++;
-	    *jetMPTwithTightTracks += (*trk)->momentum();
-	  }
-	  //highpurity
-	  if((*trk)->quality(reco::Track::highPurity)) {
-	    nATHighPurity++;
-	    *jetMPTwithHighPurityTracks+= (*trk)->momentum();
-	  }
-	  //confirmed
-	  if((*trk)->quality(reco::Track::confirmed)) {
-	    nATConfirmed++;
-	    *jetMPTwithConfirmedTracks+= (*trk)->momentum();
-	  }
-	  //gooditerative
-	  if((*trk)->quality(reco::Track::goodIterative)) {
-	    nATGoodIterative++;
-	    *jetMPTwithGoodIterativeTracks+= (*trk)->momentum();
-	  }
-	}
+  evt.getByLabel(config.getParameter<edm::InputTag>("PrimaryVertexTag"), vertices);
+  const reco::Vertex& PrimaryVertex = vertices->front();
+ 
+ for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
+   unsigned nAll(0),nLoose(0),nTight(0),nHighPurity(0),nConfirmed(0),nGoodIterative(0);
+    nAssoTracksEverything->push_back((*jets)[i].associatedTracks().size());
+    for (reco::TrackRefVector::iterator trk = (*jets)[i].associatedTracks().begin(); trk != (*jets)[i].associatedTracks().end(); ++trk) {
+      *mptEverything += (*trk)->momentum();
+      if( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 && 
+	  (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFrac*(*trk)->pt() ) {
+	if((*trk)->quality(reco::Track::undefQuality)) {  nAll++;           *mptAllTracks += (*trk)->momentum();	  }
+	if((*trk)->quality(reco::Track::loose)) {	  nLoose++;         *mptLooseTracks += (*trk)->momentum();       }
+	if((*trk)->quality(reco::Track::tight)) {	  nTight++;         *mptTightTracks += (*trk)->momentum();       }
+	if((*trk)->quality(reco::Track::highPurity)) {	  nHighPurity++;    *mptHighPurityTracks+= (*trk)->momentum();   }
+	if((*trk)->quality(reco::Track::confirmed)) {	  nConfirmed++;     *mptConfirmedTracks+= (*trk)->momentum();    }
+	if((*trk)->quality(reco::Track::goodIterative)) { nGoodIterative++; *mptGoodIterativeTracks+= (*trk)->momentum();}
       }
-      
-      nAssoTracksAll->push_back(nATAll);
-      nAssoTracksLoose->push_back(nATLoose);
-      nAssoTracksTight->push_back(nATTight);
-      nAssoTracksHighPurity->push_back(nATHighPurity);
-      nAssoTracksConfirmed->push_back(nATConfirmed);
-      nAssoTracksGoodIterative->push_back(nATGoodIterative);
-      fHPD->push_back(it->jetID().fHPD);
-      fRBX->push_back(it->jetID().fRBX);
-      fSubDet1->push_back(it->jetID().fSubDetector1);
-      fSubDet2->push_back(it->jetID().fSubDetector2);
-      fSubDet3->push_back(it->jetID().fSubDetector3);
-      fSubDet4->push_back(it->jetID().fSubDetector4);
-      resEMF->push_back(it->jetID().restrictedEMF);
-      n90Hits->push_back((int)(it->jetID().n90Hits));
-      std::strbitset    passMinimalCuts = minimalJetID.getBitTemplate();
-      std::strbitset    passLooseCuts   = looseJetID  .getBitTemplate();
-      std::strbitset    passTightCuts   = tightJetID  .getBitTemplate();
-      jetidminimal->push_back(minimalJetID(*it, passMinimalCuts));
-      jetidloose->push_back(looseJetID(*it, passLooseCuts  ));
-      jetidtight->push_back(tightJetID(*it, passTightCuts  ));
-      NECALTowers->push_back(it->jetID().nECALTowers);
-      NHCALTowers->push_back(it->jetID().nHCALTowers);  
-
-      /*
-      std::strbitset    passMinimalCuts = minimalJetID.getBitTemplate();
-      std::strbitset    passLooseCuts   = looseJetID  .getBitTemplate();
-      std::strbitset    passTightCuts   = tightJetID  .getBitTemplate();
-      bool              passMinimal = minimalJetID(*it, passMinimalCuts);
-      bool              passLoose   = looseJetID  (*it, passLooseCuts  );
-      bool              passTight   = tightJetID  (*it, passTightCuts  );
-      std::cout << " Minimal ID : " << (passMinimal ? "yes" : "no") << std::endl;  passMinimalCuts.print(std::cout);
-      std::cout << " Loose ID   : " << (passLoose   ? "yes" : "no") << std::endl;  passLooseCuts  .print(std::cout);
-      std::cout << " Tight ID   : " << (passTight   ? "yes" : "no") << std::endl;  passTightCuts  .print(std::cout);*/
-
     }
+    nAssoTracksAll->push_back(nAll);
+    nAssoTracksLoose->push_back(nLoose);
+    nAssoTracksTight->push_back(nTight);
+    nAssoTracksHighPurity->push_back(nHighPurity);
+    nAssoTracksConfirmed->push_back(nConfirmed);
+    nAssoTracksGoodIterative->push_back(nGoodIterative);    
   }
 
-  iEvent.put( corrfactor,  Prefix + "CorrFactor"  + Suffix );
-  iEvent.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
-  iEvent.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );
-  iEvent.put( nAssoTracksLoose,  Prefix + "NAssoTracksLoose"  + Suffix );
-  iEvent.put( nAssoTracksTight,  Prefix + "NAssoTracksTight"  + Suffix );
-  iEvent.put( nAssoTracksHighPurity,  Prefix + "NAssoTracksHighPurity"  + Suffix );
-  iEvent.put( nAssoTracksConfirmed,  Prefix + "NAssoTracksConfirmed"  + Suffix );
-  iEvent.put( nAssoTracksGoodIterative,  Prefix + "NAssoTracksGoodIterative"  + Suffix );
-  iEvent.put( jetMPTwithEverything,  Prefix + "MPTwithEverything"  + Suffix );
-  iEvent.put( jetMPTwithAllTracks,  Prefix + "MPTwithAllTracks"  + Suffix );
-  iEvent.put( jetMPTwithLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
-  iEvent.put( jetMPTwithTightTracks,  Prefix + "MPTwithTightTracks"  + Suffix );
-  iEvent.put( jetMPTwithHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
-  iEvent.put( jetMPTwithConfirmedTracks,  Prefix + "MPTwithConfirmedTracks"  + Suffix );
-  iEvent.put( jetMPTwithGoodIterativeTracks,  Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
-  iEvent.put( fHPD,  Prefix + "JetIDFHPD"  + Suffix );
-  iEvent.put( fRBX,  Prefix + "JetIDFRBX"  + Suffix );
-  iEvent.put( fSubDet1,  Prefix + "JetIDFSubDet1"  + Suffix );
-  iEvent.put( fSubDet2,  Prefix + "JetIDFSubDet2"  + Suffix );
-  iEvent.put( fSubDet3,  Prefix + "JetIDFSubDet3"  + Suffix );
-  iEvent.put( fSubDet4,  Prefix + "JetIDFSubDet4"  + Suffix );
-  iEvent.put( resEMF,  Prefix + "JetIDResEMF"  + Suffix );
-  iEvent.put( n90Hits,  Prefix + "JetIDN90Hits"  + Suffix );
-  iEvent.put( jetidminimal,  Prefix + "JetIDminimal"  + Suffix );
-  iEvent.put( jetidloose,  Prefix + "JetIDloose"  + Suffix );
-  iEvent.put( jetidtight,  Prefix + "JetIDtight"  + Suffix );
-  iEvent.put( NECALTowers,  Prefix + "NECALTowers"  + Suffix );
-  iEvent.put( NHCALTowers,  Prefix + "NHCALTowers"  + Suffix );
+  evt.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
+  evt.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );
+  evt.put( nAssoTracksLoose,  Prefix + "NAssoTracksLoose"  + Suffix );
+  evt.put( nAssoTracksTight,  Prefix + "NAssoTracksTight"  + Suffix );
+  evt.put( nAssoTracksHighPurity,  Prefix + "NAssoTracksHighPurity"  + Suffix );
+  evt.put( nAssoTracksConfirmed,  Prefix + "NAssoTracksConfirmed"  + Suffix );
+  evt.put( nAssoTracksGoodIterative,  Prefix + "NAssoTracksGoodIterative"  + Suffix );
+  evt.put( mptEverything,  Prefix + "MPTwithEverything"  + Suffix );
+  evt.put( mptAllTracks,  Prefix + "MPTwithAllTracks"  + Suffix );
+  evt.put( mptLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
+  evt.put( mptTightTracks,  Prefix + "MPTwithTightTracks"  + Suffix );
+  evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  evt.put( mptConfirmedTracks,  Prefix + "MPTwithConfirmedTracks"  + Suffix );
+  evt.put( mptGoodIterativeTracks,  Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
 
 }
 

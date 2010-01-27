@@ -1,92 +1,56 @@
 import FWCore.ParameterSet.Config as cms
 
-# reco::CaloJets for IC5, SC5, AK5, AK7
+#default options
 
-susycafic5calojetreco = cms.EDProducer(
-    "SusyCAF_CaloJet",
-    InputTag = cms.InputTag('iterativeCone5CaloJets'),
-    Prefix = cms.string('ic5Jet'),
-    Suffix = cms.string('Calo')
-    )
+susycaf_calojet = cms.EDProducer("SusyCAF_CaloJet",
+                                 InputTag = cms.InputTag(''),
+                                 Prefix = cms.string(''),
+                                 Suffix = cms.string('Calo'),
+                                 Calo = cms.bool(True),
+                                 PF = cms.bool(False),
+                                 JetID = cms.bool(False),
+                                 MPT = cms.bool(False)
+                                 )
 
-susycafsc5calojetreco = cms.EDProducer(
-    "SusyCAF_CaloJet",
-    InputTag = cms.InputTag('sisCone5CaloJets'),
-    Prefix = cms.string('sc5Jet'),
-    Suffix = cms.string('Calo')
-    )
+susycaf_pfjet = cms.EDProducer("SusyCAF_PFJet",
+                               InputTag = cms.InputTag(''),
+                               Prefix = cms.string(''),
+                               Suffix = cms.string('PF'),
+                               Calo = cms.bool(False),
+                               PF = cms.bool(True),
+                               JetID = cms.bool(False),
+                               MPT = cms.bool(False)
+                               )
 
-susycafak5calojetreco = cms.EDProducer(
-    "SusyCAF_CaloJet",
-    InputTag = cms.InputTag('ak5CaloJets'),
-    Prefix = cms.string('ak5Jet'),
-    Suffix = cms.string('Calo')
-    )
+susycaf_patjet = cms.EDProducer("SusyCAF_PatJet",
+                                InputTag = cms.InputTag(''),
+                                Prefix = cms.string(''),
+                                Suffix = cms.string('Pat'),
+                                Calo = cms.bool(True),
+                                PF = cms.bool(False),
+                                JetID = cms.bool(True),
+                                MPT = cms.bool(True),
+                                PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
+                                MaxD0Trk = cms.double(0.02),
+                                PtErrFracTrk = cms.double(0.2)
+                                )
 
-susycafak7calojetreco = cms.EDProducer(
-    "SusyCAF_CaloJet",
-    InputTag = cms.InputTag('ak7CaloJets'),
-    Prefix = cms.string('ak7Jet'),
-    Suffix = cms.string('Calo')
-    )
+# Without SusyPAT
+susycafic5calojetreco = susycaf_calojet.clone( InputTag = 'iterativeCone5CaloJets',       Prefix = 'ic5Jet' )
+susycafsc5calojetreco = susycaf_calojet.clone( InputTag = 'sisCone5CaloJets',             Prefix = 'sc5Jet' )
+susycafak5calojetreco = susycaf_calojet.clone( InputTag = 'ak5CaloJets',                  Prefix = 'ak5Jet' )
+susycafak7calojetreco = susycaf_calojet.clone( InputTag = 'ak7CaloJets',                  Prefix = 'ak7Jet' )
+susycafak5jptjetreco  = susycaf_calojet.clone( InputTag = 'JetPlusTrackZSPCorJetAntiKt5', Prefix = 'ak5JetJPT' )
+susycafic5pfjetreco = susycaf_pfjet.clone(     InputTag = 'iterativeCone5PFJets',         Prefix = 'ic5Jet' )
+susycafak5pfjetreco = susycaf_pfjet.clone(     InputTag = 'ak5PFJets',                    Prefix = 'ak5Jet' )
 
-# pat::Jets for IC5, SC5, AK5, AK7
+# With SusyPAT
+susycafic5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsIC5',   Prefix = 'ic5Jet'    )
+susycafsc5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsSC5',   Prefix = 'sc5Jet'    )
+susycafak5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK5',   Prefix = 'ak5Jet'    )
+susycafak7calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK7',   Prefix = 'ak7Jet'    )
+susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT',Prefix = 'ak5JetJPT' )
+susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', Prefix = 'ic5JetPF', PF = True, Calo = False )
+susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', Prefix = 'ak5JetPF', PF = True, Calo = False )
 
-susycafic5calojet = cms.EDProducer(
-    "SusyCAF_PatJet",
-    InputTag = cms.InputTag('cleanLayer1JetsIC5'),
-    PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-    MaxD0Trk = cms.double(0.02),
-    PtErrFracTrk = cms.double(0.2),
-    Prefix = cms.string('ic5Jet'),
-    Suffix = cms.string('Pat')
-    )
 
-susycafsc5calojet = cms.EDProducer(
-    "SusyCAF_PatJet",
-    InputTag = cms.InputTag('cleanLayer1JetsSC5'),
-    PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-    MaxD0Trk = cms.double(0.02),
-    PtErrFracTrk = cms.double(0.2),
-    Prefix = cms.string('sc5Jet'),
-    Suffix = cms.string('Pat')
-    )
-
-susycafak5calojet = cms.EDProducer(
-    "SusyCAF_PatJet",
-    InputTag = cms.InputTag('cleanLayer1JetsAK5'),
-    PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-    MaxD0Trk = cms.double(0.02),
-    PtErrFracTrk = cms.double(0.2),
-    Prefix = cms.string('ak5Jet'),
-    Suffix = cms.string('Pat')
-                            )
-
-susycafak7calojet = cms.EDProducer(
-    "SusyCAF_PatJet",
-    InputTag = cms.InputTag('cleanLayer1JetsAK7'),
-    PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-    MaxD0Trk = cms.double(0.02),
-    PtErrFracTrk = cms.double(0.2),
-    Prefix = cms.string('ak7Jet'),
-    Suffix = cms.string('Pat')
-    )
-
-# "JPT-corrected" reco::CaloJets and pat::Jets for AK5
-
-susycafak5jptjetreco = cms.EDProducer(
-    "SusyCAF_CaloJet",
-    InputTag = cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
-    Prefix = cms.string('ak5JetJPT'),
-    Suffix = cms.string('Calo')
-    )
-
-susycafak5jptjet = cms.EDProducer(
-    "SusyCAF_PatJet",
-    InputTag = cms.InputTag('cleanLayer1JetsAK5JPT'),
-    PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-    MaxD0Trk = cms.double(0.02),
-    PtErrFracTrk = cms.double(0.2),
-    Prefix = cms.string('ak5JetJPT'),
-    Suffix = cms.string('Pat')
-    )

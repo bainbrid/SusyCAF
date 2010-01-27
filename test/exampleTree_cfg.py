@@ -5,9 +5,10 @@ process.setName_("SUSYCAF")
 class options:
     outputSUSYPAT = False
     GlobalTag = None #set later on while loading the dataset
-    mcInfo = True
-    silentMessageLogger = False
-    onTheFlySUSYPAT = False
+    JetCorrections = '900GeV'
+    mcInfo = False
+    silentMessageLogger = True
+    onTheFlySUSYPAT = True
     fromRECO = True
 
 #-- Message Logger ------------------------------------------------------------
@@ -29,16 +30,16 @@ process.add_( cms.Service( "TFileService",
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring() )
 if options.fromRECO:
     if options.mcInfo:
-        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V14::All'
-        process.source.fileNames = ['rfio://?svcclass=cmscafuser&path=/castor/cern.ch/user/n/nmohr/QCDDiJet_Pt380to470_MC_31X_V9_ReReco332.root']
+        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V15::All'
+        process.source.fileNames = ['/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/CE62D4D8-85ED-DE11-8BD2-000423D9853C.root']
         # Due to problem in production of LM samples: same event number appears multiple times
         process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
     else:
-        if options.GlobalTag == None: options.GlobalTag = 'GR09_R_34X_V3::All'
+        if options.GlobalTag == None: options.GlobalTag = 'GR09_R_V6::All'
         process.source.fileNames = ['/store/data/BeamCommissioning09/MinimumBias/RECO/Jan21stPreProd_336p3_v1/0007/EC38C57D-0507-DF11-82E3-0024E8768CA5.root']
 else:
     if options.mcInfo:
-        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V14::All'
+        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V15::All'
         process.source.fileNames = ['rfio://?svcclass=cmscafuser&path=/castor/cern.ch/user/n/nmohr/V7production/QCDDiJet_Pt380to470_SUSYPAT-V00-05-06.root']
     else:
         raise StandardError, "no PAT-ified data available yet. Perhaps try running on the fly!"
@@ -52,7 +53,7 @@ schedule = cms.Schedule()
 if options.onTheFlySUSYPAT and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT','Summer09_7TeV_ReReco332','31xReReco332') 
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,None,['IC5','SC5','AK7','KT4','AK5PF','AK7PF','AK5JPT','AK5Track']) 
     process.susyPat = cms.Path(process.seqSUSYDefaultSequence)
     schedule.append(process.susyPat)
     SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
@@ -84,5 +85,3 @@ else:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence )
 
 schedule.append(process.p)
-
-

@@ -40,7 +40,7 @@ susycafic5calojetreco = susycaf_calojet.clone( InputTag = 'iterativeCone5CaloJet
 susycafsc5calojetreco = susycaf_calojet.clone( InputTag = 'sisCone5CaloJets',             Prefix = 'sc5Jet' )
 susycafak5calojetreco = susycaf_calojet.clone( InputTag = 'ak5CaloJets',                  Prefix = 'ak5Jet' )
 susycafak7calojetreco = susycaf_calojet.clone( InputTag = 'ak7CaloJets',                  Prefix = 'ak7Jet' )
-susycafak5jptjetreco  = susycaf_calojet.clone( InputTag = 'JetPlusTrackZSPCorJetAntiKt5', Prefix = 'ak5JetJPT' )
+susycafak5jptjetreco  = susycaf_calojet.clone( InputTag = 'JetPlusTrackZSPCorJetAntiKt5', Prefix = 'ak5JetJPT', JetID = False)
 susycafic5pfjetreco = susycaf_pfjet.clone(     InputTag = 'iterativeCone5PFJets',         Prefix = 'ic5Jet' )
 susycafak5pfjetreco = susycaf_pfjet.clone(     InputTag = 'ak5PFJets',                    Prefix = 'ak5Jet' )
 
@@ -49,8 +49,8 @@ susycafic5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsIC5',   Pre
 susycafsc5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsSC5',   Prefix = 'sc5Jet'    )
 susycafak5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK5',   Prefix = 'ak5Jet'    )
 susycafak7calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK7',   Prefix = 'ak7Jet'    )
-susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT',Prefix = 'ak5JetJPT' )
-susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', Prefix = 'ic5JetPF', PF = True, Calo = False )
-susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', Prefix = 'ak5JetPF', PF = True, Calo = False )
+susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT',Prefix = 'ak5JetJPT', JetID = False )
+susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', Prefix = 'ic5JetPF', JetID = False, PF = True, Calo = False )
+susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', Prefix = 'ak5JetPF', JetID = False, PF = True, Calo = False )
 
 

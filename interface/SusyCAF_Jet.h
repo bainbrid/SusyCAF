@@ -327,17 +327,11 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksTight  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksConfirmed  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksGoodIterative  ( new std::vector<int>()  ) ;
   std::auto_ptr<Vector>  mptEverything  ( new Vector() ) ;
   std::auto_ptr<Vector>  mptAllTracks  ( new Vector()  ) ;
   std::auto_ptr<Vector>  mptLooseTracks  ( new Vector() ) ;
-  std::auto_ptr<Vector>  mptTightTracks  ( new Vector() ) ;
   std::auto_ptr<Vector>  mptHighPurityTracks  ( new Vector() ) ;
-  std::auto_ptr<Vector>  mptConfirmedTracks  ( new Vector() ) ;
-  std::auto_ptr<Vector>  mptGoodIterativeTracks  ( new Vector() ) ;
 
   const double 
     maxD0(config.getParameter<double>("MaxD0Trk")),
@@ -348,7 +342,7 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   const reco::Vertex& PrimaryVertex = vertices->front();
  
  for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
-   unsigned nAll(0),nLoose(0),nTight(0),nHighPurity(0),nConfirmed(0),nGoodIterative(0);
+   unsigned nAll(0),nLoose(0),nHighPurity(0);
     nAssoTracksEverything->push_back((*jets)[i].associatedTracks().size());
     for (reco::TrackRefVector::iterator trk = (*jets)[i].associatedTracks().begin(); trk != (*jets)[i].associatedTracks().end(); ++trk) {
       *mptEverything += (*trk)->momentum();
@@ -356,35 +350,21 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
 	  (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFrac*(*trk)->pt() ) {
 	if((*trk)->quality(reco::Track::undefQuality)) {  nAll++;           *mptAllTracks += (*trk)->momentum();	  }
 	if((*trk)->quality(reco::Track::loose)) {	  nLoose++;         *mptLooseTracks += (*trk)->momentum();       }
-	if((*trk)->quality(reco::Track::tight)) {	  nTight++;         *mptTightTracks += (*trk)->momentum();       }
 	if((*trk)->quality(reco::Track::highPurity)) {	  nHighPurity++;    *mptHighPurityTracks+= (*trk)->momentum();   }
-	if((*trk)->quality(reco::Track::confirmed)) {	  nConfirmed++;     *mptConfirmedTracks+= (*trk)->momentum();    }
-	if((*trk)->quality(reco::Track::goodIterative)) { nGoodIterative++; *mptGoodIterativeTracks+= (*trk)->momentum();}
       }
     }
     nAssoTracksAll->push_back(nAll);
     nAssoTracksLoose->push_back(nLoose);
-    nAssoTracksTight->push_back(nTight);
     nAssoTracksHighPurity->push_back(nHighPurity);
-    nAssoTracksConfirmed->push_back(nConfirmed);
-    nAssoTracksGoodIterative->push_back(nGoodIterative);    
   }
-
   evt.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
   evt.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );
   evt.put( nAssoTracksLoose,  Prefix + "NAssoTracksLoose"  + Suffix );
-  evt.put( nAssoTracksTight,  Prefix + "NAssoTracksTight"  + Suffix );
   evt.put( nAssoTracksHighPurity,  Prefix + "NAssoTracksHighPurity"  + Suffix );
-  evt.put( nAssoTracksConfirmed,  Prefix + "NAssoTracksConfirmed"  + Suffix );
-  evt.put( nAssoTracksGoodIterative,  Prefix + "NAssoTracksGoodIterative"  + Suffix );
   evt.put( mptEverything,  Prefix + "MPTwithEverything"  + Suffix );
   evt.put( mptAllTracks,  Prefix + "MPTwithAllTracks"  + Suffix );
   evt.put( mptLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
-  evt.put( mptTightTracks,  Prefix + "MPTwithTightTracks"  + Suffix );
   evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
-  evt.put( mptConfirmedTracks,  Prefix + "MPTwithConfirmedTracks"  + Suffix );
-  evt.put( mptGoodIterativeTracks,  Prefix + "MPTwithGoodIterativeTracks"  + Suffix );
-
 }
 
 #endif

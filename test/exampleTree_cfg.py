@@ -2,14 +2,27 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.setName_("SUSYCAF")
 
-class options:
-    outputSUSYPAT = False
-    GlobalTag = None #set later on while loading the dataset
-    JetCorrections = '900GeV'
-    mcInfo = False
-    silentMessageLogger = True
-    onTheFlySUSYPAT = True
-    fromRECO = True
+
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing ('standard')
+
+#---set defaults
+#  for standard options
+#options.files = "somefile.root" # will select example files automatically
+options.output = "SusyCAF_Tree.root"
+options.secondaryOutput = "" #switch PAT-tuple output off by default
+options.maxEvents = 100
+#  for SusyCaf specifics
+options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use")
+options.register('JetCorrections', '900GeV', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
+options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
+options.register('silentMessageLogger', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
+options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
+options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
+
+#---parse user input
+options.parseArguments()
+
 
 #-- Message Logger ------------------------------------------------------------
 if options.silentMessageLogger:
@@ -22,35 +35,40 @@ if options.silentMessageLogger:
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.add_( cms.Service( "TFileService",
-    fileName = cms.string( 'exampleTree_nTuple.root' ),
+    fileName = cms.string( options.output ),
     closeFileFast = cms.untracked.bool(True) ) 
 )
 
 #-- Input Source --------------------------------------------------------------
-process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring() )
-if options.fromRECO:
-    if options.mcInfo:
-        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V15::All'
-        process.source.fileNames = ['/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/CE62D4D8-85ED-DE11-8BD2-000423D9853C.root']
-        # Due to problem in production of LM samples: same event number appears multiple times
-        process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+if options.files == []:
+    if options.fromRECO:
+        if options.mcInfo:
+            if options.GlobalTag == "": options.GlobalTag = 'STARTUP3X_V8P::All'
+	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
+            options.files = '/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8P_900GeV-v1/0011/FC9DC27A-060A-DF11-88E7-001CC47D01BA.root'
+	        # Due to problem in production of LM samples: same event number appears multiple times
+            process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+        else:
+            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_V6A::All'
+	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
+            options.files = '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Jan23Skim-v1/0014/FC0BF28C-C009-DF11-94C8-0026189438E3.root'
     else:
-        if options.GlobalTag == None: options.GlobalTag = 'GR09_R_V6::All'
-        process.source.fileNames = ['/store/data/BeamCommissioning09/MinimumBias/RECO/Jan21stPreProd_336p3_v1/0007/EC38C57D-0507-DF11-82E3-0024E8768CA5.root']
-else:
-    if options.mcInfo:
-        if options.GlobalTag == None: options.GlobalTag = 'MC_3XY_V15::All'
-        process.source.fileNames = ['rfio://?svcclass=cmscafuser&path=/castor/cern.ch/user/n/nmohr/V7production/QCDDiJet_Pt380to470_SUSYPAT-V00-05-06.root']
-    else:
-        raise StandardError, "no PAT-ified data available yet. Perhaps try running on the fly!"
+        if options.mcInfo:
+            if options.GlobalTag == "": options.GlobalTag = 'STARTUP3X_V8P::All'
+            options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/MinBias_Summer09_MC_V00-05-10.root'
+            process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+        else:
+            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_V6A::All'
+            options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/BeamCommissioning09_MinimumBias_Jan23Skim_V00-05-10.root'
 
-process.maxEvents.input = 100
+process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
+process.maxEvents.input = options.maxEvents
 
 #-- Calibration tag -----------------------------------------------------------
 process.GlobalTag.globaltag = options.GlobalTag
 
 schedule = cms.Schedule()
-if options.onTheFlySUSYPAT and options.fromRECO:
+if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
     addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,None,['IC5','SC5','AK7','KT4','AK5PF','AK7PF','AK5JPT','AK5Track']) 
@@ -59,14 +77,14 @@ if options.onTheFlySUSYPAT and options.fromRECO:
     SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 
     #-- Output module configuration -----------------------------------------------
-    process.out.fileName = 'exampleTree_SUSYPAT.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+    process.out.fileName = options.secondaryOutput
     # Custom settings
     process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files???)
     process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
     process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
 
     process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
-    if not options.outputSUSYPAT and hasattr(process,"out"): # remove outpath 
+    if options.secondaryOutput == "" and hasattr(process,"out"): # remove outpath 
         del process.out
         del process.outpath
 
@@ -76,12 +94,12 @@ process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 if options.mcInfo:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleGenSequence )
 
-if options.fromRECO and not options.onTheFlySUSYPAT:
+if options.fromRECO and not options.patify:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoSequence )
 else:
-    if  options.onTheFlySUSYPAT:
+    if  options.patify:
         #little havyhanded: want too have met values which are not in SUSYPAT in those trees
-        process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoMetSequence )
+         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoMetSequence )
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence )
 
 schedule.append(process.p)

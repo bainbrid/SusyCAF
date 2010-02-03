@@ -27,6 +27,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   void initCalo();    void produceCalo(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initJetID();   void produceJetID(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initMPT();     void produceMPT(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initGenJetMatch(); void produceGenJetMatch(edm::Event&, const edm::Handle<std::vector<T> >&);
   
   std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<std::vector<T> >&);
 
@@ -106,6 +107,9 @@ template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
   initCalo();
   initMPT();
   initJetID();
+
+  //GenJet matching
+  initGenJetMatch();
 }
 
 template<> void SusyCAF_Jet<reco::PFJet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<reco::PFJet> >& h) {producePF(e,h);}
@@ -115,6 +119,9 @@ template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::H
   produceCalo(e,h);
   produceMPT(e,h);
   produceJetID(e,h);
+
+  //include GenJet matching 
+  produceGenJetMatch(e,h);
 }
 
 
@@ -367,4 +374,29 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
 }
 
+template<class T> void SusyCAF_Jet<T>::
+initGenJetMatch() {//maybe add option to turn GenJetMatching on and off?
+  produces <std::vector<int> > (Prefix + "GenJetMatchExists" + Suffix);
+  produces <std::vector<reco::Candidate::LorentzVector> > (Prefix + "GenJetP4" + Suffix);
+}
+
+template<class T> void SusyCAF_Jet<T>::
+produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
+  std::auto_ptr<std::vector<int> > GenJetMatchExists( new std::vector<int>() );
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > GenJetP4 (new std::vector<reco::Candidate::LorentzVector>() );
+
+   for (unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
+    const reco::GenJet *genjet = (*jets)[i].genJet();
+    if(genjet){
+      GenJetMatchExists->push_back(1);
+      GenJetP4->push_back( (*jets)[i].genJet()->p4());
+    }
+    else{
+      GenJetMatchExists->push_back(0);
+    }
+   }
+
+evt.put(GenJetMatchExists, Prefix + "GenJetMatchExists" + Suffix);
+evt.put(GenJetP4, Prefix + "GenJetP4" + Suffix);
+}
 #endif

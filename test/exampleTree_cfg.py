@@ -15,8 +15,8 @@ options.maxEvents = 100
 #  for SusyCaf specifics
 options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use")
 options.register('JetCorrections', '900GeV', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
-options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
-options.register('silentMessageLogger', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
+options.register('mcInfo', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
+options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
 
@@ -43,22 +43,22 @@ process.add_( cms.Service( "TFileService",
 if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'STARTUP3X_V8P::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START3X_V16C::All'
 	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
             options.files = '/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8P_900GeV-v1/0011/FC9DC27A-060A-DF11-88E7-001CC47D01BA.root'
 	        # Due to problem in production of LM samples: same event number appears multiple times
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_V6A::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_34X_V3::All'
 	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
             options.files = '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Jan23Skim-v1/0014/FC0BF28C-C009-DF11-94C8-0026189438E3.root'
     else:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'STARTUP3X_V8P::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START3X_V16C::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/MinBias_Summer09_MC_V00-05-10.root'
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_V6A::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_34X_V3::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/BeamCommissioning09_MinimumBias_Jan23Skim_V00-05-10.root'
 
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )

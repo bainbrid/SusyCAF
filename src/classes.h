@@ -9,6 +9,9 @@ namespace {
   struct dictionary {
     std::map<std::string,bool> dummy0;
     edm::Wrapper<std::map<std::string,bool> > dummy1;
+
+    std::map<std::string,int> dummi0;
+    edm::Wrapper<std::map<std::string,int> > dummi1;
   };
 }
 

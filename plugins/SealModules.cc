@@ -47,6 +47,9 @@ DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Gen.h"
 
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DQMFlags.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DCSBits.h"
+
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_MET<reco::PFMET> SusyCAF_PFMET;
 typedef SusyCAF_MET<pat::MET> SusyCAF_PatMET;
@@ -103,5 +106,8 @@ DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
 
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_GenParticle);
+
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_DQMFlags);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_DCSBits);
 
 

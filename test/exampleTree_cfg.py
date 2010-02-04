@@ -93,6 +93,9 @@ process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 
 if options.mcInfo:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleGenSequence )
+else:
+    process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleDataSequence )
+
 
 if options.fromRECO and not options.patify:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoSequence )

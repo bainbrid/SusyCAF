@@ -56,6 +56,7 @@ beginJob(const edm::EventSetup&) {
   leafmap["lint"]      = LONG;       leafmap["longs"]     = LONG_V;
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
   leafmap["Stringboolstdmap"] = STRING_BOOL_M;
+  leafmap["Stringintstdmap"]  = STRING_INT_M;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVector"] = LORENTZV;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3D"] = POINT;

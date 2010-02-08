@@ -72,6 +72,22 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<int           > >(prefix + "IsEBGap"              + suffix);
   produces <std::vector<int           > >(prefix + "IsEEGap"              + suffix);
   produces <std::vector<int           > >(prefix + "IsEBEEGap"            + suffix);
+  //extra variables requested
+  produces <std::vector<float> > (prefix + "TrkSumPtHollowConeDR04" + suffix);
+  produces <std::vector<float> > (prefix + "EcalRecHitEtConeDR04" + suffix);
+  produces <std::vector<float> > (prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
+  produces <std::vector<float> > (prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
+  produces <std::vector<float> > (prefix + "R9" + suffix);
+  produces <std::vector<float> > (prefix + "e1x5" + suffix);
+  produces <std::vector<float> > (prefix + "e2x5" + suffix);
+  produces <std::vector<float> > (prefix + "e3x3" + suffix);
+  produces <std::vector<float> > (prefix + "e5x5" + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterEnergy" + suffix);
+  produces <std::vector<Point> > (prefix + "SuperClusterPos" + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterEtaWidth" + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterPhiWidth" + suffix);
+
+
   //---------------------------------------------------------------------------
   /*  Since it is not possible (as far as author knows) to store vector of vectors,
       here we select a "best" conversion according to the following criteria:
@@ -145,6 +161,23 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float         > > bestConversionEoverP( new std::vector<float         >() ); 
   std::auto_ptr<std::vector<float         > > bestConversionMass  ( new std::vector<float         >() );
 
+  std::auto_ptr<std::vector<float> > trkSumPtHolConeDR04 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > EcalrechitEtConeDR04 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDepth1 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDepth2 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > R9 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e1x5 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e2x5 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e3x3 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e5x5 (new std::vector<float>());
+
+  reco::SuperClusterRef phot_SC_ref;
+
+  std::auto_ptr<std::vector<double> > SCenergy (new std::vector<double>());
+  std::auto_ptr<std::vector<Point> > SCpoint (new std::vector<Point>());
+  std::auto_ptr<std::vector<double> > SCetaWidth (new std::vector<double>());
+  std::auto_ptr<std::vector<double> > SCphiWidth (new std::vector<double>());
+
 
   if (collection.isValid()) {
   const typename std::vector<T>::const_iterator   endOfStuff  = collection->end();
@@ -191,6 +224,24 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bestConversionEoverP->push_back(0);
       bestConversionMass  ->push_back(0);
     }
+
+    trkSumPtHolConeDR04 -> push_back(photon.trkSumPtHollowConeDR04());
+    EcalrechitEtConeDR04 -> push_back(photon.ecalRecHitSumEtConeDR04());
+    HcalDepth1 -> push_back(photon.hcalDepth1TowerSumEtConeDR04());
+    HcalDepth2 -> push_back(photon.hcalDepth2TowerSumEtConeDR04());
+    R9 -> push_back(photon.r9());
+    e1x5 -> push_back(photon.e1x5());
+    e2x5 -> push_back(photon.e2x5());
+    e3x3 -> push_back(photon.e3x3());
+    e5x5 -> push_back(photon.e5x5());
+
+    phot_SC_ref = photon.superCluster();
+
+    SCenergy -> push_back(phot_SC_ref->energy());
+    SCpoint -> push_back(phot_SC_ref->position());
+    SCetaWidth -> push_back(phot_SC_ref->etaWidth());
+    SCphiWidth -> push_back(phot_SC_ref->phiWidth());
+
   } // end loop over photons
   }
 
@@ -212,6 +263,20 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(bestConversionVertex , prefix + "BestConversionVertex" + suffix);
   iEvent.put(bestConversionEoverP , prefix + "BestConversionEoverP" + suffix);
   iEvent.put(bestConversionMass   , prefix + "BestConversionMass"   + suffix);
+
+  iEvent.put(trkSumPtHolConeDR04, prefix + "TrkSumPtHollowConeDR04" + suffix);
+  iEvent.put(EcalrechitEtConeDR04, prefix + "EcalRecHitEtConeDR04" + suffix);
+  iEvent.put(HcalDepth1, prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
+  iEvent.put(HcalDepth2, prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
+  iEvent.put(R9, prefix + "R9" + suffix);
+  iEvent.put(e1x5, prefix + "e1x5" + suffix);
+  iEvent.put(e2x5, prefix + "e2x5" + suffix);
+  iEvent.put(e3x3, prefix + "e3x3" + suffix);
+  iEvent.put(e5x5, prefix + "e5x5" + suffix);
+  iEvent.put(SCenergy, prefix + "SuperClusterEnergy" + suffix);
+  iEvent.put(SCpoint, prefix + "SuperClusterPos" + suffix);
+  iEvent.put(SCetaWidth, prefix + "SuperClusterEtaWidth" + suffix);
+  iEvent.put(SCphiWidth, prefix + "SuperClusterPhiWidth" + suffix);
 }
 
 // extra information stored for PAT data

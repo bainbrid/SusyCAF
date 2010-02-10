@@ -72,6 +72,15 @@ if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
     addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,None,['IC5','SC5','AK7','KT4','AK5PF','AK7PF','AK5JPT','AK5Track']) 
+    process.jetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
+    process.jetGenJetMatchAK7.maxDeltaR  = cms.double(0.5)
+    process.jetGenJetMatchSC5.maxDeltaR  = cms.double(0.5) 
+    process.jetGenJetMatchIC5.maxDeltaR  = cms.double(0.5)
+    process.jetGenJetMatchKT4.maxDeltaR  = cms.double(0.5)
+    process.jetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5) 
+    process.jetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5)
+    process.jetGenJetMatchAK5JPT.maxDeltaR  = cms.double(0.5)
+    process.jetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5) 
     process.susyPat = cms.Path(process.seqSUSYDefaultSequence)
     schedule.append(process.susyPat)
     SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )

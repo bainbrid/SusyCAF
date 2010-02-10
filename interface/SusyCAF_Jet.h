@@ -278,12 +278,13 @@ produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!ca
     minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
     looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
     tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
-  std::strbitset 
-    passMinimalCuts( minimalJetID.getBitTemplate() ),
-    passLooseCuts(   looseJetID  .getBitTemplate() ),
-    passTightCuts(   tightJetID  .getBitTemplate() );
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
+    std::strbitset 
+      passMinimalCuts( minimalJetID.getBitTemplate() ),
+      passLooseCuts(   looseJetID  .getBitTemplate() ),
+      passTightCuts(   tightJetID  .getBitTemplate() );
+
     fHPD->push_back((*jets)[i].jetID().fHPD);
     fRBX->push_back((*jets)[i].jetID().fRBX);
     fSubDet1->push_back((*jets)[i].jetID().fSubDetector1);

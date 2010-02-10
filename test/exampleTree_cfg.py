@@ -22,7 +22,7 @@ options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton,
 
 #---parse user input
 options.parseArguments()
-
+options._tagOrder =[]
 
 #-- Message Logger ------------------------------------------------------------
 if options.silentMessageLogger:

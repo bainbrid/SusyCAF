@@ -32,22 +32,24 @@ class SusyCAF_Jet : public edm::EDProducer {
   std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<std::vector<T> >&);
 
   const edm::ParameterSet& config;
-  const edm::InputTag jetsInputTag;
+  const edm::InputTag jetsInputTag, genJetsInputTag;
   const std::string Prefix,Suffix;
-  const bool caloSpecific, pfSpecific, mpt, jetid;
+  const bool caloSpecific, pfSpecific, mpt, jetid, gen;
 };
 
 
 template<class T> SusyCAF_Jet<T>::
 SusyCAF_Jet(const edm::ParameterSet& cfg) :
-  config(cfg),
+config(cfg),
   jetsInputTag(cfg.getParameter<edm::InputTag>("InputTag")),
+  genJetsInputTag(cfg.getParameter<edm::InputTag>("GenInputTag")),
   Prefix(cfg.getParameter<std::string>("Prefix")),
   Suffix(cfg.getParameter<std::string>("Suffix")),
   caloSpecific(cfg.getParameter<bool>("Calo")),
   pfSpecific(cfg.getParameter<bool>("PF")),
   mpt(cfg.getParameter<bool>("MPT")),
-  jetid(cfg.getParameter<bool>("JetID"))
+  jetid(cfg.getParameter<bool>("JetID")),
+  gen(cfg.getParameter<bool>("GenInfo"))
 {
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
   produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
@@ -376,28 +378,49 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
 }
 
 template<class T> void SusyCAF_Jet<T>::
-initGenJetMatch() {//maybe add option to turn GenJetMatching on and off?
-  produces <std::vector<int> > (Prefix + "GenJetMatchExists" + Suffix);
+initGenJetMatch() {
+  if(!gen) return;
+  produces <std::vector<int> > (Prefix + "GenJetMatchIndex" + Suffix);
   produces <std::vector<reco::Candidate::LorentzVector> > (Prefix + "GenJetP4" + Suffix);
 }
 
 template<class T> void SusyCAF_Jet<T>::
 produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
-  std::auto_ptr<std::vector<int> > GenJetMatchExists( new std::vector<int>() );
+  
+  if(!gen) return;
+ 
+  edm::Handle<std::vector<reco::GenJet> > genjets;
+  evt.getByLabel(genJetsInputTag, genjets);
+  
+  
+
+
+  std::auto_ptr<std::vector<int> > GenJetMatchIndex( new std::vector<int>() );
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > GenJetP4 (new std::vector<reco::Candidate::LorentzVector>() );
-
-   for (unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
-    const reco::GenJet *genjet = (*jets)[i].genJet();
-    if(genjet){
-      GenJetMatchExists->push_back(1);
-      GenJetP4->push_back( (*jets)[i].genJet()->p4());
+  if(jets.isValid() && genjets.isValid()){
+    for (unsigned i=0; i<(*jets).size(); i++) {
+      
+      std::vector<reco::GenJet>::const_iterator it;
+      for(it=genjets->begin(); it!=genjets->end(); ++it){
+	
+	if ((*jets)[i].genJet()==&*it)
+	  {
+	    GenJetMatchIndex->push_back(it - genjets->begin());
+	  }
+	else
+	  {
+	    GenJetMatchIndex->push_back(-1);
+	  }
+      }
     }
-    else{
-      GenJetMatchExists->push_back(0);
+    
+    for(std::vector<reco::GenJet>::const_iterator it = genjets->begin(); it!=genjets->end(); ++it){//store all genjet P4s
+      GenJetP4->push_back(it->p4());
+      
     }
-   }
-
-evt.put(GenJetMatchExists, Prefix + "GenJetMatchExists" + Suffix);
-evt.put(GenJetP4, Prefix + "GenJetP4" + Suffix);
+  }
+  
+  evt.put(GenJetMatchIndex, Prefix + "GenJetMatchIndex" + Suffix);
+  evt.put(GenJetP4, Prefix + "GenJetP4" + Suffix);
 }
 #endif

@@ -286,8 +286,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Photon<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<int> > IDLoose (new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > IDTight (new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > idLoose (new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > idTight (new std::vector<int>() );
   std::auto_ptr<std::vector<float> > trkIso (new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  caloIso       ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  ecalIso       ( new std::vector<float>() );
@@ -307,22 +307,24 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       sigmaEtaEta  ->push_back(photon.sigmaEtaEta  ());
       sigmaIetaIeta->push_back(photon.sigmaIetaIeta());
       if(photon.photonID("PhotonCutBasedIDLoose")){
-	IDLoose->push_back(1);
+	idLoose->push_back(1);
       }
       else{
-	IDLoose->push_back(0);
+	idLoose->push_back(0);
       }
       if(photon.photonID("PhotonCutBasedIDTight")){
-	IDTight->push_back(1);
+	idTight->push_back(1);
       }
       else{
-	IDTight->push_back(0);
+	idTight->push_back(0);
       }
       
     } // end loop over photons
   }
   
   iEvent.put(trkIso, prefix + "TrkIso" + suffix);
+  iEvent.put(idLoose      , prefix + "IDLoose"        + suffix);
+  iEvent.put(idTight      , prefix + "IDTight"        + suffix);
   iEvent.put(caloIso      , prefix + "CaloIso"        + suffix);
   iEvent.put(ecalIso      , prefix + "EcalIso"        + suffix);
   iEvent.put(hcalIso      , prefix + "HcalIso"        + suffix);

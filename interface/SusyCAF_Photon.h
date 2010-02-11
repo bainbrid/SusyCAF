@@ -107,6 +107,9 @@ void SusyCAF_Photon<T>::initRECO()
 template< typename T >
 void SusyCAF_Photon<T>::initPAT()
 {
+  produces <std::vector<int> > (prefix + "IDLoose" + suffix);
+  produces <std::vector<int> > (prefix + "IDTight" + suffix);
+  produces <std::vector<float> > (prefix + "TrkIso" + suffix);
   produces <std::vector<float> >(prefix + "CaloIso"       + suffix);
   produces <std::vector<float> >(prefix + "EcalIso"       + suffix);
   produces <std::vector<float> >(prefix + "HcalIso"       + suffix);
@@ -283,32 +286,43 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Photon<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+  std::auto_ptr<std::vector<int> > IDLoose (new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > IDTight (new std::vector<int>() );
+  std::auto_ptr<std::vector<float> > trkIso (new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  caloIso       ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  ecalIso       ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso       ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  sigmaEtaEta   ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  sigmaIetaIeta ( new std::vector<float>() );
-
-
+  
+  
   if (collection.isValid()){
-  const typename std::vector<T>::const_iterator   endOfStuff  = collection->end();
-  for (typename std::vector<T>::const_iterator it = collection->begin(); it != endOfStuff; ++it) {
-    const pat::Photon&                              photon      = *it;
-    caloIso      ->push_back(photon.caloIso      ());
-    ecalIso      ->push_back(photon.ecalIso      ());
-    hcalIso      ->push_back(photon.hcalIso      ());
-    sigmaEtaEta  ->push_back(photon.sigmaEtaEta  ());
-    sigmaIetaIeta->push_back(photon.sigmaIetaIeta());
-
-    // The following is for printing out the available IDs for inspection purposes.
-    // Want to store, but doesn't look like there's anything to store in the current reco...
-  /*   const std::vector<pat::Photon::IdPair>&         ids         = photon.photonIDs(); */
-/*     const unsigned int                              numIDs      = ids.size(); */
-    //removed cout - AGB 17/12/09
-  } // end loop over photons
+    const typename std::vector<T>::const_iterator   endOfStuff  = collection->end();
+    for (typename std::vector<T>::const_iterator it = collection->begin(); it != endOfStuff; ++it) {
+      const pat::Photon&                              photon      = *it;
+      trkIso->push_back(photon.trackIso());
+      caloIso      ->push_back(photon.caloIso      ());
+      ecalIso      ->push_back(photon.ecalIso      ());
+      hcalIso      ->push_back(photon.hcalIso      ());
+      sigmaEtaEta  ->push_back(photon.sigmaEtaEta  ());
+      sigmaIetaIeta->push_back(photon.sigmaIetaIeta());
+      if(photon.photonID("PhotonCutBasedIDLoose")){
+	IDLoose->push_back(1);
+      }
+      else{
+	IDLoose->push_back(0);
+      }
+      if(photon.photonID("PhotonCutBasedIDTight")){
+	IDTight->push_back(1);
+      }
+      else{
+	IDTight->push_back(0);
+      }
+      
+    } // end loop over photons
   }
-
-
+  
+  iEvent.put(trkIso, prefix + "TrkIso" + suffix);
   iEvent.put(caloIso      , prefix + "CaloIso"        + suffix);
   iEvent.put(ecalIso      , prefix + "EcalIso"        + suffix);
   iEvent.put(hcalIso      , prefix + "HcalIso"        + suffix);

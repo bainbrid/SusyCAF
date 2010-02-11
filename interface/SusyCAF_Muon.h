@@ -8,6 +8,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <string>
 
 template< typename T >
@@ -47,6 +48,16 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTrackdxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTrackdxyError" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackNormalizedChi2" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "InnerTrackNumberOfValidHits" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDxy" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDxyBS" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDxyError" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDz" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDzBS" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackDzError" + Suffix);
+  produces <std::vector<double> > (  Prefix + "OuterTrackNormalizedChi2" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "OuterTrackNumberOfValidHits" + Suffix);
   produces <std::vector<float> > (  Prefix + "CaloCompatibility" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03sumPt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03emEt" + Suffix);
@@ -98,6 +109,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxyError   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_normalizedChi2   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    innerTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dxy   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dxyBS   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dxyError   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dz   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dzBS   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_dzError   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  outerTrack_normalizedChi2   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    outerTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<float> >  caloCompatibility   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03sumPt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03emEt   ( new std::vector<float>()  ) ;
@@ -109,14 +130,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  isTrackerMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
 
- 
-  
-
+  math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
+  edm::Handle<reco::BeamSpot> beamSpotCollection;
+  iEvent.getByLabel("offlineBeamSpot", beamSpotCollection);
+  if (beamSpotCollection.isValid()){ bs = beamSpotCollection->position();}
+     
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
       p4->push_back(it->p4());
       charge->push_back(it->charge());
-      if( it->isGlobalMuon()){
+      if( it->globalTrack().isNonnull()){
     	globalTrack_normalizedChi2->push_back(it->globalTrack()->normalizedChi2());
     	globalTrack_numberOfValidHits->push_back(it->globalTrack()->numberOfValidHits());
     	globalTrack_dxy->push_back(it->globalTrack()->dxy());
@@ -127,6 +150,34 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     	globalTrack_numberOfValidHits->push_back(0);
     	globalTrack_dxy->push_back(999999999.);
     	globalTrack_dxyError->push_back(-10000);
+      }	
+      if( it->innerTrack().isNonnull()){
+    	innerTrack_normalizedChi2->push_back(it->innerTrack()->normalizedChi2());
+    	innerTrack_numberOfValidHits->push_back(it->innerTrack()->numberOfValidHits());
+    	innerTrack_dxy->push_back(it->innerTrack()->dxy());
+    	innerTrack_dxyBS->push_back(it->innerTrack()->dxy(bs));
+    	innerTrack_dxyError->push_back(it->innerTrack()->dxyError());
+    	innerTrack_dz->push_back(it->innerTrack()->dz());
+    	innerTrack_dzBS->push_back(it->innerTrack()->dz(bs));
+    	innerTrack_dzError->push_back(it->innerTrack()->dzError());
+      }
+      else {
+    	innerTrack_normalizedChi2->push_back(-1);
+    	innerTrack_numberOfValidHits->push_back(0);
+    	innerTrack_dxy->push_back(999999999.);
+    	innerTrack_dxyBS->push_back(999999999.);
+    	innerTrack_dxyError->push_back(-10000);
+    	innerTrack_dz->push_back(999999999.);
+    	innerTrack_dzBS->push_back(999999999.);
+    	innerTrack_dzError->push_back(-10000);
+      }	
+      if( it->outerTrack().isNonnull()){
+    	outerTrack_normalizedChi2->push_back(it->outerTrack()->normalizedChi2());
+    	outerTrack_numberOfValidHits->push_back(it->outerTrack()->numberOfValidHits());
+      }
+      else {
+    	outerTrack_normalizedChi2->push_back(-1);
+    	outerTrack_numberOfValidHits->push_back(0);
       }	
       caloCompatibility->push_back(it->caloCompatibility());
       isolationR03sumPt->push_back(it->isolationR03().sumPt);
@@ -151,6 +202,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( globalTrack_numberOfValidHits,  Prefix + "GlobalTracknumberOfValidHits" + Suffix );
   iEvent.put( globalTrack_dxy,  Prefix + "GlobalTrackdxy" + Suffix );
   iEvent.put( globalTrack_dxyError,  Prefix + "GlobalTrackdxyError" + Suffix );
+  iEvent.put( innerTrack_normalizedChi2,  Prefix + "InnerTrackNormalizedChi2" + Suffix );
+  iEvent.put( innerTrack_numberOfValidHits,  Prefix + "InnerTrackNumberOfValidHits" + Suffix );
+  iEvent.put( innerTrack_dxy,  Prefix + "InnerTrackDxy" + Suffix );
+  iEvent.put( innerTrack_dxyBS,  Prefix + "InnerTrackDxyBS" + Suffix );
+  iEvent.put( innerTrack_dxyError,  Prefix + "InnerTrackDxyError" + Suffix );
+  iEvent.put( innerTrack_dz,  Prefix + "InnerTrackDz" + Suffix );
+  iEvent.put( innerTrack_dzBS,  Prefix + "InnerTrackDzBS" + Suffix );
+  iEvent.put( innerTrack_dzError,  Prefix + "InnerTrackDzError" + Suffix );
+  iEvent.put( outerTrack_normalizedChi2,  Prefix + "OuterTrackNormalizedChi2" + Suffix );
+  iEvent.put( outerTrack_numberOfValidHits,  Prefix + "OuterTrackNumberOfValidHits" + Suffix );
   iEvent.put( caloCompatibility,  Prefix + "CaloCompatibility" + Suffix );
   iEvent.put( isolationR03sumPt,  Prefix + "IsolationR03sumPt" + Suffix );
   iEvent.put( isolationR03emEt,  Prefix + "IsolationR03emEt" + Suffix );

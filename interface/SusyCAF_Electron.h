@@ -8,6 +8,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <string>
 
 template< typename T >
@@ -59,8 +60,11 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "GsfTrackLostHits" + Suffix);
   //
 
-  produces <std::vector<double> > (  Prefix + "GsfTrackdxy" + Suffix);
-  produces <std::vector<double> > (  Prefix + "GsfTrackdxyError" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GsfTrackDxy" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GsfTrackDxyBS" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GsfTrackDxyError" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GsfTrackDzBS" + Suffix);
+  produces <std::vector<double> > (  Prefix + "GsfTrackDzError" + Suffix);
   produces <std::vector<float> > (  Prefix + "E1x5" + Suffix);
   produces <std::vector<float> > (  Prefix + "E5x5" + Suffix);
   produces <std::vector<float> > (  Prefix + "E2x5Max" + Suffix);
@@ -145,7 +149,10 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
    std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >  gsfTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxy   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  gsfTrack_dxyBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dxyError   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  gsfTrack_dzBS   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  gsfTrack_dzError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<float> > gsfTrkD0 (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkDz (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkChargeMode (new std::vector<float>() );
@@ -193,19 +200,24 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
 
   std::auto_ptr<std::vector<float> > kfcharge (new std::vector<float>() );
-
+ 
+  math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
+  edm::Handle<reco::BeamSpot> beamSpotCollection;
+  iEvent.getByLabel("offlineBeamSpot", beamSpotCollection);
+  if (beamSpotCollection.isValid()){ bs = beamSpotCollection->position();}
   
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-
- 
 
       p4->push_back(it->p4());
       charge->push_back(it->charge());
       gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
       gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
       gsfTrack_dxy->push_back(it->gsfTrack()->dxy());
+      gsfTrack_dxyBS->push_back(it->gsfTrack()->dxy(bs));
       gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
+      gsfTrack_dzBS->push_back(it->gsfTrack()->dz(bs));
+      gsfTrack_dzError->push_back(it->gsfTrack()->dzError());
       gsfTrkD0->push_back(it->gsfTrack()->d0());
       gsfTrkDz->push_back(it->gsfTrack()->dz());
       gsfTrkChargeMode->push_back(it->gsfTrack()->chargeMode());
@@ -263,8 +275,11 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 
   iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );
   iEvent.put( gsfTrack_numberOfValidHits,  Prefix + "GsfTracknumberOfValidHits" + Suffix );
-  iEvent.put( gsfTrack_dxy,  Prefix + "GsfTrackdxy" + Suffix );
-  iEvent.put( gsfTrack_dxyError,  Prefix + "GsfTrackdxyError" + Suffix );
+  iEvent.put( gsfTrack_dxy,  Prefix + "GsfTrackDxy" + Suffix );
+  iEvent.put( gsfTrack_dxyBS,  Prefix + "GsfTrackDxyBS" + Suffix );
+  iEvent.put( gsfTrack_dxyError,  Prefix + "GsfTrackDxyError" + Suffix );
+  iEvent.put( gsfTrack_dzBS,  Prefix + "GsfTrackDzBS" + Suffix );
+  iEvent.put( gsfTrack_dzError,  Prefix + "GsfTrackDzError" + Suffix );
  iEvent.put( gsfTrkD0,  Prefix + "GsfTrackD0" + Suffix );
   iEvent.put( gsfTrkDz,  Prefix + "GsfTrackDz" + Suffix );
   iEvent.put( gsfTrkChargeMode,  Prefix + "GsfTrackChargeMode" + Suffix );

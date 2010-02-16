@@ -112,6 +112,9 @@ else:
     if  options.patify:
         #little havyhanded: want too have met values which are not in SUSYPAT in those trees
          process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoMetSequence )
-    process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence )
+    if options.mcInfo:
+        process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetMatchedSequence)
+    else:
+        process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetSequence)
 
 schedule.append(process.p)

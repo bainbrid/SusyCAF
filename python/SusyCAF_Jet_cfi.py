@@ -11,6 +11,7 @@ susycaf_calojet = cms.EDProducer("SusyCAF_CaloJet",
                                  PF = cms.bool(False),
                                  JetID = cms.bool(False),
                                  MPT = cms.bool(False),
+                                 GenInfo = cms.bool(False),
                                  )
 
 susycaf_pfjet = cms.EDProducer("SusyCAF_PFJet",
@@ -22,6 +23,7 @@ susycaf_pfjet = cms.EDProducer("SusyCAF_PFJet",
                                PF = cms.bool(True),
                                JetID = cms.bool(False),
                                MPT = cms.bool(False),
+                               GenInfo = cms.bool(False),
                                )
 
 susycaf_patjet = cms.EDProducer("SusyCAF_PatJet",
@@ -57,4 +59,11 @@ susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT', Ge
 susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', GenInputTag = 'iterativeCone5GenJets', Prefix = 'ic5JetPF', JetID = False, PF = True, Calo = False )
 susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetPF', JetID = False, PF = True, Calo = False )
 
-
+#matched collections
+susycafic5calojetMatched = susycafic5calojet.clone(  GenInputTag = 'iterativeCone5GenJets',    GenInfo = True )
+susycafsc5calojetMatched = susycafsc5calojet.clone( GenInputTag = 'sisCone5GenJets',      GenInfo = True  )
+susycafak5calojetMatched = susycafak5calojet.clone( GenInputTag = 'ak5GenJets',     GenInfo = True  )
+susycafak7calojetMatched = susycafak7calojet.clone( GenInputTag = 'ak7GenJets',    GenInfo = True  )
+susycafak5jptjetMatched = susycafak5jptjet.clone(  GenInputTag = 'ak5GenJets',  GenInfo = True )
+susycafic5pfjetMatched = susycafic5pfjet.clone( GenInputTag = 'iterativeCone5GenJets', GenInfo = True )
+susycafak5pfjetMatched = susycaf_patjet.clone(  GenInputTag = 'ak5GenJets', GenInfo = True )

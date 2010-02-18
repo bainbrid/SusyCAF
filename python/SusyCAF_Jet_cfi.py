@@ -66,4 +66,4 @@ susycafak5calojetMatched = susycafak5calojet.clone( GenInputTag = 'ak5GenJets', 
 susycafak7calojetMatched = susycafak7calojet.clone( GenInputTag = 'ak7GenJets',    GenInfo = True  )
 susycafak5jptjetMatched = susycafak5jptjet.clone(  GenInputTag = 'ak5GenJets',  GenInfo = True )
 susycafic5pfjetMatched = susycafic5pfjet.clone( GenInputTag = 'iterativeCone5GenJets', GenInfo = True )
-susycafak5pfjetMatched = susycaf_patjet.clone(  GenInputTag = 'ak5GenJets', GenInfo = True )
+susycafak5pfjetMatched = susycafak5pfjet.clone(  GenInputTag = 'ak5GenJets', GenInfo = True )

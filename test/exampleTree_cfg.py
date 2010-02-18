@@ -93,7 +93,7 @@ if options.patify and options.fromRECO:
     process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
 
     process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
-    if options.secondaryOutput == "" and hasattr(process,"out"): # remove outpath 
+    if options.secondaryOutput == ".root" and hasattr(process,"out"): # remove outpath 
         del process.out
         del process.outpath
 
@@ -118,3 +118,6 @@ else:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetSequence)
 
 schedule.append(process.p)
+file = open('SusyCAF_Tree_cfg.py','w')
+file.write(str(process.dumpPython()))
+file.close()

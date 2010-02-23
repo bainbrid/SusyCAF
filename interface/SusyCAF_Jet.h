@@ -399,12 +399,11 @@ produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > GenJetP4 (new std::vector<reco::Candidate::LorentzVector>() );
   if(jets.isValid() && genjets.isValid()){
 
-    int gen_jet_ind = -1;
     for (unsigned i=0; i<(*jets).size(); i++) {
-      
+      int gen_jet_ind = -1;
       std::vector<reco::GenJet>::const_iterator it;
       for(it=genjets->begin(); it!=genjets->end(); ++it){
-	
+      
 	if ((*jets)[i].genJet()==&*it)
 	  {
 	    gen_jet_ind = it - genjets->begin();

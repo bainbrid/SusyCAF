@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <map>
 
 template< typename T >
@@ -25,7 +25,9 @@ SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  produces <bool                        >(Prefix + "HandleValid"          + Suffix);
+  produces <bool>(Prefix + "GenInfoHandleValid" + Suffix);
+  produces <double> (Prefix + "pthat" + Suffix);
+  produces <bool >(Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4"  + Suffix );
   produces <std::vector<int> > (Prefix + "PdgId" + Suffix);
   produces <std::vector<int> > (Prefix + "Status" + Suffix);
@@ -38,8 +40,12 @@ template< typename T >
 void SusyCAF_Gen<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > collection;
+  edm::Handle<GenEventInfoProduct> geninfo;
   iEvent.getByLabel(inputTag,collection);
-  std::auto_ptr<bool                        > isHandleValid       ( new bool(collection.isValid())    );
+  iEvent.getByLabel("generator",geninfo);
+  std::auto_ptr<bool> isGenInfoValid (new bool(geninfo.isValid()) );
+  std::auto_ptr<double> pthat (new double(geninfo->binningValues()[0]));
+  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> >  p4  ( new std::vector<LorentzVector>()  ) ;
   std::auto_ptr<std::vector<int> > status ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
@@ -76,6 +82,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  iEvent.put(isGenInfoValid, Prefix + "GenInfoHandleValid" + Suffix);
+  iEvent.put(pthat, Prefix + "pthat" + Suffix);
   iEvent.put(isHandleValid        , Prefix + "HandleValid"          + Suffix);
   iEvent.put( p4,  Prefix + "P4"  + Suffix );
   iEvent.put( status, Prefix + "Status" + Suffix );

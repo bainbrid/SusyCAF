@@ -34,7 +34,7 @@ void SusyCAF_DQMFlags::produce( edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 }
 
-void SusyCAF_DQMFlags::beginJob( const edm::EventSetup& iSetup ){}
+void SusyCAF_DQMFlags::beginJob(){}
 
 
 bool SusyCAF_DQMFlags::AskRR( vector<int>& flags, int runNo ) {

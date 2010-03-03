@@ -7,7 +7,7 @@ susycafPFtau = cms.EDProducer("SusyCAF_pfTau",
                             )
 
 susycaftau = cms.EDProducer("SusyCAF_PatTau",
-                            InputTag = cms.InputTag('cleanLayer1Taus'), #new name in CMSSW 3x (was pfRecoTauProducer in 22x)
+                            InputTag = cms.InputTag('cleanPatTaus'), #new name in CMSSW 3x (was pfRecoTauProducer in 22x)
                             Prefix = cms.string('tau'),
                             Suffix = cms.string('Pat')
                             )

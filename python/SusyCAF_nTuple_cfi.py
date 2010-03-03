@@ -40,9 +40,9 @@ nTupleCommonSequence = cms.Sequence( susycafevent +
                                  susycafcalotowers)
 
 nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF + susycafmetTC + 
-                                  susycafphoton +
-                                  susycafelectron + susycafpfelectron +
-                                  susycafmuon + susycafpfmuon +
+                                  susycafphoton + 
+                                  susycafelectron + #susycafpfelectron + #Remove until PF2PAT is ready in 35X
+                                  susycafmuon + #susycafpfmuon +
                                   susycaftau)
 
 nTuplePatJetSequence = cms.Sequence(susycafic5calojet + susycafsc5calojet +

@@ -51,13 +51,13 @@ susycafic5pfjetreco = susycaf_pfjet.clone(     InputTag = 'iterativeCone5PFJets'
 susycafak5pfjetreco = susycaf_pfjet.clone(     InputTag = 'ak5PFJets',                    Prefix = 'ak5Jet' )
 
 # With SusyPAT
-susycafic5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsIC5', GenInputTag = 'iterativeCone5GenJets',  Prefix = 'ic5Jet'    )
-susycafsc5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsSC5', GenInputTag = 'sisCone5GenJets',   Prefix = 'sc5Jet'    )
-susycafak5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK5', GenInputTag = 'ak5GenJets',   Prefix = 'ak5Jet'    )
-susycafak7calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK7', GenInputTag = 'ak7GenJets',   Prefix = 'ak7Jet'    )
-susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetJPT', JetID = False )
-susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', GenInputTag = 'iterativeCone5GenJets', Prefix = 'ic5JetPF', JetID = False, PF = True, Calo = False )
-susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetPF', JetID = False, PF = True, Calo = False )
+susycafic5calojet = susycaf_patjet.clone( InputTag = 'cleanPatJetsIC5Calo', GenInputTag = 'iterativeCone5GenJets',  Prefix = 'ic5Jet'    )
+susycafsc5calojet = susycaf_patjet.clone( InputTag = 'cleanPatJetsSC5Calo', GenInputTag = 'sisCone5GenJets',   Prefix = 'sc5Jet'    )
+susycafak5calojet = susycaf_patjet.clone( InputTag = 'cleanPatJetsAK5Calo', GenInputTag = 'ak5GenJets',   Prefix = 'ak5Jet'    )
+susycafak7calojet = susycaf_patjet.clone( InputTag = 'cleanPatJetsAK7Calo', GenInputTag = 'ak7GenJets',   Prefix = 'ak7Jet'    )
+susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanPatJetsAK5JPT', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetJPT', JetID = False )
+susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanPatJetsIC5PF', GenInputTag = 'iterativeCone5GenJets', Prefix = 'ic5JetPF', JetID = False, PF = True, Calo = False )
+susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanPatJetsAK5PF', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetPF', JetID = False, PF = True, Calo = False )
 
 #matched collections
 susycafic5calojetMatched = susycafic5calojet.clone(  GenInputTag = 'iterativeCone5GenJets',    GenInfo = True )

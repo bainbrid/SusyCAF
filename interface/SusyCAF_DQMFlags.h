@@ -18,7 +18,7 @@ public:
 
 private: 
 	void produce( edm::Event &, const edm::EventSetup & );
-	void beginJob(const edm::EventSetup&); 
+	void beginJob(); 
 
 	vector<string> flagNames;			// flgIdx -> Name
 	map<int, vector<int> > runFlagMap;		// run -> vector of flags(flgIdx)

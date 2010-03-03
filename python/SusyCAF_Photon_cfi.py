@@ -7,7 +7,7 @@ susycafphotonreco = cms.EDProducer( "SusyCAF_RecoPhoton"
                                   )
 
 susycafphoton     = cms.EDProducer( "SusyCAF_PatPhoton"
-                                  , InputTag  = cms.InputTag('cleanLayer1Photons')
+                                  , InputTag  = cms.InputTag('cleanPatPhotons')
                                   , Prefix    = cms.string('photon')
                                   , Suffix    = cms.string('Pat')
                                   )

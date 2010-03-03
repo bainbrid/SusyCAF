@@ -19,7 +19,7 @@ public:
 
 private: 
 	void produce( edm::Event &, const edm::EventSetup & );
-	void beginJob(const edm::EventSetup&); 
+	void beginJob(); 
 
 	void GiveBits( edm::Handle<DcsStatusCollection> &, std::map<std::string,bool>* ); // fill DCS bits into map
 	

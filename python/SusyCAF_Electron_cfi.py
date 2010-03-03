@@ -7,7 +7,7 @@ susycafelectronreco = cms.EDProducer("SusyCAF_GsfElectron",
                             )
 
 susycafelectron = cms.EDProducer("SusyCAF_PatElectron",
-                            InputTag = cms.InputTag('cleanLayer1Electrons'),
+                            InputTag = cms.InputTag('cleanPatElectrons'),
                             Prefix = cms.string('electron'),
                             Suffix = cms.string('Pat')
                             )

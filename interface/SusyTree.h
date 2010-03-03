@@ -10,8 +10,8 @@
  *  tree of the selected variables, which it obtains from the EDM
  *  tree.  
  *
- *  $Date: 2009/11/17 14:48:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/26 03:48:08 $
+ *  $Revision: 1.6 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -28,7 +28,7 @@
 
 class SusyTree : public edm::EDAnalyzer {
 private:    
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){}
 

@@ -24,7 +24,7 @@ void SusyCAF_DCSBits::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.put( dcsbits,        "DCSBits" );
 }
 
-void SusyCAF_DCSBits::beginJob( const edm::EventSetup& iSetup ){}
+void SusyCAF_DCSBits::beginJob(){}
 
 void SusyCAF_DCSBits::GiveBits(edm::Handle<DcsStatusCollection>& dcsStatus, std::map<std::string,bool>* dcsbits) {
 

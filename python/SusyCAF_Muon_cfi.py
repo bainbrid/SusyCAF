@@ -7,7 +7,7 @@ susycafmuonreco = cms.EDProducer("SusyCAF_RecoMuon",
                             )
 
 susycafmuon = cms.EDProducer("SusyCAF_PatMuon",
-                            InputTag = cms.InputTag('cleanLayer1Muons'),
+                            InputTag = cms.InputTag('cleanPatMuons'),
                             Prefix = cms.string('muon'),
                             Suffix = cms.string('Pat')
                             )

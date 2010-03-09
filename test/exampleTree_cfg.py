@@ -55,7 +55,7 @@ if options.files == []:
     else:
         if options.mcInfo:
             if options.GlobalTag == "": options.GlobalTag = 'START3X_V24::All'
-            options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/MinBias_Summer09_MC_V00-05-10.root'
+            options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/RelValMinBias_10k_V00-09-01_SUSYPAT.root'
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
             if options.GlobalTag == "": options.GlobalTag = 'GR09_R_35X_V3::All'
@@ -98,6 +98,10 @@ if options.patify and options.fromRECO:
         del process.outpath
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
+# choose your event and object pre-selection     v------| there 
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
+insertSelection(process)
+
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 
 if options.mcInfo:

@@ -55,16 +55,20 @@ config(cfg),
   produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Eta2Moment" + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Phi2Moment" + Suffix );
+  produces <reco::Candidate::LorentzVector>               ( Prefix + "DroppedSumP4" + Suffix );
+  produces <float>                                        ( Prefix + "DroppedSumPT" + Suffix );
   initSpecial();
 }
 
 template< typename T > 
 void SusyCAF_Jet<T>::
 produce(edm::Event& evt, const edm::EventSetup&) {
-  edm::Handle<std::vector<T> > jets;
-  evt.getByLabel(jetsInputTag, jets);
+  typedef reco::Candidate::LorentzVector LorentzV;
+  edm::Handle<std::vector<T> > jets;   evt.getByLabel(jetsInputTag, jets);
+  edm::Handle<LorentzV> droppedSumP4;  evt.getByLabel(jetsInputTag, droppedSumP4);
+  edm::Handle<float> droppedSumPT;     evt.getByLabel(jetsInputTag, droppedSumPT);
   
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  p4  ( new std::vector<reco::Candidate::LorentzVector>()  )  ;
+  std::auto_ptr<std::vector<LorentzV> >   p4   ( new std::vector<LorentzV>()  )  ;
   std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  phi2mom  ( new std::vector<float>()  )  ;
 
@@ -77,6 +81,8 @@ produce(edm::Event& evt, const edm::EventSetup&) {
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
   evt.put(                 eta2mom, Prefix + "Eta2Moment" + Suffix );
   evt.put(                 phi2mom, Prefix + "Phi2Moment" + Suffix );
+  evt.put( std::auto_ptr<LorentzV>(droppedSumP4.isValid() ? new LorentzV(*droppedSumP4) : new LorentzV() ), Prefix + "DroppedSumP4" + Suffix );
+  evt.put( std::auto_ptr<float>(   droppedSumPT.isValid() ? new float(*droppedSumPT)    : new float(-1)),   Prefix + "DroppedSumPT" + Suffix );
   
   produceSpecial(evt, jets);
 }

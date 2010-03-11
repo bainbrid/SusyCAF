@@ -46,7 +46,7 @@ susycafic5calojetreco = susycaf_calojet.clone( InputTag = 'iterativeCone5CaloJet
 susycafsc5calojetreco = susycaf_calojet.clone( InputTag = 'sisCone5CaloJets',             Prefix = 'sc5Jet' )
 susycafak5calojetreco = susycaf_calojet.clone( InputTag = 'ak5CaloJets',                  Prefix = 'ak5Jet' )
 susycafak7calojetreco = susycaf_calojet.clone( InputTag = 'ak7CaloJets',                  Prefix = 'ak7Jet' )
-susycafak5jptjetreco  = susycaf_calojet.clone( InputTag = 'JetPlusTrackZSPCorJetAntiKt5', Prefix = 'ak5JetJPT', JetID = False)
+susycafak5jptjetreco  = susycaf_calojet.clone( InputTag = 'JetPlusTrackZSPCorJetAntiKt5', Prefix = 'ak5JetJPT')
 susycafic5pfjetreco = susycaf_pfjet.clone(     InputTag = 'iterativeCone5PFJets',         Prefix = 'ic5Jet' )
 susycafak5pfjetreco = susycaf_pfjet.clone(     InputTag = 'ak5PFJets',                    Prefix = 'ak5Jet' )
 
@@ -55,7 +55,7 @@ susycafic5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsIC5', GenIn
 susycafsc5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsSC5', GenInputTag = 'sisCone5GenJets',   Prefix = 'sc5Jet'    )
 susycafak5calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK5', GenInputTag = 'ak5GenJets',   Prefix = 'ak5Jet'    )
 susycafak7calojet = susycaf_patjet.clone( InputTag = 'cleanLayer1JetsAK7', GenInputTag = 'ak7GenJets',   Prefix = 'ak7Jet'    )
-susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetJPT', JetID = False )
+susycafak5jptjet = susycaf_patjet.clone(  InputTag = 'cleanLayer1JetsAK5JPT', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetJPT' )
 susycafic5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsIC5PF', GenInputTag = 'iterativeCone5GenJets', Prefix = 'ic5JetPF', JetID = False, PF = True, Calo = False )
 susycafak5pfjet = susycaf_patjet.clone(   InputTag = 'cleanLayer1JetsAK5PF', GenInputTag = 'ak5GenJets', Prefix = 'ak5JetPF', JetID = False, PF = True, Calo = False )
 

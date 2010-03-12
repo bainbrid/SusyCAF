@@ -32,7 +32,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<std::vector<T> >&);
 
   const edm::ParameterSet& config;
-  const edm::InputTag jetsInputTag, genJetsInputTag;
+  const edm::InputTag jetsInputTag, genJetsInputTag, allJetsInputTag;
   const std::string Prefix,Suffix;
   const bool caloSpecific, pfSpecific, mpt, jetid, gen;
 };
@@ -40,9 +40,10 @@ class SusyCAF_Jet : public edm::EDProducer {
 
 template<class T> SusyCAF_Jet<T>::
 SusyCAF_Jet(const edm::ParameterSet& cfg) :
-config(cfg),
+  config(cfg),
   jetsInputTag(cfg.getParameter<edm::InputTag>("InputTag")),
   genJetsInputTag(cfg.getParameter<edm::InputTag>("GenInputTag")),
+  allJetsInputTag(cfg.getParameter<edm::InputTag>("AllJets")),
   Prefix(cfg.getParameter<std::string>("Prefix")),
   Suffix(cfg.getParameter<std::string>("Suffix")),
   caloSpecific(cfg.getParameter<bool>("Calo")),
@@ -64,25 +65,33 @@ template< typename T >
 void SusyCAF_Jet<T>::
 produce(edm::Event& evt, const edm::EventSetup&) {
   typedef reco::Candidate::LorentzVector LorentzV;
-  edm::Handle<std::vector<T> > jets;   evt.getByLabel(jetsInputTag, jets);
-  edm::Handle<LorentzV> droppedSumP4;  evt.getByLabel(jetsInputTag, droppedSumP4);
-  edm::Handle<float> droppedSumPT;     evt.getByLabel(jetsInputTag, droppedSumPT);
-  
+  edm::Handle<std::vector<T> > jets;     evt.getByLabel(jetsInputTag, jets);
+  edm::Handle<std::vector<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
+
   std::auto_ptr<std::vector<LorentzV> >   p4   ( new std::vector<LorentzV>()  )  ;
   std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  phi2mom  ( new std::vector<float>()  )  ;
+  std::auto_ptr<LorentzV>  droppedSumP4  ( new LorentzV()  )  ;
+  std::auto_ptr<float>  droppedSumPT  ( new float(0)  )  ;
 
   for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
     p4->push_back((*jets)[i].p4());
     eta2mom->push_back((*jets)[i].etaetaMoment());
     phi2mom->push_back((*jets)[i].phiphiMoment());
-  }  
+    *droppedSumP4 -= (*jets)[i].p4();
+    *droppedSumPT -= (*jets)[i].pt();
+  }
+  for(unsigned i=0; i<(*allJets).size(); i++) {
+    *droppedSumP4 += (*allJets)[i].p4();
+    *droppedSumPT += (*allJets)[i].pt();
+  }
+
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
   evt.put(                 eta2mom, Prefix + "Eta2Moment" + Suffix );
   evt.put(                 phi2mom, Prefix + "Phi2Moment" + Suffix );
-  evt.put( std::auto_ptr<LorentzV>(droppedSumP4.isValid() ? new LorentzV(*droppedSumP4) : new LorentzV() ), Prefix + "DroppedSumP4" + Suffix );
-  evt.put( std::auto_ptr<float>(   droppedSumPT.isValid() ? new float(*droppedSumPT)    : new float(-1)),   Prefix + "DroppedSumPT" + Suffix );
+  evt.put(            droppedSumP4, Prefix + "DroppedSumP4" + Suffix );
+  evt.put(            droppedSumPT, Prefix + "DroppedSumPT" + Suffix );
   
   produceSpecial(evt, jets);
 }

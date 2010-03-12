@@ -14,11 +14,13 @@ def insertSelection(process):
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
 
     selectors.extend(applySelection(process, process.nTuplePatJetMatchedSequence,
-                                    "pt > 8", patJetSelector))
+                                    "pt > 5", patJetSelector))
+    selectors.extend(applySelection(process, process.nTuplePatJetSequence,
+                                    "pt > 5", patJetSelector))
     #NOTE: filter=True here kills all events with no jets with pt > 8 *and* phi > 0
     #to kill only events with phi > 0 and then select on pt switch the order of the two functioncalls
-    selectors.extend(applySelection(process, process.nTuplePatJetMatchedSequence,
-                                    "phi > 0", patJetSelector, filter=True))
+    #selectors.extend(applySelection(process, process.nTuplePatJetMatchedSequence,
+    #                                "phi > 0", patJetSelector, filter=True))
     #PS: this is just to demonstrate that multipleselectors are possible. of course "pt > 8 && phi > 0" in one selector would be totally sufficient
 
     #add more selectors here...

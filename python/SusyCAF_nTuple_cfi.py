@@ -23,6 +23,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_DQMFlags_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_DCSBits_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi import *
 
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(

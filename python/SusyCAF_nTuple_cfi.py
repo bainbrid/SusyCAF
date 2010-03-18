@@ -51,7 +51,7 @@ nTuplePatJetSequence = cms.Sequence(susycafic5calojet +
                                     # susycafak7calojet +
                                     susycafak5jptjet +
                                     # susycafic5pfjet +
-                                    + susycafak5pfjet
+                                    susycafak5pfjet
                                     )
 
 nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched +

@@ -26,6 +26,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   void initPF();      void producePF(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initCalo();    void produceCalo(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initJetID();   void produceJetID(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initBJetTag(); void produceBJetTag(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initMPT();     void produceMPT(edm::Event&, const edm::Handle<std::vector<T> >&);
   void initGenJetMatch(); void produceGenJetMatch(edm::Event&, const edm::Handle<std::vector<T> >&);
   
@@ -124,7 +125,8 @@ template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
   initCalo();
   initMPT();
   initJetID();
-
+  //BJetTag
+  initBJetTag();
   //GenJet matching
   initGenJetMatch();
 }
@@ -136,7 +138,8 @@ template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::H
   produceCalo(e,h);
   produceMPT(e,h);
   produceJetID(e,h);
-
+  //BJetTag
+  produceBJetTag(e,h);
   //include GenJet matching 
   produceGenJetMatch(e,h);
 }
@@ -204,7 +207,8 @@ initCalo() { if(!caloSpecific) return;
   produces <std::vector<float> > ( Prefix + "EmEnergyInEE"  + Suffix );
   produces <std::vector<float> > ( Prefix + "EmEnergyInHF"  + Suffix );
   produces <std::vector<int> > ( Prefix + "N60Towers"  + Suffix ); 
-  produces <std::vector<int> > ( Prefix + "N90Towers"  + Suffix ); 
+  produces <std::vector<int> > ( Prefix + "N90Towers"  + Suffix );
+
 }
 
 template<class T> void SusyCAF_Jet<T>::
@@ -223,6 +227,7 @@ produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!cal
   std::auto_ptr<std::vector<float> >  emEnergyInHF   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<int> >             n60   ( new std::vector<int>()  ) ; 
   std::auto_ptr<std::vector<int> >             n90   ( new std::vector<int>()  ) ; 
+  
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
     emEnergyFraction->push_back((*jets)[i].emEnergyFraction());
@@ -238,7 +243,8 @@ produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!cal
     emEnergyInEE->push_back((*jets)[i].emEnergyInEE());
     emEnergyInHF->push_back((*jets)[i].emEnergyInHF());
     n60->push_back((*jets)[i].n60()); 
-    n90->push_back((*jets)[i].n90()); 
+    n90->push_back((*jets)[i].n90());
+    
   }
   evt.put( emEnergyFraction,        Prefix + "EmEnergyFraction"  + Suffix );
   evt.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
@@ -253,7 +259,8 @@ produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!cal
   evt.put( emEnergyInEE,            Prefix + "EmEnergyInEE"  + Suffix );
   evt.put( emEnergyInHF,            Prefix + "EmEnergyInHF"  + Suffix );
   evt.put( n60,                     Prefix + "N60Towers"  + Suffix ); 
-  evt.put( n90,                     Prefix + "N90Towers"  + Suffix ); 
+  evt.put( n90,                     Prefix + "N90Towers"  + Suffix );
+ 
 }
 
 
@@ -391,6 +398,44 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   evt.put( mptLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
   evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
 }
+
+template<class T> void SusyCAF_Jet<T>::
+initBJetTag(){
+  //btag discriminators
+  produces <std::vector<float> > (Prefix + "TrkCountingHighEffBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "TrkCountingHighPurBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SimpleSecondaryVertexBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "CombinedSecondaryVertexBJetTags" + Suffix);
+}
+
+template<class T> void SusyCAF_Jet<T>::
+produceBJetTag(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
+
+//btag discriminators
+  std::auto_ptr<std::vector<float> > TrkCountHighEffBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkCountHighPurBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SimpSecVertBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > CombSecVertBJetTags (new std::vector<float>() );
+
+  if(jets.isValid()){
+    for (unsigned i=0; i<(*jets).size(); i++) {
+//btag discriminators
+    TrkCountHighEffBJetTags->push_back((*jets)[i].bDiscriminator("trackCountingHighEffBJetTags"));
+    TrkCountHighPurBJetTags->push_back((*jets)[i].bDiscriminator("trackCountingHighPurBJetTags"));
+    SimpSecVertBJetTags->push_back((*jets)[i].bDiscriminator("simpleSecondaryVertexBJetTags"));
+    CombSecVertBJetTags->push_back((*jets)[i].bDiscriminator("combinedSecondaryVertexBJetTags"));
+    }
+  }
+
+
+ //btag discriminators
+  evt.put(TrkCountHighEffBJetTags, Prefix + "TrkCountingHighEffBJetTags" + Suffix);
+  evt.put(TrkCountHighPurBJetTags, Prefix + "TrkCountingHighPurBJetTags" + Suffix);
+  evt.put(SimpSecVertBJetTags, Prefix + "SimpleSecondaryVertexBJetTags" + Suffix);
+  evt.put(CombSecVertBJetTags, Prefix + "CombinedSecondaryVertexBJetTags" + Suffix);
+}
+
+
 
 template<class T> void SusyCAF_Jet<T>::
 initGenJetMatch() {

@@ -20,6 +20,8 @@ options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
 
+options.register('mcVersion', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "MC version")
+
 #---parse user input
 options.parseArguments()
 options._tagOrder =[]
@@ -71,14 +73,20 @@ schedule = cms.Schedule()
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,None,['IC5','SC5','AK7','KT4','AK5PF','AK7PF','AK5JPT','AK5Track']) 
+    if options.mcVersion == "" :
+        addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,None,['IC5','SC5','AK7','KT4','AK5PF','AK7PF','AK5JPT','AK5Track'])
+        process.jetGenJetMatchKT4.maxDeltaR  = cms.double(0.5)
+        process.jetGenJetMatchAK7.maxDeltaR  = cms.double(0.5)
+        process.jetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5)
+    elif options.mcVersion == "31x" :
+        addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,options.mcVersion,['IC5','SC5','AK5PF','AK5JPT','AK5Track'])
+    else : # take a chance...
+        print "Option not allowed!"
+        
     process.jetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
-    process.jetGenJetMatchAK7.maxDeltaR  = cms.double(0.5)
     process.jetGenJetMatchSC5.maxDeltaR  = cms.double(0.5) 
     process.jetGenJetMatchIC5.maxDeltaR  = cms.double(0.5)
-    process.jetGenJetMatchKT4.maxDeltaR  = cms.double(0.5)
     process.jetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5) 
-    process.jetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5)
     process.jetGenJetMatchAK5JPT.maxDeltaR  = cms.double(0.5)
     process.jetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5)
 

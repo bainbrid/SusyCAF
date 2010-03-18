@@ -44,13 +44,13 @@ if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
             if options.GlobalTag == "": options.GlobalTag = 'START3X_V16C::All'
-	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
+                #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
             options.files = '/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8P_900GeV-v1/0011/FC9DC27A-060A-DF11-88E7-001CC47D01BA.root'
-	        # Due to problem in production of LM samples: same event number appears multiple times
+                # Due to problem in production of LM samples: same event number appears multiple times
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
             if options.GlobalTag == "": options.GlobalTag = 'GR09_R_34X_V3::All'
-	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
+                #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
             options.files = '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Jan23Skim-v1/0014/FC0BF28C-C009-DF11-94C8-0026189438E3.root'
     else:
         if options.mcInfo:
@@ -80,7 +80,8 @@ if options.patify and options.fromRECO:
     process.jetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5) 
     process.jetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5)
     process.jetGenJetMatchAK5JPT.maxDeltaR  = cms.double(0.5)
-    process.jetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5) 
+    process.jetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5)
+
     process.susyPat = cms.Path(process.seqSUSYDefaultSequence)
     schedule.append(process.susyPat)
     SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
@@ -98,6 +99,10 @@ if options.patify and options.fromRECO:
         del process.outpath
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
+# choose your event and object pre-selection     v------| there 
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
+insertSelection(process)
+
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 
 if options.mcInfo:

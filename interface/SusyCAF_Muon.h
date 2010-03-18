@@ -74,7 +74,12 @@ void SusyCAF_Muon<T>::initRECO()
 template< typename T >
 void SusyCAF_Muon<T>::initPAT()
 {
-  produces <std::vector<int> > (Prefix + "MuonIDGlobalMuonPromptTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "IDGlobalMuonPromptTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationAngTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationOptimizedLowPtTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationOptimizedLowPtLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationOptimizedBarrelLowPtTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationOptimizedBarrelLowPtLoose" + Suffix);
   produces <std::vector<float> > (Prefix + "EcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "HcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "TrackIso" + Suffix);
@@ -228,7 +233,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Muon<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-  std::auto_ptr<std::vector<int> >  muonIDGlobalMuonPromptTight( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> >  IDGlobalMuonPromptTight( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMLastStationAngTight( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMLastStationOptimLowPtTight (new std::vector<int>());
+  std::auto_ptr<std::vector<int> > TMLastStationOptimLowPtLoose (new std::vector<int>());
+  std::auto_ptr<std::vector<int> > TMLastStationOptimBarrelLowPtTight (new std::vector<int>());
+  std::auto_ptr<std::vector<int> > TMLastStationOptimBarrelLowPtLoose (new std::vector<int>());
   std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
@@ -243,7 +253,15 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-      muonIDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
+      IDGlobalMuonPromptTight->push_back(it->muonID("GlobalMuonPromptTight"));
+      TMLastStationAngTight->push_back(it->muonID("TMLastStationAngTight"));
+      TMLastStationOptimLowPtTight->push_back(it->muonID("TMLastStationOptimizedLowPtTight"));
+      TMLastStationOptimLowPtLoose->push_back(it->muonID("TMLastStationOptimizedLowPtLoose"));
+      TMLastStationOptimBarrelLowPtTight->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtTight"));
+      TMLastStationOptimBarrelLowPtLoose->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtLoose"));
+      
+
+      
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());
       trackIso->push_back(it->trackIso());
@@ -262,7 +280,12 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     }
   }
   
-  iEvent.put(muonIDGlobalMuonPromptTight, Prefix + "MuonIDGlobalMuonPromptTight" + Suffix );
+  iEvent.put(IDGlobalMuonPromptTight, Prefix + "IDGlobalMuonPromptTight" + Suffix );
+  iEvent.put(TMLastStationAngTight, Prefix + "TMLastStationAngTight" + Suffix);
+  iEvent.put(TMLastStationOptimLowPtTight, Prefix + "TMLastStationOptimizedLowPtTight" + Suffix);
+  iEvent.put(TMLastStationOptimLowPtLoose, Prefix + "TMLastStationOptimizedLowPtLoose" + Suffix);
+  iEvent.put(TMLastStationOptimBarrelLowPtTight, Prefix + "TMLastStationOptimizedBarrelLowPtTight" + Suffix);
+  iEvent.put(TMLastStationOptimBarrelLowPtLoose, Prefix + "TMLastStationOptimizedBarrelLowPtLoose" + Suffix);
   iEvent.put(ecalIso, Prefix + "EcalIso" + Suffix);
   iEvent.put(hcalIso, Prefix + "HcalIso" + Suffix);
   iEvent.put(trackIso, Prefix + "TrackIso" + Suffix);

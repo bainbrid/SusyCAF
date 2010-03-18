@@ -45,24 +45,34 @@ nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF 
                                   susycafmuon + susycafpfmuon +
                                   susycaftau)
 
-nTuplePatJetSequence = cms.Sequence(susycafic5calojet + susycafsc5calojet +
-                                    susycafak5calojet + susycafak7calojet +
-                                    susycafak5jptjet #+ susycafic5pfjet
+nTuplePatJetSequence = cms.Sequence(susycafic5calojet +
+                                    susycafsc5calojet +
+                                    susycafak5calojet +
+                                    # susycafak7calojet +
+                                    susycafak5jptjet +
+                                    # susycafic5pfjet +
                                     + susycafak5pfjet
                                     )
 
-nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched + susycafsc5calojetMatched +
-                                           susycafak5calojetMatched + susycafak7calojetMatched +
-                                           susycafak5jptjetMatched #+ susycafic5pfjetMatched
-                                           + susycafak5pfjetMatched
+nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched +
+                                           susycafsc5calojetMatched +
+                                           susycafak5calojetMatched +
+                                           # susycafak7calojetMatched +
+                                           susycafak5jptjetMatched +
+                                           # susycafic5pfjetMatched +
+                                           susycafak5pfjetMatched
                                            )
 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 
 nTupleRecoSequence = cms.Sequence( nTupleRecoMetSequence +
-                                   susycafic5calojetreco + susycafsc5calojetreco +
-                                   susycafak5calojetreco + susycafak7calojetreco + 
-                                   susycafak5jptjetreco + susycafic5pfjetreco + susycafak5pfjetreco +
+                                   susycafic5calojetreco +
+                                   susycafsc5calojetreco +
+                                   susycafak5calojetreco +
+                                   # susycafak7calojetreco + 
+                                   susycafak5jptjetreco +
+                                   # susycafic5pfjetreco +
+                                   susycafak5pfjetreco +
                                    susycafphotonreco +
                                    susycafelectronreco +                                    
                                    susycafmuonreco +

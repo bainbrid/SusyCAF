@@ -56,7 +56,8 @@ bool SusyCAF_DQMFlags::AskRR( vector<int>& flags, int runNo ) {
 	string serverstring = "server = xmlrpclib.ServerProxy('" + server + "')\n";
 	PyRun_SimpleString( serverstring.c_str() );
 	char request[100];
-	sprintf( request, "data = server.DataExporter.export('GLOBAL', 'xml_datasets', {'number': '%i'})\n", runNo );
+	sprintf( request, "data = server.DataExporter.export('RUN','GLOBAL', 'xml_datasets', {'runNumber': '%i'})\n", runNo );
+	
 	PyRun_SimpleString( request );
 
 	// library for xml parsing

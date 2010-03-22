@@ -43,8 +43,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<GenEventInfoProduct> geninfo;
   iEvent.getByLabel(inputTag,collection);
   iEvent.getByLabel("generator",geninfo);
-  std::auto_ptr<bool> isGenInfoValid (new bool(geninfo.isValid()) );
-  std::auto_ptr<double> pthat (new double(geninfo->binningValues()[0]));
+  // Check if pthat variable is available
+  std::auto_ptr<bool> isGenInfoValid (new bool(geninfo.isValid()));
+  std::auto_ptr<double> pthat (new double(-1.));
+  if ( *isGenInfoValid && !geninfo->binningValues().empty() ) { pthat.reset( new double(geninfo->binningValues()[0]) ); }
+  else { isGenInfoValid.reset( new bool(false) ); }
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> >  p4  ( new std::vector<LorentzVector>()  ) ;
   std::auto_ptr<std::vector<int> > status ( new std::vector<int>() ) ;

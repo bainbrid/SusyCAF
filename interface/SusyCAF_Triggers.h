@@ -28,24 +28,26 @@ private:
     bool returnValueOfChanged=false;
     hltconfig.init(run, setup, "HLT", returnValueOfChanged);
   }
-
+  
   void produce( edm::Event& event, const edm::EventSetup& setup) {
     edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
-    event.put( std::auto_ptr<bool>(new bool(results.isValid())), "hltHandleValid");
-    if (!results.isValid()) return;
-
+    
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
     std::auto_ptr<std::map<std::string,unsigned> > prescaled(new std::map<std::string,unsigned>());
-
-    const edm::TriggerNames& names = event.triggerNames(*results);
-    for(unsigned i=0; i < results->size(); i++) {
-      (*triggered)[names.triggerName(i)] = results->accept(i) ;
-      (*prescaled)[names.triggerName(i)] = hltconfig.prescaleValue(event,setup,names.triggerName(i));
+    
+    if(results.isValid()) {
+      const edm::TriggerNames& names = event.triggerNames(*results);
+      for(unsigned i=0; i < results->size(); i++) {
+	(*triggered)[names.triggerName(i)] = results->accept(i) ;
+	(*prescaled)[names.triggerName(i)] = hltconfig.prescaleValue(event,setup,names.triggerName(i));
+      }
     }
+    
     event.put( triggered,"triggered");
     event.put( prescaled,"prescaled");
+    event.put( std::auto_ptr<bool>(new bool(results.isValid())), "hltHandleValid");
   }
-
+  
 };
 
 #endif

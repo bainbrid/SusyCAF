@@ -9,51 +9,68 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 #include "boost/lexical_cast.hpp"
 
 class SusyCAF_L1Triggers : public edm::EDProducer 
 {
-public: 
+ public: 
   explicit SusyCAF_L1Triggers(const edm::ParameterSet& conf) : 
     nBx(conf.getParameter<int>("NBx")),
     inputTag(conf.getParameter<edm::InputTag>("InputTag")),
     outputName( (nBx==0? "" : ( nBx<0 ? "M" : "P") + boost::lexical_cast<std::string>(abs(nBx)) ) )
       {
 	produces <bool>                        ( "L1HandleValid"  +outputName );
-	produces <std::map<std::string,bool> > ( "L1triggered"    +outputName );
 	produces <unsigned int>                ( "physicsDeclared"+outputName );
+	produces <std::map<std::string,bool> > ( "L1triggered"    +outputName );
+	produces <std::map<std::string,unsigned> > ( "L1prescaled" +outputName );
       }
-
-private: 
+    
+ private: 
   const int nBx;
   const edm::InputTag inputTag;
   const std::string outputName;
-
+  
   void produce( edm::Event& event, const edm::EventSetup& setup) {
-    std::auto_ptr<bool>                        handleValid    (new bool(false));
-    std::auto_ptr<unsigned int>                physicsDeclared(new unsigned int());
-    std::auto_ptr<std::map<std::string,bool> > triggered      (new std::map<std::string,bool>());
-
     edm::Handle<L1GlobalTriggerReadoutRecord> L1record;  event.getByLabel(inputTag, L1record);
     edm::ESHandle<L1GtTriggerMenu> L1menu;               setup.get<L1GtTriggerMenuRcd>().get(L1menu) ;
-
+    edm::ESHandle<L1GtPrescaleFactors> psAlgo;           setup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(psAlgo);
+    edm::ESHandle<L1GtPrescaleFactors> psTech;           setup.get<L1GtPrescaleFactorsTechTrigRcd>().get(psTech);
+    
+    std::auto_ptr<unsigned int>                    physicsDeclared(new unsigned int());
+    std::auto_ptr<std::map<std::string,bool> >     triggered      (new std::map<std::string,bool>());
+    std::auto_ptr<std::map<std::string,unsigned> > prescaled      (new std::map<std::string,unsigned>());
+    
     if (L1record.isValid() && L1menu.isValid()) {
-      *handleValid.get()=true;
       *physicsDeclared.get()=L1record->gtFdlWord(nBx).physicsDeclared();
-      record( triggered, L1record->decisionWord(nBx),         L1menu->gtAlgorithmMap() );
-      record( triggered, L1record->technicalTriggerWord(nBx), L1menu->gtTechnicalTriggerMap() );
+      
+      record( L1menu->gtAlgorithmMap(),        
+	      triggered, L1record->decisionWord(nBx),         
+	      prescaled, psAlgo->gtPrescaleFactors().at(L1record->gtFdlWord(nBx).gtPrescaleFactorIndexAlgo()));
+      
+      record( L1menu->gtTechnicalTriggerMap(), 
+	      triggered, L1record->technicalTriggerWord(nBx), 
+	      prescaled, psTech->gtPrescaleFactors().at(L1record->gtFdlWord(nBx).gtPrescaleFactorIndexTech()));
     }
-
-    event.put( handleValid,    "L1HandleValid"  +outputName );
+    
+    event.put( std::auto_ptr<bool>(new bool(L1record.isValid()&&L1menu.isValid())),  "L1HandleValid"  +outputName );
     event.put( physicsDeclared,"physicsDeclared"+outputName );
     event.put( triggered,      "L1triggered"    +outputName );
+    event.put( triggered,      "L1prescaled"    +outputName );
   }
-
-  void record(std::auto_ptr<std::map<std::string,bool> >& mapSb, std::vector<bool> vbool, const AlgorithmMap& algoMap) const {
-    for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it)
+  
+  void record(const AlgorithmMap& algoMap,
+	      std::auto_ptr<std::map<std::string,bool> >& mapSb, const std::vector<bool>& vbool, 
+	      std::auto_ptr<std::map<std::string,unsigned> >& mapSu, const std::vector<int>& vint
+	      ) const {
+    for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it) {
       (*mapSb)[it->first] = vbool.at(it->second.algoBitNumber());
+      (*mapSu)[it->first] = (unsigned)(vint.at(it->second.algoBitNumber()));
+    }
   }
-
+  
 };
 
 #endif

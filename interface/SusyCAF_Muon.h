@@ -84,6 +84,22 @@ void SusyCAF_Muon<T>::initPAT()
   produces <std::vector<float> > (Prefix + "HcalIso" + Suffix);
   produces <std::vector<float> > (Prefix + "TrackIso" + Suffix);
 
+  produces <std::vector<int> > (Prefix + "TrackerMuonArbitrated" + Suffix);
+  produces <std::vector<int> > (Prefix + "AllArbitrated" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TM2DCompatibilityLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TM2DCompatibilityTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMOneStationLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMOneStationTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "GMTkChiCompatibility" + Suffix);
+  produces <std::vector<int> > (Prefix + "GMStaChiCompatibility" + Suffix);
+  produces <std::vector<int> > (Prefix + "GMTkKinkTight" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMLastStationAngLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMOneStationAngLoose" + Suffix);
+  produces <std::vector<int> > (Prefix + "TMOneStationAngTight" + Suffix);
+
+
 //pf muons - AGB 18/12/09
   produces <std::vector<int> > (Prefix + "ProducedFromPF" + Suffix);
   produces <std::vector<float> > (Prefix + "ParticleIso" + Suffix);
@@ -243,6 +259,21 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
 
+  std::auto_ptr<std::vector<int> > TrackerMuonArbitrated_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > AllArbitrated_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMLastStationLoose_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMLastStationTight_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TM2DCompatibilityLoose_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TM2DCompatibilityTight_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMOneStationLoose_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMOneStationTight_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > GMTkChiCompatibility_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > GMStaChiCompatibility_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > GMTkKinkTight_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMLastStationAngLoose_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMOneStationAngLoose_( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > TMOneStationAngTight_( new std::vector<int>() );
+
 //pf
   
   std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
@@ -259,8 +290,21 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       TMLastStationOptimLowPtLoose->push_back(it->muonID("TMLastStationOptimizedLowPtLoose"));
       TMLastStationOptimBarrelLowPtTight->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtTight"));
       TMLastStationOptimBarrelLowPtLoose->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtLoose"));
-      
-
+  
+  TrackerMuonArbitrated_->push_back(it->muonID("TrackerMuonArbitrated"));
+  AllArbitrated_->push_back(it->muonID("AllArbitrated"));
+  TMLastStationLoose_->push_back(it->muonID("TMLastStationLoose"));
+  TMLastStationTight_->push_back(it->muonID("TMLastStationTight"));
+  TM2DCompatibilityLoose_->push_back(it->muonID("TM2DCompatibilityLoose"));
+  TM2DCompatibilityTight_->push_back(it->muonID("TM2DCompatibilityTight"));
+  TMOneStationLoose_->push_back(it->muonID("TMOneStationLoose"));
+  TMOneStationTight_->push_back(it->muonID("TMOneStationTight"));
+  GMTkChiCompatibility_->push_back(it->muonID("GMTkChiCompatibility"));
+  GMStaChiCompatibility_->push_back(it->muonID("GMStaChiCompatibility"));
+  GMTkKinkTight_->push_back(it->muonID("GMTkKinkTight"));
+  TMLastStationAngLoose_->push_back(it->muonID("TMLastStationAngLoose"));
+  TMOneStationAngLoose_->push_back(it->muonID("TMOneStationAngLoose"));
+  TMOneStationAngTight_->push_back(it->muonID("TMOneStationAngTight"));
       
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());
@@ -286,6 +330,23 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(TMLastStationOptimLowPtLoose, Prefix + "TMLastStationOptimizedLowPtLoose" + Suffix);
   iEvent.put(TMLastStationOptimBarrelLowPtTight, Prefix + "TMLastStationOptimizedBarrelLowPtTight" + Suffix);
   iEvent.put(TMLastStationOptimBarrelLowPtLoose, Prefix + "TMLastStationOptimizedBarrelLowPtLoose" + Suffix);
+
+  iEvent.put(TrackerMuonArbitrated_, Prefix + "TrackerMuonArbitrated" + Suffix);
+  iEvent.put(AllArbitrated_, Prefix + "AllArbitrated" + Suffix);
+  iEvent.put(TMLastStationLoose_, Prefix + "TMLastStationLoose" + Suffix);
+  iEvent.put(TMLastStationTight_, Prefix + "TMLastStationTight" + Suffix);
+  iEvent.put(TM2DCompatibilityLoose_, Prefix + "TM2DCompatibilityLoose" + Suffix);
+  iEvent.put(TM2DCompatibilityTight_, Prefix + "TM2DCompatibilityTight" + Suffix);
+  iEvent.put(TMOneStationLoose_, Prefix + "TMOneStationLoose" + Suffix);
+  iEvent.put(TMOneStationTight_, Prefix + "TMOneStationTight" + Suffix);
+  iEvent.put(GMTkChiCompatibility_, Prefix + "GMTkChiCompatibility" + Suffix);
+  iEvent.put(GMStaChiCompatibility_, Prefix + "GMStaChiCompatibility" + Suffix);
+  iEvent.put(GMTkKinkTight_, Prefix + "GMTkKinkTight" + Suffix);
+  iEvent.put(TMLastStationAngLoose_, Prefix + "TMLastStationAngLoose" + Suffix);
+  iEvent.put(TMOneStationAngLoose_, Prefix + "TMOneStationAngLoose" + Suffix);
+  iEvent.put(TMOneStationAngTight_, Prefix + "TMOneStationAngTight" + Suffix);
+
+
   iEvent.put(ecalIso, Prefix + "EcalIso" + Suffix);
   iEvent.put(hcalIso, Prefix + "HcalIso" + Suffix);
   iEvent.put(trackIso, Prefix + "TrackIso" + Suffix);

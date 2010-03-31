@@ -25,7 +25,7 @@ class SusyCAF_L1Triggers : public edm::EDProducer
 	produces <bool>                        ( "L1HandleValid"  +outputName );
 	produces <unsigned int>                ( "physicsDeclared"+outputName );
 	produces <std::map<std::string,bool> > ( "L1triggered"    +outputName );
-	produces <std::map<std::string,unsigned> > ( "L1prescaled" +outputName );
+	produces <std::map<std::string,int> >  ( "L1prescaled"    +outputName );
       }
     
  private: 
@@ -39,9 +39,9 @@ class SusyCAF_L1Triggers : public edm::EDProducer
     edm::ESHandle<L1GtPrescaleFactors> psAlgo;           setup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(psAlgo);
     edm::ESHandle<L1GtPrescaleFactors> psTech;           setup.get<L1GtPrescaleFactorsTechTrigRcd>().get(psTech);
     
-    std::auto_ptr<unsigned int>                    physicsDeclared(new unsigned int());
-    std::auto_ptr<std::map<std::string,bool> >     triggered      (new std::map<std::string,bool>());
-    std::auto_ptr<std::map<std::string,unsigned> > prescaled      (new std::map<std::string,unsigned>());
+    std::auto_ptr<unsigned int>                 physicsDeclared(new unsigned int());
+    std::auto_ptr<std::map<std::string,bool> >  triggered      (new std::map<std::string,bool>());
+    std::auto_ptr<std::map<std::string,int> >   prescaled      (new std::map<std::string,int>());
     
     if (L1record.isValid() && L1menu.isValid()) {
       *physicsDeclared.get()=L1record->gtFdlWord(nBx).physicsDeclared();
@@ -58,16 +58,16 @@ class SusyCAF_L1Triggers : public edm::EDProducer
     event.put( std::auto_ptr<bool>(new bool(L1record.isValid()&&L1menu.isValid())),  "L1HandleValid"  +outputName );
     event.put( physicsDeclared,"physicsDeclared"+outputName );
     event.put( triggered,      "L1triggered"    +outputName );
-    event.put( triggered,      "L1prescaled"    +outputName );
+    event.put( prescaled,      "L1prescaled"    +outputName );
   }
   
   void record(const AlgorithmMap& algoMap,
 	      std::auto_ptr<std::map<std::string,bool> >& mapSb, const std::vector<bool>& vbool, 
-	      std::auto_ptr<std::map<std::string,unsigned> >& mapSu, const std::vector<int>& vint
+	      std::auto_ptr<std::map<std::string,int> >& mapSu, const std::vector<int>& vint
 	      ) const {
     for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it) {
       (*mapSb)[it->first] = vbool.at(it->second.algoBitNumber());
-      (*mapSu)[it->first] = (unsigned)(vint.at(it->second.algoBitNumber()));
+      (*mapSu)[it->first] = vint.at(it->second.algoBitNumber());
     }
   }
   

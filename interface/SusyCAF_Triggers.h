@@ -16,8 +16,8 @@ public:
     : inputTag(conf.getParameter<edm::InputTag>("InputTag"))
     {
       produces <bool> ( "hltHandleValid");
-      produces <std::map<std::string,bool> >  ("triggered");
-      produces <std::map<std::string,unsigned> >  ("prescaled");
+      produces <std::map<std::string,bool> > ("triggered");
+      produces <std::map<std::string,int> >  ("prescaled");
     }
 
 private: 
@@ -33,7 +33,7 @@ private:
     edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
     
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
-    std::auto_ptr<std::map<std::string,unsigned> > prescaled(new std::map<std::string,unsigned>());
+    std::auto_ptr<std::map<std::string,int> >  prescaled(new std::map<std::string,int>());
     
     if(results.isValid()) {
       const edm::TriggerNames& names = event.triggerNames(*results);

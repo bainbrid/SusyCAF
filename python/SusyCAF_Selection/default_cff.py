@@ -33,6 +33,6 @@ def insertSelection(process):
 #process.jetSelector)
 
 #______________________     Insertion    _____________________________
-    process.nTupleCommonSequence = cms.Sequence( process.eventSelectionSequence + 
+    process.nTupleCommonSequence = cms.Sequence( #process.eventSelectionSequence + 
                                                  process.objectSelectionSequence +
                                                  process.nTupleCommonSequence)

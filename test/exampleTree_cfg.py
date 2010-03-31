@@ -103,7 +103,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelectio
 insertSelection(process)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
-
+process.lumiPath = cms.Path(process.lumiTree)
 if options.mcInfo:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleGenSequence )
 else:
@@ -122,6 +122,8 @@ else:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetSequence)
 
 schedule.append(process.p)
+schedule.append(process.lumiPath)
+
 file = open('SusyCAF_Tree_cfg.py','w')
 file.write(str(process.dumpPython()))
 file.close()

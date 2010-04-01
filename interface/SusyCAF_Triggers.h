@@ -24,12 +24,10 @@ private:
   const edm::InputTag   inputTag;
   HLTConfigProvider hltconfig;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) {
-    bool returnValueOfChanged=false;
-    hltconfig.init(run, setup, "HLT", returnValueOfChanged);
-  }
-  
   void produce( edm::Event& event, const edm::EventSetup& setup) {
+    bool returnValueOfChanged=false;
+    hltconfig.init(event, "HLT", returnValueOfChanged);
+
     edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
     
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());

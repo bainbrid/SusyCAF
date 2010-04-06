@@ -347,10 +347,10 @@ initMPT() { if(!mpt) return;
   produces <std::vector<int> > ( Prefix + "NAssoTracksAll"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NAssoTracksLoose"  + Suffix );
   produces <std::vector<int> > ( Prefix + "NAssoTracksHighPurity"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithEverything"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithAllTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithLooseTracks"  + Suffix );
-  produces <Vector> ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  produces <std::vector<Vector> > ( Prefix + "MPTwithEverything"  + Suffix );
+  produces <std::vector<Vector> > ( Prefix + "MPTwithAllTracks"  + Suffix );
+  produces <std::vector<Vector> > ( Prefix + "MPTwithLooseTracks"  + Suffix );
+  produces <std::vector<Vector> > ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
 }
 
 template<class T> void SusyCAF_Jet<T>::
@@ -360,10 +360,10 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
-  std::auto_ptr<Vector>  mptEverything  ( new Vector() ) ;
-  std::auto_ptr<Vector>  mptAllTracks  ( new Vector()  ) ;
-  std::auto_ptr<Vector>  mptLooseTracks  ( new Vector() ) ;
-  std::auto_ptr<Vector>  mptHighPurityTracks  ( new Vector() ) ;
+  std::auto_ptr<std::vector<Vector> >  mptEverything       ( new std::vector<Vector>() ) ;
+  std::auto_ptr<std::vector<Vector> >  mptAllTracks        ( new std::vector<Vector>() ) ;
+  std::auto_ptr<std::vector<Vector> >  mptLooseTracks      ( new std::vector<Vector>() ) ;
+  std::auto_ptr<std::vector<Vector> >  mptHighPurityTracks ( new std::vector<Vector>() ) ;
 
   const double 
     maxD0(config.getParameter<double>("MaxD0Trk")),
@@ -374,20 +374,26 @@ produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt)
   const reco::Vertex& PrimaryVertex = vertices->front();
  
  for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
-   unsigned nAll(0),nLoose(0),nHighPurity(0);
+    unsigned nAll(0),nLoose(0),nHighPurity(0);
     nAssoTracksEverything->push_back((*jets)[i].associatedTracks().size());
+    Vector vEverything, vAll, vLoose, vHighPurity;
+
     for (reco::TrackRefVector::iterator trk = (*jets)[i].associatedTracks().begin(); trk != (*jets)[i].associatedTracks().end(); ++trk) {
-      *mptEverything += (*trk)->momentum();
-      if( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 && 
-	  (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFrac*(*trk)->pt() ) {
-	if((*trk)->quality(reco::Track::undefQuality)) {  nAll++;           *mptAllTracks += (*trk)->momentum();	  }
-	if((*trk)->quality(reco::Track::loose)) {	  nLoose++;         *mptLooseTracks += (*trk)->momentum();       }
-	if((*trk)->quality(reco::Track::highPurity)) {	  nHighPurity++;    *mptHighPurityTracks+= (*trk)->momentum();   }
+      vEverything += (*trk)->momentum();
+      if ( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 && 
+      	  (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFrac*(*trk)->pt() ) {
+      	if((*trk)->quality(reco::Track::undefQuality)) {  nAll++;           vAll        += (*trk)->momentum();	  }
+      	if((*trk)->quality(reco::Track::loose)) {	  nLoose++;               vLoose      += (*trk)->momentum();       }
+      	if((*trk)->quality(reco::Track::highPurity)) {	  nHighPurity++;    vHighPurity += (*trk)->momentum();   }
       }
     }
     nAssoTracksAll->push_back(nAll);
     nAssoTracksLoose->push_back(nLoose);
     nAssoTracksHighPurity->push_back(nHighPurity);
+    mptEverything->push_back(vEverything);
+    mptAllTracks->push_back(vAll);
+    mptLooseTracks->push_back(vLoose);
+    mptHighPurityTracks->push_back(vHighPurity);
   }
   evt.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
   evt.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );

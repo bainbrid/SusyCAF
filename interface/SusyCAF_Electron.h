@@ -49,7 +49,6 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<double> > (  Prefix + "GsfTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GsfTracknumberOfValidHits" + Suffix);
   //added variables - AGB 08/12/09
-  produces <std::vector<float> > (  Prefix + "GsfTrackD0" + Suffix); 
   produces <std::vector<float> > (  Prefix + "GsfTrackDz" + Suffix); 
   produces <std::vector<float> > (  Prefix + "GsfTrackChargeMode" + Suffix);
   produces <std::vector<float> > (  Prefix + "GsfTrackPtMode" + Suffix);
@@ -154,7 +153,6 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  gsfTrack_dxyError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dzBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  gsfTrack_dzError   ( new std::vector<double>()  ) ;
-  std::auto_ptr<std::vector<float> > gsfTrkD0 (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkDz (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkChargeMode (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkPtMode (new std::vector<float>() );
@@ -220,7 +218,6 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
       gsfTrack_dzBS->push_back(it->gsfTrack()->dz(bs));
       gsfTrack_dzError->push_back(it->gsfTrack()->dzError());
-      gsfTrkD0->push_back(it->gsfTrack()->d0());
       gsfTrkDz->push_back(it->gsfTrack()->dz());
       gsfTrkChargeMode->push_back(it->gsfTrack()->chargeMode());
       gsfTrkPtMode->push_back(it->gsfTrack()->ptMode());
@@ -283,7 +280,6 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( gsfTrack_dxyError,  Prefix + "GsfTrackDxyError" + Suffix );
   iEvent.put( gsfTrack_dzBS,  Prefix + "GsfTrackDzBS" + Suffix );
   iEvent.put( gsfTrack_dzError,  Prefix + "GsfTrackDzError" + Suffix );
-  iEvent.put( gsfTrkD0,  Prefix + "GsfTrackD0" + Suffix );
   iEvent.put( gsfTrkDz,  Prefix + "GsfTrackDz" + Suffix );
   iEvent.put( gsfTrkChargeMode,  Prefix + "GsfTrackChargeMode" + Suffix );
   iEvent.put( gsfTrkPtMode,  Prefix + "GsfTrackPtMode" + Suffix );

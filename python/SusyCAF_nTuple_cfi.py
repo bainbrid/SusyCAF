@@ -20,6 +20,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 #from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_AllTracks_cfi import *
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_DQMFlags_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_DCSBits_cfi import *
@@ -32,7 +33,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 nTupleCommonSequence = cms.Sequence( susycafevent +
-                                 susycaftrack +
+                                 susycaftrack + # susycafalltracks +
                                  susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
                                  susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
    			         susycaftriggers +

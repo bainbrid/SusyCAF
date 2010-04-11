@@ -5,6 +5,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -46,6 +47,7 @@ DEFINE_SEAL_MODULE();
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Gen.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_AllTracks.h"
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DQMFlags.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DCSBits.h"
@@ -65,6 +67,7 @@ typedef SusyCAF_Muon<pat::Muon> SusyCAF_PatMuon;
 typedef SusyCAF_PFTau<reco::PFTau> SusyCAF_pfTau;
 typedef SusyCAF_PFTau<pat::Tau> SusyCAF_PatTau;
 typedef SusyCAF_Gen<reco::GenParticle> SusyCAF_GenParticle;
+typedef SusyCAF_AllTracks<reco::Track> SusyCAF_alltracks;
 
 typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
 typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
@@ -75,6 +78,7 @@ typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 DEFINE_ANOTHER_FWK_MODULE(SusyTree);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Event);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Track);
+DEFINE_ANOTHER_FWK_MODULE(SusyCAF_alltracks);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Triggers);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Triggers);
 DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloMET);

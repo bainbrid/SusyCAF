@@ -58,33 +58,49 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::map<const reco::Candidate*,int> refs;
   if(collection.isValid()){
     int idx_gen=0;
+    // First loop through gen collection adding particles of status 3 and electrons/muons of status 1||2
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      if(it->status()==3 ||
-         (abs(it->pdgId())==11 || abs(it->pdgId())==13)){
+      if(it->status() == 3 ||
+	  (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13)){
         p4->push_back(it->p4());
         status->push_back(it->status());
         pdgId->push_back(it->pdgId());
-        hasMother->push_back(it->numberOfMothers()>0);
-        refs[dynamic_cast<const reco::Candidate*>(&(*it))]=idx_gen++;
+        hasMother->push_back(it->numberOfMothers() > 0);
+	// As we go, build a map of the index positions of all of the gen particles stored 	
+	// This is used later for the mother information
+	refs[ dynamic_cast<const reco::Candidate*>(&(*it)) ] = idx_gen++;
       }
     }
+    // Loop through status 3 and e/mu of status 1/2  again to fill mother info
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      if(it->numberOfMothers()>0){
-        const reco::Candidate* mom = it->mother();
-        if (mom->pdgId() == it->pdgId()) { mom = mom->mother(); }
-        if(mom==0) continue;
-        if(refs.count(mom)>0){
-          motherStored->push_back(true);
-          mother->push_back(refs[mom]);
-        }
-        else{
-          mother->push_back(mom->pdgId());
-          motherStored->push_back(false);
-        }
+      if(it->status() == 3 || (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13)){
+	// Check we have a mother
+	if( it->numberOfMothers() > 0 ){
+	  const reco::Candidate* imother = it->mother();	
+	  if(it->status() != 3 && (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13)){
+	    if(imother->pdgId() == it->pdgId() && imother->numberOfMothers() > 0) 
+	      imother = imother->mother();
+	  }
+	  // For particles where we have stored the mother already, store index
+	  if(refs.count(imother) > 0){
+	    mother->push_back(refs[imother]);
+	    motherStored->push_back(true);
+	  }
+	  // Otherwise store PDG ID 
+	  else{
+	    mother->push_back(imother->pdgId());
+	    motherStored->push_back(false);
+	  }
+	}
+	// No mother -> store dummy values to ensure same size arrays
+	else{
+	  mother->push_back(-1);
+	  motherStored->push_back(false);
+	}
       }
     }
   }
-
+    
   iEvent.put(isGenInfoValid, Prefix + "GenInfoHandleValid" + Suffix);
   iEvent.put(pthat, Prefix + "pthat" + Suffix);
   iEvent.put(isHandleValid        , Prefix + "HandleValid"          + Suffix);

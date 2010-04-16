@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import configuration,sys,os,readline,getpass,string,fileinput,socket,datetime
+import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime
 
 def get_jobrow(db) :
     rows = db.execute('''select job.rowid,dataset,cmssw,susycaf,jec,globalTag,filter
@@ -158,7 +158,7 @@ rpath='/SusyCAF/automated/'+timestamp+'/'
 CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False
 print 'Jobs will run on '+('CAF' if CAF else 'GRID')
 
-db = configuration.lockedDB()
+db = conf.lockedDB()
 
 db.connect()
 

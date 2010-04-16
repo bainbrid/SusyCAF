@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import configuration,sys,os,readline,getpass
+import configuration_SCBooks as conf,sys,os,readline,getpass
 
 user = getpass.getuser()
-db = configuration.lockedDB()
+db = conf.lockedDB()
 db.connect()
 
 rows = db.execute('''select job.rowid,state,dataset,cmssw,susycaf,jec,globalTag,filter

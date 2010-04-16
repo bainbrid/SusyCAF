@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import configuration,sqlite3,readline,sys
+import configuration_SCBooks as conf,sqlite3,readline,sys
 
 def menu(actions) :
     s = '\n\t'
@@ -11,7 +11,7 @@ def menu(actions) :
 
 class planner:
     def __init__(self):
-        self.db = configuration.lockedDB()
+        self.db = conf.lockedDB()
         self.db.connect()
         
         self.mainM = {

@@ -10,16 +10,14 @@ def write_webpage(db,path) :
     '''
     tags = c.execute('select rowid,* from tag').fetchall()
     for tag in tags:
-        print>>file,'<BR>',tag['cmssw']
-        print>>file,'<table>'
-        dsets = c.execute('select rowid,* from dset').fetchall()
+        print>>file,'<b>'+(10*'&nbsp;').join([str(i) for i in tag])+'</b><br>'
+        dsets = c.execute('select rowid,* from dset order by globaltag').fetchall()
         for dset in dsets:
             jobs = c.execute('select * from job where dsetid=? and tagid=?',(dset['rowid'],tag['rowid'])).fetchall()
             if len(jobs)>0 :
-                print>>file,'<tr><td>'+'</td><td>'.join([str(i) for i in dset])+'</td></tr>'
+                print>>file,'<br>'+(10*'&nbsp;').join([str(i) for i in dset])
             for job in jobs:
-                pass
-        print>>file,'</table>'
+                print>>file,'\n<br><a href='+'>Job</a>\n<br><a href='.join(job['dash'][1:-1].split(','))+'>Job</a>'
     
     print>>file,'''
     </body>

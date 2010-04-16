@@ -124,7 +124,7 @@ def run_crab(job,path) :
                 'eval `scram runtime -sh`',
                 #'source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh ',
                 'source /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_2_pre1/crab.sh',
-                'voms-proxy-init -voms cms',
+                #'voms-proxy-init -voms cms',
                 'cd '+path,
                 ( 'python '+path+'/'+job['cmssw']+'/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py'+
                   ' patify=1'+

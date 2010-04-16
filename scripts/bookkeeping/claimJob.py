@@ -152,7 +152,7 @@ def get_dashboard(path) :
 user = getpass.getuser()
 node = socket.gethostname()
 timestamp = '_'.join(['%02d'% i for i in datetime.datetime.now().timetuple()[:6]])
-path = '/tmp/bbetchar/SusyCAF/'+timestamp+'/'
+path = '/tmp/'+user+'/SusyCAF/'+timestamp+'/'
 rpath='/SusyCAF/automated/'+timestamp+'/'
 
 CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False

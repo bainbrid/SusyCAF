@@ -1,0 +1,9 @@
+
+Define the valid_json function in configuration_SCBooks.py. This
+function should return false if not all jsonls are valid, or if some
+jsonls are overlapping on the same pair of (tagid,dsetid)
+
+Better web view of database
+
+
+

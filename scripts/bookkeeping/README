@@ -11,7 +11,7 @@ solutions are welcome.
 
 [configuration_SCBooks.py] 
 The file locations and database definitions can be found at the top.
-Then common funcitons like database connection, sanity checks, and
+Then common functions like database connection, sanity checks, and
 locking are defined.
 
 There are 3 executable scripts:
@@ -23,7 +23,7 @@ NB: [environment]
 python with sqlite3 library must be in your path, which
 you can usually achieve with 'cmsenv'.
 
-NB: [Locking edicate] 
+NB: [Locking etiquette] 
 1. If someone has locked the database, do not break their lock without asking them.
 2. If you crash a script or quit via C-c or something, you may leave the database locked.  
 You need to break your own lock by running a script and quitting properly.
@@ -60,10 +60,16 @@ wishes to relinquish the job
 2. text menu interface: quit,save, tag, dset, job
 * tag,dset,job have sub-menus.
   * You can list,create,delete from these tables.
-  * job rows need to be associated to valid tag and dset rows
+  * job.tagid and job.dsetid need to be valid rowid entries in tag and dset
   * deletion from tag or dset recursively deletes those jobs.
-  * jsonls can be null (all), a path to a file ending in .txt, or the content of a jsonls file
-
+  * job.jsonls can be null (all), a path to a file ending in .txt, or the content of a jsonls file
+  * dset.filter is ignored in the scripts, so it is effectively a user
+comment field.  The planner promises to only plan jobs in accordance
+with this filter comment, which should represent the flags used in the
+script to filter out lumi-sections.  I propose null, GOODPOG, BADPOG
+to begin with.  I can imagine that some option here also gets passed
+to exampleTree_cfg.py in the future, so this field may turn out to be
+multipurpose.
 
 [CLI sqlite3]
 You can run your own more sophisticated queries from your own scripts

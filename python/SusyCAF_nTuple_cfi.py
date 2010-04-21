@@ -18,6 +18,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_AllTracks_cfi import *
@@ -58,11 +59,17 @@ nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched + susycafsc5
                                            )
 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
-nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit + susycafhfrechitreflagged )
+nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
+                                       susycafhfrechitreflagged +
+                                       susycafpfrechitecal +
+                                       susycafpfrechithcal +
+                                       susycafpfrechithfem +
+                                       susycafpfrechithfhad +
+                                       susycafpfrechitps )
 #this sequence holds everything that needs reco event content and thaat should run in pat jobs with on-the-fly patification
 nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequence)
 
-nTupleRecoSequence = cms.Sequence( nTupleRecoMetSequence +
+nTupleRecoSequence = cms.Sequence( nTupleRecoPatSequence +
                                    susycafic5calojetreco + susycafsc5calojetreco +
                                    susycafak5calojetreco + susycafak7calojetreco + 
                                    susycafak5jptjetreco + susycafic5pfjetreco + susycafak5pfjetreco +

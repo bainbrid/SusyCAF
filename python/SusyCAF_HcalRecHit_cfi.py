@@ -34,3 +34,15 @@ susycafhorechit = cms.EDProducer("SusyCAF_HORecHitsSorted",
                                  )
 
 susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged' )
+
+def loadAndConfigureHcalSeverityLevelProducer(process) :
+    process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
+    process.hcalRecAlgos.SeverityLevels.append(cms.PSet(RecHitFlags = cms.vstring('UserDefinedBit0','HBHEHpdHitMultiplicity','HBHEPulseShape'),
+                                                        ChannelStatus = cms.vstring(''),
+                                                        Level = cms.int32(50)))
+
+def makeAndScheduleHcalReFlaggingPath(process,schedule) :
+    process.load("RecoLocalCalo.HcalRecAlgos.hcalrechitreflagger_cfi")
+    process.hfrecoReflagged = process.hcalrechitReflagger.clone()
+    process.hcalReflaggingPath = cms.Path(process.hfrecoReflagged)
+    schedule.append(process.hcalReflaggingPath)

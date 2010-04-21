@@ -59,6 +59,8 @@ nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched + susycafsc5
 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit + susycafhfrechitreflagged )
+#this sequence holds everything that needs reco event content and thaat should run in pat jobs with on-the-fly patification
+nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequence)
 
 nTupleRecoSequence = cms.Sequence( nTupleRecoMetSequence +
                                    susycafic5calojetreco + susycafsc5calojetreco +

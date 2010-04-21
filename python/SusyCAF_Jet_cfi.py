@@ -17,10 +17,11 @@ def patjets( calo = True, input = '', genInput = '', prefix = '', jetid = True) 
                            PtErrFracTrk = cms.double(0.2)
                            )
 
-def jets( calo = True, input = '', prefix = '') :
+def jets( calo = True, input = '', genInput = '', prefix = '') :
     return cms.EDProducer( "SusyCAF_CaloJet" if calo else "SusyCAF_PFJet" ,
                            InputTag = cms.InputTag(input),
                            AllJets = cms.InputTag(input),
+                           GenInputTag = cms.InputTag(genInput),
                            Prefix = cms.string(prefix),
                            Suffix = cms.string( 'Calo' if calo else 'PF'),
                            Calo = cms.bool(calo),
@@ -31,13 +32,13 @@ def jets( calo = True, input = '', prefix = '') :
                            )
 
 # Without SusyPAT
-susycafic5calojetreco = jets( input = 'iterativeCone5CaloJets',       prefix = 'ic5Jet' )
-susycafsc5calojetreco = jets( input = 'sisCone5CaloJets',             prefix = 'sc5Jet' )
-susycafak5calojetreco = jets( input = 'ak5CaloJets',                  prefix = 'ak5Jet' )
-susycafak7calojetreco = jets( input = 'ak7CaloJets',                  prefix = 'ak7Jet' )
-susycafak5jptjetreco  = jets( input = 'JetPlusTrackZSPCorJetAntiKt5', prefix = 'ak5JetJPT' )
-susycafic5pfjetreco  =  jets( input = 'iterativeCone5PFJets',         prefix = 'ic5Jet' , calo = False )
-susycafak5pfjetreco  =  jets( input = 'ak5PFJets',                    prefix = 'ak5Jet' , calo = False )
+susycafic5calojetreco = jets( input = 'iterativeCone5CaloJets',       prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets')
+susycafsc5calojetreco = jets( input = 'sisCone5CaloJets',             prefix = 'sc5Jet',    genInput = 'sisCone5GenJets' )
+susycafak5calojetreco = jets( input = 'ak5CaloJets',                  prefix = 'ak5Jet',    genInput = 'ak5GenJets'  )
+susycafak7calojetreco = jets( input = 'ak7CaloJets',                  prefix = 'ak7Jet',    genInput = 'ak7GenJets' )
+susycafak5jptjetreco  = jets( input = 'JetPlusTrackZSPCorJetAntiKt5', prefix = 'ak5JetJPT', genInput = 'ak5GenJets' )
+susycafic5pfjetreco  =  jets( input = 'iterativeCone5PFJets',         prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets' , calo = False )
+susycafak5pfjetreco  =  jets( input = 'ak5PFJets',                    prefix = 'ak5Jet',    genInput = 'ak5GenJets' , calo = False )
 
 # With SusyPAT
 susycafic5calojet = patjets( input = 'cleanPatJetsIC5Calo', prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets' )

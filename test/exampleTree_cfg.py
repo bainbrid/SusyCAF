@@ -99,8 +99,17 @@ if options.patify and options.fromRECO:
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 # choose your event and object pre-selection     v------| there 
+
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
-insertSelection(process)
+if options.fromRECO and not options.patify:
+    print "WARNING selection not implemented for use from RECO"
+else:
+    insertSelection(process)
+
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer,makeAndScheduleHcalReFlaggingPath
+loadAndConfigureHcalSeverityLevelProducer(process)
+#will not be needed for long ---v
+makeAndScheduleHcalReFlaggingPath(process,schedule)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 process.lumiPath = cms.Path(process.lumiTree)
@@ -115,7 +124,7 @@ if options.fromRECO and not options.patify:
 else:
     if  options.patify:
         #little havyhanded: want too have met values which are not in SUSYPAT in those trees
-         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoMetSequence )
+         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoPatSequence )
     if options.mcInfo:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetMatchedSequence)
     else:

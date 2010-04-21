@@ -72,7 +72,6 @@ typedef SusyCAF_AllTracks<reco::Track> SusyCAF_alltracks;
 typedef SusyCAF_HcalRecHit<HBHERecHitCollection> SusyCAF_HBHERecHitsSorted;
 typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_HcalRecHit<HORecHitCollection> SusyCAF_HORecHitsSorted;
-typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
 DEFINE_ANOTHER_FWK_MODULE(SusyTree);

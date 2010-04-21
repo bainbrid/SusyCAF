@@ -6,6 +6,7 @@
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=RecoLocalCalo/HcalRecAlgos>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/PatCandidates>

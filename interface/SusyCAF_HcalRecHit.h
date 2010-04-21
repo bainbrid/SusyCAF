@@ -125,7 +125,7 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
       //std::cout 
       //<< "pT:  " << eT      << " " << thisP4.pt()  << std::endl
       //<< "eta: " << eta     << " " << thisP4.eta() << std::endl
-      //<< "phi: " << thisPhi << " " << thisP4.phi() << std::endl
+      //<< "phi: " << phi     << " " << thisP4.phi() << std::endl
       //<< "e:   " << energy  << " " << thisP4.e()   << std::endl;
 
       int channelStatus=0;

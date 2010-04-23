@@ -81,11 +81,11 @@ def print_JOB(file,job) :
     label = 'job%d' % job['rowid']
     print>>file,'\n'.join([
         '<br><a onclick="switchMenu(\'%s\');" class="%s">' % (label,job['state']),
-        job['rpath'],
+        job['rpath'] if job['rpath'] else 'Unclaimed',
         '</a>',
         '<div id="%s" class=jobwrapper>' % label,
-        '<br>'+job['user']+'@'+job['node']+':'+job['path'],
-        '<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'][1:-1].split(',')) ]),
+        ('<br>'+job['user']+'@'+job['node']+':'+job['path']) if job['user'] else '',
+        ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'][1:-1].split(',')) ])) if job['dash'] else '',
         '<br>'+job['jsonls'] if job['jsonls'] else ''
         ])
     print>>file,'</div>'
@@ -116,6 +116,7 @@ def print_TAG(file,db,tag) :
         ])
     if tag['addpkg'] : print>>file, '\n'.join(['<br>addpkg '+i for i in tag['addpkg'].split(',')])
     if tag['cvsup'] : print>>file, '\n'.join(['<br>cvs up '+i for i in tag['cvsup'].split(',')])
+    if tag['cmds'] : print>>file, '\n'.join(['<br>'+i for i in tag['cmds'].split(',')])
     print>>file,'<br><br>'
     for dset in db.execute('select rowid,* from dset order by globaltag').fetchall() :
         print_DSET(file,db,dset,tag['rowid'])
@@ -123,8 +124,10 @@ def print_TAG(file,db,tag) :
     return
 
 def print_BODY(file,db) :
-    for tag in db.execute('select rowid,* from tag').fetchall() :
+    for tag in db.execute('select rowid,* from tag order by rowid desc').fetchall() :
+        print>>file,'<p>'
         print_TAG(file,db,tag)
+        print>>file,'</p>'
     return
 
 def write_webpage(db,path) :

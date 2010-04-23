@@ -10,7 +10,8 @@ def create_db(path) :
     conn.execute('''CREATE TABLE tag( cmssw   TEXT NOT NULL,
                                       susycaf TEXT NOT NULL,
                                       addpkg  TEXT,
-                                      cvsup   TEXT
+                                      cvsup   TEXT,
+                                      cmds    TEXT
                                      )''')
     conn.execute('''CREATE TABLE dset( dataset   TEXT NOT NULL,
                                        globalTag TEXT NOT NULL,
@@ -41,9 +42,12 @@ def valid_keys(connection) :
 
 def valid_addpkg(connection) :
     for row in connection.execute('select addpkg from tag') :
-        if row[0] != None and len(row[0].split())%2 !=0 :
-            print 'Incorrect addpkg format'
-            return False
+        if row[0] == None: return
+        pkgs = row[0].split(',')
+        for pkg in pkgs:
+            if len(pkg.split()) != 2 :
+                print 'Incorrect addpkg format'
+                return False
     return True
 
 def duplicates(connection, table) :

@@ -15,7 +15,7 @@ def get_jobrow(db) :
         db.disconnect()
         sys.exit()
     
-    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,susycaf,dataset,mcInfo,jec,globalTag,filter
+    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter
                          from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                          where state="Unclaimed" AND job.rowid='''+jobnumber).fetchone()
     return row
@@ -38,6 +38,7 @@ def setup_cmssw(job,path) :
                 'cvs co -r'+job['susycaf']+' -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF']
     commands+= ['addpkg '+pkg for pkg in job['addpkg'].split(',')] if job['addpkg']  else ['']
     commands+= ['cvs up -r '+f for f in job['cvsup'].split(',')] if job['cvsup']  else ['']
+    commands+= job['cmds'].split(',') if job['cmds']  else ['']
     commands+= ['scram b -j8',
                 '']    
     print '\n'.join(commands)
@@ -118,8 +119,7 @@ def setup_multicrab(job,path) :
 def run_crab(job,path) :
     crab = 'multicrab' if job['jsonls'] else 'crab'
     commands = ['#!/usr/bin/env bash\n\n',
-                #'source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh',
-                'source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_NEW.sh',
+                'source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh',
                 'cd '+path+'/'+job['cmssw']+"/src/",
                 'eval `scram runtime -sh`',
                 #'source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh ',

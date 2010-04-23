@@ -92,7 +92,7 @@ def print_JOB(file,job) :
     return
 
 def print_DSET(file,db,dset,tagid) :
-    label= 'dset%d' % dset['rowid']
+    label= 'dset%d_%d' % (dset['rowid'],tagid)
     jobs = db.execute('select rowid,* from job where dsetid=? and tagid=? order by user',(dset['rowid'],tagid)).fetchall()
     if len(jobs)>0 :
         print>>file,'\n'.join([

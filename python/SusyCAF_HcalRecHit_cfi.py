@@ -42,7 +42,7 @@ def loadAndConfigureHcalSeverityLevelProducer(process) :
                                                         Level = cms.int32(50)))
 
 def makeAndScheduleHcalReFlaggingPath(process,schedule) :
-    process.load("RecoLocalCalo.HcalRecAlgos.hcalrechitreflagger_cfi")
-    process.hfrecoReflagged = process.hcalrechitReflagger.clone()
+    process.load("JetMETAnalysis/HcalReflagging/HFrechitreflaggerJETMET_cff")
+    process.hfrecoReflagged = process.HFrechitreflaggerJETMET_v2.clone()
     process.hcalReflaggingPath = cms.Path(process.hfrecoReflagged)
     schedule.append(process.hcalReflaggingPath)

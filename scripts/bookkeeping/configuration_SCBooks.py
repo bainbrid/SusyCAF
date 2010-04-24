@@ -3,7 +3,7 @@ import webpage_SCBooks,sqlite3,os,sys,getpass,time
 db_location = "/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_SUSY/SusyCAF/bookkeeping/"
 db_file = 'sqlite.db'
 db_lock = 'sqlite.lock'
-webview = 'sqliteView.html'
+webpath = "/afs/cern.ch/user/b/bbetchar/public/web/SusyCAFpublic/status.html"
 
 def create_db(path) :
     conn = sqlite3.connect(path)
@@ -127,7 +127,7 @@ class lockedDB:
             else :
                 self.conn.commit()
                 print 'Saved'
-                webpage_SCBooks.write_webpage(self.conn,db_location+'/'+webview)
+                webpage_SCBooks.write_webpage(self.conn,webpath)
 
     def disconnect(self):
         input = raw_input("Save before disconnecting? [y]")

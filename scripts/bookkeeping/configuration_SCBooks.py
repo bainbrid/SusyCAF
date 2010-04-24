@@ -42,7 +42,7 @@ def valid_keys(connection) :
 
 def valid_addpkg(connection) :
     for row in connection.execute('select addpkg from tag') :
-        if row[0] == None: return
+        if not row[0] : continue
         pkgs = row[0].split(',')
         for pkg in pkgs:
             if len(pkg.split()) != 2 :
@@ -57,6 +57,18 @@ def duplicates(connection, table) :
     return False
 
 def valid_json(connection) :
+    rows = connection.execute('select jsonls from job').fetchall()
+    for row in rows:
+        if not row[0] : continue
+        try:
+            jsonls = eval(row[0])
+            for run in jsonls.keys() :
+                assert(eval(run)>0)
+                for pair in jsonls[run] :
+                    assert(pair[0]<pair[1])
+        except:
+            print 'A jsonls field is improperly formatted'
+            return False
     return True
 
 def valid_db(connection) :

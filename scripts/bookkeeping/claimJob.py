@@ -54,7 +54,7 @@ scram b -j 8
     return
 
 
-def setup_crab(job,user,path,rpath, CAF) :
+def setup_crab(job,user,path,rpath, CAF, SERVER) :
     full_rpath = ('/castor/cern.ch/cms/store/caf/user/' if CAF else
                   '/castor/cern.ch/user/'+user[1]+'/')+\
                   user+'/'+rpath
@@ -94,7 +94,7 @@ jobtype=cmssw
 '''% { "dset": job['dataset'],
        "rpath": '/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):])),
        "SE": ('T2_CH_CAF' if CAF else 'srm-cms.cern.ch'),
-       "server": 0 if CAF else 1,
+       "server": SERVER,
        "storage_path": '' if CAF else '''
 storage_path=/srm/managerv2?SFN=/castor/cern.ch''',
        "sched": 'caf' if CAF else 'glite',
@@ -170,7 +170,9 @@ path = '/tmp/'+user+'/SusyCAF/'+timestamp+'/'
 rpath='/SusyCAF/automated/'+timestamp+'/'
 
 CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False
-print 'Jobs will run on '+('CAF' if CAF else 'GRID')
+print '\tJobs will run on '+('CAF' if CAF else 'GRID')
+SERVER = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
+print '\tServer '+('ON' if SERVER else 'OFF')
 
 db = conf.lockedDB()
 db.connect()
@@ -178,7 +180,7 @@ job = get_jobrow( db )
 
 setup_cmssw( job, path )
 
-full_rpath = setup_crab( job, user, path, rpath, CAF )
+full_rpath = setup_crab( job, user, path, rpath, CAF, SERVER)
 
 if job['jsonls'] :
     setup_multicrab( job, path )

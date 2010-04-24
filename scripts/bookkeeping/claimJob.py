@@ -143,7 +143,7 @@ eval `scram runtime -sh`
 source /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_2_pre1/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
-%(crab)s -create #-submit
+%(crab)s -create -submit
 %(crab)s -status &> crab.status
 '''%{ "path" : path,
       "cmssw" : job['cmssw'],

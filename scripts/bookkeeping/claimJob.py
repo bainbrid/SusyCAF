@@ -87,13 +87,14 @@ storage_element=%(SE)s
 [CRAB]
 cfg=crab.cfg
 scheduler=%(sched)s
-use_server=1
+use_server=%(server)d
 jobtype=cmssw
 
 %(caf)s
 '''% { "dset": job['dataset'],
        "rpath": '/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):])),
        "SE": ('T2_CH_CAF' if CAF else 'srm-cms.cern.ch'),
+       "server": 0 if CAF else 1,
        "storage_path": '' if CAF else '''
 storage_path=/srm/managerv2?SFN=/castor/cern.ch''',
        "sched": 'caf' if CAF else 'glite',

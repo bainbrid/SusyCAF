@@ -56,7 +56,7 @@ scram b -j 8
 
 def setup_crab(job,user,path,rpath, CAF, SERVER) :
     full_rpath = ('/castor/cern.ch/cms/store/caf/user/' if CAF else
-                  '/castor/cern.ch/user/'+user[1]+'/')+\
+                  '/castor/cern.ch/user/'+user[0]+'/')+\
                   user+'/'+rpath
 
     dirs = full_rpath.strip('/').split('/')

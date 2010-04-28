@@ -12,6 +12,10 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_functions.h"
 
 #include <string>
 #include <vector>
@@ -28,7 +32,8 @@ class SusyCAF_AllTracks : public edm::EDProducer {
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
   typedef math::XYZVector Vector;
-  //  typedef reco::Track::TrackQuality quality;
+  typedef reco::Candidate::LorentzVector LorentzVector;
+
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
   double MinPt;
@@ -48,13 +53,17 @@ template< typename T >
 void SusyCAF_AllTracks<T>::initRECO()
 {
   produces <bool> (  Prefix + "HandleValid" + Suffix);
-  produces <std::vector<Vector> > ( Prefix + "TrkMomentum" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "TrkMomentum" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkChi2" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkNdof" + Suffix );
   produces <std::vector<int> > ( Prefix + "TrkCharge" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkPtError" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkDxy" + Suffix );
+  produces <std::vector<double> > ( Prefix + "TrkDxyError" + Suffix );
+  produces <std::vector<double> > ( Prefix + "TrkDz" + Suffix );
+  produces <std::vector<double> > ( Prefix + "TrkDzError" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkDxyRelBeamPos" + Suffix );
+  produces <std::vector<double> > ( Prefix + "TrkDxyVrtxPos" + Suffix );
 }
 
 
@@ -72,13 +81,27 @@ template< typename T >
 void SusyCAF_AllTracks<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
-  std::auto_ptr<std::vector<Vector> > trkMomentum ( new std::vector<Vector>() );
+  std::auto_ptr<std::vector<LorentzVector> > trkMomentum ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<double> > trkChi2 ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkNdof ( new std::vector<double>() );
   std::auto_ptr<std::vector<int> > trkCharge ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > trkPtError ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkDxy ( new std::vector<double>() );
+  std::auto_ptr<std::vector<double> > trkDxyError ( new std::vector<double>() );
+  std::auto_ptr<std::vector<double> > trkDz ( new std::vector<double>() );
+  std::auto_ptr<std::vector<double> > trkDzError ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkDxyRelBeamPos ( new std::vector<double>() );
+  std::auto_ptr<std::vector<double> > trkDxyVrtxPos ( new std::vector<double>() );
+
+
+  edm::Handle<reco::BeamSpot> beamspots;  iEvent.getByLabel("offlineBeamSpot", beamspots); 
+  edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel("offlinePrimaryVertices", vertices); 
+
+  math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
+  math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
+
+
+  if (beamspots.isValid()){ bs = beamspots->position(); } 
 
   const reco::Vertex primaryVertex;
 
@@ -89,23 +112,37 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       //      if ( it->quality(reco::TrackBase::highPurity) ) { // apply track quality criteria
 	
 	if (MinPt<0.) { // do not apply a pT cut
-	  trkMomentum->push_back(it->momentum());
+
+	  LorentzVector trackVector(it->momentum().x(),it->momentum().y(),it->momentum().z(),it->p());
+	  trkMomentum->push_back(trackVector);
 	  trkChi2->push_back(it->chi2());
 	  trkNdof->push_back(it->ndof());
 	  trkCharge->push_back(it->charge());
 	  trkPtError->push_back(it->ptError());
 	  trkDxy->push_back(it->dxy());
-	  trkDxyRelBeamPos->push_back(it->dxy(primaryVertex.position()));
+	  trkDxyError->push_back(it->dxyError());
+	  trkDz->push_back(it->dz());
+	  trkDzError->push_back(it->dzError());
+	  trkDxyRelBeamPos->push_back(it->dxy(bs));
+	  trkDxyVrtxPos->push_back(it->dxy(primaryVertex.position()));
+
 	} //~do not apply a pT cut 
 	
-	else if ( (it->pt()) >= MinPt) { // apply a pT cut
-	  trkMomentum->push_back(it->momentum());
+	else if ( (it->pt()) > MinPt) { // apply a pT cut
+	  
+	  LorentzVector trackVector(it->momentum().x(),it->momentum().y(),it->momentum().z(),it->p());
+	  trkMomentum->push_back(trackVector);
 	  trkChi2->push_back(it->chi2());
 	  trkNdof->push_back(it->ndof());
 	  trkCharge->push_back(it->charge());
 	  trkPtError->push_back(it->ptError());
 	  trkDxy->push_back(it->dxy());
-	  trkDxyRelBeamPos->push_back(it->dxy(primaryVertex.position()));
+	  trkDxyError->push_back(it->dxyError());
+	  trkDz->push_back(it->dz());
+	  trkDzError->push_back(it->dzError());
+	  trkDxyRelBeamPos->push_back(it->dxy(bs));
+	  trkDxyVrtxPos->push_back(it->dxy(primaryVertex.position()));
+
 	} //~apply a pT cut 
 	
 	//      } // ~end of apply track quality criteria
@@ -120,9 +157,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( trkCharge,  Prefix + "TrkCharge" + Suffix );
   iEvent.put( trkPtError,  Prefix + "TrkPtError" + Suffix );
   iEvent.put( trkDxy,  Prefix + "TrkDxy" + Suffix );
+  iEvent.put( trkDxyError,  Prefix + "TrkDxyError" + Suffix );
+  iEvent.put( trkDz,  Prefix + "TrkDz" + Suffix );
+  iEvent.put( trkDzError,  Prefix + "TrkDzError" + Suffix );
   iEvent.put( trkDxyRelBeamPos,  Prefix + "TrkDxyRelBeamPos" + Suffix );
+  iEvent.put( trkDxyVrtxPos,  Prefix + "TrkDxyVrtxPos" + Suffix );
 
 }
+
 
 
 #endif

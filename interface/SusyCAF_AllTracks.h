@@ -56,6 +56,7 @@ void SusyCAF_AllTracks<T>::initRECO()
   produces <std::vector<LorentzVector> > ( Prefix + "TrkMomentum" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkChi2" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkNdof" + Suffix );
+  produces <std::vector<double> > ( Prefix + "TrkNormChi2" + Suffix );
   produces <std::vector<int> > ( Prefix + "TrkCharge" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkPtError" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkDxy" + Suffix );
@@ -64,6 +65,7 @@ void SusyCAF_AllTracks<T>::initRECO()
   produces <std::vector<double> > ( Prefix + "TrkDzError" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkDxyRelBeamPos" + Suffix );
   produces <std::vector<double> > ( Prefix + "TrkDxyVrtxPos" + Suffix );
+  produces <std::vector<unsigned> > ( Prefix + "TrkNumberOfValidHits" + Suffix );
 }
 
 
@@ -84,6 +86,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<LorentzVector> > trkMomentum ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<double> > trkChi2 ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkNdof ( new std::vector<double>() );
+  std::auto_ptr<std::vector<double> > trkNormChi2 ( new std::vector<double>() );
   std::auto_ptr<std::vector<int> > trkCharge ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > trkPtError ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkDxy ( new std::vector<double>() );
@@ -92,6 +95,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> > trkDzError ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkDxyRelBeamPos ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > trkDxyVrtxPos ( new std::vector<double>() );
+  std::auto_ptr<std::vector<unsigned> > trkNumberOfValidHits ( new std::vector<unsigned>() );
 
 
   edm::Handle<reco::BeamSpot> beamspots;  iEvent.getByLabel("offlineBeamSpot", beamspots); 
@@ -117,6 +121,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 	  trkMomentum->push_back(trackVector);
 	  trkChi2->push_back(it->chi2());
 	  trkNdof->push_back(it->ndof());
+	  trkNormChi2->push_back(it->normalizedChi2());
 	  trkCharge->push_back(it->charge());
 	  trkPtError->push_back(it->ptError());
 	  trkDxy->push_back(it->dxy());
@@ -125,6 +130,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 	  trkDzError->push_back(it->dzError());
 	  trkDxyRelBeamPos->push_back(it->dxy(bs));
 	  trkDxyVrtxPos->push_back(it->dxy(primaryVertex.position()));
+	  trkNumberOfValidHits->push_back(it->numberOfValidHits());
 
 	} //~do not apply a pT cut 
 	
@@ -134,6 +140,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 	  trkMomentum->push_back(trackVector);
 	  trkChi2->push_back(it->chi2());
 	  trkNdof->push_back(it->ndof());
+	  trkNormChi2->push_back(it->normalizedChi2());
 	  trkCharge->push_back(it->charge());
 	  trkPtError->push_back(it->ptError());
 	  trkDxy->push_back(it->dxy());
@@ -142,6 +149,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 	  trkDzError->push_back(it->dzError());
 	  trkDxyRelBeamPos->push_back(it->dxy(bs));
 	  trkDxyVrtxPos->push_back(it->dxy(primaryVertex.position()));
+	  trkNumberOfValidHits->push_back(it->numberOfValidHits());
 
 	} //~apply a pT cut 
 	
@@ -154,6 +162,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( trkMomentum,  Prefix + "TrkMomentum" + Suffix );
   iEvent.put( trkChi2,  Prefix + "TrkChi2" + Suffix );
   iEvent.put( trkNdof,  Prefix + "TrkNdof" + Suffix );
+  iEvent.put( trkNormChi2,  Prefix + "TrkNormChi2" + Suffix );
   iEvent.put( trkCharge,  Prefix + "TrkCharge" + Suffix );
   iEvent.put( trkPtError,  Prefix + "TrkPtError" + Suffix );
   iEvent.put( trkDxy,  Prefix + "TrkDxy" + Suffix );
@@ -162,7 +171,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( trkDzError,  Prefix + "TrkDzError" + Suffix );
   iEvent.put( trkDxyRelBeamPos,  Prefix + "TrkDxyRelBeamPos" + Suffix );
   iEvent.put( trkDxyVrtxPos,  Prefix + "TrkDxyVrtxPos" + Suffix );
-
+  iEvent.put( trkNumberOfValidHits,  Prefix + "TrkNumberOfValidHits" + Suffix );
 }
 
 

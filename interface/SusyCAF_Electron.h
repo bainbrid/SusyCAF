@@ -12,9 +12,15 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_functions.h"
 #include <string>
 
+// Conversion variables
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 template< typename T >
 class SusyCAF_Electron : public edm::EDProducer {
- public: 
+ public:
   explicit SusyCAF_Electron(const edm::ParameterSet&);
  private:
   void initTemplate();
@@ -25,17 +31,19 @@ class SusyCAF_Electron : public edm::EDProducer {
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
-  typedef reco::Candidate::LorentzVector LorentzVector; 
+  typedef reco::Candidate::LorentzVector LorentzVector;
 
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
+  const bool StoreConversionInfo;
 };
 
 template< typename T >
 SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+  Suffix(iConfig.getParameter<std::string>("Suffix")),
+  StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo"))
 {
   initTemplate();
 }
@@ -60,7 +68,7 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<int> > ( Prefix + "HasValidHitInFirstPixelBarrel" + Suffix);
 
   produces <std::vector<double> > (  Prefix + "GsfTrackDxy" + Suffix);
-  produces <std::vector<double> > (  Prefix + "GsfTrackDz" + Suffix); 
+  produces <std::vector<double> > (  Prefix + "GsfTrackDz" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDxyBS" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDzBS" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDxyError" + Suffix);
@@ -102,8 +110,14 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
-
-   produces <std::vector<float> > (Prefix + "KfTrackCharge" + Suffix);
+  produces <bool> ( Prefix + "ConversionInfoStored" + Suffix);
+  if(StoreConversionInfo){
+    produces <std::vector<double> > (  Prefix + "ConversionDCot" + Suffix );
+    produces <std::vector<double> > (  Prefix + "ConversionDist" + Suffix );
+  }
+  produces <std::vector<float> > ( Prefix + "KfTrackCharge" + Suffix );
+  produces <std::vector<int> > ( Prefix + "ScPixCharge" + Suffix );
+  produces <std::vector<int> > ( Prefix + "ClosestCtfTrackCharge" + Suffix );
 }
 
 // extra information stored for PAT data
@@ -137,7 +151,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   produceTemplate(iEvent, iSetup, collection);
 }
-
 
 template< typename T >
 void SusyCAF_Electron<T>::
@@ -199,18 +212,33 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<math::XYZPoint> >  vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
-
-  std::auto_ptr<std::vector<float> > kfcharge (new std::vector<float>() );
- 
+  std::auto_ptr<bool> conversionInfoStored ( new bool() );
+  std::auto_ptr<std::vector<double> > dcot ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> > dist ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<float> > kfcharge ( new std::vector<float>() );
+  std::auto_ptr<std::vector<int> > scPixCharge ( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > closestCtfTrackCharge( new std::vector<int>() );
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
   math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
   edm::Handle<reco::BeamSpot> beamspots;        iEvent.getByLabel("offlineBeamSpot", beamspots);
   edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel("offlinePrimaryVertices", vertices);
+
   if (beamspots.isValid()) bs = beamspots->position();
-  
+
+  const  MagneticField *mField = 0;
+  edm::Handle<reco::TrackCollection> ctfTracks;
+  ConversionFinder cf;
+  if(StoreConversionInfo){
+    edm::ESHandle<MagneticField> magneticField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    mField = magneticField.product();
+    iEvent.getByLabel("generalTracks", ctfTracks);
+  }
+  *conversionInfoStored = StoreConversionInfo && ctfTracks.isValid();
+
   if (collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-      
+
       p4->push_back(it->p4());
       charge->push_back(it->charge());
       gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
@@ -268,14 +296,36 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
       vertexNdof->push_back(it->vertexNdof());
+      if(StoreConversionInfo && ctfTracks.isValid()){
+
+        const math::XYZPoint tpoint = it->gsfTrack()->referencePoint();
+        const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
+        double bfield = mField->inTesla(gp).mag();
+        ConversionInfo info = cf.getConversionInfo(*it, ctfTracks, bfield);
+        dist->push_back(info.dist());
+        dcot->push_back(info.dcot());
+      }
+
       if(it->track().isAvailable()){
-      kfcharge->push_back(it->track()->charge());
-      }    
+        kfcharge->push_back(it->track()->charge());
+      }
+      else{
+        kfcharge->push_back(0);
+      }
+      scPixCharge->push_back(it->scPixCharge());
+      if(it->closestCtfTrackRef().isAvailable()){
+        closestCtfTrackCharge->push_back(it->closestCtfTrackRef()->charge());
+      }
+      else{
+        closestCtfTrackCharge->push_back(0);
+      }
+
+
     }
   }
- 
+
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
-  iEvent.put( p4,  Prefix + "P4" + Suffix ); 
+  iEvent.put( p4,  Prefix + "P4" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
 
   iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );
@@ -332,8 +382,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( vertex,  Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
-
-  iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix); 
+  iEvent.put( conversionInfoStored , Prefix + "ConversionInfoStored" + Suffix );
+  if(StoreConversionInfo && ctfTracks.isValid()){
+    iEvent.put( dist, Prefix + "ConversionDist" + Suffix );
+    iEvent.put( dcot, Prefix + "ConversionDCot" + Suffix );
+  }
+  iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix);
+  iEvent.put(scPixCharge, Prefix + "ScPixCharge" + Suffix);
+  iEvent.put(closestCtfTrackCharge, Prefix + "ClosestCtfTrackCharge" + Suffix);
 }
 
 // extra information stored for PAT data
@@ -351,7 +407,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> > hcalIsoDep( new std::vector<float>() );
 
   //pf
-  
+
   std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
   std::auto_ptr<std::vector<float> > ElId_pf_evspi (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
@@ -360,10 +416,10 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
 
 
-  
+
   if (collection.isValid()){
     for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-      
+
       ecalIso->push_back(it->ecalIso());
       hcalIso                 ->push_back(it->hcalIso                   ());
       trackIso                ->push_back(it->trackIso                  ());
@@ -375,11 +431,11 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 	ecalIsoDep->push_back(it->ecalIsoDeposit()->candEnergy());
 	hcalIsoDep->push_back(it->hcalIsoDeposit()->candEnergy());
       }
-      
+
       //pf
       ispf->push_back(it->pfCandidateRef().isAvailable()); //just for safety, could be removed later
       if(it->pfCandidateRef().isAvailable()){
-	
+
 	for(std::vector<std::pair<std::string, float> >::const_iterator ElIds = (it->electronIDs()).begin(); ElIds!=(it->electronIDs()).end(); ElIds++){
 	  if(ElIds->first=="pf_evspi"){
 	    ElId_pf_evspi ->push_back(ElIds->second);
@@ -389,14 +445,14 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 	charHadIso->push_back(it->chargedHadronIso());
 	neutHadIso->push_back(it->neutralHadronIso());
 	photIso->push_back(it->photonIso());
-	
+
       }
     }
-    
-      
- 
+
+
+
     } // end loop over electrons
-  
+
 
 
   iEvent.put(ecalIso                 , Prefix + "EcalIso"                  + Suffix);

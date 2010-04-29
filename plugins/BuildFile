@@ -14,6 +14,10 @@
 <use name=DataFormats/Luminosity>
 <use name=HLTrigger/HLTcore>
 
+<use name=RecoEgamma/EgammaTools>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+
 <library file="*.cc" name=SUSYBSMAnalysisSusyCAFPlugins>
     <flags EDM_PLUGIN=1>
 </library>

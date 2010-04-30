@@ -47,7 +47,7 @@ cvs co -r %(susycaf)s -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 '''%{ "path":path, "cmssw":job['cmssw'], "susycaf":job['susycaf'] }            +''.join(['''
 addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+''.join(['''
 cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +'''
-'''+'\n'.join( job['cmds'].split(',') if job['cmds'] else [''])+'''
+'''+'\n'.join( job['cmds'].split(';') if job['cmds'] else [''])+'''
 scram b -j 8
 
 ''')

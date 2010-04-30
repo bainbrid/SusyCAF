@@ -1,9 +1,21 @@
 import webpage_SCBooks,sqlite3,os,sys,getpass,time
 
-db_location = "/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_SUSY/SusyCAF/bookkeeping/"
-db_file = 'sqlite.db'
-db_lock = 'sqlite.lock'
-webpath = "/afs/cern.ch/user/b/bbetchar/public/web/SusyCAFpublic/status.html"
+SusyCAF = {"db_location": "/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_SUSY/SusyCAF/bookkeeping/",
+           "db_file": 'sqlite.db',
+           "db_lock": 'sqlite.lock',
+           "webpath": "/afs/cern.ch/user/b/bbetchar/public/web/SusyCAFpublic/status.html"}
+
+ICF = {"db_location": "./",
+       "db_file": 'sqlite.db',
+       "db_lock": 'sqlite.lock',
+       "webpath": "./status.html"}
+
+TEST  = {"db_location": "./",
+         "db_file": 'sqlite.db',
+         "db_lock": 'sqlite.lock',
+         "webpath": "./status.html"}
+
+databases = {"SusyCAF":SusyCAF, "ICF": ICF, "TEST":TEST}
 
 def create_db(path) :
     conn = sqlite3.connect(path)
@@ -92,13 +104,19 @@ class lockedDB:
     def __init__(self):
         self.conn = 0
         self.locktime = 0
+        for key in databases : print key
+        self.config = databases[raw_input('Database: ')]
+        self.db_location = self.config["db_location"]
+        self.db_lock = self.config["db_lock"]
+        self.db_file = self.config["db_file"]
+        self.webpath = self.config["webpath"]
         
     def connect(self):
-        if not os.path.exists(db_location) :
-            print 'Cannot find database:', db_location, 'is not a valid directory'
+        if not os.path.exists(self.db_location) :
+            print 'Cannot find database:', self.db_location, 'is not a valid directory'
             sys.exit()
             
-        lockpath = db_location+'/'+db_lock
+        lockpath = self.db_location+'/'+self.db_lock
         if os.path.exists(lockpath) :
             user = open(lockpath).readline()[:-1]
             print "\nDatabase locked by %s %0.1f minutes ago." % (user, (time.time()-os.path.getmtime(lockpath))/60)
@@ -108,9 +126,9 @@ class lockedDB:
         create_db_lock(lockpath)
         self.locktime = os.path.getmtime(lockpath)
 
-        path = db_location+'/'+db_file
+        path = self.db_location+'/'+self.db_file
         if not os.path.exists(path) :
-            input = raw_input('Cannot find database in '+db_location+'.  Create it now? [y/n] ')
+            input = raw_input('Cannot find database in '+self.db_location+'.  Create it now? [y/n] ')
             if input and input[0] in ['y','Y']:
                 create_db(path)
             else :
@@ -121,7 +139,7 @@ class lockedDB:
         self.conn.row_factory = sqlite3.Row
 
     def secure(self):
-        lockpath = db_location+'/'+db_lock
+        lockpath = self.db_location+'/'+self.db_lock
         if os.path.exists(lockpath) :
             user = open(lockpath).readline()[:-1]
             locktime = os.path.getmtime(lockpath)
@@ -139,7 +157,7 @@ class lockedDB:
             else :
                 self.conn.commit()
                 print 'Saved'
-                webpage_SCBooks.write_webpage(self.conn,webpath)
+                webpage_SCBooks.write_webpage(self.conn,self.webpath)
 
     def disconnect(self):
         input = raw_input("Save before disconnecting? [y]")
@@ -147,7 +165,7 @@ class lockedDB:
             self.save()
         else :
             print 'Not saved'
-        if self.secure() : os.remove(db_location+'/'+db_lock)
+        if self.secure() : os.remove(self.db_location+'/'+self.db_lock)
         self.conn=0
     
     def execute(self,one): return self.conn.execute(one)

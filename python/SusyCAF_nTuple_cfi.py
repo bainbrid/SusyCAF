@@ -34,13 +34,15 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 nTupleCommonSequence = cms.Sequence( susycafevent +
-                                 susycaftrack + # susycafalltracks +
+                                 susycaftrack + 
                                  susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
                                  susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
    			         susycaftriggers +
                                  susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
                                  susycafhcalnoisesummary +                                 
                                  susycafcalotowers)
+
+nTupleAllTrackSequence = cms.Sequence( susycafalltracks)
 
 nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF + susycafmetTC + 
                                   susycafphoton + 

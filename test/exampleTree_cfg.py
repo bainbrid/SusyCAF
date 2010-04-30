@@ -16,6 +16,7 @@ options.maxEvents = 100
 options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use")
 options.register('JetCorrections', '900GeV', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
 options.register('mcInfo', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
+options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "include all tracks")
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
@@ -118,6 +119,8 @@ if options.mcInfo:
 else:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleDataSequence )
 
+if options.AllTracks:
+    process.p.replace(process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleAllTrackSequence)
 
 if options.fromRECO and not options.patify:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoSequence )

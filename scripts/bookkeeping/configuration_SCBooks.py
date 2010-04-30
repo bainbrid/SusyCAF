@@ -5,10 +5,10 @@ SusyCAF = {"db_location": "/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_SUSY/SusyCAF/bookke
            "db_lock": 'sqlite.lock',
            "webpath": "/afs/cern.ch/user/b/bbetchar/public/web/SusyCAFpublic/status.html"}
 
-ICF = {"db_location": "/afs/cern.ch/user/a/arlogb/public/web/",
+ICF = {"db_location": "/afs/cern.ch/user/a/arlogb/public/web/ICF_Database",
        "db_file": 'sqlite.db',
        "db_lock": 'sqlite.lock',
-       "webpath": "/afs/cern.ch/user/a/arlogb/public/web/status.html"}
+       "webpath": "/afs/cern.ch/user/a/arlogb/public/web/ICF_Database/status.html"}
 
 TEST  = {"db_location": "./",
          "db_file": 'sqlite.db',

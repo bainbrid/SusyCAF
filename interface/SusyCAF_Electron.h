@@ -114,6 +114,7 @@ void SusyCAF_Electron<T>::initRECO()
   if(StoreConversionInfo){
     produces <std::vector<double> > (  Prefix + "ConversionDCot" + Suffix );
     produces <std::vector<double> > (  Prefix + "ConversionDist" + Suffix );
+    produces <std::vector<int> > ( Prefix + "ConversionPartnerTrackTrackerExpectedHitsInner" + Suffix);
   }
   produces <std::vector<float> > ( Prefix + "KfTrackCharge" + Suffix );
   produces <std::vector<int> > ( Prefix + "ScPixCharge" + Suffix );
@@ -215,6 +216,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<bool> conversionInfoStored ( new bool() );
   std::auto_ptr<std::vector<double> > dcot ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> > dist ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<int> > conversionPartnerTrackTrackerExpectedHitsInner ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<float> > kfcharge ( new std::vector<float>() );
   std::auto_ptr<std::vector<int> > scPixCharge ( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > closestCtfTrackCharge( new std::vector<int>() );
@@ -304,6 +306,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
         ConversionInfo info = cf.getConversionInfo(*it, ctfTracks, bfield);
         dist->push_back(info.dist());
         dcot->push_back(info.dcot());
+	if(info.conversionPartnerTk().isAvailable()){
+	  conversionPartnerTrackTrackerExpectedHitsInner->push_back(info.conversionPartnerTk()->trackerExpectedHitsInner().numberOfHits());
+	}
+	else{
+	  conversionPartnerTrackTrackerExpectedHitsInner->push_back(-1);
+        }
       }
 
       if(it->track().isAvailable()){
@@ -386,6 +394,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   if(StoreConversionInfo && ctfTracks.isValid()){
     iEvent.put( dist, Prefix + "ConversionDist" + Suffix );
     iEvent.put( dcot, Prefix + "ConversionDCot" + Suffix );
+    iEvent.put( conversionPartnerTrackTrackerExpectedHitsInner, Prefix + "ConversionPartnerTrackTrackerExpectedHitsInner" + Suffix );
   }
   iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix);
   iEvent.put(scPixCharge, Prefix + "ScPixCharge" + Suffix);

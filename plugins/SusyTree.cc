@@ -36,7 +36,7 @@ TypedBranchConnector(edm::BranchDescription const* desc,
      pin( desc->productInstanceName() )
 {
   object_ptr_ = &object_;  
-  std::string s=pin+t;  
+  std::string s= pin==""? ml+t : pin+t;  
   if(t!="")  { tree->Branch(pin.c_str(),  object_ptr_, s.c_str() );}  //raw type
   else       { tree->Branch(pin.c_str(), &object_ptr_            );}  //vector<type>
 }

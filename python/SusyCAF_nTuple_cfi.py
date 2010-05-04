@@ -18,6 +18,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
@@ -63,6 +64,8 @@ nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched + susycafsc5
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
                                        susycafhfrechitreflagged +
+                                       susycafebrechit +
+                                       susycafeerechit +
                                        susycafpfrechitecal +
                                        susycafpfrechithcal +
                                        susycafpfrechithfem +

@@ -8,6 +8,9 @@
 <use name=CondFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=RecoLocalCalo/HcalRecAlgos>
+<use name=CondFormats/EcalObjects>
+<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=Geometry/CaloGeometry>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/PatCandidates>

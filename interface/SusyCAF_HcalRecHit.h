@@ -10,6 +10,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "TMath.h"
 
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
@@ -98,6 +100,11 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<HcalSeverityLevelComputerRcd>().get(computerHandle);
   const HcalSeverityLevelComputer* computer = computerHandle.product();
 
+  //get channel status handle
+  edm::ESHandle<HcalChannelQuality> channelQualityHandle;
+  iSetup.get<HcalChannelQualityRcd>().get(channelQualityHandle);
+  const HcalChannelQuality* channelQuality = channelQualityHandle.product();
+
   //get rechits
   edm::Handle<T> collection;
   iEvent.getByLabel(inputTag, collection);
@@ -128,7 +135,7 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
       //<< "phi: " << phi     << " " << thisP4.phi() << std::endl
       //<< "e:   " << energy  << " " << thisP4.e()   << std::endl;
 
-      int channelStatus=0;
+      uint32_t channelStatus=channelQuality->getValues(it->id().rawId())->getValue();
       int theLevel = computer->getSeverityLevel(it->id(),it->flags(),channelStatus);
       if (theLevel>=severityLevelCut) {
 	p4->push_back(thisP4);

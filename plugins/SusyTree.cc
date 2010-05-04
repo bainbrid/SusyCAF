@@ -36,9 +36,9 @@ TypedBranchConnector(edm::BranchDescription const* desc,
      pin( desc->productInstanceName() )
 {
   object_ptr_ = &object_;  
-  std::string s= pin==""? ml+t : pin+t;  
-  if(t!="")  { tree->Branch(pin.c_str(),  object_ptr_, s.c_str() );}  //raw type
-  else       { tree->Branch(pin.c_str(), &object_ptr_            );}  //vector<type>
+  std::string name = (pin=="") ? ml : pin;
+  if(t!="")  { tree->Branch( name.c_str(),  object_ptr_, (name+t).c_str() );}  //raw type
+  else       { tree->Branch( name.c_str(), &object_ptr_                   );}  //vector<type>
 }
 
 void SusyTree::
@@ -76,16 +76,14 @@ beginJob() {
     if(groupSelector_.selected(*selection)) {
 
       //Check for duplicate branch names
-      if (branchnames.find( selection->productInstanceName()) != branchnames.end() ) {
+      const std::string name = selection->productInstanceName()==""? selection->moduleLabel() : selection->productInstanceName();
+      if (branchnames.find(name) != branchnames.end() )
 	throw edm::Exception(edm::errors::Configuration)
-	  << "More than one branch named: "
-	  << selection->productInstanceName() << std::endl
+	  << "More than one branch named: " << name << std::endl
 	  << "Exception thrown from SusyTree::beginJob" << std::endl;
-      }
-      else {
+      else 
 	branchnames.insert( selection->productInstanceName() );
-      }
-
+      
       //Create SusyTree branch
       switch(leafmap.find( selection->friendlyClassName() )->second) {
       case BOOL       :  connectors.push_back( new TypedBranchConnector                      <bool>  (selection, "/O", tree) ); break;

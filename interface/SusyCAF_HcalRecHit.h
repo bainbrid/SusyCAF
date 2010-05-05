@@ -85,18 +85,19 @@ SusyCAF_HcalRecHit<T>::~SusyCAF_HcalRecHit()
 
 template< typename T >
 void SusyCAF_HcalRecHit<T>::init() {
-  produces <bool>                                         ( Prefix + "HandleValid" + Suffix );
-  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"          + Suffix );
-  produces <std::vector<float> >                          ( Prefix + "Time"        + Suffix );
-  produces <std::vector<unsigned> >                       ( Prefix + "FlagWord"    + Suffix );
+  produces <bool>                                         ( Prefix + "HandleValid"   + Suffix );
+  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"            + Suffix );
+  produces <std::vector<float> >                          ( Prefix + "Time"          + Suffix );
+  produces <std::vector<unsigned> >                       ( Prefix + "FlagWord"      + Suffix );
+  produces <std::vector<int> >                            ( Prefix + "SeverityLevel" + Suffix );
 }
 
 template< typename T >
 void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4      (new std::vector<reco::Candidate::LorentzVector>() );
-  std::auto_ptr<std::vector<float> >                          time    (new std::vector<float>                         () );
-  std::auto_ptr<std::vector<unsigned> >                       flagWord(new std::vector<unsigned>                      () );
-
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4            (new std::vector<reco::Candidate::LorentzVector>() );
+  std::auto_ptr<std::vector<float> >                          time          (new std::vector<float>                         () );
+  std::auto_ptr<std::vector<unsigned> >                       flagWord      (new std::vector<unsigned>                      () );
+  std::auto_ptr<std::vector<int> >                            severityLevel (new std::vector<int>                           () );
   //get geometry
   edm::ESHandle<CaloGeometry> caloGeometryHandle;
   iSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
@@ -124,8 +125,8 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
     for(typename T::const_iterator it = collection->begin(); it != collection->end(); ++it) {
 
       uint32_t channelStatus=channelQuality->getValues(it->id().rawId())->getValue();
-      int theLevel = computer->getSeverityLevel(it->id(),it->flags(),channelStatus);
-      if (theLevel>=severityLevelCut) {
+      int theSeverityLevel = computer->getSeverityLevel(it->id(),it->flags(),channelStatus);
+      if (theSeverityLevel>=severityLevelCut) {
 
 	const GlobalPoint& point=caloGeometry->getPosition(it->detid());
 	//std::cout << point << std::endl;
@@ -149,15 +150,17 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
 	p4->push_back(thisP4);
 	time->push_back(it->time());
 	flagWord->push_back(it->flags());
+  	severityLevel->push_back(theSeverityLevel);
       }
     } //end loop over rechits
 
   }//end if handle valid
 
-  iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
-  iEvent.put( p4,             Prefix + "P4"          + Suffix ); 
-  iEvent.put( time,           Prefix + "Time"        + Suffix ); 
-  iEvent.put( flagWord,       Prefix + "FlagWord"    + Suffix ); 
+  iEvent.put( isHandleValid,  Prefix + "HandleValid"   + Suffix );
+  iEvent.put( p4,             Prefix + "P4"            + Suffix ); 
+  iEvent.put( time,           Prefix + "Time"          + Suffix ); 
+  iEvent.put( flagWord,       Prefix + "FlagWord"      + Suffix ); 
+  iEvent.put( severityLevel,  Prefix + "SeverityLevel" + Suffix ); 
   
   if (produceExtraVariables) produceExtra(iEvent,iSetup);
 }

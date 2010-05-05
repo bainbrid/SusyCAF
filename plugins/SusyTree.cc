@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "Math/LorentzVector.h"
+#include "Math/PtEtaPhiE4D.h"
 #include "Math/Vector3D.h"
 #include "Math/Point3D.h"
 
@@ -59,6 +60,8 @@ beginJob() {
   leafmap["Stringintstdmap"]  = STRING_INT_M;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVector"] = LORENTZV;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
+  leafmap["doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector"] = LORENTZV2;
+  leafmap["doubleROOTMathPtEtaPhiE4DROOTMathLorentzVectors"] = LORENTZV2_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3D"] = POINT;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3Ds"] = POINT_V;
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3D"] = VECTOR;
@@ -108,6 +111,8 @@ beginJob() {
       case STRING_INT_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,int> >(selection, "", tree) ); break;
       case LORENTZV   :  connectors.push_back( new TypedBranchConnector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > (selection, "", tree) ); break;
       case LORENTZV_V :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >          (selection, "", tree) ); break;
+      case LORENTZV2   :  connectors.push_back( new TypedBranchConnector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > (selection, "", tree) ); break;
+      case LORENTZV2_V :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > >          (selection, "", tree) ); break;
       case POINT      :  connectors.push_back( new TypedBranchConnector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > > (selection, "", tree) ); break;
       case POINT_V    :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > > >     (selection, "", tree) ); break;
       case VECTOR     :  connectors.push_back( new TypedBranchConnector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > (selection, "", tree) ); break;

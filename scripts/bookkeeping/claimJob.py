@@ -81,6 +81,7 @@ virtual_organization=cms
 [USER]
 copy_data=1
 user_remote_dir=%(rpath)s
+check_user_remote_dir=0 # hack until they fix this to work with multicrab
 storage_element=%(SE)s
 %(storage_path)s
 

@@ -15,6 +15,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 template< typename T >
 class SusyCAF_HcalRecHit : public edm::EDProducer {
@@ -95,6 +97,11 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<std::vector<float> >                          time    (new std::vector<float>                         () );
   std::auto_ptr<std::vector<unsigned> >                       flagWord(new std::vector<unsigned>                      () );
 
+  //get geometry
+  edm::ESHandle<CaloGeometry> caloGeometryHandle;
+  iSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
+  const CaloGeometry* caloGeometry = caloGeometryHandle.product();
+
   //get severity level computer
   edm::ESHandle<HcalSeverityLevelComputer> computerHandle;
   iSetup.get<HcalSeverityLevelComputerRcd>().get(computerHandle);
@@ -115,29 +122,30 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
   if (collection.isValid()) {
     //loop over rechits
     for(typename T::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      const float energy=fabs(it->energy());//absolute value
-      const int iEta=it->id().ieta();
-      const int iPhi=it->id().iphi();
-      const int zSide=it->id().zside();
-
-      double eta=getEta(iEta,zSide);
-      double phi=getPhi(iPhi);
-
-      double eT=energy/cosh(eta);
-      double px=eT*cos(phi);
-      double py=eT*sin(phi);
-      double pz=eT*sinh(eta);
-
-      thisP4.SetCoordinates(px,py,pz,energy);
-      //std::cout 
-      //<< "pT:  " << eT      << " " << thisP4.pt()  << std::endl
-      //<< "eta: " << eta     << " " << thisP4.eta() << std::endl
-      //<< "phi: " << phi     << " " << thisP4.phi() << std::endl
-      //<< "e:   " << energy  << " " << thisP4.e()   << std::endl;
 
       uint32_t channelStatus=channelQuality->getValues(it->id().rawId())->getValue();
       int theLevel = computer->getSeverityLevel(it->id(),it->flags(),channelStatus);
       if (theLevel>=severityLevelCut) {
+
+	const GlobalPoint& point=caloGeometry->getPosition(it->detid());
+	//std::cout << point << std::endl;
+	double eta=point.eta();
+	double phi=point.phi();
+	
+	const float energy=fabs(it->energy());//absolute value
+	
+	double eT=energy/cosh(eta);
+	double px=eT*cos(phi);
+	double py=eT*sin(phi);
+	double pz=eT*sinh(eta);
+	
+	thisP4.SetCoordinates(px,py,pz,energy);
+	//std::cout 
+	//<< "pT:  " << eT      << " " << thisP4.pt()  << std::endl
+	//<< "eta: " << eta     << " " << thisP4.eta() << std::endl
+	//<< "phi: " << phi     << " " << thisP4.phi() << std::endl
+	//<< "e:   " << energy  << " " << thisP4.e()   << std::endl;
+	
 	p4->push_back(thisP4);
 	time->push_back(it->time());
 	flagWord->push_back(it->flags());

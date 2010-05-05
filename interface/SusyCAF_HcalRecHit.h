@@ -72,7 +72,6 @@ SusyCAF_HcalRecHit<T>::SusyCAF_HcalRecHit(const edm::ParameterSet& iConfig) :
   singleRmThresholds(iConfig.getParameter<std::vector<double> >("SingleRmThresholds")),
   singleChannelThreshold(iConfig.getParameter<double>("SingleChannelThreshold"))
 {
-  setupCrudeGeometry();
   init();
   if (produceExtraVariables) initExtra();
 }
@@ -86,18 +85,18 @@ SusyCAF_HcalRecHit<T>::~SusyCAF_HcalRecHit()
 template< typename T >
 void SusyCAF_HcalRecHit<T>::init() {
   produces <bool>                                         ( Prefix + "HandleValid"   + Suffix );
-  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"            + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Time"          + Suffix );
   produces <std::vector<unsigned> >                       ( Prefix + "FlagWord"      + Suffix );
   produces <std::vector<int> >                            ( Prefix + "SeverityLevel" + Suffix );
+  produces <std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > ( Prefix + "P4" + Suffix );
 }
 
 template< typename T >
 void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4            (new std::vector<reco::Candidate::LorentzVector>() );
-  std::auto_ptr<std::vector<float> >                          time          (new std::vector<float>                         () );
-  std::auto_ptr<std::vector<unsigned> >                       flagWord      (new std::vector<unsigned>                      () );
-  std::auto_ptr<std::vector<int> >                            severityLevel (new std::vector<int>                           () );
+  std::auto_ptr<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > p4(new std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > >() );
+  std::auto_ptr<std::vector<float> >                          time          (new std::vector<float>    () );
+  std::auto_ptr<std::vector<unsigned> >                       flagWord      (new std::vector<unsigned> () );
+  std::auto_ptr<std::vector<int> >                            severityLevel (new std::vector<int>      () );
   //get geometry
   edm::ESHandle<CaloGeometry> caloGeometryHandle;
   iSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
@@ -118,7 +117,7 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(inputTag, collection);
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
 
-  reco::Candidate::LorentzVector thisP4(0.0,0.0,0.0,0.0);
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > thisP4(0.0,0.0,0.0,0.0);
 
   if (collection.isValid()) {
     //loop over rechits
@@ -132,21 +131,14 @@ void SusyCAF_HcalRecHit<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
 	//std::cout << point << std::endl;
 	double eta=point.eta();
 	double phi=point.phi();
+	double energy=fabs(it->energy());//absolute value
 	
-	const float energy=fabs(it->energy());//absolute value
-	
-	double eT=energy/cosh(eta);
-	double px=eT*cos(phi);
-	double py=eT*sin(phi);
-	double pz=eT*sinh(eta);
-	
-	thisP4.SetCoordinates(px,py,pz,energy);
-	//std::cout 
-	//<< "pT:  " << eT      << " " << thisP4.pt()  << std::endl
-	//<< "eta: " << eta     << " " << thisP4.eta() << std::endl
-	//<< "phi: " << phi     << " " << thisP4.phi() << std::endl
-	//<< "e:   " << energy  << " " << thisP4.e()   << std::endl;
-	
+  	thisP4.SetCoordinates(energy/cosh(eta),eta,phi,energy);
+  	//std::cout 
+	//  << "pT:  " << energy/cosh(eta) << " " << thisP4.pt()  << std::endl
+	//  << "eta: " << eta     << " " << thisP4.eta() << std::endl
+	//  << "phi: " << phi     << " " << thisP4.phi() << std::endl
+	//  << "e:   " << energy  << " " << thisP4.e()   << std::endl;
 	p4->push_back(thisP4);
 	time->push_back(it->time());
 	flagWord->push_back(it->flags());
@@ -249,6 +241,8 @@ int SusyCAF_HcalRecHit<T>::getRbxZ(const int iRbx) const {
 
 template< typename T >
 void SusyCAF_HcalRecHit<T>::initExtra() {
+  setupCrudeGeometry();
+
   HcalLogicalMapGenerator gen;
   logicalMap=new HcalLogicalMap(gen.createMap());
 

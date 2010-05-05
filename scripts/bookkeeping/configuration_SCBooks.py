@@ -77,7 +77,7 @@ def valid_json(connection) :
             for run in jsonls.keys() :
                 assert(eval(run)>0)
                 for pair in jsonls[run] :
-                    assert(pair[0]<pair[1])
+                    assert(pair[0]<=pair[1])
         except:
             print 'A jsonls field is improperly formatted'
             return False

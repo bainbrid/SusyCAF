@@ -10,18 +10,18 @@ SusyCAF_PFRecHit::SusyCAF_PFRecHit(const edm::ParameterSet& iConfig) :
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
   produces <bool>                                         ( Prefix + "HandleValid" + Suffix );
-  produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "P4"          + Suffix );
+  produces <std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > ( Prefix + "P4" + Suffix );
 }
 
 void SusyCAF_PFRecHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4      (new std::vector<reco::Candidate::LorentzVector>() );
+  std::auto_ptr<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > p4(new std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > >() );
 
   //get rechits
   edm::Handle<reco::PFRecHitCollection> collection;
   iEvent.getByLabel(inputTag, collection);
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   
-  reco::Candidate::LorentzVector thisP4(0.0,0.0,0.0,0.0);
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > thisP4(0.0,0.0,0.0,0.0);
 
   if (collection.isValid()) {
 
@@ -36,14 +36,9 @@ void SusyCAF_PFRecHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       double eta=pfr.positionREP().Eta();
       double phi=pfr.positionREP().Phi();
       
-      double eT=energy/cosh(eta);
-      double px=eT*cos(phi);
-      double py=eT*sin(phi);
-      double pz=eT*sinh(eta);
-      
-      thisP4.SetCoordinates(px,py,pz,energy);
+      thisP4.SetCoordinates(energy/cosh(eta),eta,phi,energy);
       //std::cout 
-      //<< "pT:  " << eT      << " " << thisP4.pt()  << std::endl
+      //<< "pT:  " << energy/cosh(eta) << " " << thisP4.pt()  << std::endl
       //<< "eta: " << eta     << " " << thisP4.eta() << std::endl
       //<< "phi: " << phi     << " " << thisP4.phi() << std::endl
       //<< "e:   " << energy  << " " << thisP4.e()   << std::endl;

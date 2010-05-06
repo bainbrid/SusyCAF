@@ -88,6 +88,7 @@ storage_element=%(SE)s
 cfg=crab.cfg
 scheduler=%(sched)s
 use_server=%(server)d
+%(hack)s
 jobtype=cmssw
 
 %(caf)s
@@ -104,6 +105,7 @@ events_per_job=100000''',
        "caf": '' if not CAF else '''
 [CAF]
 queue=cmscaf1nd'''
+       "hack": 'server_name=preprod' if CAF and SERVER else ''
        }
     crabfile.close()
     return full_rpath
@@ -140,7 +142,8 @@ def run_crab(job,path) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+source /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_2_p1/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
 %(crab)s -create -submit

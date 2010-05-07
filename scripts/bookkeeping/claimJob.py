@@ -56,6 +56,7 @@ cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +
 scram b -j 8
 
 ''')
+
     return
 
 
@@ -66,12 +67,16 @@ def setup_crab(job,user,path,rpath, CAF, SERVER) :
 
     dirs = full_rpath.strip('/').split('/')
 
-    print_and_execute('''
+    thing='''
 #!/usr/bin/env bash
 rfmkdir -p %(fp)s
 rfchmod 775 %(fp)s''' % {"fp":full_rpath} +''.join(['''
-rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(user))]))
+rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(user))])
+
+    for run in eval(job['jsonls']) :
+        thing+="\nrfmkdir "+full_rpath+"/Run"+run
     
+    print_and_execute(thing)
     crabfile = open(path+"/crab.cfg","w")
     print>>crabfile,'''
 [CMSSW]

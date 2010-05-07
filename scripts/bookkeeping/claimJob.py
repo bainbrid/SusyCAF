@@ -147,8 +147,7 @@ def run_crab(job,path) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_2_p1/crab.sh
+source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
 %(crab)s -create -submit

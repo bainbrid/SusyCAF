@@ -104,7 +104,7 @@ total_number_of_events=-1
 events_per_job=100000''',
        "caf": '' if not CAF else '''
 [CAF]
-queue=cmscaf1nd'''
+queue=cmscaf1nd''',
        "hack": 'server_name=preprod' if CAF and SERVER else ''
        }
     crabfile.close()

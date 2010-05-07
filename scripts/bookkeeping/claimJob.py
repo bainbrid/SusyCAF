@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime
+import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime,re
+
+def remove_multislash(inString) :
+    outString=re.sub(r'//*','/',inString)
+    print outString
+    return outString
 
 def print_and_execute(c) :
     print c
@@ -93,7 +98,7 @@ jobtype=cmssw
 
 %(caf)s
 '''% { "dset": job['dataset'],
-       "rpath": '/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):])),
+       "rpath": remove_multislash('/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):]))),
        "SE": ('T2_CH_CAF' if CAF else 'srm-cms.cern.ch'),
        "server": SERVER,
        "storage_path": '' if CAF else '''

@@ -73,9 +73,13 @@ rfmkdir -p %(fp)s
 rfchmod 775 %(fp)s''' % {"fp":full_rpath} +''.join(['''
 rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(user))])
 
+    thing+="\nnssetacl -m d:u::7,d:g::7,d:o:5 "+full_rpath
     for run in eval(job['jsonls']) :
-        thing+="\nrfmkdir "+full_rpath+"/Run"+run
-    
+        subDir=full_rpath+"/Run"+run
+        thing+="\nrfmkdir "+subDir
+        thing+="\nrfchmod 755 "+subDir
+        thing+="\nnssetacl -m u::7,g::7,o:5 "+subDir
+        
     print_and_execute(thing)
     crabfile = open(path+"/crab.cfg","w")
     print>>crabfile,'''

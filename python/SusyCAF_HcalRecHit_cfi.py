@@ -15,7 +15,7 @@ susycafhfrechit = cms.EDProducer("SusyCAF_HFRecHitsSorted",
                                  InputTag = cms.InputTag('hfreco'),
                                  Prefix = cms.string('rechitCalo'),
                                  Suffix = cms.string('Hf'),
-                                 SeverityLevelCut = cms.int32(50),
+                                 SeverityLevelCut = cms.int32(11),
                                  ProduceExtraVariables = cms.bool(False),
                                  SingleRbxThresholds = cms.vdouble(10.0), #GeV
                                  SingleRmThresholds = cms.vdouble(5.0), #GeV
@@ -33,7 +33,7 @@ susycafhorechit = cms.EDProducer("SusyCAF_HORecHitsSorted",
                                  SingleChannelThreshold = cms.double(1.0), #GeV
                                  )
 
-susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged', Suffix='HfReFlagged' )
+susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged', Suffix='HfReFlagged', SeverityLevelCut=50 )
 
 def loadAndConfigureHcalSeverityLevelProducer(process) :
     process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")

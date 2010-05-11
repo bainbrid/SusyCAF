@@ -66,6 +66,7 @@ nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched +
 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
+                                       susycafhfrechit + 
                                        susycafhfrechitreflagged +
                                        susycafebrechit +
                                        susycafeerechit +

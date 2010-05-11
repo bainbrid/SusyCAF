@@ -15,7 +15,7 @@ susycafelectron = cms.EDProducer("SusyCAF_PatElectron",
                             )
 
 susycafpfelectron = cms.EDProducer("SusyCAF_PatElectron",
-                                   InputTag = cms.InputTag('pfLayer1Electrons'),
+                                   InputTag = cms.InputTag('selectedPatElectronsPF'),
                                    Prefix = cms.string('electron'),
                                    Suffix = cms.string('PF'),
 				   StoreConversionInfo = cms.bool(True)

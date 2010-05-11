@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -14,15 +13,12 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
-DEFINE_SEAL_MODULE();
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
@@ -76,45 +72,45 @@ typedef SusyCAF_HcalRecHit<HFRecHitCollection> SusyCAF_HFRecHitsSorted;
 typedef SusyCAF_HcalRecHit<HORecHitCollection> SusyCAF_HORecHitsSorted;
 typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
-DEFINE_ANOTHER_FWK_MODULE(SusyTree);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Event);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Track);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_alltracks);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Triggers);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Triggers);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloMET);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PFMET);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatMET);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PFJet);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CaloJet);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatJet);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_RecoPhoton);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatPhoton);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_GsfElectron);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatElectron);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_RecoMuon);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatMuon);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_BeamSpot);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_Vertex);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1GlobalTrigger);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1CaloTrigger);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_L1Extra);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseSummary);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HcalNoiseRBX);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HFRecHitsSorted);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_HORecHitsSorted);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_EcalRecHit);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PFRecHit);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_CT);
+DEFINE_FWK_MODULE(SusyTree);
+DEFINE_FWK_MODULE(SusyCAF_Event);
+DEFINE_FWK_MODULE(SusyCAF_Track);
+DEFINE_FWK_MODULE(SusyCAF_alltracks);
+DEFINE_FWK_MODULE(SusyCAF_Triggers);
+DEFINE_FWK_MODULE(SusyCAF_L1Triggers);
+DEFINE_FWK_MODULE(SusyCAF_CaloMET);
+DEFINE_FWK_MODULE(SusyCAF_PFMET);
+DEFINE_FWK_MODULE(SusyCAF_PatMET);
+DEFINE_FWK_MODULE(SusyCAF_PFJet);
+DEFINE_FWK_MODULE(SusyCAF_CaloJet);
+DEFINE_FWK_MODULE(SusyCAF_PatJet);
+DEFINE_FWK_MODULE(SusyCAF_RecoPhoton);
+DEFINE_FWK_MODULE(SusyCAF_PatPhoton);
+DEFINE_FWK_MODULE(SusyCAF_GsfElectron);
+DEFINE_FWK_MODULE(SusyCAF_PatElectron);
+DEFINE_FWK_MODULE(SusyCAF_RecoMuon);
+DEFINE_FWK_MODULE(SusyCAF_PatMuon);
+DEFINE_FWK_MODULE(SusyCAF_BeamSpot);
+DEFINE_FWK_MODULE(SusyCAF_Vertex);
+DEFINE_FWK_MODULE(SusyCAF_L1GlobalTrigger);
+DEFINE_FWK_MODULE(SusyCAF_L1CaloTrigger);
+DEFINE_FWK_MODULE(SusyCAF_L1Extra);
+DEFINE_FWK_MODULE(SusyCAF_HcalNoiseSummary);
+DEFINE_FWK_MODULE(SusyCAF_HcalNoiseRBX);
+DEFINE_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
+DEFINE_FWK_MODULE(SusyCAF_HFRecHitsSorted);
+DEFINE_FWK_MODULE(SusyCAF_HORecHitsSorted);
+DEFINE_FWK_MODULE(SusyCAF_EcalRecHit);
+DEFINE_FWK_MODULE(SusyCAF_PFRecHit);
+DEFINE_FWK_MODULE(SusyCAF_CT);
 
 
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_PatTau);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_pfTau);
+DEFINE_FWK_MODULE(SusyCAF_PatTau);
+DEFINE_FWK_MODULE(SusyCAF_pfTau);
 
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_GenParticle);
+DEFINE_FWK_MODULE(SusyCAF_GenParticle);
 
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_DQMFlags);
-DEFINE_ANOTHER_FWK_MODULE(SusyCAF_DCSBits);
+DEFINE_FWK_MODULE(SusyCAF_DQMFlags);
+DEFINE_FWK_MODULE(SusyCAF_DCSBits);
 
 

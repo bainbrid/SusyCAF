@@ -14,7 +14,7 @@ options.secondaryOutput = "" #switch PAT-tuple output off by default
 options.maxEvents = 100
 #  for SusyCaf specifics
 options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use")
-options.register('JetCorrections', '900GeV', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
+options.register('JetCorrections', 'Spring10', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
 options.register('mcInfo', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
 options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "include all tracks")
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
@@ -44,22 +44,22 @@ process.add_( cms.Service( "TFileService",
 if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'START3X_V24::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START36_V7::All'
 	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
             options.files = '/store/relval/CMSSW_3_5_2/RelValMinBias/GEN-SIM-RECO/START3X_V21-v1/0016/98DDB99F-3B1E-DF11-B244-001731AF66AD.root'
 	        # Due to problem in production of LM samples: same event number appears multiple times
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_35X_V3::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR_R_36X_V9::All'
 	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
             options.files = '/store/data/BeamCommissioning09/MinimumBias/RECO/18thFebPreProd_351p1-v3/0000/FAE46E07-C51D-DF11-A7E6-00237DA12CA0.root'
     else:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'START3X_V24::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START36_V7::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/RelValMinBias_10k_V00-09-01_SUSYPAT.root'
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR09_R_35X_V3::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR_R_36X_V9::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/BeamCommissioning09_MinimumBias_Jan23Skim_V00-05-10.root'
 
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
@@ -72,17 +72,14 @@ schedule = cms.Schedule()
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,['IC5Calo','SC5Calo','AK7Calo','KT4Calo','AK5PF','AK7PF','IC5PF','AK5JPT','AK5Track']) 
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'35x',['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']) 
     process.patJetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
     process.patJetGenJetMatchAK7Calo.maxDeltaR  = cms.double(0.5)
-    process.patJetGenJetMatchSC5Calo.maxDeltaR  = cms.double(0.5) 
     process.patJetGenJetMatchIC5Calo.maxDeltaR  = cms.double(0.5)
-    process.patJetGenJetMatchKT4Calo.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5) 
-    process.patJetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchAK5JPT.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5) 
-    process.susyPat = cms.Path(process.seqSUSYDefaultSequence)
+    process.susyPat = cms.Path(process.susyPatDefaultSequence)
     schedule.append(process.susyPat)
     SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 

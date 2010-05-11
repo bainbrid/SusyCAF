@@ -304,7 +304,7 @@ produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!ca
     tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
-    std::strbitset 
+    pat::strbitset 
       passMinimalCuts( minimalJetID.getBitTemplate() ),
       passLooseCuts(   looseJetID  .getBitTemplate() ),
       passTightCuts(   tightJetID  .getBitTemplate() );

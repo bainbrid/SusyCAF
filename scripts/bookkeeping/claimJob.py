@@ -60,7 +60,7 @@ scram b -j 8
     return
 
 
-def setup_crab(job,user,path,rpath, CAF, SERVER) :
+def setup_crab(job,user,path,rpath, CAF, SERVER, SPLIT) :
     full_rpath = ('/castor/cern.ch/cms/store/caf/user/' if CAF else
                   '/castor/cern.ch/user/'+user[0]+'/')+\
                   user+'/'+rpath
@@ -73,14 +73,21 @@ rfmkdir -p %(fp)s
 rfchmod 775 %(fp)s''' % {"fp":full_rpath} +''.join(['''
 rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(user))])
 
-    thing+="\nnssetacl -m d:u::7,d:g::7,d:o:5 "+full_rpath
-    for run in eval(job['jsonls']) :
-        subDir=full_rpath+"/Run"+run
-        thing+="\nrfmkdir "+subDir
-        thing+="\nrfchmod 755 "+subDir
-        thing+="\nnssetacl -m u::7,g::7,o:5 "+subDir
+#    thing+="\nnssetacl -m d:u::7,d:g::7,d:o:5 "+full_rpath
+#    if SPLIT :
+#        for run in eval(job['jsonls']) :
+#            subDir=full_rpath+"/Run"+run
+#            thing+="\nrfmkdir "+subDir
+#            thing+="\nrfchmod 755 "+subDir
+#            thing+="\nnssetacl -m u::7,g::7,o:5 "+subDir
         
     print_and_execute(thing)
+
+    if not SPLIT and job['jsonls'] :
+        file = open(path+"/jsonls.txt","w")
+        print>>file,job['jsonls']
+        file.close()
+        
     crabfile = open(path+"/crab.cfg","w")
     print>>crabfile,'''
 [CMSSW]
@@ -102,7 +109,6 @@ storage_element=%(SE)s
 cfg=crab.cfg
 scheduler=%(sched)s
 use_server=%(server)d
-%(hack)s
 jobtype=cmssw
 
 %(caf)s
@@ -110,16 +116,17 @@ jobtype=cmssw
        "rpath": remove_multislash('/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):]))),
        "SE": ('T2_CH_CAF' if CAF else 'srm-cms.cern.ch'),
        "server": SERVER,
-       "storage_path": '' if CAF else '''
-storage_path=/srm/managerv2?SFN=/castor/cern.ch''',
+       "storage_path": '' if CAF else '''storage_path=/srm/managerv2?SFN=/castor/cern.ch''',
        "sched": 'caf' if CAF else 'glite',
-       "events": '' if job['jsonls'] else '''
+       "events": '' if SPLIT else '''
+lumi_mask=%s/jsonls.txt'''%path+'''
+total_number_of_lumis=-1
+lumis_per_job=10''' if job['jsonls'] else '''
 total_number_of_events=-1
 events_per_job=100000''',
        "caf": '' if not CAF else '''
 [CAF]
 queue=cmscaf1nd''',
-       "hack": 'server_name=preprod' if CAF and SERVER else ''
        }
     crabfile.close()
     return full_rpath
@@ -148,8 +155,7 @@ CMSSW.lumi_mask=%(path)s/%(run)sjsonls.txt
     return
 
 
-def run_crab(job,path) :
-    crab = 'multicrab' if job['jsonls'] else 'crab'
+def run_crab(job,path,SPLIT) :
     print_and_execute('''
 #!/usr/bin/env bash
     
@@ -159,14 +165,14 @@ eval `scram runtime -sh`
 source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
-%(crab)s -create -submit
+#%(crab)s -create -submit
 %(crab)s -status &> crab.status
 '''%{ "path" : path,
       "cmssw" : job['cmssw'],
       "mc" : job['mcInfo'],
       "jec" : job['jec'],
       "gt" : job['globalTag'],
-      "crab" : "multicrab" if job['jsonls'] else "crab"})
+      "crab" : "multicrab" if SPLIT else "crab"})
     return
 
 
@@ -184,23 +190,25 @@ timestamp = '_'.join(['%02d'% i for i in datetime.datetime.now().timetuple()[:6]
 path = '/tmp/'+user+'/SusyCAF/'+timestamp+'/'
 rpath='/SusyCAF/automated/'+timestamp+'/'
 
-CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False
-print '\tJobs will run on '+('CAF' if CAF else 'GRID')
-SERVER = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
-print '\tServer '+('ON' if SERVER else 'OFF')
-
 db = conf.lockedDB()
 db.connect()
 job = get_jobrow( db )
 
+CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False
+print '\tJobs will run on '+('CAF' if CAF else 'GRID')
+SERVER = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
+print '\tServer '+('ON' if SERVER else 'OFF')
+SPLIT = True if job['jsonls'] and raw_input('Split by run with multicrab? [y/n]') in  ['Y','y',1] else False
+print '\tUsing ' + ('multicrab' if SPLIT else 'crab')
+
 setup_cmssw( job, path )
 
-full_rpath = setup_crab( job, user, path, rpath, CAF, SERVER)
+full_rpath = setup_crab( job, user, path, rpath, CAF, SERVER, SPLIT)
 
-if job['jsonls'] :
+if SPLIT :
     setup_multicrab( job, path )
 
-run_crab( job, path )
+run_crab( job, path, SPLIT )
 
 claim_job( db, job, user, node, path, full_rpath )
 

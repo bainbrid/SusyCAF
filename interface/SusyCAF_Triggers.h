@@ -26,7 +26,7 @@ private:
 
   void produce( edm::Event& event, const edm::EventSetup& setup) {
     bool returnValueOfChanged=false;
-    hltconfig.init(event, "HLT", returnValueOfChanged);
+    hltconfig.init(event, inputTag.process(), returnValueOfChanged);
 
     edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
     

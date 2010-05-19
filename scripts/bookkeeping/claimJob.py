@@ -3,12 +3,10 @@
 import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime,re
 
 def remove_multislash(inString) :
-    outString=re.sub(r'//*','/',inString)
-    print outString
-    return outString
+    return re.sub(r'//*','/',inString)
 
 def print_and_execute(c) :
-    print c
+    print '',c,''
     os.system(c)
     return
 
@@ -30,19 +28,10 @@ def get_jobrow(db) :
                          where state="Unclaimed" AND job.rowid='''+jobnumber).fetchone()
     return row
 
-def claim_job(db,job,user,node,path,full_rpath) :
-    dashboard = get_dashboard(path)
-    c=db.cursor()
-    c.execute('update job set state=?,user=?,node=?,path=?,rpath=?,dash=? where rowid=?',
-                        ('Processing',user,  node,  path, full_rpath,  dashboard, job['rowid']))
-    c.close()
-
-
 def setup_cmssw(job,path) :
     print_and_execute(
 '''
 #!/usr/bin/env bash
-
 mkdir -p %(path)s
 cd %(path)s
 scram project CMSSW %(cmssw)s
@@ -54,82 +43,83 @@ addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+
 cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +'''
 '''+'\n'.join( job['cmds'].split(';') if job['cmds'] else [''])+'''
 scram b -j 8
-
 ''')
-
     return
 
 
-def setup_crab(job,user,path,rpath, CAF, SERVER, SPLIT) :
-    full_rpath = ('/castor/cern.ch/cms/store/caf/user/' if CAF else
-                  '/castor/cern.ch/user/'+user[0]+'/')+\
-                  user+'/'+rpath
-
-    dirs = full_rpath.strip('/').split('/')
-
-    thing='''
+def setup_output_dirs(option) :
+    dirs = option["FULL_RPATH"].strip('/').split('/')
+    print_and_execute('''
 #!/usr/bin/env bash
-rfmkdir -p %(fp)s
-rfchmod 775 %(fp)s''' % {"fp":full_rpath} +''.join(['''
-rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(user))])
+rfmkdir -p %(FULL_RPATH)s
+rfchmod 775 %(FULL_RPATH)s''' % option +''.join(['''
+rfchmod 755 /'''+'/'.join(dirs[:-i]) for i in range(1,len(dirs)-dirs.index(option["USER"]))]))
 
-#    thing+="\nnssetacl -m d:u::7,d:g::7,d:o:5 "+full_rpath
-#    if SPLIT :
-#        for run in eval(job['jsonls']) :
-#            subDir=full_rpath+"/Run"+run
-#            thing+="\nrfmkdir "+subDir
-#            thing+="\nrfchmod 755 "+subDir
-#            thing+="\nnssetacl -m u::7,g::7,o:5 "+subDir
-        
-    print_and_execute(thing)
 
-    if not SPLIT and job['jsonls'] :
-        file = open(path+"/jsonls.txt","w")
+def setup_crab(job,option) :
+
+    SITE = { "CASTOR" : {"SE":"srm-cms.cern.ch",
+                         "FULL_RPATH":"/castor/cern.ch/user/%(INITIAL)s/%(USER)s/%(RPATH)s",
+                         "USER_REMOTE": "user/%(INITIAL)s/%(RPATH)s",
+                         "SCHEDULER":"glite",
+                         "EXTRA": "\n[USER]\nstorage_path=/srm/managerv2?SFN=/castor/cern.ch"
+                         },
+             "CAF"    : {"SE":"T2_CH_CAF",
+                         "FULL_RPATH":"/castor/cern.ch/cms/store/caf/user/%(USER)s/%(RPATH)s" % option,
+                         "USER_REMOTE":"%(RPATH)s",
+                         "SCHEDULER":"caf",
+                         "EXTRA":"\n[CAF]\nqueue=cmscaf1nd"},
+             "LONDON" : {"SE":"T2_UK_London_IC",
+                         "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/%(USER)s/%(RPATH)s" % option,
+                         "USER_REMOTE":"%(RPATH)s",
+                         "SCHEDULER":"glite",
+                         "EXTRA": ""}
+              }
+    option["INITIAL"] = option["USER"][0]
+    for key,val in SITE[option["SITE"]].items() :
+        option[key] = eval('\'\'\''+val+'\'\'\'%option')
+
+    option["EVENTS"] = '' if option["SPLIT"] else '''
+lumi_mask=%(PATH)s/jsonls.txt
+total_number_of_lumis=-1
+lumis_per_job=10'''%option if job['jsonls'] else '''
+total_number_of_events=-1
+events_per_job=100000'''
+    option['DATASET'] = job['dataset']
+
+    if option["SITE"] != "LONDON" :
+        setup_output_dirs(option)
+    if not option["SPLIT"] and job['jsonls'] :
+        file = open("%(PATH)s/jsonls.txt"%option,"w")
         print>>file,job['jsonls']
         file.close()
-        
-    crabfile = open(path+"/crab.cfg","w")
+    
+    crabfile = open("%(PATH)s/crab.cfg"%option,"w")
     print>>crabfile,'''
 [CMSSW]
 get_edm_output = 1
-%(events)s
+%(EVENTS)s
 pset=SusyCAF_Tree_cfg.py
-datasetpath=%(dset)s
+datasetpath=%(DATASET)s
 
 [GRID]
 virtual_organization=cms
 
 [USER]
 copy_data=1
-user_remote_dir=%(rpath)s
+user_remote_dir=%(USER_REMOTE)s
 storage_element=%(SE)s
-%(storage_path)s
 
 [CRAB]
 cfg=crab.cfg
-scheduler=%(sched)s
-use_server=%(server)d
+scheduler=%(SCHEDULER)s
+use_server=%(SERVER)d
 jobtype=cmssw
 
-%(caf)s
-'''% { "dset": job['dataset'],
-       "rpath": remove_multislash('/'+(rpath if CAF else '/'.join(dirs[dirs.index('user'):]))),
-       "SE": ('T2_CH_CAF' if CAF else 'srm-cms.cern.ch'),
-       "server": SERVER,
-       "storage_path": '' if CAF else '''storage_path=/srm/managerv2?SFN=/castor/cern.ch''',
-       "sched": 'caf' if CAF else 'glite',
-       "events": '' if SPLIT else '''
-lumi_mask=%s/jsonls.txt'''%path+'''
-total_number_of_lumis=-1
-lumis_per_job=10''' if job['jsonls'] else '''
-total_number_of_events=-1
-events_per_job=100000''',
-       "caf": '' if not CAF else '''
-[CAF]
-queue=cmscaf1nd''',
-       }
+%(EXTRA)s
+'''% option
     crabfile.close()
-    return full_rpath
+    return
 
 
 def setup_multicrab(job,path) :
@@ -162,7 +152,8 @@ def run_crab(job,path,SPLIT) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
 %(crab)s -create -submit
@@ -183,33 +174,42 @@ def get_dashboard(path) :
             dash.append(line[line.find(":")+1:-1])
     return '"'+', '.join(dash)+'"'
 
-    
-user = getpass.getuser()
-node = socket.gethostname()
-timestamp = '_'.join(['%02d'% i for i in datetime.datetime.now().timetuple()[:6]])
-path = '/tmp/'+user+'/SusyCAF/'+timestamp+'/'
-rpath='/SusyCAF/automated/'+timestamp+'/'
+
+def get_options(name) :
+    option = {}
+    timestamp = '_'.join(['%02d'% i for i in datetime.datetime.now().timetuple()[:6]])
+    print "Choose output site:"
+    for site in ["CASTOR","CAF","LONDON"] : print '\t'+site
+    option["SITE"] = raw_input("\t> ")
+    option["SERVER"] = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
+    option["SPLIT"] = True if job['jsonls'] and raw_input('Split by run with multicrab? [y/n]') in  ['Y','y',1] else False
+    print 'You have specified:'
+    for key,val in option.items() :
+        print key+": "+str(val)
+    option["USER"] = getpass.getuser()
+    option["NODE"] = socket.gethostname()
+    option["PATH"] = '/'.join(['','tmp',option['USER'],name,timestamp,''])
+    option["RPATH"] = '/'.join(['',name,'automated',timestamp,''])
+    option["JOBID"] = job['rowid']
+    return option
+
 
 db = conf.lockedDB()
 db.connect()
 job = get_jobrow( db )
-
-CAF = True if raw_input('Run Jobs on CAF? [y/n]  ') in ['Y','y',1] else False
-print '\tJobs will run on '+('CAF' if CAF else 'GRID')
-SERVER = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
-print '\tServer '+('ON' if SERVER else 'OFF')
-SPLIT = True if job['jsonls'] and raw_input('Split by run with multicrab? [y/n]') in  ['Y','y',1] else False
-print '\tUsing ' + ('multicrab' if SPLIT else 'crab')
-
-setup_cmssw( job, path )
-
-full_rpath = setup_crab( job, user, path, rpath, CAF, SERVER, SPLIT)
-
-if SPLIT :
-    setup_multicrab( job, path )
-
-run_crab( job, path, SPLIT )
-
-claim_job( db, job, user, node, path, full_rpath )
-
+option = get_options(db.name)
+if(raw_input('\nDo it? [y/n] : ') in ['Y','y',1]) :
+    setup_cmssw( job, option["PATH"] )
+    setup_crab( job, option)
+    if option["SPLIT"] : setup_multicrab( job, option["PATH"] )
+    run_crab( job, option["PATH"], option["SPLIT"] )
+    option["DASH"] = get_dashboard(option["PATH"])
+    
+    db.execute('''update job set
+    state="Processing",
+    user="%(USER)s",
+    node="%(NODE)s",
+    path="%(PATH)s",
+    rpath="%(FULL_RPATH)s",
+    dash=%(DASH)s where rowid=%(JOBID)d''' % option )
 db.disconnect()

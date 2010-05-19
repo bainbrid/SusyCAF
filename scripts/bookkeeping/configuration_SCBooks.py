@@ -158,7 +158,7 @@ class lockedDB:
             else :
                 self.conn.commit()
                 print 'Saved'
-                webpage_SCBooks.write_webpage(self.conn,self.webpath)
+                webpage_SCBooks.write_webpage(self.conn,self.webpath,self.name)
 
     def disconnect(self):
         input = raw_input("Save before disconnecting? [y]")

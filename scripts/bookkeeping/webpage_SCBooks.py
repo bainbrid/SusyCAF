@@ -130,9 +130,9 @@ def print_BODY(file,db) :
         print>>file,'</p>'
     return
 
-def write_webpage(db,path) :
+def write_webpage(db,path,name) :
     file = open(path,"w")
-    print_HEAD(file,db.name)
+    print_HEAD(file,name)
     print_BODY(file,db)
     print_FOOT(file)
     file.close()

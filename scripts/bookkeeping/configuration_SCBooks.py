@@ -105,7 +105,8 @@ class lockedDB:
         self.conn = 0
         self.locktime = 0
         for key in databases : print key
-        self.config = databases[raw_input('Database: ')]
+        self.name = raw_input('Database: ')
+        self.config = databases[self.name]
         self.db_location = self.config["db_location"]
         self.db_lock = self.config["db_lock"]
         self.db_file = self.config["db_file"]

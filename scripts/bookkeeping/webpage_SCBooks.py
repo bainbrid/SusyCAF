@@ -1,11 +1,11 @@
 import sqlite3,os,sys,getpass,time
 
-def print_HEAD(file) :
+def print_HEAD(file,name) :
     print>>file, '''
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>
     <head> 
-    <title> SusyCAF Datasets </title>
+    <title> %s Datasets </title>'''%name +'''
     <style type="text/css">
     <!--
     body {
@@ -132,7 +132,7 @@ def print_BODY(file,db) :
 
 def write_webpage(db,path) :
     file = open(path,"w")
-    print_HEAD(file)
+    print_HEAD(file,db.name)
     print_BODY(file,db)
     print_FOOT(file)
     file.close()

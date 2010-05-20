@@ -17,14 +17,16 @@ class SusyCAF_Gen : public edm::EDProducer {
   typedef reco::Candidate::LorentzVector LorentzVector;
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
+  const double GenStatus1PtCut;
 };
 
 template< typename T >
 SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
-{
+  Suffix(iConfig.getParameter<std::string>("Suffix")),
+  GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut"))
+ {
   produces <bool>(Prefix + "GenInfoHandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
   produces <bool >(Prefix + "HandleValid" + Suffix);
@@ -60,8 +62,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int idx_gen=0;
     // First loop through gen collection adding particles of status 3 and electrons/muons of status 1||2
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      if(it->status() == 3 ||
-	  (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13)){
+      bool to_store = (it->status() == 3);
+      to_store |= (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13);
+      to_store |= (it->pt() > GenStatus1PtCut);
+      if(to_store){
         p4->push_back(it->p4());
         status->push_back(it->status());
         pdgId->push_back(it->pdgId());
@@ -73,7 +77,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     // Loop through status 3 and e/mu of status 1/2  again to fill mother info
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      if(it->status() == 3 || (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13)){
+      bool to_store = (it->status() == 3);
+      to_store |= (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13);
+      to_store |= (it->pt() > GenStatus1PtCut);
+      if (to_store){
 	// Check we have a mother
 	if( it->numberOfMothers() > 0 ){
 	  const reco::Candidate* imother = it->mother();	

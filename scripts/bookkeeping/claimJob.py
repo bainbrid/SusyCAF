@@ -68,7 +68,8 @@ def setup_crab(job,option) :
                          "FULL_RPATH":"/castor/cern.ch/cms/store/caf/user/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
                          "SCHEDULER":"caf",
-                         "EXTRA":"\n[CAF]\nqueue=cmscaf1nd"},
+                         "EXTRA":"\n[CAF]\nqueue=cmscaf1nd\n%s" % "" if job['dataset'].find('ExpressPhysics')<0 else \
+                         "[CMSSW]\ndbs_url = http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet"},
              "LONDON" : {"SE":"T2_UK_London_IC",
                          "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
@@ -139,6 +140,7 @@ CMSSW.total_number_of_lumis=-1
 CMSSW.lumis_per_job=10'''+''.join(['''
 
 [Run%(run)s]
+CMSSW.runselection=%(run)s
 CMSSW.lumi_mask=%(path)s/%(run)sjsonls.txt
 '''%{"run":run,"path":path} for run in jsonls.keys()])
     mcrabfile.close()

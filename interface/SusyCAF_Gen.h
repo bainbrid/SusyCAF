@@ -64,7 +64,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       bool to_store = (it->status() == 3);
       to_store |= (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13);
-      to_store |= (it->pt() > GenStatus1PtCut);
+      to_store |= (it->status() == 1 && it->pt() > GenStatus1PtCut);
       if(to_store){
         p4->push_back(it->p4());
         status->push_back(it->status());
@@ -79,7 +79,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       bool to_store = (it->status() == 3);
       to_store |= (abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13);
-      to_store |= (it->pt() > GenStatus1PtCut);
+      to_store |= (it->status()==1 && it->pt() > GenStatus1PtCut);
       if (to_store){
 	// Check we have a mother
 	if( it->numberOfMothers() > 0 ){

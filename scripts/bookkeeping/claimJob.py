@@ -60,7 +60,7 @@ def setup_crab(job,option) :
 
     SITE = { "CASTOR" : {"SE":"srm-cms.cern.ch",
                          "FULL_RPATH":"/castor/cern.ch/user/%(INITIAL)s/%(USER)s/%(RPATH)s",
-                         "USER_REMOTE": "user/%(INITIAL)s/%(RPATH)s",
+                         "USER_REMOTE": "user/%(INITIAL)s/%(USER)s/%(RPATH)s",
                          "SCHEDULER":"glite",
                          "EXTRA": "\n[USER]\nstorage_path=/srm/managerv2?SFN=/castor/cern.ch"
                          },

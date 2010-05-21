@@ -173,7 +173,7 @@ def get_dashboard(path) :
     dash = []
     for line in fileinput.input(path+'/crab.status') :
         if line.find("Dashboard:")>0 :
-            dash.append(line[line.find(":")+1:-1])
+            dash.append(strip(line[line.find(":")+1:]))
     return '"'+', '.join(dash)+'"'
 
 

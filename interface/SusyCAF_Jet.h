@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -22,20 +23,21 @@ class SusyCAF_Jet : public edm::EDProducer {
   explicit SusyCAF_Jet(const edm::ParameterSet&);
  private: 
   void produce(edm::Event&, const edm::EventSetup& );
-  void initSpecial(); void produceSpecial(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initPF();      void producePF(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initCalo();    void produceCalo(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initJetID();   void produceJetID(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initBJetTag(); void produceBJetTag(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initMPT();     void produceMPT(edm::Event&, const edm::Handle<std::vector<T> >&);
-  void initGenJetMatch(); void produceGenJetMatch(edm::Event&, const edm::Handle<std::vector<T> >&);
+  void initSpecial(); void produceSpecial(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initPF();      void producePF(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initCalo();    void produceCalo(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initJetID();   void produceJetID(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initBJetTag(); void produceBJetTag(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initMPT();     void produceMPT(edm::Event&, const edm::Handle<edm::View<T> >&);
+  void initGenJetMatch(); void produceGenJetMatch(edm::Event&, const edm::Handle<edm::View<T> >&);
   
-  std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<std::vector<T> >&);
-
+  std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<edm::View<T> >&);
+  const reco::CaloJet* getJet( const edm::RefToBase<T>& );
+  
   const edm::ParameterSet& config;
   const edm::InputTag jetsInputTag, genJetsInputTag, allJetsInputTag;
   const std::string Prefix,Suffix;
-  const bool caloSpecific, pfSpecific, mpt, jetid, gen;
+  const bool caloSpecific, jptSpecific, pfSpecific, mpt, jetid, gen;
 };
 
 
@@ -48,6 +50,7 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
   Prefix(cfg.getParameter<std::string>("Prefix")),
   Suffix(cfg.getParameter<std::string>("Suffix")),
   caloSpecific(cfg.getParameter<bool>("Calo")),
+  jptSpecific(cfg.getParameter<bool>("JPT")),
   pfSpecific(cfg.getParameter<bool>("PF")),
   mpt(cfg.getParameter<bool>("MPT")),
   jetid(cfg.getParameter<bool>("JetID")),
@@ -66,8 +69,8 @@ template< typename T >
 void SusyCAF_Jet<T>::
 produce(edm::Event& evt, const edm::EventSetup&) {
   typedef reco::Candidate::LorentzVector LorentzV;
-  edm::Handle<std::vector<T> > jets;     evt.getByLabel(jetsInputTag, jets);
-  edm::Handle<std::vector<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
+  edm::Handle<edm::View<T> > jets;     evt.getByLabel(jetsInputTag, jets);
+  edm::Handle<edm::View<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
 
   std::auto_ptr<std::vector<LorentzV> >   p4   ( new std::vector<LorentzV>()  )  ;
   std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
@@ -99,14 +102,14 @@ produce(edm::Event& evt, const edm::EventSetup&) {
 
 template<class T> 
 std::auto_ptr<std::vector<double> > SusyCAF_Jet<T>::
-correctionFactors(const edm::Handle<std::vector<T> >& jets) {
+correctionFactors(const edm::Handle<edm::View<T> >& jets) {
   if(jets.isValid()) return std::auto_ptr<std::vector<double> >(new std::vector<double>(jets->size(),1.0) ) ;
   else return std::auto_ptr<std::vector<double> >(new std::vector<double>());
 }
 
 template<> 
 std::auto_ptr<std::vector<double> > SusyCAF_Jet<pat::Jet>::
-correctionFactors(const edm::Handle<std::vector<pat::Jet> >& jets) {
+correctionFactors(const edm::Handle<edm::View<pat::Jet> >& jets) {
   std::auto_ptr<std::vector<double> > correction ( new std::vector<double>() );
   for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++)
     correction->push_back( (*jets)[i].hasCorrFactors() ? 
@@ -120,6 +123,7 @@ correctionFactors(const edm::Handle<std::vector<pat::Jet> >& jets) {
 
 template<> void SusyCAF_Jet<reco::PFJet>::initSpecial() { initPF(); }
 template<> void SusyCAF_Jet<reco::CaloJet>::initSpecial() { initCalo(); }
+template<> void SusyCAF_Jet<reco::JPTJet>::initSpecial() { initCalo(); }
 template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
   initPF();
   initCalo();
@@ -131,9 +135,10 @@ template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
   initGenJetMatch();
 }
 
-template<> void SusyCAF_Jet<reco::PFJet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<reco::PFJet> >& h) {producePF(e,h);}
-template<> void SusyCAF_Jet<reco::CaloJet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<reco::CaloJet> >& h) {produceCalo(e,h);}
-template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::Handle<std::vector<pat::Jet> >& h) {
+template<> void SusyCAF_Jet<reco::PFJet>::produceSpecial(edm::Event& e,const edm::Handle<edm::View<reco::PFJet> >& h) {producePF(e,h);}
+template<> void SusyCAF_Jet<reco::CaloJet>::produceSpecial(edm::Event& e,const edm::Handle<edm::View<reco::CaloJet> >& h) {produceCalo(e,h);}
+template<> void SusyCAF_Jet<reco::JPTJet>::produceSpecial(edm::Event& e,const edm::Handle<edm::View<reco::JPTJet> >& h) {produceCalo(e,h);}
+template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::Handle<edm::View<pat::Jet> >& h) {
   producePF(e,h);
   produceCalo(e,h);
   produceMPT(e,h);
@@ -160,7 +165,7 @@ initPF() { if(!pfSpecific) return;
 }
 
 template<class T> void SusyCAF_Jet<T>::
-producePF(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!pfSpecific) return;
+producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpecific) return;
   std::auto_ptr<std::vector<float> > FchargedHad( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > FneutralHad( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > FchargedEm( new std::vector<float>() );
@@ -190,10 +195,9 @@ producePF(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!pfSpe
   evt.put(Nmuon, Prefix + "Nmuon" + Suffix);
 }
 
-
-
 template<class T> void SusyCAF_Jet<T>::
-initCalo() { if(!caloSpecific) return;
+initCalo() { 
+  if( !( caloSpecific || jptSpecific ) ) return;
   produces <std::vector<float> > ( Prefix + "EmEnergyFraction"  + Suffix );
   produces <std::vector<float> > ( Prefix + "EnergyFractionHadronic"  + Suffix );
   produces <std::vector<float> > ( Prefix + "TowersArea"  + Suffix );
@@ -212,7 +216,9 @@ initCalo() { if(!caloSpecific) return;
 }
 
 template<class T> void SusyCAF_Jet<T>::
-produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!caloSpecific) return;
+produceCalo(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { 
+
+  if( !( caloSpecific || jptSpecific ) ) return;
   std::auto_ptr<std::vector<float> >  emEnergyFraction  ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  energyFractionHadronic ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  towersArea   ( new std::vector<float>()  ) ;
@@ -227,25 +233,29 @@ produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!cal
   std::auto_ptr<std::vector<float> >  emEnergyInHF   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<int> >             n60   ( new std::vector<int>()  ) ; 
   std::auto_ptr<std::vector<int> >             n90   ( new std::vector<int>()  ) ; 
-  
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
-    emEnergyFraction->push_back((*jets)[i].emEnergyFraction());
-    energyFractionHadronic->push_back((*jets)[i].energyFractionHadronic());
-    towersArea->push_back((*jets)[i].towersArea());
-    maxEInEmTowers->push_back((*jets)[i].maxEInEmTowers());
-    maxEInHadTowers->push_back((*jets)[i].maxEInHadTowers());
-    hadEnergyInHB->push_back((*jets)[i].hadEnergyInHB());
-    hadEnergyInHE->push_back((*jets)[i].hadEnergyInHE());
-    hadEnergyInHO->push_back((*jets)[i].hadEnergyInHO());
-    hadEnergyInHF->push_back((*jets)[i].hadEnergyInHF());
-    emEnergyInEB->push_back((*jets)[i].emEnergyInEB());
-    emEnergyInEE->push_back((*jets)[i].emEnergyInEE());
-    emEnergyInHF->push_back((*jets)[i].emEnergyInHF());
-    n60->push_back((*jets)[i].n60()); 
-    n90->push_back((*jets)[i].n90());
-    
+
+    edm::RefToBase<T> jet_ref( jets, i );
+    const reco::CaloJet* jet = getJet( jet_ref );
+    if ( !jet ) continue;
+
+    emEnergyFraction->push_back(jet->emEnergyFraction());
+    energyFractionHadronic->push_back(jet->energyFractionHadronic());
+    towersArea->push_back(jet->towersArea());
+    maxEInEmTowers->push_back(jet->maxEInEmTowers());
+    maxEInHadTowers->push_back(jet->maxEInHadTowers());
+    hadEnergyInHB->push_back(jet->hadEnergyInHB());
+    hadEnergyInHE->push_back(jet->hadEnergyInHE());
+    hadEnergyInHO->push_back(jet->hadEnergyInHO());
+    hadEnergyInHF->push_back(jet->hadEnergyInHF());
+    emEnergyInEB->push_back(jet->emEnergyInEB());
+    emEnergyInEE->push_back(jet->emEnergyInEE());
+    emEnergyInHF->push_back(jet->emEnergyInHF());
+    n60->push_back(jet->n60());
+    n90->push_back(jet->n90());
   }
+
   evt.put( emEnergyFraction,        Prefix + "EmEnergyFraction"  + Suffix );
   evt.put( energyFractionHadronic,  Prefix + "EnergyFractionHadronic"  + Suffix );
   evt.put( towersArea,              Prefix + "TowersArea"  + Suffix );
@@ -266,7 +276,8 @@ produceCalo(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!cal
 
 
 template<class T> void SusyCAF_Jet<T>::
-initJetID() { if(!caloSpecific || !jetid) return;
+initJetID() { 
+  if( !( ( caloSpecific || jptSpecific ) && jetid ) ) return;
   produces <std::vector<double> > ( Prefix + "JetIDFHPD"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDFRBX"  + Suffix );
   produces <std::vector<double> > ( Prefix + "JetIDFSubDet1"  + Suffix );
@@ -283,7 +294,8 @@ initJetID() { if(!caloSpecific || !jetid) return;
 }
 
 template<class T> void SusyCAF_Jet<T>::
-produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!caloSpecific || !jetid) return;
+produceJetID(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { 
+  if( !( ( caloSpecific || jptSpecific ) && jetid ) ) return;
   std::auto_ptr<std::vector<double> >  fHPD  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fRBX  ( new std::vector<double>() ) ;
   std::auto_ptr<std::vector<double> >  fSubDet1  ( new std::vector<double>() ) ;
@@ -302,8 +314,12 @@ produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!ca
     minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
     looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
     tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
-
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
+
+    edm::RefToBase<T> jet_ref( jets, i );
+    const reco::CaloJet* jet = getJet( jet_ref );
+    if ( !jet ) continue;
+    
     pat::strbitset 
       passMinimalCuts( minimalJetID.getBitTemplate() ),
       passLooseCuts(   looseJetID  .getBitTemplate() ),
@@ -317,12 +333,13 @@ produceJetID(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!ca
     fSubDet4->push_back((*jets)[i].jetID().fSubDetector4);
     resEMF->push_back((*jets)[i].jetID().restrictedEMF);
     n90Hits->push_back((int)((*jets)[i].jetID().n90Hits));
-    jetidminimal->push_back(minimalJetID((*jets)[i], passMinimalCuts));
-    jetidloose->push_back(looseJetID((*jets)[i], passLooseCuts  ));
-    jetidtight->push_back(tightJetID((*jets)[i], passTightCuts  ));
+    jetidminimal->push_back(minimalJetID(*jet, (*jets)[i].jetID(), passMinimalCuts));
+    jetidloose->push_back(looseJetID(*jet, (*jets)[i].jetID(), passLooseCuts  ));
+    jetidtight->push_back(tightJetID(*jet, (*jets)[i].jetID(), passTightCuts  ));
     NECALTowers->push_back((*jets)[i].jetID().nECALTowers);
     NHCALTowers->push_back((*jets)[i].jetID().nHCALTowers);  
   }
+
   evt.put( fHPD,  Prefix + "JetIDFHPD"  + Suffix );
   evt.put( fRBX,  Prefix + "JetIDFRBX"  + Suffix );
   evt.put( fSubDet1,  Prefix + "JetIDFSubDet1"  + Suffix );
@@ -354,7 +371,7 @@ initMPT() { if(!mpt) return;
 }
 
 template<class T> void SusyCAF_Jet<T>::
-produceMPT(edm::Event& evt, const edm::Handle<std::vector<T> >& jets) { if(!mpt) return;
+produceMPT(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!mpt) return;
   typedef reco::TrackBase::Vector Vector; 
   std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
@@ -415,7 +432,7 @@ initBJetTag(){
 }
 
 template<class T> void SusyCAF_Jet<T>::
-produceBJetTag(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
+produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
 
 //btag discriminators
   std::auto_ptr<std::vector<float> > TrkCountHighEffBJetTags (new std::vector<float>() );
@@ -451,11 +468,11 @@ initGenJetMatch() {
 }
 
 template<class T> void SusyCAF_Jet<T>::
-produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
+produceGenJetMatch(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
   
   if(!gen) return;
  
-  edm::Handle<std::vector<reco::GenJet> > genjets;
+  edm::Handle<edm::View<reco::GenJet> > genjets;
   evt.getByLabel(genJetsInputTag, genjets);
   
   
@@ -467,7 +484,7 @@ produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
 
     for (unsigned i=0; i<(*jets).size(); i++) {
       int gen_jet_ind = -1;
-      std::vector<reco::GenJet>::const_iterator it;
+      edm::View<reco::GenJet>::const_iterator it;
       for(it=genjets->begin(); it!=genjets->end(); ++it){
       
 	if ((*jets)[i].genJet()==&*it)
@@ -478,7 +495,7 @@ produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
       }
       GenJetMatchIndex->push_back(gen_jet_ind);
     }
-    for(std::vector<reco::GenJet>::const_iterator it = genjets->begin(); it!=genjets->end(); ++it){//store all genjet P4s
+    for(edm::View<reco::GenJet>::const_iterator it = genjets->begin(); it!=genjets->end(); ++it){//store all genjet P4s
       GenJetP4->push_back(it->p4());
       
     }
@@ -487,4 +504,31 @@ produceGenJetMatch(edm::Event& evt, const edm::Handle<std::vector<T> >& jets){
   evt.put(GenJetMatchIndex, Prefix + "GenJetMatchIndex" + Suffix);
   evt.put(GenJetP4, Prefix + "GenJetP4" + Suffix);
 }
+
+template<class T> const reco::CaloJet* SusyCAF_Jet<T>::getJet( const edm::RefToBase<T>& jet_ref ) { 
+  std::cout << "Don't use this!!!" << std::endl;
+  return 0;
+}
+
+template<> const reco::CaloJet* SusyCAF_Jet<reco::CaloJet>::getJet( const edm::RefToBase<reco::CaloJet>& jet_ref ) { 
+  return jet_ref.get(); 
+}
+
+template<> const reco::CaloJet* SusyCAF_Jet<reco::JPTJet>::getJet( const edm::RefToBase<reco::JPTJet>& jet_ref ) { 
+  const reco::JPTJet* tmp = jet_ref.get(); 
+  if ( tmp ) { return static_cast<const reco::CaloJet*>( tmp->getCaloJetRef().get() ); }
+  else { return 0; }
+}
+
+template<> const reco::CaloJet* SusyCAF_Jet<pat::Jet>::getJet( const edm::RefToBase<pat::Jet>& jet_ref ) { 
+  if ( caloSpecific ) { return static_cast<const reco::CaloJet*>( jet_ref->originalObjectRef().get() ); }
+  else if ( jptSpecific ) { 
+    const reco::JPTJet* tmp = static_cast<const reco::JPTJet*>( jet_ref->originalObjectRef().get() ); 
+    if ( tmp ) { return static_cast<const reco::CaloJet*>( tmp->getCaloJetRef().get() ); }
+  } 
+  return 0;
+}
+
 #endif
+
+

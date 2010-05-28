@@ -60,7 +60,7 @@ def setup_crab(job,option) :
 
     SITE = { "CASTOR" : {"SE":"srm-cms.cern.ch",
                          "FULL_RPATH":"/castor/cern.ch/user/%(INITIAL)s/%(USER)s/%(RPATH)s",
-                         "USER_REMOTE": "user/%(INITIAL)s/%(USER)s/%(RPATH)s",
+                         "USER_REMOTE": "user/%(INITIAL)s/%(RPATH)s",
                          "SCHEDULER":"glite",
                          "EXTRA": "\n[USER]\nstorage_path=/srm/managerv2?SFN=/castor/cern.ch"
                          },
@@ -173,7 +173,7 @@ def get_dashboard(path) :
     dash = []
     for line in fileinput.input(path+'/crab.status') :
         if line.find("Dashboard:")>0 :
-            dash.append((line[line.find(":")+1:]).strip())
+            dash.append(line[line.find(":")+1:-1])
     return '"'+', '.join(dash)+'"'
 
 

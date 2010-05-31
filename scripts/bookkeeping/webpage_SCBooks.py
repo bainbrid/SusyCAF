@@ -85,7 +85,7 @@ def print_JOB(file,job) :
         '</a>',
         '<div id="%s" class=jobwrapper>' % label,
         ('<br>'+job['user']+'@'+job['node']+':'+job['path']) if job['user'] else '',
-        ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'][1:-1].split(',')) ])) if job['dash'] else '',
+        ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'].split(',')) ])) if job['dash'] else '',
         '<br>'+job['jsonls'] if job['jsonls'] else ''
         ])
     print>>file,'</div>'

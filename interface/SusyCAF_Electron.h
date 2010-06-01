@@ -356,6 +356,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( gsfTrkQoverPErr,  Prefix + "GsfTrackQoverPError" + Suffix );
   iEvent.put( gsfTrkLostHits,  Prefix + "GsfTrackLostHits" + Suffix );
   iEvent.put( hasValHitinFirstPixBarrel, Prefix + "HasValidHitInFirstPixelBarrel" + Suffix);
+  iEvent.put( gsfTrkTrackerExpectedHitsInner, Prefix + "GsfTrackTrackerExpectedHitsInner" + Suffix);
   iEvent.put( e1x5,  Prefix + "E1x5" + Suffix );
   iEvent.put( e5x5,  Prefix + "E5x5" + Suffix );
   iEvent.put( e2x5Max,  Prefix + "E2x5Max" + Suffix );

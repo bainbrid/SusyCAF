@@ -66,7 +66,7 @@ void SusyCAF_Electron<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "GsfTrackQoverPError" + Suffix);
   produces <std::vector<float> > (  Prefix + "GsfTrackLostHits" + Suffix);
   produces <std::vector<int> > ( Prefix + "HasValidHitInFirstPixelBarrel" + Suffix);
-
+  produces <std::vector<int> > ( Prefix +  "GsfTrackTrackerExpectedHitsInner" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDz" + Suffix);
   produces <std::vector<double> > (  Prefix + "GsfTrackDxyBS" + Suffix);
@@ -177,6 +177,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> > gsfTrkQoverPErr (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > gsfTrkLostHits (new std::vector<float>() );
   std::auto_ptr<std::vector<int> > hasValHitinFirstPixBarrel (new std::vector<int>() );
+  std::auto_ptr<std::vector<int> > gsfTrkTrackerExpectedHitsInner (new std::vector<int>() );
   std::auto_ptr<std::vector<float> >  e1x5   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  e5x5   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  e2x5Max   ( new std::vector<float>()  ) ;
@@ -262,6 +263,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       gsfTrkQoverPErr->push_back(it->gsfTrack()->qoverpError());
       gsfTrkLostHits->push_back(it->gsfTrack()->lost());
       hasValHitinFirstPixBarrel->push_back(it->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel());
+      gsfTrkTrackerExpectedHitsInner->push_back(it->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
       e1x5->push_back(it->e1x5());
       e5x5->push_back(it->e5x5());
       e2x5Max->push_back(it->e2x5Max());
@@ -354,6 +356,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( gsfTrkQoverPErr,  Prefix + "GsfTrackQoverPError" + Suffix );
   iEvent.put( gsfTrkLostHits,  Prefix + "GsfTrackLostHits" + Suffix );
   iEvent.put( hasValHitinFirstPixBarrel, Prefix + "HasValidHitInFirstPixelBarrel" + Suffix);
+  iEvent.put( gsfTrkTrackerExpectedHitsInner, Prefix + "GsfTrackTrackerExpectedHitsInner" + Suffix);
   iEvent.put( e1x5,  Prefix + "E1x5" + Suffix );
   iEvent.put( e5x5,  Prefix + "E5x5" + Suffix );
   iEvent.put( e2x5Max,  Prefix + "E2x5Max" + Suffix );

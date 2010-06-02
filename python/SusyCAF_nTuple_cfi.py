@@ -45,7 +45,7 @@ nTupleCommonSequence = cms.Sequence( susycafevent +
 
 nTupleAllTrackSequence = cms.Sequence( susycafalltracks)
 
-nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetPF + susycafmetTC + 
+nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetAK5TypeII +  susycafmetPF + susycafmetTC + 
                                   susycafphoton + 
                                   susycafelectron + susycafpfelectron + 
                                   susycafmuon + susycafpfmuon +

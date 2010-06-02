@@ -35,6 +35,14 @@ susycafmetAK5 = cms.EDProducer("SusyCAF_PatMET",
                               Calo=cms.bool(True)
                             )
 
+susycafmetAK5TypeII = cms.EDProducer("SusyCAF_PatMET",
+                            InputTag = cms.InputTag('patMETsAK5CaloTypeII'),
+                            Prefix = cms.string('met'),
+                            Suffix = cms.string('AK5TypeII'),
+                            ProduceSpecial = cms.bool(True),
+                              Calo=cms.bool(True)
+                            )
+
 susycafmetPF = cms.EDProducer("SusyCAF_PatMET",
                             InputTag = cms.InputTag('patMETsPF'),
                             Prefix = cms.string('met'),

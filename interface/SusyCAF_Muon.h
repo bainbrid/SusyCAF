@@ -77,6 +77,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "IsGlobalMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsTrackerMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
+  produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
 }
 
 // extra information stored for PAT data
@@ -163,6 +164,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  isGlobalMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isTrackerMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  hasOverlap   ( new std::vector<int>()  ) ;
 
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
   math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
@@ -171,7 +173,21 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   if (beamspots.isValid()){ bs = beamspots->position();}
      
   if (collection.isValid()) {
+    int indx1 = 0;
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+
+      // check if there is an overlap with other muons //LG
+      bool tmpHasOverlap = false;
+      bool sumHasOverlap = false;
+      int indx2 = 0;
+      for(typename std::vector<T>::const_iterator it2 = collection->begin(); it2!=collection->end(); it2++) { 
+	if (indx2==indx1) { continue; }
+	tmpHasOverlap = muon::overlap(*it, *it2, 1.,1., false);
+	sumHasOverlap += tmpHasOverlap;
+	indx2++;
+      }
+      indx1++;
+
       p4->push_back(it->p4());
       charge->push_back(it->charge());
       caloCompatibility->push_back(it->caloCompatibility());
@@ -184,6 +200,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isGlobalMuon->push_back(it->isGlobalMuon());
       isTrackerMuon->push_back(it->isTrackerMuon());
       isStandAloneMuon->push_back(it->isStandAloneMuon());
+      if (sumHasOverlap) { hasOverlap->push_back(1); }
+      else { hasOverlap->push_back(0); }
 
       bool global = it->globalTrack().isNonnull();
       if(global && vertices.isValid() && vertices->size()) vx = SusyCAF_functions::closestDzPrimaryVertexPosition(it->globalTrack().get(),*vertices);
@@ -244,7 +262,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isGlobalMuon,  Prefix + "IsGlobalMuon" + Suffix );
   iEvent.put( isTrackerMuon,  Prefix + "IsTrackerMuon" + Suffix );
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
+  iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
 }
+
 
 // extra information stored for PAT data
 template< typename T >

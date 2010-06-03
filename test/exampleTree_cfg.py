@@ -11,7 +11,7 @@ options = VarParsing.VarParsing ('standard')
 #options.files = "somefile.root" # will select example files automatically
 options.output = "SusyCAF_Tree.root"
 options.secondaryOutput = "" #switch PAT-tuple output off by default
-options.maxEvents = 1000
+options.maxEvents = 100
 #  for SusyCaf specifics
 options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use")
 options.register('JetCorrections', 'Spring10', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTaget corrections to use")
@@ -99,19 +99,28 @@ if options.patify and options.fromRECO:
 from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *
 process.metJESCorAK5CaloJetTypeII = metJESCorAK5CaloJet.clone()
 process.metJESCorAK5CaloJetTypeII.useTypeII = True
-process.metJESCorAK5CaloJetTypeII.hasMuonsCorr = True
+process.metJESCorAK5CaloJetTypeII.hasMuonsCorr = False
 # Add muon corrections for above II reco::MET
-process.metJESCorAK5CaloJetMuonsTypeII = process.metJESCorAK5CaloJetMuons.clone(uncorMETInputTag = cms.InputTag('metJESCorAK5CaloJetTypeII'))
+process.metJESCorAK5CaloJetMuonsTypeII = process.metJESCorAK5CaloJetMuons.clone(
+    uncorMETInputTag = cms.InputTag('metJESCorAK5CaloJetTypeII')
+    )
 # Add to recoLayer0 sequence
 process.patMETCorrections.replace(
     process.metJESCorAK5CaloJet,
-    process.metJESCorAK5CaloJetTypeII+
-    (process.metJESCorAK5CaloJetMuonsTypeII*
-     process.metJESCorAK5CaloJet))
+    (process.metJESCorAK5CaloJetTypeII*
+     process.metJESCorAK5CaloJetMuonsTypeII)+
+    process.metJESCorAK5CaloJet
+    )
 # Add pat::MET with Type II correction
-process.patMETsAK5CaloTypeII = process.patMETs.clone(metSource = cms.InputTag("metJESCorAK5CaloJetMuonsTypeII"))
+process.patMETsAK5CaloTypeII = process.patMETs.clone(
+    metSource = cms.InputTag("metJESCorAK5CaloJetMuonsTypeII")
+    )
 # Add to producersLayer1 sequence
-process.makePatMETs.replace(process.patMETs,process.patMETs+process.patMETsAK5CaloTypeII)
+process.makePatMETs.replace(
+    process.patMETs,
+    process.patMETs+
+    process.patMETsAK5CaloTypeII
+    )
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 # choose your event and object pre-selection     v------| there 

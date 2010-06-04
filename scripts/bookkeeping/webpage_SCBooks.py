@@ -97,7 +97,11 @@ def print_DSET(file,db,dset,tagid) :
     if len(jobs)>0 :
         print>>file,'\n'.join([
             '<br><a onclick="switchMenu(\'%s\');">' % label,
-            (10*'&nbsp;').join(['<b>%s</b>','%s','%s','%s']) % (dset['dataset'], dset['globalTag'], dset['jec'], dset['filter'] if dset['filter'] else ''),
+            (10*'&nbsp;').join(['<b>%s</b>','%s','%s','%s','%s']) % (dset['dataset'],
+                                                                     dset['globalTag'],
+                                                                     dset['jec'],
+                                                                     dset['filter'] if dset['filter'] else '',
+                                                                     "Cleaned" if dset['NoiseCleaning']==1 else ""),
             '</a>',
             '<div id="%s" class=dsetwrapper>' % label,
             ])

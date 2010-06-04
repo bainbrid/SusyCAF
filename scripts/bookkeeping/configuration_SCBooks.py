@@ -29,6 +29,7 @@ def create_db(path) :
                                        globalTag TEXT NOT NULL,
                                        jec       TEXT NOT NULL,
                                        mcInfo    BOOLEAN DEFAULT 0 NOT NULL,
+                                       NoiseCleaning INT DEFAULT -1 NOT NULL,
                                        filter    TEXT
                                       )''')
     conn.execute('''CREATE TABLE job( tagid  INT NOT NULL,

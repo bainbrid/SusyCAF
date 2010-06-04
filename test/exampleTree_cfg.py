@@ -2,11 +2,6 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.setName_("SUSYCAF")
 
-process.options = cms.untracked.PSet(
-    SkipEvent = cms.untracked.vstring('ProductNotFound'),
-    wantSummary = cms.untracked.bool(False) 
-    )
-
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 
@@ -78,7 +73,7 @@ schedule = cms.Schedule()
 # Noise cleaning
 if bool(options.NoiseCleaning) :
     from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addNoiseCleaning
-    addNoiseCleaning(process,schedule,options.mcInfo)
+    addNoiseCleaning(process,schedule,bool(options.mcInfo))
 
 theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:

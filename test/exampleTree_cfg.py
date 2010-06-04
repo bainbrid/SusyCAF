@@ -150,10 +150,11 @@ if options.fromRECO and not options.patify:
 else:
     insertSelection(process)
 
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer,makeAndScheduleHcalReFlaggingPath
-loadAndConfigureHcalSeverityLevelProducer(process)
-#will not be needed for long ---v
-makeAndScheduleHcalReFlaggingPath(process,schedule)
+if not options.NoiseCleaning :
+    from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer,makeAndScheduleHcalReFlaggingPath
+    loadAndConfigureHcalSeverityLevelProducer(process)
+    #will not be needed for long ---v
+    makeAndScheduleHcalReFlaggingPath(process,schedule)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 process.lumiPath = cms.Path(process.lumiTree)

@@ -15,6 +15,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseFilter_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
@@ -40,7 +41,7 @@ nTupleCommonSequence = cms.Sequence( susycafevent +
                                  susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
    			         susycaftriggers +
                                  susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
-                                 susycafhcalnoisesummary +                                 
+                                 susycafhcalnoisesummary + susycafhcalnoisefilter +
                                  susycafcalotowers)
 
 nTupleAllTrackSequence = cms.Sequence( susycafalltracks)

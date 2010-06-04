@@ -98,6 +98,7 @@ if options.patify and options.fromRECO:
     process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
 
     process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
+    if options.NoiseCleaning : process.out.outputCommands.append('keep *_HBHENoiseFilterResultProducer_*_*')
     if options.secondaryOutput == ".root" and hasattr(process,"out"): # remove outpath 
         del process.out
         del process.outpath

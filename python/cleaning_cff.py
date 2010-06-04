@@ -73,8 +73,9 @@ def addNoiseCleaning(process,schedule,mcInfo) :
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
     process.hbheflag = cms.Path(process.HBHENoiseFilterResultProducer)
 
-    process.metreco.remove(process.muonMETValueMapProducer) ##@@ this doesn't work with this recipe!
-    process.metreco.remove(process.corMetGlobalMuons) ##@@ this doesn't work with this recipe!
+    # Two lines below no longer needed!
+    #process.metreco.remove(process.muonMETValueMapProducer) ##@@ this doesn't work with this recipe!
+    #process.metreco.remove(process.corMetGlobalMuons) ##@@ this doesn't work with this recipe!
 
     process.rereco_step1 = cms.Path(
         process.caloTowersRec*

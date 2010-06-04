@@ -2,6 +2,10 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.setName_("SUSYCAF")
 
+process.options = cms.untracked.PSet(
+    SkipEvent = cms.untracked.vstring('ProductNotFound'),
+    wantSummary = cms.untracked.bool(False) 
+    )
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
@@ -20,6 +24,7 @@ options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleto
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
+options.register('NoiseCleaning', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
 
 #---parse user input
 options.parseArguments()
@@ -69,10 +74,17 @@ process.maxEvents.input = options.maxEvents
 process.GlobalTag.globaltag = options.GlobalTag
 
 schedule = cms.Schedule()
+
+# Noise cleaning
+if bool(options.NoiseCleaning) :
+    from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addNoiseCleaning
+    addNoiseCleaning(process,schedule,options.mcInfo)
+
+theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'35x',['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']) 
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'35x',theJetNames) 
     process.patJetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
     process.patJetGenJetMatchAK7Calo.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchIC5Calo.maxDeltaR  = cms.double(0.5)
@@ -94,6 +106,13 @@ if options.patify and options.fromRECO:
     if options.secondaryOutput == ".root" and hasattr(process,"out"): # remove outpath 
         del process.out
         del process.outpath
+
+##@@ Temporary hack as BTag discriminators not compatible with noise cleaning recipe
+if bool(options.NoiseCleaning) :
+    theJetNames.append('')
+    for jetName in theJetNames:
+        module = getattr(process,'patJets'+jetName)
+        module.addDiscriminators = False 
 
 # Add reco::MET with Type II correction 
 from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *

@@ -73,7 +73,7 @@ def setup_crab(job,option) :
                          "EXTRA":"\n[CAF]\nqueue=cmscaf1nd\n%s" % "" if job['dataset'].find('ExpressPhysics')<0 else \
                          "[CMSSW]\ndbs_url = http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet"},
              "LONDON" : {"SE":"T2_UK_London_IC",
-                         "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/%(USER)s/%(RPATH)s" % option,
+                         "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
                          "SCHEDULER":"glite",
                          "EXTRA": ""}

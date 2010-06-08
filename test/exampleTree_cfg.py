@@ -19,7 +19,7 @@ options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleto
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
-options.register('NoiseCleaning', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
+options.register('NoiseCleaning',"unspecified", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
 
 #---parse user input
 options.parseArguments()
@@ -71,9 +71,15 @@ process.GlobalTag.globaltag = options.GlobalTag
 schedule = cms.Schedule()
 
 # Noise cleaning
+if (options.NoiseCleaning=="unspecified") :
+    print
+    print "You must explicitly specify the option --NoiseCleaning=0 or --NoiseCleaning=1"
+    print
+    raise Exception("Unspecified option","NoiseCleaning")
 if bool(options.NoiseCleaning) :
     from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addNoiseCleaning
     addNoiseCleaning(process,schedule,bool(options.mcInfo))
+    print "NoiseCleaning activated"
 
 theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:

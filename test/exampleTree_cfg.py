@@ -20,6 +20,7 @@ options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
 options.register('NoiseCleaning',"unspecified", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
+options.register('SourceName', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 
 #---parse user input
 options.parseArguments()
@@ -178,6 +179,8 @@ else:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetMatchedSequence)
     else:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetSequence)
+
+process.susycaftriggers.SourceName  = options.SourceName
 
 schedule.append(process.p)
 schedule.append(process.lumiPath)

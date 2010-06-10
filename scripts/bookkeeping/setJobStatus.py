@@ -6,11 +6,10 @@ user = getpass.getuser()
 db = conf.lockedDB()
 db.connect()
 
-rows = db.execute('''select job.rowid,state,dataset,cmssw,susycaf,jec,globalTag,filter,NoiseCleaning
+rows = db.execute('''select job.rowid,state,path,dataset
                      from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
-                     where user="'''+user+'''" order by state,job.rowid''').fetchall()
+                     where user="'''+user+'''" order by state,path''').fetchall()
 for row in rows:
-    print '\t'.join([str(key) for key in row.keys()])
     print '\t'.join([str(item) for item in row])
 jobnumber = raw_input("\n\n\tWhich job?  ")
 if not jobnumber in [str(row['rowid']) for row in rows] :

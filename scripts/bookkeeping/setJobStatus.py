@@ -10,7 +10,7 @@ rows = db.execute('''select job.rowid,state,path,dataset
                      from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                      where user="'''+user+'''" order by state,path''').fetchall()
 for row in rows:
-    print '\t'.join([str(item) for item in row])
+    print ('\t'.join([str(item) for item in row]))[0:90]+"..."
 jobnumber = raw_input("\n\n\tWhich job?  ")
 if not jobnumber in [str(row['rowid']) for row in rows] :
     print jobnumber+' is not and `Unclaimed` job'

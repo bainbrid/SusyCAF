@@ -11,12 +11,12 @@ def print_and_execute(c) :
     return
 
 def get_jobrow(db) :
-    rows = db.execute('''select job.rowid,dataset,cmssw,susycaf,jec,globalTag,filter
+    rows = db.execute('''select job.rowid,cmssw,susycaf,jec,globalTag,filter,dataset
                              from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                              where state="Unclaimed"''').fetchall()
     for row in rows:
         print row.keys()
-        print '\t'.join([str(item) for item in row])
+        print ('\t'.join([str(item) for item in row]))[0:120] + "..."
     jobnumber = raw_input("\n\n\tWhich job?  ")
     if not jobnumber in [str(row['rowid']) for row in rows] :
         print jobnumber+' is not and `Unclaimed` job'
@@ -88,7 +88,6 @@ total_number_of_lumis=-1
 lumis_per_job=10'''%option if job['jsonls'] else '''
 total_number_of_events=-1
 events_per_job=100000'''
-    option['DATASET'] = job['dataset']
 
     if option["SITE"] != "LONDON" :
         setup_output_dirs(option)
@@ -125,7 +124,7 @@ jobtype=cmssw
     return
 
 
-def setup_multicrab(job,path) :
+def setup_split(job,path) :
     jsonls = eval(job['jsonls'])
     for run in jsonls.keys() :
         jsonFile = open( '%s/%sjsonls.txt' % (path,run),"w")
@@ -148,15 +147,30 @@ CMSSW.lumi_mask=%(path)s/%(run)sjsonls.txt
     mcrabfile.close()
     return
 
+def setup_multi(job,path) :
+    mcrabfile = open(path+"/multicrab.cfg","w")
+    print>>mcrabfile,'''
+[MULTICRAB]
+cfg=crab.cfg
+    '''+''.join(['''
+    
+[%(label)s]
+CMSSW.datasetpath=%(ds)s
+''' % {"ds":ds,
+       "label":ds.strip('/').replace(" ","_").replace("/",".")} \
+                 for ds in job['DATASET'].split(',')])
+    mcrabfile.close()
+    return
 
-def run_crab(job,path,SPLIT) :
+def run_crab(job,path,MULTI) :
     print_and_execute('''
 #!/usr/bin/env bash
     
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d %(noise)s JetCorrections=%(jec)s GlobalTag=%(gt)s::All
 %(crab)s -create -submit
@@ -167,7 +181,7 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py pa
       "noise": "" if job['NoiseCleaning'] < 0 else "NoiseCleaning=%d"%job['NoiseCleaning'],
       "jec" : job['jec'],
       "gt" : job['globalTag'],
-      "crab" : "multicrab" if SPLIT else "crab"})
+      "crab" : "multicrab" if MULTI else "crab"})
     return
 
 
@@ -195,6 +209,8 @@ def get_options(name) :
     option["PATH"] = '/'.join(['','tmp',option['USER'],name,timestamp,''])
     option["RPATH"] = '/'.join(['',name,'automated',timestamp,''])
     option["JOBID"] = job['rowid']
+    option['DATASET'] = job['dataset']
+    option["MULTI"] = len(job['dataset'].split(','))>1
     return option
 
 
@@ -202,11 +218,18 @@ db = conf.lockedDB()
 db.connect()
 job = get_jobrow( db )
 option = get_options(db.name)
-if(raw_input('\nDo it? [y/n] : ') in ['Y','y',1]) :
+
+if option['SPLIT'] and option['MULTI'] :
+    print "Cannot run over multiple datasets and also split by run."
+
+elif(raw_input('\nDo it? [y/n] : ') in ['Y','y',1] and \
+   not (option['SPLIT'] and option['MULTI'] )) :
+
     setup_cmssw( job, option["PATH"] )
     setup_crab( job, option)
-    if option["SPLIT"] : setup_multicrab( job, option["PATH"] )
-    run_crab( job, option["PATH"], option["SPLIT"] )
+    if option["SPLIT"] : setup_split( job, option['PATH'] )
+    elif option["MULTI"] : setup_multi( job, option['PATH'] )
+    run_crab( job, option["PATH"], option["SPLIT"] or option['MULTI'] )
     option["DASH"] = get_dashboard(option["PATH"])
     
     db.execute('''update job set
@@ -216,4 +239,5 @@ if(raw_input('\nDo it? [y/n] : ') in ['Y','y',1]) :
     path="%(PATH)s",
     rpath="%(FULL_RPATH)s",
     dash=%(DASH)s where rowid=%(JOBID)d''' % option )
+
 db.disconnect()

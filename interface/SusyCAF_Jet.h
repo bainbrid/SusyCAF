@@ -159,9 +159,28 @@ initPF() { if(!pfSpecific) return;
   produces <std::vector<float> > (Prefix + "FchargedEm" + Suffix);
   produces <std::vector<float> > (Prefix + "FneutralEm" + Suffix);
   produces <std::vector<float> > (Prefix + "FchargedMu" + Suffix);
+
+  produces <std::vector<float> > (Prefix + "EchargedHad" + Suffix);
+  produces <std::vector<float> > (Prefix + "EneutralHad" + Suffix);
+  produces <std::vector<float> > (Prefix + "EchargedEM" + Suffix);
+  produces <std::vector<float> > (Prefix + "EneutralEM" + Suffix); 
+  produces <std::vector<float> > (Prefix + "Ephoton" + Suffix);
+  produces <std::vector<float> > (Prefix + "Eelectron" + Suffix);
+  produces <std::vector<float> > (Prefix + "Emuon" + Suffix);
+  produces <std::vector<float> > (Prefix + "EHFHad" + Suffix);
+  produces <std::vector<float> > (Prefix + "EHFEM" + Suffix);
+
   produces <std::vector<unsigned> > (Prefix + "Ncharged" + Suffix);
   produces <std::vector<unsigned> > (Prefix + "Nneutral" + Suffix);
   produces <std::vector<unsigned> > (Prefix + "Nmuon" + Suffix);
+  
+  produces <std::vector<unsigned> > (Prefix + "NchargedHad" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "NneutralHad" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "Nphoton" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "Nelectron" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "NHFHad" + Suffix);
+  produces <std::vector<unsigned> > (Prefix + "NHFEM" + Suffix);
+
 }
 
 template<class T> void SusyCAF_Jet<T>::
@@ -171,9 +190,27 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
   std::auto_ptr<std::vector<float> > FchargedEm( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > FneutralEm( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > FchargedMu( new std::vector<float>() );
+  
+  std::auto_ptr<std::vector<float> > EchargedHad( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > EneutralHad( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > EchargedEM( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > EneutralEM( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > Ephoton( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > Eelectron( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > Emuon( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > EHFHad( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > EHFEM( new std::vector<float>() );  
+  
   std::auto_ptr<std::vector<unsigned> > Ncharged( new std::vector<unsigned>() );
   std::auto_ptr<std::vector<unsigned> > Nneutral( new std::vector<unsigned>() );
   std::auto_ptr<std::vector<unsigned> > Nmuon( new std::vector<unsigned>() );
+
+  std::auto_ptr<std::vector<unsigned> > NchargedHad( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > NneutralHad( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > Nphoton( new std::vector<unsigned>() );  
+  std::auto_ptr<std::vector<unsigned> > Nelectron( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > NHFHad( new std::vector<unsigned>() );
+  std::auto_ptr<std::vector<unsigned> > NHFEM( new std::vector<unsigned>() );
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
     FchargedHad->push_back( (*jets)[i].chargedHadronEnergyFraction() );
@@ -184,15 +221,54 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
     Ncharged->push_back( (unsigned) (*jets)[i].chargedMultiplicity() );
     Nneutral->push_back( (unsigned) (*jets)[i].neutralMultiplicity() );
     Nmuon->push_back( (unsigned) (*jets)[i].muonMultiplicity() );
-  }
+ 
+    EchargedHad->push_back( (*jets)[i].chargedHadronEnergy() );
+    EneutralHad->push_back( (*jets)[i].neutralHadronEnergy() );
+    EchargedEM ->push_back( (*jets)[i].chargedEmEnergy() );
+    EneutralEM ->push_back( (*jets)[i].neutralEmEnergy() );
+    Ephoton    ->push_back( (*jets)[i].photonEnergy() ); 
+    Eelectron  ->push_back( (*jets)[i].electronEnergy() );
+    Emuon      ->push_back( (*jets)[i].muonEnergy() );  
+    EHFHad     ->push_back( (*jets)[i].HFHadronEnergy() );
+    EHFEM      ->push_back( (*jets)[i].HFEMEnergy() );
+    
+    NchargedHad->push_back( (unsigned) (*jets)[i].chargedHadronMultiplicity() );	
+    NneutralHad->push_back( (unsigned) (*jets)[i].neutralHadronMultiplicity() );
+    Nphoton    ->push_back( (unsigned) (*jets)[i].photonMultiplicity() );
+    Nelectron  ->push_back( (unsigned) (*jets)[i].electronMultiplicity() );
+    NHFHad     ->push_back( (unsigned) (*jets)[i].HFHadronMultiplicity() );
+    NHFEM      ->push_back( (unsigned) (*jets)[i].HFEMMultiplicity() );
+  
+    
+ }
+
   evt.put(FchargedHad, Prefix + "FchargedHad" + Suffix);
   evt.put(FneutralHad, Prefix + "FneutralHad" + Suffix);
-  evt.put(FchargedEm, Prefix + "FchargedEm" + Suffix);
-  evt.put(FneutralEm, Prefix + "FneutralEm" + Suffix);
-  evt.put(FchargedMu, Prefix + "FchargedMu" + Suffix);
-  evt.put(Ncharged, Prefix + "Ncharged" + Suffix);
-  evt.put(Nneutral, Prefix + "Nneutral" + Suffix);
-  evt.put(Nmuon, Prefix + "Nmuon" + Suffix);
+  evt.put(FchargedEm,  Prefix + "FchargedEm"  + Suffix);
+  evt.put(FneutralEm,  Prefix + "FneutralEm"  + Suffix);
+  evt.put(FchargedMu,  Prefix + "FchargedMu"  + Suffix);
+  evt.put(Ncharged,    Prefix + "Ncharged"    + Suffix);
+  evt.put(Nneutral,    Prefix + "Nneutral"    + Suffix);
+  evt.put(Nmuon,       Prefix + "Nmuon"       + Suffix);
+  
+ 
+    evt.put(EchargedHad, Prefix + "EchargedHad" + Suffix); 
+    evt.put(EneutralHad, Prefix + "EneutralHad" + Suffix); 
+    evt.put(EchargedEM , Prefix + "EchargedEM" + Suffix); 
+    evt.put(EneutralEM , Prefix + "EneutralEM" + Suffix);  
+    evt.put(Ephoton    , Prefix + "Ephoton" + Suffix); 
+    evt.put(Eelectron  , Prefix + "Eelectron" + Suffix); 
+    evt.put(Emuon      , Prefix + "Emuon" + Suffix); 
+    evt.put(EHFHad     , Prefix + "EHFHad" + Suffix); 
+    evt.put(EHFEM      , Prefix + "EHFEM" + Suffix);  
+
+    evt.put(NchargedHad, Prefix + "NchargedHad" + Suffix); 
+    evt.put(NneutralHad, Prefix + "NnetrualHad" + Suffix); 
+    evt.put(Nphoton    , Prefix + "Nphoton" + Suffix); 
+    evt.put(Nelectron  , Prefix + "Nelectron" + Suffix); 
+    evt.put(NHFHad     , Prefix + "NHFHad" + Suffix); 
+    evt.put(NHFEM      , Prefix + "NHFEM" + Suffix); 
+   
 }
 
 template<class T> void SusyCAF_Jet<T>::

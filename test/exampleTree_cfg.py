@@ -19,7 +19,7 @@ options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleto
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
-options.register('NoiseCleaning',"unspecified", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
+options.register('NoiseCleaning',False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
 options.register('SourceName', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 
 #---parse user input
@@ -45,22 +45,22 @@ process.add_( cms.Service( "TFileService",
 if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'START36_V7::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START37_V5::All'
 	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
-            options.files = '/store/relval/CMSSW_3_5_2/RelValMinBias/GEN-SIM-RECO/START3X_V21-v1/0016/98DDB99F-3B1E-DF11-B244-001731AF66AD.root'
+            options.files = '/store/relval/CMSSW_3_7_0_pre5/RelValProdTTbar/GEN-SIM-RECO/MC_37Y_V4-v1/0023/BA92C6D3-8863-DF11-B3AF-002618943939.root'
 	        # Due to problem in production of LM samples: same event number appears multiple times
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR_R_36X_V9::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR_R_37X_V6::All'
 	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
-            options.files = '/store/data/BeamCommissioning09/MinimumBias/RECO/18thFebPreProd_351p1-v3/0000/FAE46E07-C51D-DF11-A7E6-00237DA12CA0.root'
+            options.files = '/store/relval/CMSSW_3_7_0_pre5/MinimumBias/RECO/GR_R_37X_V4_RelVal_col_10-v1/0024/CAD8C3ED-8E63-DF11-B60D-00261894393B.root'
     else:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'START36_V7::All'
+            if options.GlobalTag == "": options.GlobalTag = 'START37_V5::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/RelValMinBias_10k_V00-09-01_SUSYPAT.root'
             process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR_R_36X_V9::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR_R_37X_V6::All'
             options.files = 'rfio://castorcms/?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/edelhoff/SusyCAF/examplePAT/BeamCommissioning09_MinimumBias_Jan23Skim_V00-05-10.root'
 
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
@@ -86,7 +86,7 @@ theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'35x',theJetNames) 
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'',theJetNames) 
     process.patJetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
     process.patJetGenJetMatchAK7Calo.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchIC5Calo.maxDeltaR  = cms.double(0.5)

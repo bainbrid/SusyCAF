@@ -154,10 +154,13 @@ else:
     insertSelection(process)
 
 if not options.NoiseCleaning :
-    from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer,makeAndScheduleHcalReFlaggingPath
+    from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer#,makeAndScheduleHcalReFlaggingPath
     loadAndConfigureHcalSeverityLevelProducer(process)
     #will not be needed for long ---v
-    makeAndScheduleHcalReFlaggingPath(process,schedule)
+    #makeAndScheduleHcalReFlaggingPath(process,schedule)
+
+    from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addHbheNoiseFilterResult
+    addHbheNoiseFilterResult(process,schedule)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 process.lumiPath = cms.Path(process.lumiTree)

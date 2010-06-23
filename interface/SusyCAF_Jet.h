@@ -11,6 +11,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -180,6 +181,9 @@ initPF() { if(!pfSpecific) return;
   produces <std::vector<unsigned> > (Prefix + "Nelectron" + Suffix);
   produces <std::vector<unsigned> > (Prefix + "NHFHad" + Suffix);
   produces <std::vector<unsigned> > (Prefix + "NHFEM" + Suffix);
+ 
+  produces <std::vector<int> > ( Prefix + "PFJetIDloose"  + Suffix );
+  produces <std::vector<int> > ( Prefix + "PFJetIDtight"  + Suffix );
 
 }
 
@@ -211,8 +215,19 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
   std::auto_ptr<std::vector<unsigned> > Nelectron( new std::vector<unsigned>() );
   std::auto_ptr<std::vector<unsigned> > NHFHad( new std::vector<unsigned>() );
   std::auto_ptr<std::vector<unsigned> > NHFEM( new std::vector<unsigned>() );
+  
+  std::auto_ptr<std::vector<int> >  pfjetidloose  ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  pfjetidtight  ( new std::vector<int>()  ) ;
+
+  PFJetIDSelectionFunctor
+    pfLooseJetID(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE),
+    pfTightJetID(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::TIGHT);
 
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
+    pat::strbitset
+      passLooseCuts(   pfLooseJetID  .getBitTemplate() ),
+      passTightCuts(   pfTightJetID  .getBitTemplate() );
+
     FchargedHad->push_back( (*jets)[i].chargedHadronEnergyFraction() );
     FneutralHad->push_back( (*jets)[i].neutralHadronEnergyFraction() );
     FchargedEm->push_back( (*jets)[i].chargedEmEnergyFraction() );
@@ -238,7 +253,9 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
     Nelectron  ->push_back( (unsigned) (*jets)[i].electronMultiplicity() );
     NHFHad     ->push_back( (unsigned) (*jets)[i].HFHadronMultiplicity() );
     NHFEM      ->push_back( (unsigned) (*jets)[i].HFEMMultiplicity() );
-  
+   
+    pfjetidloose->push_back(pfLooseJetID( (*jets)[i], passLooseCuts  ));
+    pfjetidtight->push_back(pfTightJetID( (*jets)[i], passTightCuts  )); 
     
  }
 
@@ -250,7 +267,6 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
   evt.put(Ncharged,    Prefix + "Ncharged"    + Suffix);
   evt.put(Nneutral,    Prefix + "Nneutral"    + Suffix);
   evt.put(Nmuon,       Prefix + "Nmuon"       + Suffix);
-  
  
     evt.put(EchargedHad, Prefix + "EchargedHad" + Suffix); 
     evt.put(EneutralHad, Prefix + "EneutralHad" + Suffix); 
@@ -263,12 +279,15 @@ producePF(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!pfSpeci
     evt.put(EHFEM      , Prefix + "EHFEM" + Suffix);  
 
     evt.put(NchargedHad, Prefix + "NchargedHad" + Suffix); 
-    evt.put(NneutralHad, Prefix + "NnetrualHad" + Suffix); 
+    evt.put(NneutralHad, Prefix + "NneutralHad" + Suffix); 
     evt.put(Nphoton    , Prefix + "Nphoton" + Suffix); 
     evt.put(Nelectron  , Prefix + "Nelectron" + Suffix); 
     evt.put(NHFHad     , Prefix + "NHFHad" + Suffix); 
     evt.put(NHFEM      , Prefix + "NHFEM" + Suffix); 
-   
+
+  evt.put( pfjetidloose,  Prefix + "PFJetIDloose"  + Suffix );
+  evt.put( pfjetidtight,  Prefix + "PFJetIDtight"  + Suffix );
+
 }
 
 template<class T> void SusyCAF_Jet<T>::

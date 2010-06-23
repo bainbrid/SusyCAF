@@ -19,7 +19,7 @@ options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleto
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
-options.register('NoiseCleaning',False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
+options.register('NoiseCleaning',"unspecified", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
 options.register('SourceName', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 
 #---parse user input

@@ -100,3 +100,9 @@ def addNoiseCleaning(process,schedule,mcInfo) :
 ########################################################
 ############### MET CLEANING STOPS HERE ################
 ########################################################
+
+def addHbheNoiseFilterResult(process,schedule) :
+    # Instead of rejecting the event, add a flag indicating the HBHE noise
+    process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
+    process.hbheflag = cms.Path(process.HBHENoiseFilterResultProducer)
+    schedule.append(process.hbheflag)

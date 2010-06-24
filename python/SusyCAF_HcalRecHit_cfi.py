@@ -35,10 +35,11 @@ susycafhorechit = cms.EDProducer("SusyCAF_HORecHitsSorted",
 
 susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged', Suffix='HfReFlagged', SeverityLevelCut=11 )
 
-def loadAndConfigureHcalSeverityLevelProducer(process) :
+def loadAndConfigureHcalSeverityLevelProducer(process,mcInfo) :
     process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
-    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
+    if not mcInfo :
+        process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+        process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
 
 def makeAndScheduleHcalReFlaggingPath(process,schedule) :
     process.load("JetMETAnalysis/HcalReflagging/HFrechitreflaggerJETMET_cff")

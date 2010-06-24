@@ -155,7 +155,7 @@ else:
 
 if not options.NoiseCleaning :
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer#,makeAndScheduleHcalReFlaggingPath
-    loadAndConfigureHcalSeverityLevelProducer(process)
+    loadAndConfigureHcalSeverityLevelProducer(process,options.mcInfo)
     #will not be needed for long ---v
     #makeAndScheduleHcalReFlaggingPath(process,schedule)
 

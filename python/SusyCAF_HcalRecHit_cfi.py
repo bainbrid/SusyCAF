@@ -4,7 +4,7 @@ susycafhbherechit = cms.EDProducer("SusyCAF_HBHERecHitsSorted",
                                    InputTag = cms.InputTag('hbhereco'),
                                    Prefix = cms.string('rechitCalo'),
                                    Suffix = cms.string('Hbhe'),
-                                   SeverityLevelCut = cms.int32(50),
+                                   SeverityLevelCut = cms.int32(11),
                                    ProduceExtraVariables = cms.bool(False),
                                    SingleRbxThresholds = cms.vdouble(10.0), #GeV
                                    SingleRmThresholds = cms.vdouble(5.0), #GeV
@@ -26,20 +26,19 @@ susycafhorechit = cms.EDProducer("SusyCAF_HORecHitsSorted",
                                  InputTag = cms.InputTag('horeco'),
                                  Prefix = cms.string('rechitCalo'),
                                  Suffix = cms.string('Ho'),
-                                 SeverityLevelCut = cms.int32(50),
+                                 SeverityLevelCut = cms.int32(11),
                                  ProduceExtraVariables = cms.bool(False),
                                  SingleRbxThresholds = cms.vdouble(10.0), #GeV
                                  SingleRmThresholds = cms.vdouble(5.0), #GeV
                                  SingleChannelThreshold = cms.double(1.0), #GeV
                                  )
 
-susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged', Suffix='HfReFlagged', SeverityLevelCut=50 )
+susycafhfrechitreflagged = susycafhfrechit.clone( InputTag = 'hfrecoReflagged', Suffix='HfReFlagged', SeverityLevelCut=11 )
 
 def loadAndConfigureHcalSeverityLevelProducer(process) :
     process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-    process.hcalRecAlgos.SeverityLevels.append(cms.PSet(RecHitFlags = cms.vstring('UserDefinedBit0','HBHEHpdHitMultiplicity','HBHEPulseShape'),
-                                                        ChannelStatus = cms.vstring(''),
-                                                        Level = cms.int32(50)))
+    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
 
 def makeAndScheduleHcalReFlaggingPath(process,schedule) :
     process.load("JetMETAnalysis/HcalReflagging/HFrechitreflaggerJETMET_cff")

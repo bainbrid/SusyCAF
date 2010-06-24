@@ -406,9 +406,9 @@ produceJetID(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) {
   std::auto_ptr<std::vector<int> >  NHCALTowers  ( new std::vector<int>()  ) ;
 
   JetIDSelectionFunctor
-    minimalJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::MINIMAL),
-    looseJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::LOOSE),
-    tightJetID(JetIDSelectionFunctor::CRAFT08, JetIDSelectionFunctor::TIGHT);  
+    minimalJetID(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::MINIMAL),
+    looseJetID(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE),
+    tightJetID(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::TIGHT);  
   for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
 
     edm::RefToBase<T> jet_ref( jets, i );

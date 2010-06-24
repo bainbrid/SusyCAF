@@ -71,6 +71,11 @@ nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
                                        susycafhfrechitreflagged +
                                        susycafebrechit +
                                        susycafeerechit +
+                                       susycafpfrechitclusterecal +
+                                       susycafpfrechitclusterhcal +
+                                       susycafpfrechitclusterhfem +
+                                       susycafpfrechitclusterhfhad +
+                                       susycafpfrechitclusterps +
                                        susycafpfrechitecal +
                                        susycafpfrechithcal +
                                        susycafpfrechithfem +

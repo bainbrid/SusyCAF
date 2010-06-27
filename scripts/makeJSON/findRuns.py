@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
 # DK: 06/05/2010 modified for the Susy PVT
+# DK: 25/06/2010 updated for new beam E check
+# DK: 27/06/2010 3 exclusive json files:
+#                jsonls.txt all good (i.e.: Energy,Bfield,all FLAGS, all DCS bits - except castor,...)
+#                NONEDPG_json.txt  ignore POG flags
+#                ANYDPG_jsonls.txt ignore any BAD flag
 
 # LM: version date: 01/02/2010 --> fixed dataset search and added json output file (optional)
 # LM: updated 03/04/2010 --> adapted to new runreg api (and dcs status info)
@@ -129,60 +134,91 @@ def searchrun(runno):
 
 # needed by ene_in_run
 global RUNMIN,RUNMAX,BFIELD
-
-def ene_in_run(LISTOFRUN):
+def ene_in_run(run_data):
     global RUNMIN,RUNMAX,BFIELD
     BEAM_ENE_ALL=[450.0,3500.0]
     BEAM_ENE_DEF=3500.0
-
     ene_map={}
-    print "Running the xml retriever for energy map."
-    RRserver = xmlrpclib.ServerProxy('http://pccmsdqm04.cern.ch/runregistry/xmlrpc')
-    selection="{groupName} ='Collisions10' and {runNumber} >= "+RUNMIN+" and {runNumber} <= "+RUNMAX+" and {bfield}>"+BFIELD+" and {datasetName} LIKE '%Express%'"
-    XMLALL = RRserver.DataExporter.export('RUN', 'GLOBAL', 'xml_all', selection)
-#    print XMLALL
-    doc = xml.dom.minidom.parseString(XMLALL)
-    run_list = doc.getElementsByTagName('RUN')
-#    print run_list
-    for domrun in run_list:
-        runid= domrun.attributes["id"].value
-        runno= domrun.getElementsByTagName('NUMBER')[0].firstChild.data
-        if runno not in LISTOFRUN:
-            continue
-        command='wget "http://pccmsdqm04.cern.ch/runregistry/beamStatusTable.jsp?runid='+runid+'" -O - -o /dev/null'
-#        print command
-        table_orig=commands.getoutput(command)
-        table=""
-        #cleanup table removing comment lines (often with strange characters)
-        for line in table_orig.split("\n"):
-            if "Comments" not in line:
-                table+=line+"\n"
-
-#        print table
-        # now parse table
-        xmltable = xml.dom.minidom.parseString(table)
-#       print xmltable
-        rows=xmltable.getElementsByTagName('tr')
-        cols=rows[1].getElementsByTagName('td')
-        energy=str(cols[1].firstChild.data)
-        fill=str(cols[2].firstChild.data)
-#        print runid,runno,energy,fill
-        mindiff=999999.
-        for be in BEAM_ENE_ALL:
-            if abs(float(energy)-be)<mindiff:
-                mindiff=abs(float(energy)-be)
-        if mindiff>500.0:
-            print "WARNING: Something wrong with energies in run "+runno
-            print "WARNING: Getting: "+energy+" from RR.Using default value of:"+str(BEAM_ENE_DEF)
-            energy=str(BEAM_ENE_DEF)
-        ene_map[str(runno)]=float(energy)
-        # check that all runs are there and in case use default energy
-    for run in LISTOFRUN:
-        if run not in ene_map.keys():
-            print "WARNING: run "+run+" not found in RR energy map, using default energy for it."
-            ene_map[str(runno)]=BEAM_ENE_DEF
+    print "Retrieving energy from the RR run tabel and making some check...."
+    for line in run_data.split("\n"):
+#        print line
+        run=line.split(',')[0]
+        if run.isdigit():
+            # we need to do something to avoid parsing commas in comment column
+            group=line.split('",')[8]
+            energy=group.split(',')[0]
+#            print run,line,group,energy
+#            fill=group.split(',')[1]
+#            print run,energy,fill
+            mindiff=999999.
+            if energy.isdigit():
+                for be in BEAM_ENE_ALL:
+                    if abs(float(energy)-be)<mindiff:
+                        mindiff=abs(float(energy)-be)
+            if mindiff>500.0:
+                print "WARNING: Something wrong with energies in run "+run
+                print "WARNING: Getting: "+energy+" from RR.Using default value of:"+str(BEAM_ENE_DEF)
+                energy=str(BEAM_ENE_DEF)
+            ene_map[run]=float(energy)
 
     return ene_map
+
+
+
+
+# this is not used anymore
+#def ene_in_run(LISTOFRUN):
+#    global RUNMIN,RUNMAX,BFIELD
+#    BEAM_ENE_ALL=[450.0,3500.0]
+#    BEAM_ENE_DEF=3500.0
+#    ene_map={}
+#    print "Running the xml retriever for energy map."
+#    RRserver = xmlrpclib.ServerProxy('http://pccmsdqm04.cern.ch/runregistry/xmlrpc')
+#    selection="{groupName} ='Collisions10' and {runNumber} >= "+RUNMIN+" and {runNumber} <= "+RUNMAX+" and {bfield}>"+BFIELD+" and {datasetName} LIKE '%Express%'"
+#    XMLALL = RRserver.DataExporter.export('RUN', 'GLOBAL', 'xml_all', selection)
+#    print XMLALL
+#    doc = xml.dom.minidom.parseString(XMLALL)
+#    run_list = doc.getElementsByTagName('RUN')
+#    print run_list
+#    for domrun in run_list:
+#        runid= domrun.attributes["id"].value
+#        runno= domrun.getElementsByTagName('NUMBER')[0].firstChild.data
+#        if runno not in LISTOFRUN:
+#            continue
+#        command='wget "http://pccmsdqm04.cern.ch/runregistry/beamStatusTable.jsp?runid='+runid+'" -O - -o /dev/null'
+#        print command
+#        table_orig=commands.getoutput(command)
+#        table=""
+#        #cleanup table removing comment lines (often with strange characters)
+#        for line in table_orig.split("\n"):
+#            if "Comments" not in line:
+#                table+=line+"\n"
+
+##        print table
+#        # now parse table
+#        xmltable = xml.dom.minidom.parseString(table)
+##       print xmltable
+#        rows=xmltable.getElementsByTagName('tr')
+#        cols=rows[1].getElementsByTagName('td')
+#        energy=str(cols[1].firstChild.data)
+#        fill=str(cols[2].firstChild.data)
+##        print runid,runno,energy,fill
+#        mindiff=999999.
+#        for be in BEAM_ENE_ALL:
+#            if abs(float(energy)-be)<mindiff:
+#                mindiff=abs(float(energy)-be)
+#        if mindiff>500.0:
+#            print "WARNING: Something wrong with energies in run "+runno
+#            print "WARNING: Getting: "+energy+" from RR.Using default value of:"+str(BEAM_ENE_DEF)
+#            energy=str(BEAM_ENE_DEF)
+#        ene_map[str(runno)]=float(energy)
+#        # check that all runs are there and in case use default energy
+#    for run in LISTOFRUN:
+#        if run not in ene_map.keys():
+#            print "WARNING: run "+run+" not found in RR energy map, using default energy for it."
+#            ene_map[str(runno)]=BEAM_ENE_DEF
+#
+#    return ene_map
 
 # in order to get dbsjson files
 global DBS_PDS
@@ -217,7 +253,8 @@ def get_dbsjson():
         lumilist=unsorted[run]
         lumilist.sort()
         sorted[run]=lumilist
-#    print sorted
+#   print sorted
+#    print sorted.keys()
     
     dbsjson={}
     for run in sorted.keys():
@@ -291,7 +328,7 @@ DBS_PDS=DBS_PDS_ALL.split(",")
 if  len(sys.argv) == 2:
         RUNMIN = sys.argv[1]
 elif len(sys.argv) > 2:
-        print 'Only 1 argument (last run) allowed'
+        print 'Only 1 argument (last run - exclusive) allowed'
         sys.exit(1)
 
 LSCOMMENT=True
@@ -376,6 +413,9 @@ sel_dstable="{groupName} ='"+GROUP+"' and {runNumber} > "+RUNMIN+" and {runNumbe
 #dk
 sel_runtable_NONEPOG = sel_runtable
 sel_dstable_NONEPOG  = sel_dstable
+#dk2
+sel_runtable_ANYDPG = sel_runtable
+sel_dstable_ANYDPG  = sel_dstable
 
 for key in QF_Req.keys():
     if key != "Lumi" and key != "NONE" and QF_Req[key]!="NONE":
@@ -387,8 +427,10 @@ for key in QF_Req.keys():
            sel_dstable_NONEPOG+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
 
 #print "we select:"
+
 #print sel_dstable
 #print sel_dstable_NONEPOG
+#print sel_dstable_ANYDPG
 #print sel_runtable
 
 # build up selection in RUNLUMISECTION table, not requestuing bfield here because only runs in the run table selection will be considered
@@ -411,6 +453,9 @@ while Tries<10:
 #dk
 	run_data_NONEPOG = server.DataExporter.export('RUN', 'GLOBAL', 'csv_runs', sel_runtable_NONEPOG)
         ls_temp_data = server.DataExporter.export('RUN', 'GLOBAL', 'csv_datasets', sel_dstable)
+#dk2
+	run_data_ANYDPG = server.DataExporter.export('RUN', 'GLOBAL', 'csv_runs', sel_runtable_ANYDPG)
+        ls_temp_data = server.DataExporter.export('RUN', 'GLOBAL', 'csv_datasets', sel_dstable)
         break
     except:
         print "Something wrong in accessing runregistry, retrying in 3s...."
@@ -422,6 +467,8 @@ if Tries==10:
     
 #print dcs_data
 #print run_data
+#print run_data_NONEPOG
+#print run_data_ANYDPG
 #print ls_temp_data
 # find LS info in comment
 
@@ -438,16 +485,33 @@ for line in run_data_NONEPOG.split("\n"):
     if run.isdigit():
         if not run in LISTOFRUN:
            LISTOFRUN_NONEPOG.append(run)
+#DK2
+LISTOFRUN_ANYDPG=[]
+for line in run_data_ANYDPG.split("\n"):
+    run=line.split(',')[0]
+    if run.isdigit():
+        if not run in LISTOFRUN+LISTOFRUN_NONEPOG:
+           LISTOFRUN_ANYDPG.append(run)
+#print LISTOFRUN
+#print LISTOFRUN_NONEPOG
+#print LISTOFRUN_ANYDPG
 
 #build up energy per run dictionary if asked to do so, and remove runs from lits
 #print LISTOFRUN
 if BEAMENE!="-1":
     print "Building up beam energy per run info... please wait it can be long"
-    energies=ene_in_run(LISTOFRUN)
+#    energies=ene_in_run(LISTOFRUN)
+#dk    energies=ene_in_run(run_data)
+    energies=ene_in_run(run_data_ANYDPG)
     for run in energies.keys():
         if abs(energies[run]-float(BEAMENE))>500.0:
-            LISTOFRUN.remove(run)
+            if run in LISTOFRUN:         LISTOFRUN.remove(run)
+            if run in LISTOFRUN_NONEPOG: LISTOFRUN_NONEPOG.remove(run)
+            if run in LISTOFRUN_ANYDPG:  LISTOFRUN_ANYDPG.remove(run)
 #print LISTOFRUN
+#print LISTOFRUN_NONEPOG
+#print LISTOFRUN_ANYDPG
+#------------
 
 # now check for DBS
 if USEDBS:
@@ -458,6 +522,8 @@ if USEDBS:
 selected_dcs={}
 #dk
 selected_dcs_NONEPOG={}
+#dk2
+selected_dcs_ANYDPG={}
 
 jsonlist=json.loads(dcs_data)
 
@@ -524,6 +590,37 @@ for element in jsonlist:
             # using only DCS info
             selected_dcs_NONEPOG[element]=jsonlist[element]
         # combined include bith manual LS and DCS LS
+#dk2
+    elif element in LISTOFRUN_ANYDPG:
+# first search manual ls certification
+        if LSCOMMENT:
+            # using LS intervals in comment
+            manualbad_int=searchrun(element)
+        # make a badlumi list
+            dcsbad_int=invert_intervals(jsonlist[element])
+            combined=[]
+            for interval in  manualbad_int:
+                combined.append(interval)
+            for interval in  dcsbad_int:
+                combined.append(interval)
+
+            # use this part in case DBS corss-check required
+            if USEDBS:
+                if element in dbsjson.keys():
+                    dbsbad_int=invert_intervals(dbsjson[element])
+                else:
+                    # strange it should be there.... exclude all lumi for this run then...
+                    dbsbad_int=[[1,9999]]
+                for interval in  dbsbad_int:
+                    combined.append(interval)
+                
+            combined=merge_intervals(combined)
+            combined=invert_intervals(combined)
+            selected_dcs_ANYDPG[element]=combined
+        else:
+            # using only DCS info
+            selected_dcs_ANYDPG[element]=jsonlist[element]
+        # combined include bith manual LS and DCS LS
 
 
 
@@ -534,14 +631,26 @@ if JSONFILE != "NONE":
     lumiSummary.close() 
     print " "
     print "-------------------------------------------"
+    if len(LISTOFRUN) == 0: print "no good runs found"
+    else: print "                    Json file: ",JSONFILE
     if len(LISTOFRUN_NONEPOG) == 0: print "no bad POG found"
-    print "          Json file: ",JSONFILE
-    if len(LISTOFRUN_NONEPOG) > 0:
-       JSONFILE="NONEPOG_"+JSONFILE
-       lumiSummary = open(JSONFILE, 'w')
+    else:
+       JSONFILE2="NONEPOG_"+JSONFILE
+       lumiSummary = open(JSONFILE2, 'w')
        json.dump(selected_dcs_NONEPOG, lumiSummary)
        lumiSummary.close()
-       print "  bad POG Json file: ",JSONFILE
+       print "            bad POG Json file: ",JSONFILE2
+    if len(LISTOFRUN_ANYDPG) == 0: print "nothing left for ANYDPG"
+    else:
+       JSONFILE3="ANYDPG_"+JSONFILE
+       lumiSummary = open(JSONFILE3, 'w')
+       json.dump(selected_dcs_ANYDPG, lumiSummary)
+       lumiSummary.close()
+       print " \'ignore DPG flags\'-Json file: ",JSONFILE3
+    print "-------------------------------------------"
+
+#DK: we do not need a cfg
+sys.exit(0)
 
 # buildup cms snippet
 selectlumi="process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(\n"
@@ -559,8 +668,7 @@ for run in runs_to_print:
            ranges[-1] = "\t'%s:%d-%s:%d',\n" % (run, prevblock[0],
 run, prevblock[1])
        else:
-           ranges.append("\t'%s:%d-%s:%d',\n" % (run, lsrange[0],
-run, lsrange[1]))
+           ranges.append("\t'%s:%d-%s:%d',\n" % (run, lsrange[0],run, lsrange[1]))
            prevblock = lsrange
 selectlumi += "".join(ranges)
 selectlumi += ")"

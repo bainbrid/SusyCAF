@@ -89,8 +89,11 @@ def searchrun(runno):
     intervallist=[]
     selectls=""
 
+    run_found=False
+    
     for line in ls_temp_data.split("\n"):
         if runno in line:
+            run_found=True
 #            print line
             try:
                 if "%%%BAD LS INFO BEGIN%%%" in line:
@@ -129,6 +132,9 @@ def searchrun(runno):
                 EXRUN=int(runno)
     intervallist=merge_intervals(intervallist)
     # print runno, intervallist
+    if not run_found:
+            print "\nWARNING: run "+runno+" not found in the ls table, no LSBAD comment parsed for this run"
+            
     return intervallist
 
 
@@ -291,7 +297,8 @@ compactList = {}
 
 QF_ALL_SYS=["Hcal","Track","Strip","Egam","Es","Dt","Csc","Pix","Muon","Rpc","Castor","Jmet","Ecal","L1t","Hlt","Lumi","NONE"]
 QF_ALL_STAT=["GOOD","BAD","EXCL","NONE"]
-DCS_ALL=['Bpix','Fpix','Tibtid','TecM','TecP','Tob','Ebminus','Ebplus','EeMinus','EePlus','EsMinus','EsPlus','HbheA','HbheB','HbheC','H0','Hf','Dtminus','Dtplus','Dt0','CscMinus','CscPlus','Rpc','Castor',"NONE"]
+#dk DCS_ALL=['Bpix','Fpix','Tibtid','TecM','TecP','Tob','Ebminus','Ebplus','EeMinus','EePlus','EsMinus','EsPlus','HbheA','HbheB','HbheC','H0','Hf','Dtminus','Dtplus','Dt0','CscMinus','CscPlus','Rpc','Castor',"NONE"]
+DCS_ALL=['Bpix','Fpix','Tibtid','TecM','TecP','Tob','Ebminus','Ebplus','EeMinus','EePlus','EsMinus','EsPlus','HbheA','HbheB','HbheC','Ho','Hf','Dtminus','Dtplus','Dt0','CscMinus','CscPlus','Rpc','Castor',"NONE"]
 
 # reading config file
 CONFIGFILE='runreg.cfg'
@@ -420,11 +427,11 @@ sel_dstable_ANYDPG  = sel_dstable
 for key in QF_Req.keys():
     if key != "Lumi" and key != "NONE" and QF_Req[key]!="NONE":
         sel_runtable+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
-        sel_dstable+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
+#dk2        sel_dstable+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
 #dk
         if not key in ["Track","Muon","Egam","Jmet"]:
            sel_runtable_NONEPOG+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
-           sel_dstable_NONEPOG+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
+#dk2           sel_dstable_NONEPOG+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
 
 #print "we select:"
 
@@ -554,10 +561,12 @@ for element in jsonlist:
                 
             combined=merge_intervals(combined)
             combined=invert_intervals(combined)
-            selected_dcs[element]=combined
+            if len(combined)!=0:
+               selected_dcs[element]=combined
         else:
             # using only DCS info
-            selected_dcs[element]=jsonlist[element]
+            if len(jsonlist[element])!=0:
+               selected_dcs[element]=jsonlist[element]
         # combined include bith manual LS and DCS LS
 #dk
     elif element in LISTOFRUN_NONEPOG:
@@ -585,10 +594,12 @@ for element in jsonlist:
                 
             combined=merge_intervals(combined)
             combined=invert_intervals(combined)
-            selected_dcs_NONEPOG[element]=combined
+            if len(jsonlist[element])!=0:
+                selected_dcs_NONEPOG[element]=combined
         else:
             # using only DCS info
-            selected_dcs_NONEPOG[element]=jsonlist[element]
+            if len(jsonlist[element])!=0:
+               selected_dcs_NONEPOG[element]=jsonlist[element]
         # combined include bith manual LS and DCS LS
 #dk2
     elif element in LISTOFRUN_ANYDPG:
@@ -616,10 +627,12 @@ for element in jsonlist:
                 
             combined=merge_intervals(combined)
             combined=invert_intervals(combined)
-            selected_dcs_ANYDPG[element]=combined
+            if len(jsonlist[element])!=0:
+               selected_dcs_ANYDPG[element]=combined
         else:
             # using only DCS info
-            selected_dcs_ANYDPG[element]=jsonlist[element]
+            if len(jsonlist[element])!=0:
+               selected_dcs_ANYDPG[element]=jsonlist[element]
         # combined include bith manual LS and DCS LS
 
 

@@ -5,8 +5,8 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -18,7 +18,9 @@ public:
     : inputTag  (conf.getParameter<edm::InputTag>("InputTag"))
     , sourceName(conf.getParameter<std::string>  ("SourceName"))
     , sourceType(NOT_APPLICABLE)
-  {
+    , tag_( conf.getParameter<edm::InputTag>("TriggerEventInputTag")) 
+    , run_(-1)
+    {
     // Source is either a stream or a dataset (mutually exclusive)
     if (sourceName.length() > 0) {
       if (sourceName.length() >= 2 && sourceName[0]=='S' && sourceName[1]==':') {
@@ -43,24 +45,15 @@ public:
 
 private: 
   enum DataSource { NOT_APPLICABLE, STREAM, DATASET };
-  const edm::InputTag   inputTag;
+  edm::InputTag         inputTag;
   std::string           sourceName;
   DataSource            sourceType;
   HLTConfigProvider     hltConfig;
-
+  edm::InputTag         tag_;
+  int                   run_;
+  
   // Stored per run/lumisection to save time
   std::vector<std::string>    dataSource;
-
-  virtual void beginRun(edm::Run& run, edm::EventSetup const& setup) {
-    bool  hltChanged = false;
-    if (!hltConfig.init(run, setup, inputTag.process(), hltChanged) ) {
-      edm::LogError( "SusyCAF_Triggers" ) << "HLT config initialization error with process name \"" << inputTag.process() << "\".";
-    } else if ( hltConfig.size() < 1 ) {
-      edm::LogError( "SusyCAF_Triggers" ) << "HLT config has zero size.";
-    }
-
-    getDataSource();
-  }
 
   void printNames(const std::vector<std::string>& names) {
     for (unsigned int i = 0; i < names.size(); ++i)
@@ -92,7 +85,29 @@ private:
   }
 
   void produce( edm::Event& event, const edm::EventSetup& setup) {
-    edm::Handle<edm::TriggerResults> results;  event.getByLabel(inputTag, results);
+
+    if ( int(event.getRun().run()) != run_ ) {
+      // Set process name using method here: https://hypernews.cern.ch/HyperNews/CMS/get/physTools/1791/1/1/1/1/1/2.html
+      if ( inputTag.process().empty() ) { 
+	edm::Handle<trigger::TriggerEvent> temp;
+	event.getByLabel( tag_, temp );
+	if( temp.isValid() ) { inputTag = edm::InputTag( inputTag.label(), inputTag.instance(), temp.provenance()->processName() ); }
+	else { edm::LogError( "SusyCAF_Triggers" ) << "[SusyCAF::produce] Cannot retrieve TriggerEvent product for " << tag_; }
+      }
+      // Initialise HLTConfigProvider
+      bool  hltChanged = false;
+      if (!hltConfig.init(event.getRun(), setup, inputTag.process(), hltChanged) ) {
+	edm::LogError( "SusyCAF_Triggers" ) << "HLT config initialization error with process name \"" << inputTag.process() << "\".";
+      } else if ( hltConfig.size() < 1 ) {
+	edm::LogError( "SusyCAF_Triggers" ) << "HLT config has zero size.";
+      }
+      getDataSource();
+    }
+
+    // Retrieve TriggerResults with appropriate InputTag
+    edm::Handle<edm::TriggerResults> results;
+    event.getByLabel( inputTag, results ); 
+    //std::cout << "Retrieving TriggerResults with: " << inputTag << std::endl;
 
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
     std::auto_ptr<std::map<std::string,bool> > parasiticTrigger(new std::map<std::string,bool>());
@@ -108,7 +123,7 @@ private:
         else
           (*parasiticTrigger)[names.triggerName(i)] = results->accept(i) ;
       }
-    }
+    } else { edm::LogError( "SusyCAF_Triggers" ) << "[SusyCAF::produce] Cannot retrieve TriggerResults product for " << inputTag; }
 
     std::auto_ptr<std::vector<std::string> >  source(new std::vector<std::string>(dataSource));
 

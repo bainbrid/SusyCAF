@@ -6,4 +6,7 @@
  <class name="std::map<std::string,int>"/>
  <class name="edm::Wrapper<std::map<std::string,int> >"/>
 
+ <class name="std::map<std::string,std::string>"/>
+ <class name="edm::Wrapper<std::map<std::string,std::string> >"/>
+ 
 </lcgdict>

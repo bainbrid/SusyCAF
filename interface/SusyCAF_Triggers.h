@@ -38,9 +38,11 @@ public:
     }
 
     produces <bool> ( "hltHandleValid");
+    produces <std::string> ( "hltKey");
     produces <std::map<std::string,bool> >("triggered");
     produces <std::map<std::string,bool> >("parasiticTrigger");
     produces <std::map<std::string,int> > ("prescaled");
+    produces <std::map<std::string,std::string> >("hltL1Seeds");
   }
 
 private: 
@@ -89,17 +91,17 @@ private:
     if ( int(event.getRun().run()) != run_ ) {
       // Set process name using method here: https://hypernews.cern.ch/HyperNews/CMS/get/physTools/1791/1/1/1/1/1/2.html
       if ( inputTag.process().empty() ) { 
-	edm::Handle<trigger::TriggerEvent> temp;
-	event.getByLabel( tag_, temp );
-	if( temp.isValid() ) { inputTag = edm::InputTag( inputTag.label(), inputTag.instance(), temp.provenance()->processName() ); }
-	else { edm::LogError( "SusyCAF_Triggers" ) << "[SusyCAF::produce] Cannot retrieve TriggerEvent product for " << tag_; }
+        edm::Handle<trigger::TriggerEvent> temp;
+        event.getByLabel( tag_, temp );
+        if( temp.isValid() ) { inputTag = edm::InputTag( inputTag.label(), inputTag.instance(), temp.provenance()->processName() ); }
+        else { edm::LogError( "SusyCAF_Triggers" ) << "[SusyCAF::produce] Cannot retrieve TriggerEvent product for " << tag_; }
       }
       // Initialise HLTConfigProvider
       bool  hltChanged = false;
       if (!hltConfig.init(event.getRun(), setup, inputTag.process(), hltChanged) ) {
-	edm::LogError( "SusyCAF_Triggers" ) << "HLT config initialization error with process name \"" << inputTag.process() << "\".";
+        edm::LogError( "SusyCAF_Triggers" ) << "HLT config initialization error with process name \"" << inputTag.process() << "\".";
       } else if ( hltConfig.size() < 1 ) {
-	edm::LogError( "SusyCAF_Triggers" ) << "HLT config has zero size.";
+        edm::LogError( "SusyCAF_Triggers" ) << "HLT config has zero size.";
       }
       getDataSource();
     }
@@ -112,25 +114,40 @@ private:
     std::auto_ptr<std::map<std::string,bool> > triggered(new std::map<std::string,bool>());
     std::auto_ptr<std::map<std::string,bool> > parasiticTrigger(new std::map<std::string,bool>());
     std::auto_ptr<std::map<std::string,int> >  prescaled(new std::map<std::string,int>());
+    std::auto_ptr<std::map<std::string,std::string> > hltL1Seeds(new std::map<std::string,std::string>());
 
     if(results.isValid()) {
       const edm::TriggerNames& names = event.triggerNames(*results);
       for(unsigned i=0; i < results->size(); i++) {
         (*prescaled)[names.triggerName(i)] = hltConfig.prescaleValue(event,setup,names.triggerName(i));
 
-        if (dataSource.empty() || std::find(dataSource.begin(), dataSource.end(), names.triggerName(i)) != dataSource.end())
+        if (dataSource.empty() || std::find(dataSource.begin(), dataSource.end(), names.triggerName(i)) != dataSource.end()) {
           (*triggered)[names.triggerName(i)] = results->accept(i) ;
-        else
+          const std::vector<std::pair<bool,std::string> >&  l1Seeds = hltConfig.hltL1GTSeeds(i);
+          if (l1Seeds.size() == 1) {
+            (*hltL1Seeds)[names.triggerName(i)]  = l1Seeds.front().second;
+          }
+          else if (l1Seeds.size() > 1) {
+            std::string   combined;
+            for (unsigned iSeed = 0; iSeed < l1Seeds.size(); ++iSeed) {
+              if (combined.length())  combined += " OR ";
+              combined   += "("+l1Seeds[iSeed].second+")";
+            } // end loop over L1 seeds
+            (*hltL1Seeds)[names.triggerName(i)]  = combined;
+          }
+        } else
           (*parasiticTrigger)[names.triggerName(i)] = results->accept(i) ;
       }
     } else { edm::LogError( "SusyCAF_Triggers" ) << "[SusyCAF::produce] Cannot retrieve TriggerResults product for " << inputTag; }
 
     std::auto_ptr<std::vector<std::string> >  source(new std::vector<std::string>(dataSource));
 
+    event.put( std::auto_ptr<bool>(new bool(results.isValid())), "hltHandleValid");
+    event.put( std::auto_ptr<std::string>(new std::string(hltConfig.tableName())), "hltKey");
     event.put( triggered,"triggered");
     event.put( parasiticTrigger,"parasiticTrigger");
     event.put( prescaled,"prescaled");
-    event.put( std::auto_ptr<bool>(new bool(results.isValid())), "hltHandleValid");
+    event.put( hltL1Seeds,"hltL1Seeds");
   }
 
 };

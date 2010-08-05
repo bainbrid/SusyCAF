@@ -12,6 +12,9 @@ namespace {
 
     std::map<std::string,int> dummi0;
     edm::Wrapper<std::map<std::string,int> > dummi1;
+
+    std::map<std::string,std::string> dummee0;
+    edm::Wrapper<std::map<std::string,std::string> > dummee1;
   };
 }
 

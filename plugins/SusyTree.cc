@@ -56,8 +56,10 @@ beginJob() {
   leafmap["double"]    = DOUBLE;     leafmap["doubles"]   = DOUBLE_V;
   leafmap["lint"]      = LONG;       leafmap["longs"]     = LONG_V;
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
+  leafmap["String"] = STRING;
   leafmap["Stringboolstdmap"] = STRING_BOOL_M;
   leafmap["Stringintstdmap"]  = STRING_INT_M;
+  leafmap["StringStringstdmap"]  = STRING_STRING_M;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVector"] = LORENTZV;
   leafmap["doubleROOTMathPxPyPzE4DROOTMathLorentzVectors"] = LORENTZV_V;
   leafmap["doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector"] = LORENTZV2;
@@ -107,8 +109,10 @@ beginJob() {
       case LONG_V     :  connectors.push_back( new TypedBranchConnector<std::vector          <long> >(selection,   "", tree) ); break;
       case U_LONG     :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
       case U_LONG_V   :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
+      case STRING     : connectors.push_back( new TypedBranchConnector<std::string                  >(selection,   "", tree) ); break;
       case STRING_BOOL_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,bool> >(selection, "", tree) ); break;
       case STRING_INT_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,int> >(selection, "", tree) ); break;
+      case STRING_STRING_M : connectors.push_back( new TypedBranchConnector<std::map<std::string,std::string>  >(selection,   "", tree) ); break;
       case LORENTZV   :  connectors.push_back( new TypedBranchConnector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > (selection, "", tree) ); break;
       case LORENTZV_V :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > >          (selection, "", tree) ); break;
       case LORENTZV2   :  connectors.push_back( new TypedBranchConnector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > (selection, "", tree) ); break;

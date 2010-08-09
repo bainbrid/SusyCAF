@@ -74,7 +74,7 @@ schedule = cms.Schedule()
 # Noise cleaning
 if (options.NoiseCleaning=="unspecified") :
     print
-    print "You must explicitly specify the option --NoiseCleaning=0 or --NoiseCleaning=1"
+    print "You must explicitly specify the option NoiseCleaning=0 or NoiseCleaning=1"
     print
     raise Exception("Unspecified option","NoiseCleaning")
 if bool(options.NoiseCleaning) :

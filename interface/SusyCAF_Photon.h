@@ -195,31 +195,31 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       reco::ConversionRef bestConv;
       float tracksSumPt = 0;
       unsigned nConv = 0;
-
-      for (reco::ConversionRefVector::const_iterator convIt = photon.conversions().begin();
-	   convIt != photon.conversions().end(); convIt++ ) { 
-	
-	std::vector<reco::TrackRef> tracks = (*convIt)->tracks();
-	const reco::Vertex          vertex = (*convIt)->conversionVertex();
-
+      
+      reco::ConversionRefVector conversions = photon.conversions();
+      for (unsigned int iConv = 0; iConv < conversions.size(); ++iConv) {
+	const reco::ConversionRef& conversion = conversions[iConv];
+	if  ( conversion->nTracks() != 2) continue;
+	std::vector<reco::TrackRef> tracks = conversion->tracks();
+	const reco::Vertex&         vertex = conversion->conversionVertex();
 	double chi2 = vertex.chi2();
 	double ndof = vertex.ndof();
-	double dPhi = (*convIt)->dPhiTracksAtVtx();
-	double dCotTheta = (*convIt)->pairCotThetaSeparation();
+	double dPhi = conversion->dPhiTracksAtVtx();
+	double dCotTheta = conversion->pairCotThetaSeparation();
 	double chi2Prob = ROOT::Math::chisquared_cdf_c(chi2,ndof);
-	if (! ( tracks.size() >= 2 && 
-		ndof &&
+	// http://cdsweb.cern.ch/record/1279143
+	if (! ( ndof &&
 		chi2 > 0 &&
-		dPhi < 0.2 &&  
-		dCotTheta < 0.3 &&
+		fabs(dPhi) < 0.2 &&
+		fabs(dCotTheta) < 0.3 &&
 		chi2Prob > 5e-5) ) continue;
 
-	if ( bestConv.isNull() || bestConv->EoverP() > (*convIt)->EoverP()) 
-	  bestConv = *convIt;
+	if (bestConv.isNull() || bestConv->EoverP() > conversion->EoverP())
+	  bestConv  = conversion;
 	tracksSumPt += tracks[0]->pt() ;
 	tracksSumPt += tracks[1]->pt() ;
 	nConv++;
-      }
+      } // end loop over conversions
       
       nConversions->push_back(nConv);
       allConversionTracksSumPt->push_back(tracksSumPt);
@@ -230,7 +230,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bestConvMass   ->push_back(bestConv.isNull() ? 0 : bestConv->pairInvariantMass());
     }
   }
-
+  
   iEvent.put(isHandleValid        , prefix + "HandleValid"          + suffix);
   iEvent.put(p4                   , prefix + "P4"                   + suffix);
   iEvent.put(caloPosition         , prefix + "CaloPosition"         + suffix);
@@ -243,7 +243,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(isEBGap              , prefix + "IsEBGap"              + suffix);
   iEvent.put(isEEGap              , prefix + "IsEEGap"              + suffix);
   iEvent.put(isEBEEGap            , prefix + "IsEBEEGap"            + suffix);
-
+  
   iEvent.put(trkSumPtHolConeDR04,  prefix + "TrkSumPtHollowConeDR04" + suffix);
   iEvent.put(EcalrechitEtConeDR04, prefix + "EcalRecHitEtConeDR04"   + suffix);
   iEvent.put(HcalDepth1, prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
@@ -258,6 +258,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(SCetaWidth, prefix + "SuperClusterEtaWidth" + suffix);
   iEvent.put(SCphiWidth, prefix + "SuperClusterPhiWidth" + suffix);
 
+  iEvent.put(nConversions, prefix + "NConversions" + suffix);
   iEvent.put(allConversionTracksSumPt, prefix + "AllConversionTracksSumPt" + suffix);
   iEvent.put(bestConvTrack0P3, prefix + "BestConversionTrack0P3"     + suffix);
   iEvent.put(bestConvTrack1P3, prefix + "BestConversionTrack1P3"     + suffix);

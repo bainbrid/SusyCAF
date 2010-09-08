@@ -87,7 +87,7 @@ lumi_mask=%(PATH)s/jsonls.txt
 total_number_of_lumis=-1
 lumis_per_job=10'''%option if job['jsonls'] else '''
 total_number_of_events=-1
-events_per_job=100000'''
+events_per_job=30000'''
 
     if option["SITE"] != "LONDON" :
         setup_output_dirs(option)
@@ -169,8 +169,8 @@ def run_crab(job,path,MULTI) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
-source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
+source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
+#source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d %(noise)s JetCorrections=%(jec)s GlobalTag=%(gt)s::All
 %(crab)s -create -submit

@@ -45,15 +45,11 @@ process.add_( cms.Service( "TFileService",
 if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
-            if options.GlobalTag == "": options.GlobalTag = 'START37_V5::All'
-	        #first file in /MinBias/Summer09-STARTUP3X_V8P_900GeV-v1/GEN-SIM-RECO
-            options.files = '/store/relval/CMSSW_3_7_0_pre5/RelValProdTTbar/GEN-SIM-RECO/MC_37Y_V4-v1/0023/BA92C6D3-8863-DF11-B3AF-002618943939.root'
-	        # Due to problem in production of LM samples: same event number appears multiple times
-            process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+            if options.GlobalTag == "": options.GlobalTag = 'START38_V12::All'
+            options.files = '/store/relval/CMSSW_3_8_4/MinimumBias/RECO/GR_R_38X_V13_RelVal_col_10-v1/0000/043C99EA-60C2-DF11-B6C3-0018F3D0970C.root'
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'GR_R_37X_V6::All'
-	        #first file of run 124230 in /MinimumBias/BeamCommissioning09-SD_AllMinBias-Jan23Skim-v1/RAW-RECO
-            options.files = '/store/relval/CMSSW_3_7_0_pre5/MinimumBias/RECO/GR_R_37X_V4_RelVal_col_10-v1/0024/CAD8C3ED-8E63-DF11-B60D-00261894393B.root'
+            if options.GlobalTag == "": options.GlobalTag = 'START38_V12::All'
+            options.files = '/store/relval/CMSSW_3_8_4/MinimumBias/RECO/GR_R_38X_V13_RelVal_col_10-v1/0000/043C99EA-60C2-DF11-B6C3-0018F3D0970C.root'
     else:
         if options.mcInfo:
             if options.GlobalTag == "": options.GlobalTag = 'START37_V5::All'

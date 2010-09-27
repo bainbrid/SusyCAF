@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) {
+  produces <bool>         ( "isRealData"  );
   produces <unsigned int> ( "run"   );
   produces <unsigned int> ( "event" );
   produces <unsigned int> ( "lumiSection" );
@@ -13,6 +14,7 @@ SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) {
 void SusyCAF_Event::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  std::auto_ptr<bool >     isRealData ( new bool(        iEvent.isRealData()      ) );
   std::auto_ptr<unsigned int >  run   ( new unsigned int(iEvent.id().run()        ) );
   std::auto_ptr<unsigned int >  event ( new unsigned int(iEvent.id().event()      ) );
   std::auto_ptr<unsigned int >  ls    ( new unsigned int(iEvent.luminosityBlock() ) );
@@ -25,6 +27,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<double >        time  	      ( new double(sec+usec/conv));
 
+  iEvent.put( isRealData, "isRealData" );
   iEvent.put( run,   "run"   );
   iEvent.put( event, "event" );
   iEvent.put( ls   , "lumiSection" );

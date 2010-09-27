@@ -517,13 +517,25 @@ produceMPT(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!mpt) r
   evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
 }
 
+
 template<class T> void SusyCAF_Jet<T>::
 initBJetTag(){
   //btag discriminators
   produces <std::vector<float> > (Prefix + "TrkCountingHighEffBJetTags" + Suffix);
   produces <std::vector<float> > (Prefix + "TrkCountingHighPurBJetTags" + Suffix);
-  produces <std::vector<float> > (Prefix + "SimpleSecondaryVertexBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SimpleSecondaryVertexHighEffBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SimpleSecondaryVertexHighPurBJetTags" + Suffix);
   produces <std::vector<float> > (Prefix + "CombinedSecondaryVertexBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "CombinedSecondaryVertexMVABJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "JetProbabilityBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "JetBProbabilityBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SoftElectronByIP3dBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SoftElectronByPtBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SoftMuonBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SoftMuonByIP3dBJetTags" + Suffix);
+  produces <std::vector<float> > (Prefix + "SoftMuonByPtBJetTags" + Suffix);
+
+
 }
 
 template<class T> void SusyCAF_Jet<T>::
@@ -532,16 +544,35 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
 //btag discriminators
   std::auto_ptr<std::vector<float> > TrkCountHighEffBJetTags (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > TrkCountHighPurBJetTags (new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > SimpSecVertBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SimpSecVertHEBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SimpSecVertHPBJetTags (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > CombSecVertBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > CombSecVertMVABJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > jetProbBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > jetBProbBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SoftElecIPBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SoftElecPtBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SoftMuonBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SoftMuonIPBJetTags (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > SoftMuonPtBJetTags (new std::vector<float>() );
+
 
   if(jets.isValid()){
     for (unsigned i=0; i<(*jets).size(); i++) {
 //btag discriminators
     TrkCountHighEffBJetTags->push_back((*jets)[i].bDiscriminator("trackCountingHighEffBJetTags"));
     TrkCountHighPurBJetTags->push_back((*jets)[i].bDiscriminator("trackCountingHighPurBJetTags"));
-    SimpSecVertBJetTags->push_back((*jets)[i].bDiscriminator("simpleSecondaryVertexBJetTags"));
+    SimpSecVertHEBJetTags->push_back((*jets)[i].bDiscriminator("simpleSecondaryVertexHighEffBJetTags"));
+    SimpSecVertHPBJetTags->push_back((*jets)[i].bDiscriminator("simpleSecondaryVertexHighPurBJetTags"));
     CombSecVertBJetTags->push_back((*jets)[i].bDiscriminator("combinedSecondaryVertexBJetTags"));
+    CombSecVertMVABJetTags->push_back((*jets)[i].bDiscriminator("combinedSecondaryVertexMVABJetTags"));
+    jetProbBJetTags->push_back((*jets)[i].bDiscriminator("jetProbabilityBJetTags"));
+    jetBProbBJetTags->push_back((*jets)[i].bDiscriminator("jetBProbabilityBJetTags"));
+    SoftElecIPBJetTags->push_back((*jets)[i].bDiscriminator("softElectronByIP3dBJetTags"));
+    SoftElecPtBJetTags->push_back((*jets)[i].bDiscriminator("softElectronByPtBJetTags"));
+    SoftMuonBJetTags->push_back((*jets)[i].bDiscriminator("softMuonBJetTags"));
+    SoftMuonIPBJetTags->push_back((*jets)[i].bDiscriminator("softMuonByIP3dBJetTags"));
+    SoftMuonPtBJetTags->push_back((*jets)[i].bDiscriminator("softMuonByPtBJetTags"));
     }
   }
 
@@ -549,8 +580,17 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
  //btag discriminators
   evt.put(TrkCountHighEffBJetTags, Prefix + "TrkCountingHighEffBJetTags" + Suffix);
   evt.put(TrkCountHighPurBJetTags, Prefix + "TrkCountingHighPurBJetTags" + Suffix);
-  evt.put(SimpSecVertBJetTags, Prefix + "SimpleSecondaryVertexBJetTags" + Suffix);
+  evt.put(SimpSecVertHEBJetTags, Prefix + "SimpleSecondaryVertexHighEffBJetTags" + Suffix);
+  evt.put(SimpSecVertHPBJetTags, Prefix + "SimpleSecondaryVertexHighPurBJetTags" + Suffix);
   evt.put(CombSecVertBJetTags, Prefix + "CombinedSecondaryVertexBJetTags" + Suffix);
+  evt.put(CombSecVertMVABJetTags, Prefix + "CombinedSecondaryVertexMVABJetTags" + Suffix);
+  evt.put(jetProbBJetTags, Prefix + "JetProbabilityBJetTags" + Suffix);
+  evt.put(jetBProbBJetTags, Prefix + "JetBProbabilityBJetTags" + Suffix);
+  evt.put(SoftElecIPBJetTags, Prefix + "SoftElectronByIP3dBJetTags" + Suffix);
+  evt.put(SoftElecPtBJetTags, Prefix + "SoftElectronByPtBJetTags" + Suffix);
+  evt.put(SoftMuonBJetTags, Prefix + "SoftMuonBJetTags" + Suffix);
+  evt.put(SoftMuonIPBJetTags, Prefix + "SoftMuonByIP3dBJetTags" + Suffix);
+  evt.put(SoftMuonPtBJetTags, Prefix + "SoftMuonByPtBJetTags" + Suffix);
 }
 
 

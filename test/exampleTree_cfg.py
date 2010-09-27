@@ -19,7 +19,6 @@ options.register('AllTracks', False, VarParsing.VarParsing.multiplicity.singleto
 options.register('silentMessageLogger', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "silence MessageLogger")
 options.register('patify', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "run SUSYPAT on the fly")
 options.register('fromRECO', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process RECO data (else PAT is assumed)")
-options.register('NoiseCleaning',"unspecified", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "JetMETRecommendedReflaggingAndReReco")
 options.register('SourceName', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 
 #---parse user input
@@ -67,17 +66,6 @@ process.GlobalTag.globaltag = options.GlobalTag
 
 schedule = cms.Schedule()
 
-# Noise cleaning
-if (options.NoiseCleaning=="unspecified") :
-    print
-    print "You must explicitly specify the option NoiseCleaning=0 or NoiseCleaning=1"
-    print
-    raise Exception("Unspecified option","NoiseCleaning")
-if bool(options.NoiseCleaning) :
-    from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addNoiseCleaning
-    addNoiseCleaning(process,schedule,bool(options.mcInfo))
-    print "NoiseCleaning activated"
-
 theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
@@ -101,17 +89,10 @@ if options.patify and options.fromRECO:
     process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
 
     process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
-    if options.NoiseCleaning : process.out.outputCommands.append('keep *_HBHENoiseFilterResultProducer_*_*')
+    process.out.outputCommands.append('keep *_HBHENoiseFilterResultProducer_*_*')
     if options.secondaryOutput == ".root" and hasattr(process,"out"): # remove outpath 
         del process.out
         del process.outpath
-
-##@@ Temporary hack as BTag discriminators not compatible with noise cleaning recipe
-if bool(options.NoiseCleaning) :
-    theJetNames.append('')
-    for jetName in theJetNames:
-        module = getattr(process,'patJets'+jetName)
-        module.addDiscriminators = False 
 
 # Add reco::MET with Type II correction 
 from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *
@@ -149,14 +130,10 @@ if options.fromRECO and not options.patify:
 else:
     insertSelection(process)
 
-if not options.NoiseCleaning :
-    from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer#,makeAndScheduleHcalReFlaggingPath
-    loadAndConfigureHcalSeverityLevelProducer(process,options.mcInfo)
-    #will not be needed for long ---v
-    #makeAndScheduleHcalReFlaggingPath(process,schedule)
-
-    from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addHbheNoiseFilterResult
-    addHbheNoiseFilterResult(process,schedule)
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import loadAndConfigureHcalSeverityLevelProducer
+loadAndConfigureHcalSeverityLevelProducer(process,options.mcInfo)
+from SUSYBSMAnalysis.SusyCAF.cleaning_cff import addHbheNoiseFilterResult
+addHbheNoiseFilterResult(process,schedule)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 process.lumiPath = cms.Path(process.lumiTree)
@@ -172,7 +149,7 @@ if options.fromRECO and not options.patify:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoSequence )
 else:
     if  options.patify:
-        #little havyhanded: want too have met values which are not in SUSYPAT in those trees
+        #little heavyhanded: want to have met values which are not in SUSYPAT in those trees
          process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoPatSequence )
     if options.mcInfo:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetMatchedSequence)

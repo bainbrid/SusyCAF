@@ -62,6 +62,9 @@ class planner:
         c.execute("select "+cols+" from "+table)
         inputs = []
         for item in c.description :
+            if item[0]=='NoiseCleaning':
+                inputs.append(("NoiseCleaning",0))
+                continue
             input = raw_input(item[0]+": ")
             if item[0]=='jsonls' and len(input)>4 and input[-4:]=='.txt' :
                 input = open(input).readline()

@@ -64,6 +64,7 @@ void SusyCAF_Muon<T>::initRECO()
 
   produces <std::vector<double> > (  Prefix + "InnerTrackNormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "InnerTrackNumberOfValidHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "NumberOfValidPixelHits" + Suffix);
 
   produces <std::vector<double> > (  Prefix + "OuterTrackNormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "OuterTrackNumberOfValidHits" + Suffix);
@@ -78,6 +79,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "IsTrackerMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
+  produces <std::vector<unsigned> > ( Prefix + "NumberOfMatches" + Suffix );
 }
 
 // extra information stored for PAT data
@@ -146,6 +148,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  globalTrack_dzError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    innerTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    pixel_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyError   ( new std::vector<double>()  ) ;
@@ -165,6 +168,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  isTrackerMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  hasOverlap   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >  numberOfMatches   ( new std::vector<unsigned>()  ) ;
 
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
   math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
@@ -200,6 +204,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isGlobalMuon->push_back(it->isGlobalMuon());
       isTrackerMuon->push_back(it->isTrackerMuon());
       isStandAloneMuon->push_back(it->isStandAloneMuon());
+      numberOfMatches->push_back(it->numberOfMatches());
       if (sumHasOverlap) { hasOverlap->push_back(1); }
       else { hasOverlap->push_back(0); }
 
@@ -224,6 +229,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       innerTrack_dzError->push_back( inner? it->innerTrack()->dzError() : -10000);
       innerTrack_normalizedChi2->push_back( inner? it->innerTrack()->normalizedChi2() : -1);
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
+      pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0);
 
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
@@ -250,6 +256,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( innerTrack_dzError,  Prefix + "InnerTrackDzError" + Suffix );
   iEvent.put( innerTrack_normalizedChi2,  Prefix + "InnerTrackNormalizedChi2" + Suffix );
   iEvent.put( innerTrack_numberOfValidHits,  Prefix + "InnerTrackNumberOfValidHits" + Suffix );
+  iEvent.put( pixel_numberOfValidHits,  Prefix + "NumberOfValidPixelHits" + Suffix );
   iEvent.put( outerTrack_normalizedChi2,  Prefix + "OuterTrackNormalizedChi2" + Suffix );
   iEvent.put( outerTrack_numberOfValidHits,  Prefix + "OuterTrackNumberOfValidHits" + Suffix );
   iEvent.put( caloCompatibility,  Prefix + "CaloCompatibility" + Suffix );
@@ -263,6 +270,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isTrackerMuon,  Prefix + "IsTrackerMuon" + Suffix );
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
+  iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );
 }
 
 

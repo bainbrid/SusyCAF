@@ -77,6 +77,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if ( it->status() == 3         // any status 3 genParticle
 	   || abs(it->pdgId()) == 11 // any electron
 	   || abs(it->pdgId()) == 13 // any muon
+	   || abs(it->pdgId()) == 15 // any tau
 	   || ( it->status() == 1    //        status 1 particles
 		&& it->pt() > GenStatus1PtCut) // above threshold
 	   ) {

@@ -45,9 +45,9 @@ if options.files == []:
     if options.fromRECO:
         if options.mcInfo:
             if options.GlobalTag == "": options.GlobalTag = 'START38_V12::All'
-            options.files = '/store/relval/CMSSW_3_8_4/MinimumBias/RECO/GR_R_38X_V13_RelVal_col_10-v1/0000/043C99EA-60C2-DF11-B6C3-0018F3D0970C.root'
+            options.files = '/store/relval/CMSSW_3_7_1/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0013/FEE36E55-98A3-DF11-A5D9-00248C55CC62.root'
         else:
-            if options.GlobalTag == "": options.GlobalTag = 'START38_V12::All'
+            if options.GlobalTag == "": options.GlobalTag = 'GR_R_38X_V13::All'
             options.files = '/store/relval/CMSSW_3_8_4/MinimumBias/RECO/GR_R_38X_V13_RelVal_col_10-v1/0000/043C99EA-60C2-DF11-B6C3-0018F3D0970C.root'
     else:
         if options.mcInfo:

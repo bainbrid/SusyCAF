@@ -539,7 +539,7 @@ initBJetTag(){
   produces <std::vector<float> > (Prefix + "SoftMuonBJetTags" + Suffix);
   produces <std::vector<float> > (Prefix + "SoftMuonByIP3dBJetTags" + Suffix);
   produces <std::vector<float> > (Prefix + "SoftMuonByPtBJetTags" + Suffix);
-
+  produces <std::vector<int> > (Prefix + "genJetFlavour" + Suffix);
 
 }
 
@@ -560,7 +560,7 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
   std::auto_ptr<std::vector<float> > SoftMuonBJetTags (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > SoftMuonIPBJetTags (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > SoftMuonPtBJetTags (new std::vector<float>() );
-
+  std::auto_ptr<std::vector<int> > JetFlavour(new std::vector<int>() ); 
 
   if(jets.isValid()){
     for (unsigned i=0; i<(*jets).size(); i++) {
@@ -578,6 +578,7 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
     SoftMuonBJetTags->push_back((*jets)[i].bDiscriminator("softMuonBJetTags"));
     SoftMuonIPBJetTags->push_back((*jets)[i].bDiscriminator("softMuonByIP3dBJetTags"));
     SoftMuonPtBJetTags->push_back((*jets)[i].bDiscriminator("softMuonByPtBJetTags"));
+    JetFlavour->push_back((*jets)[i].partonFlavour());
     }
   }
 
@@ -596,6 +597,7 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
   evt.put(SoftMuonBJetTags, Prefix + "SoftMuonBJetTags" + Suffix);
   evt.put(SoftMuonIPBJetTags, Prefix + "SoftMuonByIP3dBJetTags" + Suffix);
   evt.put(SoftMuonPtBJetTags, Prefix + "SoftMuonByPtBJetTags" + Suffix);
+  evt.put(JetFlavour, Prefix + "genJetFlavour" + Suffix);
 }
 
 

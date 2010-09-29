@@ -42,6 +42,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalDeadChannels.h"
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
 
@@ -107,6 +108,7 @@ DEFINE_FWK_MODULE(SusyCAF_HORecHitsSorted);
 DEFINE_FWK_MODULE(SusyCAF_EcalRecHit);
 DEFINE_FWK_MODULE(SusyCAF_PFRecHit);
 DEFINE_FWK_MODULE(SusyCAF_CT);
+DEFINE_FWK_MODULE(SusyCAF_EcalDeadChannels);
 
 
 DEFINE_FWK_MODULE(SusyCAF_PatTau);

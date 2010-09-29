@@ -45,22 +45,38 @@ def jets( calo = True, input = '', genInput = '', prefix = '', pf = False, jpt =
 susycafic5calojetreco = jets( input = 'iterativeCone5CaloJets',       prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets')
 susycafak5calojetreco = jets( input = 'ak5CaloJets',                  prefix = 'ak5Jet',    genInput = 'ak5GenJets'  )
 susycafak7calojetreco = jets( input = 'ak7CaloJets',                  prefix = 'ak7Jet',    genInput = 'ak7GenJets' )
-susycafak5jptjetreco  = jets( input = 'JetPlusTrackZSPCorJetAntiKt5', prefix = 'ak5JetJPT', genInput = 'ak5GenJets', calo = False, jpt = True )
-susycafic5pfjetreco  =  jets( input = 'iterativeCone5PFJets',         prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets' , calo = False, pf = True )
-susycafak5pfjetreco  =  jets( input = 'ak5PFJets',                    prefix = 'ak5Jet',    genInput = 'ak5GenJets' , calo = False, pf = True )
+
+susycafak5jptjetreco  = jets( input = 'JetPlusTrackZSPCorJetAntiKt5', prefix = 'ak5JetJPT', genInput = 'ak5GenJets',            calo = False, jpt = True )
+susycafak7jptjetreco  = jets( input = 'JetPlusTrackZSPCorJetAntiKt7', prefix = 'ak7JetJPT', genInput = 'ak7GenJets',            calo = False, jpt = True )
+
+susycafic5pfjetreco   = jets( input = 'iterativeCone5PFJets',         prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets', calo = False,  pf = True )
+susycafak5pfjetreco   = jets( input = 'ak5PFJets',                    prefix = 'ak5Jet',    genInput = 'ak5GenJets',            calo = False,  pf = True )
+susycafak7pfjetreco   = jets( input = 'ak7PFJets',                    prefix = 'ak7Jet',    genInput = 'ak7GenJets',            calo = False,  pf = True )
 
 # With SusyPAT
-susycafic5calojet = patjets( input = 'cleanPatJetsIC5Calo', prefix = 'ic5Jet',    genInput = 'iterativeCone5GenJets' )
-susycafak5calojet = patjets( input = 'cleanPatJetsAK5Calo', prefix = 'ak5Jet',    genInput = 'ak5GenJets' )
-susycafak7calojet = patjets( input = 'cleanPatJetsAK7Calo', prefix = 'ak7Jet',    genInput = 'ak7GenJets' )
-susycafak5jptjet =  patjets( input = 'cleanPatJetsAK5JPT',  prefix = 'ak5JetJPT', genInput = 'ak5GenJets', calo = False, jpt = True )
-susycafak5pfjet = patjets(   input = 'cleanPatJetsAK5PF',   prefix = 'ak5JetPF',  genInput = 'ak5GenJets',  jetid = False, calo = False, pf = True )
-susycafak5pf2patjet = patjets(   input = 'selectedPatJetsPF',   prefix = 'ak5JetPF2PAT',  genInput = 'ak5GenJets',jetid = False, calo = False , pf = True )
+susycafic5calojet   = patjets( input = 'cleanPatJetsIC5Calo', prefix = 'ic5Jet',       genInput = 'iterativeCone5GenJets' )
+susycafak5calojet   = patjets( input = 'cleanPatJetsAK5Calo', prefix = 'ak5Jet',       genInput = 'ak5GenJets' )
+susycafak7calojet   = patjets( input = 'cleanPatJetsAK7Calo', prefix = 'ak7Jet',       genInput = 'ak7GenJets' )
+
+susycafak5jptjet    = patjets( input = 'cleanPatJetsAK5JPT',  prefix = 'ak5JetJPT',    genInput = 'ak5GenJets',                calo = False, jpt = True )
+susycafak7jptjet    = patjets( input = 'cleanPatJetsAK7JPT',  prefix = 'ak7JetJPT',    genInput = 'ak7GenJets',                calo = False, jpt = True )
+
+susycafak5pfjet     = patjets( input = 'cleanPatJetsAK5PF',   prefix = 'ak5JetPF',     genInput = 'ak5GenJets', jetid = False, calo = False,  pf = True )
+susycafak7pfjet     = patjets( input = 'cleanPatJetsAK7PF',   prefix = 'ak7JetPF',     genInput = 'ak7GenJets', jetid = False, calo = False,  pf = True )
+
+susycafak5pf2patjet = patjets( input = 'selectedPatJetsPF',   prefix = 'ak5JetPF2PAT', genInput = 'ak5GenJets', jetid = False, calo = False,  pf = True )
+susycafak7pf2patjet = patjets( input = 'selectedPatJetsPF',   prefix = 'ak7JetPF2PAT', genInput = 'ak7GenJets', jetid = False, calo = False,  pf = True )
 
 #matched collections
-susycafic5calojetMatched = susycafic5calojet.clone( GenInfo = True )
-susycafak5calojetMatched = susycafak5calojet.clone( GenInfo = True )
-susycafak7calojetMatched = susycafak7calojet.clone( GenInfo = True )
-susycafak5jptjetMatched = susycafak5jptjet.clone(   GenInfo = True )
-susycafak5pfjetMatched = susycafak5pfjet.clone(     GenInfo = True )
-susycafak5pf2patjetMatched = susycafak5pf2patjet.clone(     GenInfo = True )
+susycafic5calojetMatched   = susycafic5calojet.clone(   GenInfo = True )
+susycafak5calojetMatched   = susycafak5calojet.clone(   GenInfo = True )
+susycafak7calojetMatched   = susycafak7calojet.clone(   GenInfo = True )
+
+susycafak5jptjetMatched    = susycafak5jptjet.clone(    GenInfo = True )
+susycafak7jptjetMatched    = susycafak7jptjet.clone(    GenInfo = True )
+
+susycafak5pfjetMatched     = susycafak5pfjet.clone(     GenInfo = True )
+susycafak7pfjetMatched     = susycafak7pfjet.clone(     GenInfo = True )
+
+susycafak5pf2patjetMatched = susycafak5pf2patjet.clone( GenInfo = True )
+susycafak7pf2patjetMatched = susycafak7pf2patjet.clone( GenInfo = True )

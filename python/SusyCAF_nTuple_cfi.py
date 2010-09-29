@@ -52,16 +52,18 @@ nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetAK5
                                   susycafmuon + susycafpfmuon +
                                   susycaftau + susycafpftau )
 
-nTuplePatJetSequence = cms.Sequence(susycafic5calojet +
-                                    susycafak5calojet + susycafak7calojet +
-                                    susycafak5jptjet + 
-				    susycafak5pfjet + susycafak5pf2patjet
+nTuplePatJetSequence = cms.Sequence(susycafic5calojet   +
+                                    susycafak5calojet   + susycafak7calojet +
+                                    susycafak5jptjet    + #susycafak7jptjet  +
+				    susycafak5pfjet     + susycafak7pfjet   +
+                                    susycafak5pf2patjet + susycafak7pf2patjet
                                     )
 
-nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched +
-                                           susycafak5calojetMatched + susycafak7calojetMatched +
-                                           susycafak5jptjetMatched + 
-					   susycafak5pfjetMatched + susycafak5pf2patjetMatched
+nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched   +
+                                           susycafak5calojetMatched   + susycafak7calojetMatched +
+                                           susycafak5jptjetMatched    + #susycafak7jptjetMatched  +
+					   susycafak5pfjetMatched     + susycafak7pfjetMatched   +
+                                           susycafak5pf2patjetMatched + susycafak7pf2patjetMatched
 
                                            )
 
@@ -87,7 +89,8 @@ nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequ
 nTupleRecoSequence = cms.Sequence( nTupleRecoPatSequence +
                                    susycafic5calojetreco + 
                                    susycafak5calojetreco + susycafak7calojetreco + 
-                                   susycafak5jptjetreco + susycafak5pfjetreco +
+                                   susycafak5jptjetreco  + #susycafak7jptjetreco +
+                                   susycafak5pfjetreco   + susycafak7pfjetreco +
                                    susycafphotonreco +
                                    susycafelectronreco +                                    
                                    susycafmuonreco +

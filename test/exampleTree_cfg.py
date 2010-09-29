@@ -66,16 +66,17 @@ process.GlobalTag.globaltag = options.GlobalTag
 
 schedule = cms.Schedule()
 
-theJetNames = ['IC5Calo','AK7Calo','AK5PF','AK5JPT','AK5Track']
 if options.patify and options.fromRECO:
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
     #Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'',theJetNames) 
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'',['IC5Calo','AK7Calo','AK5PF','AK7PF','AK5JPT','AK5Track'])
     process.patJetGenJetMatch.maxDeltaR  = cms.double(0.5) #default AK5 jet
     process.patJetGenJetMatchAK7Calo.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchIC5Calo.maxDeltaR  = cms.double(0.5)
-    process.patJetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5) 
+    process.patJetGenJetMatchAK5PF.maxDeltaR  = cms.double(0.5)
+    process.patJetGenJetMatchAK7PF.maxDeltaR  = cms.double(0.5) 
     process.patJetGenJetMatchAK5JPT.maxDeltaR  = cms.double(0.5)
+    #process.patJetGenJetMatchAK7JPT.maxDeltaR  = cms.double(0.5)
     process.patJetGenJetMatchAK5Track.maxDeltaR  = cms.double(0.5) 
     process.susyPat = cms.Path(process.susyPatDefaultSequence)
     schedule.append(process.susyPat)

@@ -8,75 +8,72 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 SusyCAF_EcalRecHit::SusyCAF_EcalRecHit(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
-  produces <bool>                                         ( Prefix + "HandleValid"   + Suffix );
-  produces <std::vector<float> >                          ( Prefix + "Time"          + Suffix );
-  produces <std::vector<unsigned> >                       ( Prefix + "FlagWord"      + Suffix );
-  produces <std::vector<int> >                            ( Prefix + "SeverityLevel" + Suffix );
-  produces <std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > ( Prefix + "P4" + Suffix );
+  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PolarLorentzV;
+
+  produces <bool>                        ( Prefix + "HandleValid"   + Suffix );
+  produces <std::vector<PolarLorentzV> > ( Prefix + "P4"            + Suffix );
+  produces <std::vector<float> >         ( Prefix + "Time"          + Suffix );
+  produces <std::vector<unsigned> >      ( Prefix + "FlagWord"      + Suffix );
+  produces <std::vector<int> >           ( Prefix + "SeverityLevel" + Suffix );
+  produces <std::vector<unsigned> >      ( Prefix + "DBStatus"      + Suffix ); 
+  produces <std::vector<float> >         ( Prefix + "TriggerPrimitiveEt"+Suffix);
 }
 
 void SusyCAF_EcalRecHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > > > p4(new std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > >() );
-  std::auto_ptr<std::vector<float> >                          time          (new std::vector<float>    () );
-  std::auto_ptr<std::vector<unsigned> >                       flagWord      (new std::vector<unsigned> () );
-  std::auto_ptr<std::vector<int> >                            severityLevel (new std::vector<int>      () );
+  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PolarLorentzV;
 
-  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > thisP4(0.0,0.0,0.0,0.0);  
+  std::auto_ptr<std::vector<PolarLorentzV> > p4(new std::vector<PolarLorentzV>() );
+  std::auto_ptr<std::vector<float> >         time          (new std::vector<float>    () );
+  std::auto_ptr<std::vector<unsigned> >      flagWord      (new std::vector<unsigned> () );
+  std::auto_ptr<std::vector<int> >           severityLevel (new std::vector<int>      () );
+  std::auto_ptr<std::vector<unsigned> >      dbStatus      (new std::vector<unsigned> () );
+  std::auto_ptr<std::vector<float> >         triggerPrimitiveEt(new std::vector<float> ()  );
 
-  //followed this example
-  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalFirstBeam09Anomalous
+  //Examples:  https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalFirstBeam09Anomalous
   
-  //get rechits
-  edm::Handle<EcalRecHitCollection> collection;
-  iEvent.getByLabel(inputTag, collection);
-  
-  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
+  edm::Handle<EcalRecHitCollection> collection;  iEvent.getByLabel(inputTag, collection);
   if (collection.isValid()) {
-    const EcalRecHitCollection* ecalRecHits=collection.product();
-    
-    edm::ESHandle<EcalChannelStatus> channelStatusHandle;
-    iSetup.get<EcalChannelStatusRcd>().get(channelStatusHandle);
-    const EcalChannelStatus* channelStatus = channelStatusHandle.product();
-    
-    edm::ESHandle<CaloGeometry> caloGeometryHandle;
-    iSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
-    const CaloGeometry* caloGeometry = caloGeometryHandle.product();
-    
-    //loop over rechits
+    edm::Handle<EcalTrigPrimDigiCollection> tpDigis; iEvent.getByLabel("ecalDigis:EcalTriggerPrimitives", tpDigis);    
+    edm::ESHandle<EcalChannelStatus> channelStatus;   iSetup.get<EcalChannelStatusRcd>().get(channelStatus);
+    edm::ESHandle<CaloGeometry> caloGeometry;         iSetup.get<CaloGeometryRecord>().get(caloGeometry);
+
     for(EcalRecHitCollection::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      int theSeverityLevel=EcalSeverityLevelAlgo::severityLevel(it->detid(),*ecalRecHits,*channelStatus);
-      if (theSeverityLevel>=EcalSeverityLevelAlgo::kWeird) {
+      const int theSeverityLevel = EcalSeverityLevelAlgo::severityLevel(it->detid(),*collection,*channelStatus);
+      const unsigned theDbStatus = channelStatus->find(it->detid())->getStatusCode();
+
+      if (theSeverityLevel >= EcalSeverityLevelAlgo::kWeird || theDbStatus==13 || theDbStatus==14) {
   
-  	const GlobalPoint& point=caloGeometry->getPosition(it->detid());
-  	//std::cout << point << std::endl;
-  	double eta=point.eta();
-  	double phi=point.phi();
-  	double energy=fabs(it->energy());//absolute value
+  	const GlobalPoint& point = caloGeometry->getPosition(it->detid());
+    	const double eta(point.eta()), phi(point.phi()), energy(fabs(it->energy()));
   	
-  	thisP4.SetCoordinates(energy/cosh(eta),eta,phi,energy);
-  	//std::cout 
-	//  << "pT:  " << energy/cosh(eta) << " " << thisP4.pt()  << std::endl
-	//  << "eta: " << eta     << " " << thisP4.eta() << std::endl
-	//  << "phi: " << phi     << " " << thisP4.phi() << std::endl
-	//  << "e:   " << energy  << " " << thisP4.e()   << std::endl;
-  	p4->push_back(thisP4);
+  	p4->push_back(PolarLorentzV(energy/cosh(eta),eta,phi,energy));
   	time->push_back(it->time());
   	flagWord->push_back(it->flags());
   	severityLevel->push_back(theSeverityLevel);
-      }
-  
-    } //end loop over rechits
-  }//end if handle valid
+	dbStatus->push_back(theDbStatus);
+	if (tpDigis.isValid()) {
+	  EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( EBDetId(it->detid()).tower() );
+	  const float Et = (tp==tpDigis->end() ? -1 : ecalScale_.getTPGInGeV( *tp ) );
+	  triggerPrimitiveEt->push_back(Et);
+	}
+      }  
+    }
+  }
 
-  iEvent.put( isHandleValid,  Prefix + "HandleValid"   + Suffix );
-  iEvent.put( p4,             Prefix + "P4"            + Suffix ); 
-  iEvent.put( time,           Prefix + "Time"          + Suffix ); 
-  iEvent.put( flagWord,       Prefix + "FlagWord"      + Suffix ); 
-  iEvent.put( severityLevel,  Prefix + "SeverityLevel" + Suffix ); 
+  iEvent.put( std::auto_ptr<bool>(new bool(collection.isValid())),  Prefix + "HandleValid"   + Suffix );
+  iEvent.put( p4,                 Prefix + "P4"                 + Suffix ); 
+  iEvent.put( time,               Prefix + "Time"               + Suffix ); 
+  iEvent.put( flagWord,           Prefix + "FlagWord"           + Suffix ); 
+  iEvent.put( severityLevel,      Prefix + "SeverityLevel"      + Suffix ); 
+  iEvent.put( dbStatus,           Prefix + "DBStatus"           + Suffix ); 
+  iEvent.put( triggerPrimitiveEt, Prefix + "TriggerPrimitiveEt" + Suffix );
 }

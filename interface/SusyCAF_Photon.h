@@ -142,12 +142,19 @@ void SusyCAF_Photon<T>::initExtra()
 {
   if (!produceExtraVars) return;
 
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso0015" + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso035"  + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso04"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso05"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso07"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso1"    + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso0015" + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso035"  + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso04"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso05"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso07"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso1"    + suffix);
+
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso0015" + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso035"  + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso04"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso05"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso07"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso1"    + suffix);
 
   produces <std::vector<int> >    (prefix + "ExtraNTrk0015"   + suffix);
   produces <std::vector<int> >    (prefix + "ExtraNTrk035"    + suffix);
@@ -528,12 +535,19 @@ template< typename T >
 void SusyCAF_Photon<T>::
 produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection)
 {
-  std::auto_ptr<std::vector<float> > TrkIso0015( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso035 ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso04  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso05  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso07  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso1   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso0015( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso035 ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso04  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso05  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso07  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso1   ( new std::vector<float>() );
+  
+  std::auto_ptr<std::vector<float> > TrkPIso0015( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso035 ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso04  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso05  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso07  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso1   ( new std::vector<float>() );
   
   std::auto_ptr<std::vector<int> > NTrk0015( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > NTrk035 ( new std::vector<int>() );
@@ -549,12 +563,19 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
     for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const reco::Photon& photon = *it;
 
-      TrkIso0015->push_back(0.0);
-      TrkIso035 ->push_back(0.0);
-      TrkIso04  ->push_back(0.0);
-      TrkIso05  ->push_back(0.0);
-      TrkIso07  ->push_back(0.0);
-      TrkIso1   ->push_back(0.0);
+      TrkPtIso0015->push_back(0.0);
+      TrkPtIso035 ->push_back(0.0);
+      TrkPtIso04  ->push_back(0.0);
+      TrkPtIso05  ->push_back(0.0);
+      TrkPtIso07  ->push_back(0.0);
+      TrkPtIso1   ->push_back(0.0);
+  
+      TrkPIso0015->push_back(0.0);
+      TrkPIso035 ->push_back(0.0);
+      TrkPIso04  ->push_back(0.0);
+      TrkPIso05  ->push_back(0.0);
+      TrkPIso07  ->push_back(0.0);
+      TrkPIso1   ->push_back(0.0);
   
       NTrk0015->push_back(0);
       NTrk035 ->push_back(0);
@@ -566,15 +587,15 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
       if (tracks.isValid()) {
 	for (reco::TrackCollection::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) {
 	  double deltaR = ROOT::Math::VectorUtil::DeltaR(itTrack->innerMomentum(), photon.p4());
-	  //double p  = itTrack->innerMomentum().R();
+	  double p  = itTrack->innerMomentum().R();
 	  double pt = itTrack->innerMomentum().Rho();
 	  
-	  if (deltaR < 0.015) {TrkIso0015->back() += pt; NTrk0015->back()++;}
-	  if (deltaR < 0.350) {TrkIso035 ->back() += pt; NTrk035 ->back()++;}
-	  if (deltaR < 0.400) {TrkIso04  ->back() += pt; NTrk04  ->back()++;}
-	  if (deltaR < 0.500) {TrkIso05  ->back() += pt; NTrk05  ->back()++;}
-	  if (deltaR < 0.700) {TrkIso07  ->back() += pt; NTrk07  ->back()++;}
-	  if (deltaR < 1.000) {TrkIso1   ->back() += pt; NTrk1   ->back()++;}
+	  if (deltaR < 0.015) {TrkPtIso0015->back() += pt; TrkPIso0015->back() += p; NTrk0015->back()++;}
+	  if (deltaR < 0.350) {TrkPtIso035 ->back() += pt; TrkPIso035 ->back() += p; NTrk035 ->back()++;}
+	  if (deltaR < 0.400) {TrkPtIso04  ->back() += pt; TrkPIso04  ->back() += p; NTrk04  ->back()++;}
+	  if (deltaR < 0.500) {TrkPtIso05  ->back() += pt; TrkPIso05  ->back() += p; NTrk05  ->back()++;}
+	  if (deltaR < 0.700) {TrkPtIso07  ->back() += pt; TrkPIso07  ->back() += p; NTrk07  ->back()++;}
+	  if (deltaR < 1.000) {TrkPtIso1   ->back() += pt; TrkPIso1   ->back() += p; NTrk1   ->back()++;}
 	  
 	}//track collection
       }//track collection handle valid
@@ -582,12 +603,19 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
     }//photon collection
   }//photon collection handle valid
 
-  iEvent.put(TrkIso0015, prefix + "ExtraTrkIso0015" + suffix);
-  iEvent.put(TrkIso035 , prefix + "ExtraTrkIso035"  + suffix);
-  iEvent.put(TrkIso04  , prefix + "ExtraTrkIso04"   + suffix);
-  iEvent.put(TrkIso05  , prefix + "ExtraTrkIso05"   + suffix);
-  iEvent.put(TrkIso07  , prefix + "ExtraTrkIso07"   + suffix);
-  iEvent.put(TrkIso1   , prefix + "ExtraTrkIso1"    + suffix);
+  iEvent.put(TrkPtIso0015, prefix + "ExtraTrkPtIso0015" + suffix);
+  iEvent.put(TrkPtIso035 , prefix + "ExtraTrkPtIso035"  + suffix);
+  iEvent.put(TrkPtIso04  , prefix + "ExtraTrkPtIso04"   + suffix);
+  iEvent.put(TrkPtIso05  , prefix + "ExtraTrkPtIso05"   + suffix);
+  iEvent.put(TrkPtIso07  , prefix + "ExtraTrkPtIso07"   + suffix);
+  iEvent.put(TrkPtIso1   , prefix + "ExtraTrkPtIso1"    + suffix);
+
+  iEvent.put(TrkPIso0015, prefix + "ExtraTrkPIso0015" + suffix);
+  iEvent.put(TrkPIso035 , prefix + "ExtraTrkPIso035"  + suffix);
+  iEvent.put(TrkPIso04  , prefix + "ExtraTrkPIso04"   + suffix);
+  iEvent.put(TrkPIso05  , prefix + "ExtraTrkPIso05"   + suffix);
+  iEvent.put(TrkPIso07  , prefix + "ExtraTrkPIso07"   + suffix);
+  iEvent.put(TrkPIso1   , prefix + "ExtraTrkPIso1"    + suffix);
 
   iEvent.put(NTrk0015, prefix + "ExtraNTrk0015" + suffix);
   iEvent.put(NTrk035 , prefix + "ExtraNTrk035"  + suffix);

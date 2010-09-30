@@ -86,7 +86,7 @@ loopXtals(std::map<uint32_t,unsigned>& nBadXtal,
   for (int i = 0;i<Id::kSizeForDenseIndexing;++i) {
     Id id = Id::unhashIndex( i );  if (id==Id(0)) continue;
     EcalChannelStatusMap::const_iterator it = channelStatus->getMap().find(id.rawId());
-    unsigned status = it == channelStatus->end() ? 0 : it->getStatusCode();
+    unsigned status = it == channelStatus->end() ? 0 : it->getStatusCode()&statusMask;
     if (status > 11) {
       const GlobalPoint& point = caloGeometry->getPosition(id);
       uint32_t key = ttMap->towerOf(id); //id.tower().rawId();

@@ -59,6 +59,7 @@ class SusyCAF_EcalDeadChannels : public edm::EDProducer {
 
   std::vector<towerInfo> badTowers;
   EcalTPGScale ecalScale_;
+  static const uint16_t statusMask=0x1F;
 
   uint32_t channelStatus_cache_id, caloGeometry_cache_id, caloConstituents_cache_id;
 };

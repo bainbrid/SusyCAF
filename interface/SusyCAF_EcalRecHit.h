@@ -12,6 +12,7 @@ class SusyCAF_EcalRecHit : public edm::EDProducer {
   void produce(edm::Event&,const edm::EventSetup&);
   const edm::InputTag inputTag;
   const std::string Prefix,Suffix;
+  const int severityLevelCut;
 };
 
 #endif

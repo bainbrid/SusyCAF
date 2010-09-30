@@ -12,7 +12,8 @@
 SusyCAF_EcalRecHit::SusyCAF_EcalRecHit(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
-  Suffix(iConfig.getParameter<std::string>("Suffix"))
+  Suffix(iConfig.getParameter<std::string>("Suffix")),
+  severityLevelCut(iConfig.getParameter<int>("SeverityLevelCut"))
 {
   typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PolarLorentzV;
 
@@ -40,7 +41,7 @@ void SusyCAF_EcalRecHit::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     for(EcalRecHitCollection::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const int theSeverityLevel = EcalSeverityLevelAlgo::severityLevel(it->detid(),*collection,*channelStatus);
-      if (theSeverityLevel >= EcalSeverityLevelAlgo::kWeird) {
+      if (theSeverityLevel >= severityLevelCut) {
   
   	const GlobalPoint& point = caloGeometry->getPosition(it->detid());
     	const double eta(point.eta()), phi(point.phi()), energy(fabs(it->energy()));

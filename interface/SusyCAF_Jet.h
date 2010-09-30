@@ -31,7 +31,8 @@ class SusyCAF_Jet : public edm::EDProducer {
   void initBJetTag(); void produceBJetTag(edm::Event&, const edm::Handle<edm::View<T> >&);
   void initMPT();     void produceMPT(edm::Event&, const edm::Handle<edm::View<T> >&);
   void initGenJetMatch(); void produceGenJetMatch(edm::Event&, const edm::Handle<edm::View<T> >&);
-  
+
+  template <class I> int indexOfMatch( const reco::GenJet*, const I, const I);
   std::auto_ptr<std::vector<double> > correctionFactors(const edm::Handle<edm::View<T> >&);
   const reco::CaloJet* getJet( const edm::RefToBase<T>& );
   
@@ -135,9 +136,7 @@ template<> void SusyCAF_Jet<pat::Jet>::initSpecial() {
   initCalo();
   initMPT();
   initJetID();
-  //BJetTag
   initBJetTag();
-  //GenJet matching
   initGenJetMatch();
 }
 
@@ -149,9 +148,7 @@ template<> void SusyCAF_Jet<pat::Jet>::produceSpecial(edm::Event& e,const edm::H
   produceCalo(e,h);
   produceMPT(e,h);
   produceJetID(e,h);
-  //BJetTag
   produceBJetTag(e,h);
-  //include GenJet matching 
   produceGenJetMatch(e,h);
 }
 
@@ -603,49 +600,27 @@ produceBJetTag(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
 
 
 template<class T> void SusyCAF_Jet<T>::
-initGenJetMatch() {
-  if(!gen) return;
-  produces <std::vector<int> > (Prefix + "GenJetMatchIndex" + Suffix);
-  produces <std::vector<reco::Candidate::LorentzVector> > (Prefix + "GenJetP4" + Suffix);
-}
+initGenJetMatch() { if(gen) produces <std::vector<int> > (Prefix + "GenJetMatchIndex" + Suffix);}
 
 template<class T> void SusyCAF_Jet<T>::
 produceGenJetMatch(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
-  
   if(!gen) return;
- 
-  edm::Handle<edm::View<reco::GenJet> > genjets;
+  edm::Handle<edm::View<reco::GenJet> > genjets; 
   evt.getByLabel(genJetsInputTag, genjets);
-  
-  
-
-
-  std::auto_ptr<std::vector<int> > GenJetMatchIndex( new std::vector<int>() );
-  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > GenJetP4 (new std::vector<reco::Candidate::LorentzVector>() );
-  if(jets.isValid() && genjets.isValid()){
-
-    for (unsigned i=0; i<(*jets).size(); i++) {
-      int gen_jet_ind = -1;
-      edm::View<reco::GenJet>::const_iterator it;
-      for(it=genjets->begin(); it!=genjets->end(); ++it){
-      
-	if ((*jets)[i].genJet()==&*it)
-	  {
-	    gen_jet_ind = it - genjets->begin();
-	    break;
-	  }
-      }
-      GenJetMatchIndex->push_back(gen_jet_ind);
-    }
-    for(edm::View<reco::GenJet>::const_iterator it = genjets->begin(); it!=genjets->end(); ++it){//store all genjet P4s
-      GenJetP4->push_back(it->p4());
-      
-    }
-  }
-  
-  evt.put(GenJetMatchIndex, Prefix + "GenJetMatchIndex" + Suffix);
-  evt.put(GenJetP4, Prefix + "GenJetP4" + Suffix);
+  std::auto_ptr<std::vector<int> > genjetMatchIndex( new std::vector<int>() );
+  if(jets.isValid() && genjets.isValid())
+    for (typename edm::View<T>::const_iterator jet = jets->begin(); jet!=jets->end(); ++jet ) 
+      genjetMatchIndex->push_back( indexOfMatch( jet->genJet(), genjets->begin(), genjets->end()) );
+  evt.put(genjetMatchIndex, Prefix + "GenJetMatchIndex" + Suffix);
 }
+
+template<class T> template<class I> int SusyCAF_Jet<T>::
+indexOfMatch( const reco::GenJet* genjet, const I begin, const I end) {
+  for(I it=begin; it!=end; ++it) if ( genjet==&*it ) return it-begin; //pointer comparisons
+  return -1;
+}
+
+
 
 template<class T> const reco::CaloJet* SusyCAF_Jet<T>::getJet( const edm::RefToBase<T>& jet_ref ) { 
   std::cout << "Don't use this!!!" << std::endl;

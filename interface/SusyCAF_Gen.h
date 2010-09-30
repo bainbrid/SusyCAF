@@ -14,16 +14,19 @@ class SusyCAF_Gen : public edm::EDProducer {
   explicit SusyCAF_Gen(const edm::ParameterSet&);
  private:
   void produce(edm::Event &, const edm::EventSetup & );
+  void produceGenJets(edm::Event &);
   static int index(const reco::Candidate*, const std::vector<T>&);
   typedef reco::Candidate::LorentzVector LorentzVector;
   const edm::InputTag inputTag;
+  const std::vector<edm::InputTag> jetCollections;
   const std::string Prefix,Suffix;
   const double GenStatus1PtCut;
 };
 
-template< typename T >
-SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
+template< typename T > SusyCAF_Gen<T>::
+SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
+  jetCollections(iConfig.getParameter<std::vector<edm::InputTag> >("JetCollections")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix")),
   GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut"))
@@ -36,36 +39,28 @@ SusyCAF_Gen<T>::SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <std::vector<int> > (Prefix + "Status" + Suffix);
   produces <std::vector<int> > (Prefix + "MotherIndex" + Suffix);
   produces <std::vector<int> > (Prefix + "MotherPdgId" + Suffix);
+
+  for(unsigned i=0; i<jetCollections.size(); ++i)
+    produces<std::vector<LorentzVector> >(Prefix + jetCollections[i].label() + Suffix);
 }
 
-template< typename T >
-int SusyCAF_Gen<T>::
-index(const reco::Candidate* item, 
-      const typename std::vector<T>& collection) 
-{
-  typename std::vector<T>::const_iterator
-    it = collection.begin(),
-    end = collection.end();
-  //Compare addresses
-  for(; it!=end; it++) { if (&(*it)==item) { return it - collection.begin(); } }
+template< typename T > int SusyCAF_Gen<T>::
+index(const reco::Candidate* item, const typename std::vector<T>& collection) {
+  typename std::vector<T>::const_iterator it(collection.begin()), begin(collection.begin()), end(collection.end());
+  for(; it!=end; it++) if (&(*it)==item) return it-begin; //Compare addresses
   return -2;
 }
 
-template< typename T >
-void SusyCAF_Gen<T>::
+template< typename T > void SusyCAF_Gen<T>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<std::vector<T> > collection;
-  edm::Handle<GenEventInfoProduct> geninfo;
-  iEvent.getByLabel(inputTag,collection);
-  iEvent.getByLabel("generator",geninfo);
+  produceGenJets(iEvent);
 
-  // Check if pthat variable is available
-  std::auto_ptr<bool> isGenInfoValid (new bool(geninfo.isValid()));
-  std::auto_ptr<double> pthat (new double(-1.));
-  if ( *isGenInfoValid && !geninfo->binningValues().empty() ) { pthat.reset( new double(geninfo->binningValues()[0]) ); }
-  else { isGenInfoValid.reset( new bool(false) ); }
+  edm::Handle<std::vector<T> > collection;   iEvent.getByLabel(inputTag,collection);
+  edm::Handle<GenEventInfoProduct> geninfo;  iEvent.getByLabel("generator",geninfo);
 
-  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
+  std::auto_ptr<bool> handleValid ( new bool(collection.isValid()) );
+  std::auto_ptr<bool> genInfoValid ( new bool( geninfo.isValid() && !geninfo->binningValues().empty()));
+  std::auto_ptr<double> pthat (new double(*genInfoValid ? geninfo->binningValues()[0] : -1.));
   std::auto_ptr<std::vector<LorentzVector> >  p4  ( new std::vector<LorentzVector>()  ) ;
   std::auto_ptr<std::vector<int> > status ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
@@ -89,15 +84,30 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }
   }
-    
-  iEvent.put( isGenInfoValid, Prefix + "GenInfoHandleValid" + Suffix);
-  iEvent.put( pthat,          Prefix + "pthat" + Suffix);
-  iEvent.put( isHandleValid,  Prefix + "HandleValid"          + Suffix);
-  iEvent.put( p4,             Prefix + "P4"  + Suffix );
-  iEvent.put( status,         Prefix + "Status" + Suffix );
-  iEvent.put( pdgId,          Prefix + "PdgId" + Suffix );
-  iEvent.put( motherIndex,    Prefix + "MotherIndex" + Suffix );
-  iEvent.put( motherPdgId,    Prefix + "MotherPdgId" + Suffix );
+
+  iEvent.put( handleValid,  Prefix + "HandleValid"        + Suffix);
+  iEvent.put( genInfoValid, Prefix + "GenInfoHandleValid" + Suffix);
+  iEvent.put( pthat,        Prefix + "pthat"  + Suffix);
+  iEvent.put( p4,           Prefix + "P4"     + Suffix );
+  iEvent.put( status,       Prefix + "Status" + Suffix );
+  iEvent.put( pdgId,        Prefix + "PdgId"  + Suffix );
+  iEvent.put( motherIndex,  Prefix + "MotherIndex" + Suffix );
+  iEvent.put( motherPdgId,  Prefix + "MotherPdgId" + Suffix );
+}
+
+template< typename T > void SusyCAF_Gen<T>::
+produceGenJets(edm::Event& iEvent) {
+  for(unsigned i=0; i<jetCollections.size(); ++i) {
+    std::auto_ptr<std::vector<LorentzVector> > p4(new std::vector<LorentzVector>());
+    edm::Handle<edm::View<reco::GenJet> > genjets;
+    iEvent.getByLabel(jetCollections[i], genjets);
+    if(genjets.isValid()) 
+      for(edm::View<reco::GenJet>::const_iterator it(genjets->begin()), end(genjets->end()); it!=end; ++it) {
+	if (it->pt() < GenStatus1PtCut ) break;
+	p4->push_back(it->p4());
+      }
+    iEvent.put(p4, Prefix + jetCollections[i].label() + Suffix);
+  }
 }
 
 #endif

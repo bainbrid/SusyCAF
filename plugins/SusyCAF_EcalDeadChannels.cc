@@ -70,7 +70,7 @@ updateBadTowers(const edm::EventSetup& es) {
   badTowers.clear();
   for(std::map<uint32_t,unsigned>::const_iterator it = nBadXtal.begin(); it!=nBadXtal.end(); it++) {
     uint32_t key = it->first;
-    badTowers.push_back( towerInfo( key, nBadXtal[key], maxStatus[key], sumEta[key]/nBadXtal[key], sumPhi[key]/nBadXtal[key] - 10)  );
+    badTowers.push_back( towerInfo( key, nBadXtal[key], maxStatus[key], sumEta[key]/nBadXtal[key], sumPhi[key]/nBadXtal[key] )  );
   }
 }
 
@@ -93,7 +93,7 @@ loopXtals(std::map<uint32_t,unsigned>& nBadXtal,
       maxStatus[key] = std::max(status,maxStatus[key]);
       nBadXtal[key]++;
       sumEta[key]+=point.eta();
-      sumPhi[key]+= 10+point.phi();
+      sumPhi[key]+=point.phi();
     }
   }
 }

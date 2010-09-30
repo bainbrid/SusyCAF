@@ -616,7 +616,7 @@ produceGenJetMatch(edm::Event& evt, const edm::Handle<edm::View<T> >& jets){
 
 template<class T> template<class I> int SusyCAF_Jet<T>::
 indexOfMatch( const reco::GenJet* genjet, const I begin, const I end) {
-  for(I it=begin; it!=end; ++it) if ( genjet==&*it ) return it-begin; //pointer comparisons
+  for(I it=begin; it!=end; ++it) if ( genjet && genjet->p4() == it->p4() ) return it-begin; //p4 comparisons
   return -1;
 }
 

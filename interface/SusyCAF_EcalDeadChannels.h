@@ -31,7 +31,8 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
-
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class SusyCAF_EcalDeadChannels : public edm::EDProducer {
  public:
@@ -51,6 +52,8 @@ class SusyCAF_EcalDeadChannels : public edm::EDProducer {
 
   std::vector<towerInfo> badTowers;
   EcalTPGScale ecalScale_;
+
+  uint32_t channelStatus_cache_id, caloGeometry_cache_id, caloConstituents_cache_id;
 };
 
 

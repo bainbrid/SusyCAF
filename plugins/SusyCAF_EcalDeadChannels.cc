@@ -22,7 +22,6 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<std::vector<PolarLorentzV> > p4(new std::vector<PolarLorentzV>());
   std::auto_ptr<std::vector<int> > tpfound(new std::vector<int>());
 
-
   edm::Handle<EcalTrigPrimDigiCollection> tpDigis;  e.getByLabel("ecalDigis:EcalTriggerPrimitives", tpDigis);
   updateBadTowers(es);
   
@@ -65,8 +64,27 @@ updateBadTowers(const edm::EventSetup& es) {
   std::map<uint32_t,unsigned> nBadXtal, maxStatus;
   std::map<uint32_t,double> sumEta,sumPhi;
 
-  for (int i = 0;i<EBDetId::kSizeForDenseIndexing;++i) {
-    EBDetId id = EBDetId::unhashIndex( i );  if (id==EBDetId(0)) continue;
+  loopXtals<EBDetId>(nBadXtal, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
+  loopXtals<EEDetId>(nBadXtal, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
+  
+  badTowers.clear();
+  for(std::map<uint32_t,unsigned>::const_iterator it = nBadXtal.begin(); it!=nBadXtal.end(); it++) {
+    uint32_t key = it->first;
+    badTowers.push_back( towerInfo( key, nBadXtal[key], maxStatus[key], sumEta[key]/nBadXtal[key], sumPhi[key]/nBadXtal[key] - 10)  );
+  }
+}
+
+template <class Id>
+void SusyCAF_EcalDeadChannels::
+loopXtals(std::map<uint32_t,unsigned>& nBadXtal,
+	  std::map<uint32_t,unsigned>& maxStatus,
+	  std::map<uint32_t,double>& sumEta,
+	  std::map<uint32_t,double>& sumPhi ,
+	  const EcalChannelStatus* channelStatus,
+	  const CaloGeometry* caloGeometry,
+	  const EcalTrigTowerConstituentsMap* ttMap ) const {
+  for (int i = 0;i<Id::kSizeForDenseIndexing;++i) {
+    Id id = Id::unhashIndex( i );  if (id==Id(0)) continue;
     EcalChannelStatusMap::const_iterator it = channelStatus->getMap().find(id.rawId());
     unsigned status = it == channelStatus->end() ? 0 : it->getStatusCode();
     if (status > 11) {
@@ -77,11 +95,5 @@ updateBadTowers(const edm::EventSetup& es) {
       sumEta[key]+=point.eta();
       sumPhi[key]+= 10+point.phi();
     }
-  }
-  
-  badTowers.clear();
-  for(std::map<uint32_t,unsigned>::const_iterator it = nBadXtal.begin(); it!=nBadXtal.end(); it++) {
-    uint32_t key = it->first;
-    badTowers.push_back( towerInfo( key, nBadXtal[key], maxStatus[key], sumEta[key]/nBadXtal[key], sumPhi[key]/nBadXtal[key] - 10)  );
   }
 }

@@ -40,6 +40,13 @@ class SusyCAF_EcalDeadChannels : public edm::EDProducer {
  private:
   void produce(edm::Event&, const edm::EventSetup& );
   void updateBadTowers(const edm::EventSetup&);
+  template<class Id> void loopXtals(std::map<uint32_t,unsigned>&,
+				    std::map<uint32_t,unsigned>&,
+				    std::map<uint32_t,double>&,
+				    std::map<uint32_t,double>&,
+				    const EcalChannelStatus* ,
+				    const CaloGeometry* ,
+				    const EcalTrigTowerConstituentsMap*  ) const;
 
   struct towerInfo {
     towerInfo(uint32_t _id, unsigned _nbad, unsigned _maxStat, double _eta, double _phi)

@@ -150,7 +150,7 @@ if options.fromRECO and not options.patify:
     process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoSequence )
 else:
     if  options.patify:
-        #little heavyhanded: want to have met values which are not in SUSYPAT in those trees
+        #a little heavy-handed: want to have met values which are not in SUSYPAT in those trees
          process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTupleRecoPatSequence )
     if options.mcInfo:
         process.p.replace( process.nTupleCommonSequence, process.nTupleCommonSequence + process.nTuplePatSequence + process.nTuplePatJetMatchedSequence)

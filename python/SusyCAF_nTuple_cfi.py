@@ -20,6 +20,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalRecHit_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalDeadChannels_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
@@ -32,7 +33,8 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi import *
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
     'drop *',
-    'keep *_susycaf*_*_*'
+    'keep *_susycaf*_*_*',
+    'keep double_susyScan*_*_*' 
     ))
 
 nTupleCommonSequence = cms.Sequence( susycafevent +
@@ -82,7 +84,8 @@ nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
                                        susycafpfrechithcal +
                                        susycafpfrechithfem +
                                        susycafpfrechithfhad +
-                                       susycafpfrechitps )
+                                       susycafpfrechitps +
+                                       susycafecaldeadchannels)
 #this sequence holds everything that needs reco event content and thaat should run in pat jobs with on-the-fly patification
 nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequence)
 

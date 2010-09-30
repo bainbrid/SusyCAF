@@ -38,13 +38,13 @@ susyTree = cms.EDAnalyzer("SusyTree",
     ))
 
 nTupleCommonSequence = cms.Sequence( susycafevent +
-                                 susycaftrack + 
-                                 susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
-                                 susycafL1triggers +       # susycafL1triggersP1 + susycafL1triggersM1 + # susycafL1triggersP2 + susycafL1triggersM2 +
-   			         susycaftriggers +
-                                 susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
-                                 susycafhcalnoisesummary + susycafhcalnoisefilter +
-                                 susycafcalotowers)
+                                     susycaftrack + 
+                                     susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
+                                     susycafL1triggers +
+                                     susycaftriggers +
+                                     susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
+                                     susycafhcalnoisesummary + susycafhcalnoisefilter +
+                                     susycafcalotowers)
 
 nTupleAllTrackSequence = cms.Sequence( susycafalltracks)
 
@@ -66,13 +66,11 @@ nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched   +
                                            susycafak5jptjetMatched    + #susycafak7jptjetMatched  +
 					   susycafak5pfjetMatched     + susycafak7pfjetMatched   +
                                            susycafak5pf2patjetMatched + susycafak7pf2patjetMatched
-
                                            )
 
 nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
 nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
                                        susycafhfrechit + 
-                                       susycafhfrechitreflagged +
                                        susycafebrechit +
                                        susycafeerechit +
                                        susycafpfrechitclusterecal +
@@ -86,7 +84,7 @@ nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
                                        susycafpfrechithfhad +
                                        susycafpfrechitps +
                                        susycafecaldeadchannels)
-#this sequence holds everything that needs reco event content and thaat should run in pat jobs with on-the-fly patification
+#this sequence holds everything that needs reco event content and that should run in pat jobs with on-the-fly patification
 nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequence)
 
 nTupleRecoSequence = cms.Sequence( nTupleRecoPatSequence +
@@ -97,7 +95,8 @@ nTupleRecoSequence = cms.Sequence( nTupleRecoPatSequence +
                                    susycafphotonreco +
                                    susycafelectronreco +                                    
                                    susycafmuonreco +
-                                   susycafPFtau)
+                                   susycafPFtau
+                                   )
 
 nTupleGenSequence = cms.Sequence( susycafgen )
 

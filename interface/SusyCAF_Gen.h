@@ -41,7 +41,7 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <std::vector<int> > (Prefix + "MotherPdgId" + Suffix);
 
   for(unsigned i=0; i<jetCollections.size(); ++i)
-    produces<std::vector<LorentzVector> >(Prefix + jetCollections[i].label() + Suffix);
+    produces<std::vector<LorentzVector> >(Prefix + jetCollections[i].label() +"P4" + Suffix);
 }
 
 template< typename T > int SusyCAF_Gen<T>::
@@ -106,7 +106,7 @@ produceGenJets(edm::Event& iEvent) {
 	//if (it->pt() < GenStatus1PtCut ) break;
 	p4->push_back(it->p4());
       }
-    iEvent.put(p4, Prefix + jetCollections[i].label() + Suffix);
+    iEvent.put(p4, Prefix + jetCollections[i].label() + "P4" + Suffix);
   }
 }
 

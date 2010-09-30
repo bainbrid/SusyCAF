@@ -103,7 +103,7 @@ produceGenJets(edm::Event& iEvent) {
     iEvent.getByLabel(jetCollections[i], genjets);
     if(genjets.isValid()) 
       for(edm::View<reco::GenJet>::const_iterator it(genjets->begin()), end(genjets->end()); it!=end; ++it) {
-	if (it->pt() < GenStatus1PtCut ) break;
+	//if (it->pt() < GenStatus1PtCut ) break;
 	p4->push_back(it->p4());
       }
     iEvent.put(p4, Prefix + jetCollections[i].label() + Suffix);

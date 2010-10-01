@@ -106,12 +106,12 @@ else:
     insertSelection(process)
 
 
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi import *
-addTypeIIMet(process)
-loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
-addHbheNoiseFilterResult(process, schedule)
+import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
+adjust.addTypeIIMet(process)
+adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
+adjust.addHbheNoiseFilterResult(process, schedule)
 if options.fromRAW :
-    addEcalUnpacking(process, options.mcInfo)
+    adjust.addEcalUnpacking(process, options.mcInfo)
     process.rawPath = cms.Path(process.ecalDigis * process.ecalTriggerPrimitiveDigis)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)

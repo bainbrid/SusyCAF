@@ -32,9 +32,3 @@ susycafhorechit = cms.EDProducer("SusyCAF_HORecHitsSorted",
                                  SingleRmThresholds = cms.vdouble(5.0), #GeV
                                  SingleChannelThreshold = cms.double(1.0), #GeV
                                  )
-
-def loadAndConfigureHcalSeverityLevelProducer(process,mcInfo) :
-    process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-    if not mcInfo :
-        process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
-        process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")

@@ -112,7 +112,7 @@ adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
 adjust.addHbheNoiseFilterResult(process, schedule)
 if options.fromRAW :
     adjust.addEcalUnpacking(process, options.mcInfo)
-    process.rawPath = cms.Path(process.ecalDigis * process.ecalTriggerPrimitiveDigis)
+    process.rawPath = cms.Path(process.ecalDigis)
 
 process.p = cms.Path( (process.nTupleCommonSequence) * process.susyTree)
 process.lumiPath = cms.Path(process.lumiTree)

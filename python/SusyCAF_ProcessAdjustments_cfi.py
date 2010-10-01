@@ -17,12 +17,6 @@ def addEcalUnpacking(process, mcInfo) :
     else :
         process.load("Configuration.StandardSequences.RawToDigi_Data_cff")        
 
-    process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
-    process.ecalTriggerPrimitiveDigis = process.simEcalTriggerPrimitiveDigis.clone(InstanceEB = 'ebDigis',
-                                                                                   InstanceEE = 'eeDigis',
-                                                                                   Label = 'ecalDigis'
-                                                                                   )
-
 def addTypeIIMet(process) :
     # Add reco::MET with Type II correction 
     from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import metJESCorAK5CaloJet

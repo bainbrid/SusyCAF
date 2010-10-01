@@ -379,7 +379,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( vertex,  Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
-  if(*conversionInfoStored) {
+  if(StoreConversionInfo) {
     iEvent.put( dist, Prefix + "ConversionDist" + Suffix );
     iEvent.put( dcot, Prefix + "ConversionDCot" + Suffix );
     iEvent.put( missingHits, Prefix + "ConversionMissingHits" + Suffix );

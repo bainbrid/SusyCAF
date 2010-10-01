@@ -61,6 +61,8 @@ class SusyCAF_EcalDeadChannels : public edm::EDProducer {
   EcalTPGScale ecalScale_;
   static const uint16_t statusMask=0x1F;
 
+  const edm::InputTag inputTag;
+  const unsigned minStatus;
   uint32_t channelStatus_cache_id, caloGeometry_cache_id, caloConstituents_cache_id;
 };
 

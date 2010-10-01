@@ -2,9 +2,11 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalDeadChannels.h"
 
 SusyCAF_EcalDeadChannels::SusyCAF_EcalDeadChannels(const edm::ParameterSet& conf) 
-  : channelStatus_cache_id(0),
+  : inputTag(conf.getParameter<edm::InputTag>("InputTag")),
+    minStatus(conf.getParameter<uint32_t>("MinStatus")),
+    channelStatus_cache_id(0),
     caloGeometry_cache_id(0),
-    caloConstituents_cache_id(0)    
+    caloConstituents_cache_id(0)
 {
   produces <std::vector<PolarLorentzV> > ( "ecalDeadTowerTrigPrimP4" );
   produces <std::vector<unsigned> > ( "ecalDeadTowerNBadXtals" );
@@ -19,7 +21,7 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<std::vector<unsigned> > nbadxtal(new std::vector<unsigned>());
   std::auto_ptr<std::vector<unsigned> > maxstatus(new std::vector<unsigned>());
 
-  edm::Handle<EcalTrigPrimDigiCollection> tpDigis;  e.getByLabel("ecalTriggerPrimitiveDigis", tpDigis);
+  edm::Handle<EcalTrigPrimDigiCollection> tpDigis;  e.getByLabel(inputTag, tpDigis);
   updateBadTowers(es);
   ecalScale_.setEventSetup(es);
   
@@ -81,7 +83,7 @@ loopXtals(std::map<uint32_t,unsigned>& nBadXtal,
     Id id = Id::unhashIndex( i );  if (id==Id(0)) continue;
     EcalChannelStatusMap::const_iterator it = channelStatus->getMap().find(id.rawId());
     unsigned status = it == channelStatus->end() ? 0 : it->getStatusCode()&statusMask;
-    if (status > 11) {
+    if (status >= minStatus) {
       const GlobalPoint& point = caloGeometry->getPosition(id);
       uint32_t key = ttMap->towerOf(id); //id.tower().rawId();
       maxStatus[key] = std::max(status,maxStatus[key]);

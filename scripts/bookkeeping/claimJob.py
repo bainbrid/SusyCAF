@@ -87,7 +87,7 @@ lumi_mask=%(PATH)s/jsonls.txt
 total_number_of_lumis=-1
 lumis_per_job=10'''%option if job['jsonls'] else '''
 total_number_of_events=-1
-events_per_job=30000'''
+events_per_job=20000'''
 
     if option["SITE"] != "LONDON" :
         setup_output_dirs(option)

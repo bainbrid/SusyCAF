@@ -83,6 +83,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	motherPdgId->push_back( it->numberOfMothers() ? it->mother()->pdgId()          :  0 );
       }
     }
+    for(std::vector<int>::iterator mit = motherIndex->begin(); mit!=motherIndex->end(); ++mit)
+      if(*mit >= (int) motherIndex->size()) *mit = -1;
   }
 
   iEvent.put( handleValid,  Prefix + "HandleValid"        + Suffix);

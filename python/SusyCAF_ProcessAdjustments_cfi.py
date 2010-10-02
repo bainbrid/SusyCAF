@@ -11,11 +11,11 @@ def loadAndConfigureHcalSeverityLevelProducer(process, mcInfo) :
         process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
         process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
 
-def addEcalUnpacking(process, mcInfo) :
-    if mcInfo :
-        process.load("Configuration.StandardSequences.RawToDigi_cff")
-    else :
-        process.load("Configuration.StandardSequences.RawToDigi_Data_cff")        
+def addEcalUnpacking(process, schedule, mcInfo) :
+    process.load("Configuration.StandardSequences.RawToDigi%s_cff"%("" if mcInfo else "_Data"))
+    process.rawPath = cms.Path(process.ecalDigis)
+    schedule.append(process.rawPath)
+
 
 def addTypeIIMet(process) :
     # Add reco::MET with Type II correction 

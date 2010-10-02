@@ -37,69 +37,66 @@ susyTree = cms.EDAnalyzer("SusyTree",
     'keep double_susyScan*_*_*' 
     ))
 
-nTupleCommonSequence = cms.Sequence( susycafevent +
-                                     susycaftrack + 
-                                     susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
-                                     susycafL1triggers +
-                                     susycaftriggers +
-                                     susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
-                                     susycafhcalnoisesummary + susycafhcalnoisefilter +
-                                     susycafcalotowers)
+nCommon = cms.Sequence( susycafevent +
+                        susycaftrack + 
+                        susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
+                        susycafL1triggers +
+                        susycaftriggers +
+                        susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
+                        susycafhcalnoisesummary + susycafhcalnoisefilter +
+                        susycafcalotowers)
 
-nTupleAllTrackSequence = cms.Sequence( susycafalltracks)
+nAllTrack = cms.Sequence( susycafalltracks)
 
-nTuplePatSequence = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetAK5TypeII +  susycafmetPF + susycafmetTC + 
-                                  susycafphoton + 
-                                  susycafelectron + susycafpfelectron + 
-                                  susycafmuon + susycafpfmuon +
-                                  susycaftau + susycafpftau )
+nPat = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetAK5TypeII +  susycafmetPF + susycafmetTC + 
+                     susycafphoton + 
+                     susycafelectron + susycafpfelectron + 
+                     susycafmuon + susycafpfmuon +
+                     susycaftau + susycafpftau )
 
-nTuplePatJetSequence = cms.Sequence(susycafic5calojet   +
-                                    susycafak5calojet   + susycafak7calojet +
-                                    susycafak5jptjet    + #susycafak7jptjet  +
-				    susycafak5pfjet     + susycafak7pfjet   +
-                                    susycafak5pf2patjet + susycafak7pf2patjet
-                                    )
+nPatJet = cms.Sequence(susycafic5calojet   +
+                       susycafak5calojet   + susycafak7calojet +
+                       susycafak5jptjet    + #susycafak7jptjet  +
+                       susycafak5pfjet     + susycafak7pfjet   +
+                       susycafak5pf2patjet + susycafak7pf2patjet
+                       )
 
-nTuplePatJetMatchedSequence = cms.Sequence(susycafic5calojetMatched   +
-                                           susycafak5calojetMatched   + susycafak7calojetMatched +
-                                           susycafak5jptjetMatched    + #susycafak7jptjetMatched  +
-					   susycafak5pfjetMatched     + susycafak7pfjetMatched   +
-                                           susycafak5pf2patjetMatched + susycafak7pf2patjetMatched
-                                           )
+nPatJetMatched = cms.Sequence(susycafic5calojetMatched   +
+                              susycafak5calojetMatched   + susycafak7calojetMatched +
+                              susycafak5jptjetMatched    + #susycafak7jptjetMatched  +
+                              susycafak5pfjetMatched     + susycafak7pfjetMatched   +
+                              susycafak5pf2patjetMatched + susycafak7pf2patjetMatched
+                              )
 
-nTupleRecoMetSequence = cms.Sequence( susycafmet + susycafmetnohf )
-nTupleRecoFlagSequence = cms.Sequence( susycafhbherechit +
-                                       susycafhfrechit + 
-                                       susycafebrechit +
-                                       susycafeerechit +
-                                       susycafpfrechitclusterecal +
-                                       susycafpfrechitclusterhcal +
-                                       susycafpfrechitclusterhfem +
-                                       susycafpfrechitclusterhfhad +
-                                       susycafpfrechitclusterps +
-                                       susycafpfrechitecal +
-                                       susycafpfrechithcal +
-                                       susycafpfrechithfem +
-                                       susycafpfrechithfhad +
-                                       susycafpfrechitps +
-                                       susycafecaldeadchannels)
+nRecoMet = cms.Sequence( susycafmet + susycafmetnohf )
+nRecoFlag = cms.Sequence( susycafhbherechit +
+                          susycafhfrechit + 
+                          susycafebrechit +
+                          susycafeerechit +
+                          susycafpfrechitclusterecal +
+                          susycafpfrechitclusterhcal +
+                          susycafpfrechitclusterhfem +
+                          susycafpfrechitclusterhfhad +
+                          susycafpfrechitclusterps +
+                          susycafpfrechitecal +
+                          susycafpfrechithcal +
+                          susycafpfrechithfem +
+                          susycafpfrechithfhad +
+                          susycafpfrechitps +
+                          susycafecaldeadchannels)
 #this sequence holds everything that needs reco event content and that should run in pat jobs with on-the-fly patification
-nTupleRecoPatSequence = cms.Sequence( nTupleRecoMetSequence + nTupleRecoFlagSequence)
+nRecoPat = cms.Sequence( nRecoMet + nRecoFlag)
 
-nTupleRecoSequence = cms.Sequence( nTupleRecoPatSequence +
-                                   susycafic5calojetreco + 
-                                   susycafak5calojetreco + susycafak7calojetreco + 
-                                   susycafak5jptjetreco  + #susycafak7jptjetreco +
-                                   susycafak5pfjetreco   + susycafak7pfjetreco +
-                                   susycafphotonreco +
-                                   susycafelectronreco +                                    
-                                   susycafmuonreco +
-                                   susycafPFtau
-                                   )
+nReco = cms.Sequence( nRecoPat +
+                      susycafic5calojetreco + 
+                      susycafak5calojetreco + susycafak7calojetreco + 
+                      susycafak5jptjetreco  + #susycafak7jptjetreco +
+                      susycafak5pfjetreco   + susycafak7pfjetreco +
+                      susycafphotonreco +
+                      susycafelectronreco +                                    
+                      susycafmuonreco +
+                      susycafPFtau
+                      )
 
-nTupleGenSequence = cms.Sequence( susycafgen )
-
-
-nTupleDataSequence = cms.Sequence( susycafdqmflags +
-                                   susycafdcsbits )
+nGen = cms.Sequence( susycafgen )
+nData = cms.Sequence( susycafdqmflags + susycafdcsbits )

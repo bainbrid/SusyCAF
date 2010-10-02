@@ -12,11 +12,9 @@ def insertSelection(process):
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.helpers import applySelection
     selectors = []
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
+    for sequence in [process.nPatJetMatched, process.nPatJet] :
+        selectors.extend(applySelection(process, sequence, "pt > 10", patJetSelector))
 
-    selectors.extend(applySelection(process, process.nTuplePatJetMatchedSequence,
-                                    "pt > 10", patJetSelector))
-    selectors.extend(applySelection(process, process.nTuplePatJetSequence,
-                                    "pt > 10", patJetSelector))
     #NOTE: filter=True here kills all events with no jets with pt > 8 *and* phi > 0
     #to kill only events with phi > 0 and then select on pt switch the order of the two functioncalls
     #selectors.extend(applySelection(process, process.nTuplePatJetMatchedSequence,
@@ -33,6 +31,7 @@ def insertSelection(process):
 #process.jetSelector)
 
 #______________________     Insertion    _____________________________
-    process.nTupleCommonSequence = cms.Sequence( #process.eventSelectionSequence + 
-                                                 process.objectSelectionSequence +
-                                                 process.nTupleCommonSequence)
+    process.nCommon = cms.Sequence( #process.eventSelectionSequence + 
+                                    process.objectSelectionSequence +
+                                    process.nCommon)
+    

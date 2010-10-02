@@ -15,7 +15,7 @@ class SusyCAF_Gen : public edm::EDProducer {
  private:
   void produce(edm::Event &, const edm::EventSetup & );
   void produceGenJets(edm::Event &);
-  static int index(const reco::Candidate*, const std::vector<T>&);
+  static int index(const reco::Candidate*, const std::vector<const T*>&);
   typedef reco::Candidate::LorentzVector LorentzVector;
   const edm::InputTag inputTag;
   const std::vector<edm::InputTag> jetCollections;
@@ -45,9 +45,9 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
 }
 
 template< typename T > int SusyCAF_Gen<T>::
-index(const reco::Candidate* item, const typename std::vector<T>& collection) {
-  typename std::vector<T>::const_iterator it(collection.begin()), begin(collection.begin()), end(collection.end());
-  for(; it!=end; it++) if (&(*it)==item) return it-begin; //Compare addresses
+index(const reco::Candidate* item, const typename std::vector<const T*>& collection) {
+  typename std::vector<const T*>::const_iterator it(collection.begin()), begin(collection.begin()), end(collection.end());
+  for(; it!=end; it++) if ((*it)==item) return it-begin; //Compare addresses
   return -2;
 }
 
@@ -66,6 +66,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherIndex ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherPdgId ( new std::vector<int>() ) ;
+  std::vector<const T*> self;
+  std::vector<const reco::Candidate*> mom;
 
   if(collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
@@ -76,16 +78,17 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   || ( it->status() == 1    //        status 1 particles
 		&& it->pt() > GenStatus1PtCut) // above threshold
 	   ) {
-        p4->push_back(it->p4());
-        status->push_back(it->status());
-        pdgId->push_back(it->pdgId());
-	motherIndex->push_back( it->numberOfMothers() ? index(it->mother(),*collection) : -1 );
-	motherPdgId->push_back( it->numberOfMothers() ? it->mother()->pdgId()          :  0 );
+	p4->push_back(it->p4());
+	status->push_back(it->status());
+	pdgId->push_back(it->pdgId());
+	motherPdgId->push_back( it->numberOfMothers() ? it->mother()->pdgId() : 0 );
+	self.push_back(&*it);
+	mom.push_back( it->numberOfMothers() ? it->mother(): 0);
       }
     }
-    for(std::vector<int>::iterator mit = motherIndex->begin(); mit!=motherIndex->end(); ++mit)
-      if(*mit >= (int) motherIndex->size()) *mit = -1;
   }
+  for(typename std::vector<const reco::Candidate*>::const_iterator it = mom.begin(); it!=mom.end(); ++it)
+    motherIndex->push_back( index(*it,self) );
 
   iEvent.put( handleValid,  Prefix + "HandleValid"        + Suffix);
   iEvent.put( genInfoValid, Prefix + "GenInfoHandleValid" + Suffix);

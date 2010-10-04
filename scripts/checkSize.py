@@ -108,6 +108,7 @@ def buildMatchDictionary() :
     d["coords"]                =["^fCoordinates"]
     d["tree"]                  =["tree"]
     d["gen particles"]         =["^gen"]
+    d["dead ecal"]             =["ecalDead"]
     
     return d
 ####################################

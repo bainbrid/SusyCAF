@@ -37,7 +37,7 @@ class planner:
             "m": ("ain", lambda : menu(self.mainM)),
             "l": ("ist jobs", lambda : self.list_entries('select rowid,tagid,dsetid,jsonls from job')),
             "L": ("ist jobs (resolve keys)",
-                  lambda : self.list_entries('''select job.rowid,dset.dataset,tag.cmssw,dset.globalTag,tag.susycaf,dset.NoiseCleaning
+                  lambda : self.list_entries('''select job.rowid,dset.dataset,tag.cmssw,dset.globalTag,tag.susycaf,dset.otherOptions
                                                        from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid''')),
             "d": ("elete", lambda : self.delete_row('job')),
             "n": ("ew job", lambda : self.new_entry('job','tagid,dsetid,jsonls'))
@@ -62,9 +62,6 @@ class planner:
         c.execute("select "+cols+" from "+table)
         inputs = []
         for item in c.description :
-            if item[0]=='NoiseCleaning':
-                inputs.append(("NoiseCleaning",0))
-                continue
             input = raw_input(item[0]+": ")
             if item[0]=='jsonls' and len(input)>4 and input[-4:]=='.txt' :
                 input = open(input).readline()

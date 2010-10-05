@@ -23,7 +23,7 @@ def get_jobrow(db) :
         db.disconnect()
         sys.exit()
     
-    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter
+    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter,otherOptions,
                          from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                          where state="Unclaimed" AND job.rowid='''+jobnumber).fetchone()
     return row
@@ -172,7 +172,7 @@ eval `scram runtime -sh`
 source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
 #source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
 cd %(path)s
-python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All
+python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All %(otherOptions)s
 %(crab)s -create -submit
 %(crab)s -status &> crab.status
 '''%{ "path" : path,
@@ -180,6 +180,7 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py pa
       "mc" : job['mcInfo'],
       "jec" : job['jec'],
       "gt" : job['globalTag'],
+      "otherOptions" : job['otherOptions'],
       "crab" : "multicrab" if MULTI else "crab"})
     return
 

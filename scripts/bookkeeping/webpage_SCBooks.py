@@ -101,7 +101,7 @@ def print_DSET(file,db,dset,tagid) :
                                                                      dset['globalTag'],
                                                                      dset['jec'],
                                                                      dset['filter'] if dset['filter'] else '',
-                                                                     "Cleaned" if dset['NoiseCleaning']==1 else ""),
+                                                                     dset['otherOptions']),
             '</a>',
             '<div id="%s" class=dsetwrapper>' % label,
             ])

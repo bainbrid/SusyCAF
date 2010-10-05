@@ -12,18 +12,13 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "MyAnalysis/IsolationTools/interface/SuperClusterHitsEcalIsolation.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include <Math/ProbFuncMathCore.h>
 #include <Math/VectorUtil.h>
@@ -110,24 +105,14 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<float> >  (prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
   produces <std::vector<float> >  (prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
   produces <std::vector<float> >  (prefix + "R9"   + suffix);
-  produces <std::vector<float> >  (prefix + "SwissCross"   + suffix);
-  produces <std::vector<float> >  (prefix + "E2overE9"   + suffix);
-  produces <std::vector<float> >  (prefix + "SeedTime"   + suffix);
-  produces <std::vector<float> >  (prefix + "Time2"   + suffix);
-  produces <std::vector<float> >  (prefix + "SeedEnergy"   + suffix);
-  produces <std::vector<float> >  (prefix + "Energy2"   + suffix);
   produces <std::vector<float> >  (prefix + "e1x5" + suffix);
   produces <std::vector<float> >  (prefix + "e2x5" + suffix);
-  produces <std::vector<float> >  (prefix + "e2x2" + suffix);
   produces <std::vector<float> >  (prefix + "e3x3" + suffix);
-  produces <std::vector<float> >  (prefix + "e4x4" + suffix);
   produces <std::vector<float> >  (prefix + "e5x5" + suffix);
   produces <std::vector<double> > (prefix + "SuperClusterEnergy" + suffix);
   produces <std::vector<Point> >  (prefix + "SuperClusterPos" + suffix);
   produces <std::vector<double> > (prefix + "SuperClusterEtaWidth" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterEtaPhiWidth" + suffix);
   produces <std::vector<double> > (prefix + "SuperClusterPhiWidth" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterNXtals" + suffix);
 
   produces <std::vector<int   > >(prefix + "NConversions"         + suffix);
   produces <std::vector<float > >(prefix + "AllConversionTracksSumPt" + suffix);
@@ -157,12 +142,19 @@ void SusyCAF_Photon<T>::initExtra()
 {
   if (!produceExtraVars) return;
 
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso0015" + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso035"  + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso04"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso05"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso07"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkIso1"    + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso0015" + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso035"  + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso04"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso05"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso07"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso1"    + suffix);
+
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso0015" + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso035"  + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso04"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso05"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso07"   + suffix);
+  produces <std::vector<float> >  (prefix + "ExtraTrkPIso1"    + suffix);
 
   produces <std::vector<int> >    (prefix + "ExtraNTrk0015"   + suffix);
   produces <std::vector<int> >    (prefix + "ExtraNTrk035"    + suffix);
@@ -234,24 +226,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> > HcalDepth1 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > HcalDepth2 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > R9   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > SwissCross   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > e2overE9   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > SeedTime   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > Time2   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > SeedEnergy   (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > Energy2   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e1x5 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e2x5 (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > e2x2 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e3x3 (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > e4x4 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e5x5 (new std::vector<float>());
   std::auto_ptr<std::vector<double> > SCenergy   (new std::vector<double>());
   std::auto_ptr<std::vector<Point> >  SCpoint    (new std::vector<Point>());
   std::auto_ptr<std::vector<double> > SCetaWidth (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > SCetaPhiWidth (new std::vector<double>());
   std::auto_ptr<std::vector<double> > SCphiWidth (new std::vector<double>());
-  std::auto_ptr<std::vector<int> > SCnXtals (new std::vector<int>());
 
   std::auto_ptr<std::vector<int  > > nConversions        ( new std::vector<int  >() );
   std::auto_ptr<std::vector<float  > > allConversionTracksSumPt ( new std::vector<float  >() );
@@ -288,72 +270,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       e3x3 -> push_back(photon.e3x3());
       e5x5 -> push_back(photon.e5x5());
       
-      edm::Handle<EBRecHitCollection> pEBRecHits;
-      iEvent.getByLabel(ebRecHitCollection, pEBRecHits);
-      const EcalRecHitCollection *ebRecHits;
-      if (pEBRecHits.isValid()) {
-        ebRecHits = pEBRecHits.product();
-      } else {
-        edm::LogError("") << "Error! Can't get the product " << ebRecHitCollection; 
-      }
-
-      edm::Handle<EERecHitCollection> pEERecHits;
-      iEvent.getByLabel(eeRecHitCollection, pEERecHits);
-      const EcalRecHitCollection *eeRecHits;
-      if (pEERecHits.isValid()) {
-        eeRecHits = pEERecHits.product();
-      } else {
-        edm::LogError("") << "Error! Can't get the product " << eeRecHitCollection; 
-      }
-
-      edm::ESHandle<CaloTopology> pTopology;
-      iSetup.get<CaloTopologyRecord>().get(pTopology);
-      const CaloTopology *topology = pTopology.product();
-
-      const EcalRecHitCollection* ecalRecHits = 0;
-    
       reco::SuperClusterRef scluster = photon.superCluster();
-      int subdet = scluster->seed()->hitsAndFractions()[0].first.subdetId();
-      if (subdet == EcalBarrel) ecalRecHits = ebRecHits;
-      if (subdet == EcalEndcap) ecalRecHits = eeRecHits;
-      DetId id = scluster->seed()->seed();
-      SwissCross -> push_back(EcalSeverityLevelAlgo::swissCross(id, *ecalRecHits, 0., false));
-      e2overE9   -> push_back(EcalSeverityLevelAlgo::E2overE9(id, *ecalRecHits, 10., 1., false, false));
-      SeedTime   -> push_back(ecalRecHits->find(id)->time());
-      float e2 = -1;
-      EBDetId id2 = 0;
-      int e2eta = 0;
-      int e2phi = 0;
-      for ( int deta = -1; deta <= +1; ++deta ) {
-        for ( int dphi = -1; dphi <= +1; ++dphi ) {
-          EBDetId idtmp = EBDetId::offsetBy(id,deta,dphi);
-          float etmp = ecalRecHits->find(id)->energy();
-          float eapproxet = etmp / cosh( EBDetId::approxEta(id) );
-          if (etmp>e2 && eapproxet>1. && !(deta==0 && dphi==0)) {
-            e2=etmp;
-            id2=idtmp;
-            e2eta=deta;
-            e2phi=dphi;
-          }
-        }
-      }
-      Time2      -> push_back(ecalRecHits->find(id2)->time());
-      SeedEnergy   -> push_back(ecalRecHits->find(id)->energy());
-      Energy2      -> push_back(ecalRecHits->find(id2)->energy());
-      e2x2       -> push_back(EcalClusterTools::e2x2(*(scluster->seed()), ecalRecHits, topology)); 
-      e4x4       -> push_back(EcalClusterTools::e4x4(*(scluster->seed()), ecalRecHits, topology)); 
       SCenergy   -> push_back(scluster->energy());
       SCpoint    -> push_back(scluster->position());
-      std::vector<float> cov = EcalClusterTools::localCovariances(*(scluster->seed()), &(*ecalRecHits), &(*topology));
-      SCetaWidth -> push_back(sqrt(cov[0]));
-      SCetaPhiWidth -> push_back(sqrt(cov[1]));
-      SCphiWidth -> push_back(sqrt(cov[2]));
-      int nXtals = 0;
-      for (reco::CaloCluster_iterator cluster = scluster->clustersBegin(); cluster != scluster->clustersEnd(); ++cluster)
-      {
-          nXtals += (*cluster)->hitsAndFractions().size();
-      }
-      SCnXtals   -> push_back(nXtals);
+      SCetaWidth -> push_back(scluster->etaWidth());
+      SCphiWidth -> push_back(scluster->phiWidth());
+
       
       reco::ConversionRef bestConv;
       float tracksSumPt = 0;
@@ -413,24 +335,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(HcalDepth1              , prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
   iEvent.put(HcalDepth2              , prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
   iEvent.put(R9                      , prefix + "R9"                         + suffix);
-  iEvent.put(SwissCross              , prefix + "SwissCross"                 + suffix);
-  iEvent.put(e2overE9                , prefix + "E2overE9"                   + suffix);
-  iEvent.put(SeedTime                , prefix + "SeedTime"                   + suffix);
-  iEvent.put(Time2                   , prefix + "Time2"                      + suffix);
-  iEvent.put(SeedEnergy              , prefix + "SeedEnergy"                 + suffix);
-  iEvent.put(Energy2                 , prefix + "Energy2"                    + suffix);
   iEvent.put(e1x5                    , prefix + "e1x5"                       + suffix);
   iEvent.put(e2x5                    , prefix + "e2x5"                       + suffix);
-  iEvent.put(e2x2                    , prefix + "e2x2"                       + suffix);
   iEvent.put(e3x3                    , prefix + "e3x3"                       + suffix);
-  iEvent.put(e4x4                    , prefix + "e4x4"                       + suffix);
   iEvent.put(e5x5                    , prefix + "e5x5"                       + suffix);
   iEvent.put(SCenergy                , prefix + "SuperClusterEnergy"         + suffix);
   iEvent.put(SCpoint                 , prefix + "SuperClusterPos"            + suffix);
   iEvent.put(SCetaWidth              , prefix + "SuperClusterEtaWidth"       + suffix);
-  iEvent.put(SCetaPhiWidth           , prefix + "SuperClusterEtaPhiWidth"    + suffix);
   iEvent.put(SCphiWidth              , prefix + "SuperClusterPhiWidth"       + suffix);
-  iEvent.put(SCnXtals                , prefix + "SuperClusterNXtals"         + suffix);
 
   iEvent.put(nConversions            , prefix + "NConversions"               + suffix);
   iEvent.put(allConversionTracksSumPt, prefix + "AllConversionTracksSumPt"   + suffix);
@@ -623,12 +535,19 @@ template< typename T >
 void SusyCAF_Photon<T>::
 produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection)
 {
-  std::auto_ptr<std::vector<float> > TrkIso0015( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso035 ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso04  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso05  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso07  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkIso1   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso0015( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso035 ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso04  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso05  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso07  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPtIso1   ( new std::vector<float>() );
+  
+  std::auto_ptr<std::vector<float> > TrkPIso0015( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso035 ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso04  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso05  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso07  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > TrkPIso1   ( new std::vector<float>() );
   
   std::auto_ptr<std::vector<int> > NTrk0015( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > NTrk035 ( new std::vector<int>() );
@@ -644,12 +563,19 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
     for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const reco::Photon& photon = *it;
 
-      TrkIso0015->push_back(0.0);
-      TrkIso035 ->push_back(0.0);
-      TrkIso04  ->push_back(0.0);
-      TrkIso05  ->push_back(0.0);
-      TrkIso07  ->push_back(0.0);
-      TrkIso1   ->push_back(0.0);
+      TrkPtIso0015->push_back(0.0);
+      TrkPtIso035 ->push_back(0.0);
+      TrkPtIso04  ->push_back(0.0);
+      TrkPtIso05  ->push_back(0.0);
+      TrkPtIso07  ->push_back(0.0);
+      TrkPtIso1   ->push_back(0.0);
+  
+      TrkPIso0015->push_back(0.0);
+      TrkPIso035 ->push_back(0.0);
+      TrkPIso04  ->push_back(0.0);
+      TrkPIso05  ->push_back(0.0);
+      TrkPIso07  ->push_back(0.0);
+      TrkPIso1   ->push_back(0.0);
   
       NTrk0015->push_back(0);
       NTrk035 ->push_back(0);
@@ -661,15 +587,15 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
       if (tracks.isValid()) {
 	for (reco::TrackCollection::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) {
 	  double deltaR = ROOT::Math::VectorUtil::DeltaR(itTrack->innerMomentum(), photon.p4());
-	  //double p  = itTrack->innerMomentum().R();
+	  double p  = itTrack->innerMomentum().R();
 	  double pt = itTrack->innerMomentum().Rho();
 	  
-	  if (deltaR < 0.015) {TrkIso0015->back() += pt; NTrk0015->back()++;}
-	  if (deltaR < 0.350) {TrkIso035 ->back() += pt; NTrk035 ->back()++;}
-	  if (deltaR < 0.400) {TrkIso04  ->back() += pt; NTrk04  ->back()++;}
-	  if (deltaR < 0.500) {TrkIso05  ->back() += pt; NTrk05  ->back()++;}
-	  if (deltaR < 0.700) {TrkIso07  ->back() += pt; NTrk07  ->back()++;}
-	  if (deltaR < 1.000) {TrkIso1   ->back() += pt; NTrk1   ->back()++;}
+	  if (deltaR < 0.015) {TrkPtIso0015->back() += pt; TrkPIso0015->back() += p; NTrk0015->back()++;}
+	  if (deltaR < 0.350) {TrkPtIso035 ->back() += pt; TrkPIso035 ->back() += p; NTrk035 ->back()++;}
+	  if (deltaR < 0.400) {TrkPtIso04  ->back() += pt; TrkPIso04  ->back() += p; NTrk04  ->back()++;}
+	  if (deltaR < 0.500) {TrkPtIso05  ->back() += pt; TrkPIso05  ->back() += p; NTrk05  ->back()++;}
+	  if (deltaR < 0.700) {TrkPtIso07  ->back() += pt; TrkPIso07  ->back() += p; NTrk07  ->back()++;}
+	  if (deltaR < 1.000) {TrkPtIso1   ->back() += pt; TrkPIso1   ->back() += p; NTrk1   ->back()++;}
 	  
 	}//track collection
       }//track collection handle valid
@@ -677,12 +603,19 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
     }//photon collection
   }//photon collection handle valid
 
-  iEvent.put(TrkIso0015, prefix + "ExtraTrkIso0015" + suffix);
-  iEvent.put(TrkIso035 , prefix + "ExtraTrkIso035"  + suffix);
-  iEvent.put(TrkIso04  , prefix + "ExtraTrkIso04"   + suffix);
-  iEvent.put(TrkIso05  , prefix + "ExtraTrkIso05"   + suffix);
-  iEvent.put(TrkIso07  , prefix + "ExtraTrkIso07"   + suffix);
-  iEvent.put(TrkIso1   , prefix + "ExtraTrkIso1"    + suffix);
+  iEvent.put(TrkPtIso0015, prefix + "ExtraTrkPtIso0015" + suffix);
+  iEvent.put(TrkPtIso035 , prefix + "ExtraTrkPtIso035"  + suffix);
+  iEvent.put(TrkPtIso04  , prefix + "ExtraTrkPtIso04"   + suffix);
+  iEvent.put(TrkPtIso05  , prefix + "ExtraTrkPtIso05"   + suffix);
+  iEvent.put(TrkPtIso07  , prefix + "ExtraTrkPtIso07"   + suffix);
+  iEvent.put(TrkPtIso1   , prefix + "ExtraTrkPtIso1"    + suffix);
+
+  iEvent.put(TrkPIso0015, prefix + "ExtraTrkPIso0015" + suffix);
+  iEvent.put(TrkPIso035 , prefix + "ExtraTrkPIso035"  + suffix);
+  iEvent.put(TrkPIso04  , prefix + "ExtraTrkPIso04"   + suffix);
+  iEvent.put(TrkPIso05  , prefix + "ExtraTrkPIso05"   + suffix);
+  iEvent.put(TrkPIso07  , prefix + "ExtraTrkPIso07"   + suffix);
+  iEvent.put(TrkPIso1   , prefix + "ExtraTrkPIso1"    + suffix);
 
   iEvent.put(NTrk0015, prefix + "ExtraNTrk0015" + suffix);
   iEvent.put(NTrk035 , prefix + "ExtraNTrk035"  + suffix);

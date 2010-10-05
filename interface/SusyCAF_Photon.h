@@ -118,7 +118,9 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<float> >  (prefix + "Energy2"   + suffix);
   produces <std::vector<float> >  (prefix + "e1x5" + suffix);
   produces <std::vector<float> >  (prefix + "e2x5" + suffix);
+  produces <std::vector<float> >  (prefix + "e2x2" + suffix);
   produces <std::vector<float> >  (prefix + "e3x3" + suffix);
+  produces <std::vector<float> >  (prefix + "e4x4" + suffix);
   produces <std::vector<float> >  (prefix + "e5x5" + suffix);
   produces <std::vector<double> > (prefix + "SuperClusterEnergy" + suffix);
   produces <std::vector<Point> >  (prefix + "SuperClusterPos" + suffix);
@@ -240,7 +242,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> > Energy2   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e1x5 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e2x5 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e2x2 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e3x3 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e4x4 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e5x5 (new std::vector<float>());
   std::auto_ptr<std::vector<double> > SCenergy   (new std::vector<double>());
   std::auto_ptr<std::vector<Point> >  SCpoint    (new std::vector<Point>());
@@ -326,12 +330,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       Time2      -> push_back(ecalRecHits->find(id2)->time());
       SeedEnergy   -> push_back(ecalRecHits->find(id)->energy());
       Energy2      -> push_back(ecalRecHits->find(id2)->energy());
+      e2x2       -> push_back(EcalClusterTools::e2x2(*(scluster->seed()), ecalRecHits, topology)); 
+      e4x4       -> push_back(EcalClusterTools::e4x4(*(scluster->seed()), ecalRecHits, topology)); 
       SCenergy   -> push_back(scluster->energy());
       SCpoint    -> push_back(scluster->position());
       std::vector<float> cov = EcalClusterTools::localCovariances(*(scluster->seed()), &(*ecalRecHits), &(*topology));
-      SCetaWidth -> push_back(cov[0]);
-      SCetaPhiWidth -> push_back(cov[1]);
-      SCphiWidth -> push_back(cov[2]);
+      SCetaWidth -> push_back(sqrt(cov[0]));
+      SCetaPhiWidth -> push_back(sqrt(cov[1]));
+      SCphiWidth -> push_back(sqrt(cov[2]));
       int nXtals = 0;
       for (reco::CaloCluster_iterator cluster = scluster->clustersBegin(); cluster != scluster->clustersEnd(); ++cluster)
       {
@@ -405,7 +411,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(Energy2                 , prefix + "Energy2"                    + suffix);
   iEvent.put(e1x5                    , prefix + "e1x5"                       + suffix);
   iEvent.put(e2x5                    , prefix + "e2x5"                       + suffix);
+  iEvent.put(e2x2                    , prefix + "e2x2"                       + suffix);
   iEvent.put(e3x3                    , prefix + "e3x3"                       + suffix);
+  iEvent.put(e4x4                    , prefix + "e4x4"                       + suffix);
   iEvent.put(e5x5                    , prefix + "e5x5"                       + suffix);
   iEvent.put(SCenergy                , prefix + "SuperClusterEnergy"         + suffix);
   iEvent.put(SCpoint                 , prefix + "SuperClusterPos"            + suffix);

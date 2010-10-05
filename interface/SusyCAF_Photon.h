@@ -20,6 +20,11 @@
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "MyAnalysis/IsolationTools/interface/SuperClusterHitsEcalIsolation.h"
 
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 #include <Math/ProbFuncMathCore.h>
 #include <Math/VectorUtil.h>
 
@@ -41,9 +46,23 @@ private:
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceExtra(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
-  void produceExtraTrackVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
-  void produceExtraSuperClusterVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
-  void produceExtraCaloIsoVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void produceExtraTrackVars       (edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::TrackCollection> &);
+  void produceExtraSuperClusterVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<EBRecHitCollection> &);
+  void produceExtraCaloIsoVars     (edm::Event &, const edm::EventSetup &,
+				    edm::Handle<std::vector<T> > &,
+				    edm::ESHandle<CaloGeometry> &,
+				    edm::Handle<EBRecHitCollection> &,
+				    edm::Handle<EERecHitCollection> &,
+				    edm::Handle<HBHERecHitCollection> &
+				    );
+
+  void produceExtraSpikeVarsFunc(edm::Event &, const edm::EventSetup &,
+				 edm::Handle<std::vector<T> > &,
+				 edm::ESHandle<CaloTopology> &,
+				 edm::Handle<EBRecHitCollection> &,
+				 edm::Handle<EERecHitCollection> &
+				 );
+
   double hcalEnergy(const CaloGeometry* geometry,
 		    const HBHERecHitMetaCollection& mHbhe,
 		    reco::SuperClusterRef& sc,
@@ -55,7 +74,8 @@ private:
   const edm::InputTag   inputTag;
   const std::string     prefix,suffix;
 
-  const bool produceExtraVars;
+  const bool produceExtraIdVars;
+  const bool produceExtraSpikeVars;
   const edm::InputTag trackTag;
   const std::string ecalRecHitProducer;
   const std::string ebRecHitCollection;
@@ -73,7 +93,8 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
   , prefix  (iConfig.getParameter<std::string>  ("Prefix"  ))
   , suffix  (iConfig.getParameter<std::string>  ("Suffix"  ))
 
-  , produceExtraVars(iConfig.getParameter<bool>("ProduceExtraVars"))
+  , produceExtraIdVars   (iConfig.getParameter<bool>("ProduceExtraIdVars"))
+  , produceExtraSpikeVars(iConfig.getParameter<bool>("ProduceExtraSpikeVars"))
   , trackTag(iConfig.getParameter<edm::InputTag>("TrackTag"))
   , ecalRecHitProducer(iConfig.getParameter<std::string>("EcalRecHitProducer"))
   , ebRecHitCollection(iConfig.getParameter<std::string>("EbRecHitCollection"))
@@ -105,6 +126,7 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<float> >  (prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
   produces <std::vector<float> >  (prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
   produces <std::vector<float> >  (prefix + "R9"   + suffix);
+
   produces <std::vector<float> >  (prefix + "e1x5" + suffix);
   produces <std::vector<float> >  (prefix + "e2x5" + suffix);
   produces <std::vector<float> >  (prefix + "e3x3" + suffix);
@@ -140,45 +162,58 @@ void SusyCAF_Photon<T>::initPAT()
 template< typename T >
 void SusyCAF_Photon<T>::initExtra()
 {
-  if (!produceExtraVars) return;
+  if (produceExtraIdVars) {
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso0015" + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso035"  + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso04"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso05"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso07"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso1"    + suffix);
+    
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso0015" + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso035"  + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso04"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso05"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso07"   + suffix);
+    produces <std::vector<float> >  (prefix + "ExtraTrkPIso1"    + suffix);
+    
+    produces <std::vector<int> >    (prefix + "ExtraNTrk0015"   + suffix);
+    produces <std::vector<int> >    (prefix + "ExtraNTrk035"    + suffix);
+    produces <std::vector<int> >    (prefix + "ExtraNTrk04"     + suffix);
+    produces <std::vector<int> >    (prefix + "ExtraNTrk05"     + suffix);
+    produces <std::vector<int> >    (prefix + "ExtraNTrk07"     + suffix);
+    produces <std::vector<int> >    (prefix + "ExtraNTrk1"      + suffix);
+    
+    produces <std::vector<double> > (prefix + "SuperClusterMajorMajor" + suffix);
+    produces <std::vector<double> > (prefix + "SuperClusterMinorMinor" + suffix);
+    
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal01"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal015" + suffix);
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal04"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal05"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal07"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal1"   + suffix);
+    
+    produces <std::vector<double> > (prefix + "ExtraEcalIso01"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso015" + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso04"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso05"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso07"  + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso1"   + suffix);
+  }
 
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso0015" + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso035"  + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso04"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso05"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso07"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPtIso1"    + suffix);
-
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso0015" + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso035"  + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso04"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso05"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso07"   + suffix);
-  produces <std::vector<float> >  (prefix + "ExtraTrkPIso1"    + suffix);
-
-  produces <std::vector<int> >    (prefix + "ExtraNTrk0015"   + suffix);
-  produces <std::vector<int> >    (prefix + "ExtraNTrk035"    + suffix);
-  produces <std::vector<int> >    (prefix + "ExtraNTrk04"     + suffix);
-  produces <std::vector<int> >    (prefix + "ExtraNTrk05"     + suffix);
-  produces <std::vector<int> >    (prefix + "ExtraNTrk07"     + suffix);
-  produces <std::vector<int> >    (prefix + "ExtraNTrk1"      + suffix);
-
-  produces <std::vector<double> > (prefix + "SuperClusterMajorMajor" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterMinorMinor" + suffix);
-
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal01"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal015" + suffix);
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal04"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal05"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal07"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraHcalOverEcal1"   + suffix);
-
-  produces <std::vector<double> > (prefix + "ExtraEcalIso01"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraEcalIso015" + suffix);
-  produces <std::vector<double> > (prefix + "ExtraEcalIso04"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraEcalIso05"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraEcalIso07"  + suffix);
-  produces <std::vector<double> > (prefix + "ExtraEcalIso1"   + suffix);
+  if (produceExtraSpikeVars) {
+    produces <std::vector<float> >  (prefix + "SwissCross"   + suffix);
+    produces <std::vector<float> >  (prefix + "E2overE9"     + suffix);
+    produces <std::vector<float> >  (prefix + "SeedTime"     + suffix);
+    produces <std::vector<float> >  (prefix + "Time2"        + suffix);
+    produces <std::vector<float> >  (prefix + "SeedEnergy"   + suffix);
+    produces <std::vector<float> >  (prefix + "Energy2"      + suffix);
+    produces <std::vector<float> >  (prefix + "e2x2"         + suffix);
+    produces <std::vector<float> >  (prefix + "e4x4"         + suffix);
+    produces <std::vector<double> > (prefix + "SuperClusterEtaPhiWidth" + suffix);
+    produces <std::vector<int> >    (prefix + "SuperClusterNXtals"      + suffix);
+  }
 
 }
 
@@ -392,13 +427,39 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 
 template< typename T >
 void SusyCAF_Photon<T>::
-produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) 
+produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& photons) 
 {
-  //ID from CMS AN 2010/141
-  if (!produceExtraVars) return;
-  produceExtraTrackVars(iEvent, iSetup, collection);
-  produceExtraSuperClusterVars(iEvent, iSetup, collection);
-  produceExtraCaloIsoVars(iEvent, iSetup, collection);
+
+  edm::Handle<EBRecHitCollection> ebRecHits;
+  edm::Handle<EERecHitCollection> eeRecHits;
+
+  if (produceExtraIdVars || produceExtraSpikeVars) {
+    iEvent.getByLabel(ecalRecHitProducer, ebRecHitCollection, ebRecHits);
+    iEvent.getByLabel(ecalRecHitProducer, eeRecHitCollection, eeRecHits);
+  }
+
+  if (produceExtraIdVars) {
+    //ID from CMS AN 2010/141
+    edm::Handle<reco::TrackCollection> tracks;
+    iEvent.getByLabel(trackTag,tracks);
+  
+    edm::Handle<HBHERecHitCollection> hbheRecHits;
+    iEvent.getByLabel(hbheRecHitCollection, hbheRecHits);
+
+    edm::ESHandle<CaloGeometry> geometry;
+    iSetup.get<CaloGeometryRecord>().get(geometry);
+    
+    produceExtraTrackVars(iEvent, iSetup, photons, tracks);
+    produceExtraSuperClusterVars(iEvent, iSetup, photons, ebRecHits);
+    produceExtraCaloIsoVars(iEvent, iSetup, photons, geometry, ebRecHits, eeRecHits, hbheRecHits);
+  }
+
+  if (produceExtraSpikeVars) {
+      edm::ESHandle<CaloTopology> topology;
+      iSetup.get<CaloTopologyRecord>().get(topology);
+
+      produceExtraSpikeVarsFunc(iEvent, iSetup, photons, topology, ebRecHits, eeRecHits);
+  }
 }
 
 template< typename T >
@@ -418,7 +479,13 @@ double SusyCAF_Photon<T>::hcalEnergy(const CaloGeometry* geometry,
 
 template< typename T >
 void SusyCAF_Photon<T>::
-produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection)
+produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup,
+			edm::Handle<std::vector<T> >& photons,
+			edm::ESHandle<CaloGeometry>& geometry,
+			edm::Handle<EBRecHitCollection>& ebRecHits,
+			edm::Handle<EERecHitCollection>& eeRecHits,
+			edm::Handle<HBHERecHitCollection>& hbheRecHits
+			)
 {
   std::auto_ptr<std::vector<double> > hcalOverEcal01 (new std::vector<double>());
   std::auto_ptr<std::vector<double> > hcalOverEcal015(new std::vector<double>());
@@ -434,24 +501,13 @@ produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::
   std::auto_ptr<std::vector<double> > ecalIso07 (new std::vector<double>());
   std::auto_ptr<std::vector<double> > ecalIso1  (new std::vector<double>());
 
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
-
-  edm::Handle<EBRecHitCollection> ebRecHits;
-  iEvent.getByLabel(ecalRecHitProducer, ebRecHitCollection, ebRecHits);
-
-  edm::Handle<EERecHitCollection> eeRecHits;
-  iEvent.getByLabel(ecalRecHitProducer, eeRecHitCollection, eeRecHits);
-
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel(hbheRecHitCollection, hbhe);
-  const HBHERecHitMetaCollection mHbhe(*hbhe);
+  const HBHERecHitMetaCollection mHbhe(*hbheRecHits);
  
-  bool allValid = geometry.isValid() && hbhe.isValid() && ebRecHits.isValid() && eeRecHits.isValid();
+  bool allValid = geometry.isValid() && hbheRecHits.isValid() && ebRecHits.isValid() && eeRecHits.isValid();
   double dummyValue = -100.0;
 
-  if (collection.isValid()) {
-    for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+  if (photons.isValid()) {
+    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
       const reco::Photon& photon = *it;
       reco::SuperClusterRef scluster = photon.superCluster();
       hcalOverEcal01 ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.1 )/it->energy() : dummyValue );
@@ -502,17 +558,14 @@ produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::
 
 template< typename T >
 void SusyCAF_Photon<T>::
-produceExtraSuperClusterVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection)
+produceExtraSuperClusterVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& photons, edm::Handle<EBRecHitCollection>& ebRecHits)
 {
 
   std::auto_ptr<std::vector<double> > SCMajorMajor(new std::vector<double>());
   std::auto_ptr<std::vector<double> > SCMinorMinor(new std::vector<double>());
 
-  edm::Handle<EBRecHitCollection> ebRecHits;
-  iEvent.getByLabel(ecalRecHitProducer, ebRecHitCollection, ebRecHits);
-
-  if (collection.isValid()) {
-    for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+  if (photons.isValid()) {
+    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
       const reco::Photon& photon = *it;
       reco::SuperClusterRef scluster = photon.superCluster();
       SCMajorMajor->push_back(-100.0);
@@ -533,7 +586,7 @@ produceExtraSuperClusterVars(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
 template< typename T >
 void SusyCAF_Photon<T>::
-produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection)
+produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& photons, edm::Handle<reco::TrackCollection>& tracks)
 {
   std::auto_ptr<std::vector<float> > TrkPtIso0015( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > TrkPtIso035 ( new std::vector<float>() );
@@ -556,11 +609,8 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
   std::auto_ptr<std::vector<int> > NTrk07  ( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > NTrk1   ( new std::vector<int>() );
 
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackTag,tracks);
-
-  if (collection.isValid()) {
-    for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+  if (photons.isValid()) {
+    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
       const reco::Photon& photon = *it;
 
       TrkPtIso0015->push_back(0.0);
@@ -623,6 +673,90 @@ produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Ha
   iEvent.put(NTrk05  , prefix + "ExtraNTrk05"   + suffix);
   iEvent.put(NTrk07  , prefix + "ExtraNTrk07"   + suffix);
   iEvent.put(NTrk1   , prefix + "ExtraNTrk1"    + suffix);
+}
+
+template< typename T >
+void SusyCAF_Photon<T>::
+produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
+			  edm::Handle<std::vector<T> >& photons,
+			  edm::ESHandle<CaloTopology>& topology,
+			  edm::Handle<EBRecHitCollection>& ebRecHits,
+			  edm::Handle<EERecHitCollection>& eeRecHits
+			  )
+
+{
+  std::auto_ptr<std::vector<float> > SwissCross   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e2overE9   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > SeedTime   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > Time2   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > SeedEnergy   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > Energy2   (new std::vector<float>());
+
+  std::auto_ptr<std::vector<float> > e2x2 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > e4x4 (new std::vector<float>());
+  std::auto_ptr<std::vector<double> > SCetaPhiWidth (new std::vector<double>());
+  std::auto_ptr<std::vector<int> > SCnXtals (new std::vector<int>());
+
+  const CaloTopology *topo = topology.product();
+
+  if ( photons.isValid() && topology.isValid() && ebRecHits.isValid() && eeRecHits.isValid() ) {
+    for (typename std::vector<T>::const_iterator it = photons->begin(); 
+	 it != photons->end(); ++it) {
+      const reco::Photon& photon = *it;
+      const EcalRecHitCollection* ecalRecHits = 0;
+      
+      reco::SuperClusterRef scluster = photon.superCluster();
+      int subdet = scluster->seed()->hitsAndFractions()[0].first.subdetId();
+      if (subdet == EcalBarrel) ecalRecHits = ebRecHits.product();
+      if (subdet == EcalEndcap) ecalRecHits = eeRecHits.product();
+      DetId id = scluster->seed()->seed();
+      SwissCross -> push_back(EcalSeverityLevelAlgo::swissCross(id, *ecalRecHits, 0., false));
+      //e2overE9   -> push_back(EcalSeverityLevelAlgo::E2overE9(id, *ecalRecHits, 10., 1., false, false));
+      e2overE9   -> push_back(-100.0);
+      SeedTime   -> push_back(ecalRecHits->find(id)->time());
+      float e2 = -1;
+      EBDetId id2 = 0;
+      int e2eta = 0;
+      int e2phi = 0;
+      for ( int deta = -1; deta <= +1; ++deta ) {
+        for ( int dphi = -1; dphi <= +1; ++dphi ) {
+          EBDetId idtmp = EBDetId::offsetBy(id,deta,dphi);
+          float etmp = ecalRecHits->find(id)->energy();
+          float eapproxet = etmp / cosh( EBDetId::approxEta(id) );
+          if (etmp>e2 && eapproxet>1. && !(deta==0 && dphi==0)) {
+            e2=etmp;
+            id2=idtmp;
+            e2eta=deta;
+            e2phi=dphi;
+          }
+        }
+      }
+      Time2      -> push_back(ecalRecHits->find(id2)->time());
+      SeedEnergy   -> push_back(ecalRecHits->find(id)->energy());
+      Energy2      -> push_back(ecalRecHits->find(id2)->energy());
+      e2x2       -> push_back(EcalClusterTools::e2x2(*(scluster->seed()), ecalRecHits, topo)); 
+      e4x4       -> push_back(EcalClusterTools::e4x4(*(scluster->seed()), ecalRecHits, topo)); 
+      std::vector<float> cov = EcalClusterTools::localCovariances(*(scluster->seed()), &(*ecalRecHits), &(*topo));
+      SCetaPhiWidth -> push_back(sqrt(cov[1]));
+      int nXtals = 0;
+      for (reco::CaloCluster_iterator cluster = scluster->clustersBegin(); cluster != scluster->clustersEnd(); ++cluster) {
+	nXtals += (*cluster)->hitsAndFractions().size();
+      }
+      SCnXtals   -> push_back(nXtals);
+    }//end loop over photons
+  }//end if photons valid
+
+  iEvent.put(SwissCross              , prefix + "SwissCross"                 + suffix);
+  iEvent.put(e2overE9                , prefix + "E2overE9"                   + suffix);
+  iEvent.put(SeedTime                , prefix + "SeedTime"                   + suffix);
+  iEvent.put(Time2                   , prefix + "Time2"                      + suffix);
+  iEvent.put(SeedEnergy              , prefix + "SeedEnergy"                 + suffix);
+  iEvent.put(Energy2                 , prefix + "Energy2"                    + suffix);
+
+  iEvent.put(e2x2                    , prefix + "e2x2"                       + suffix);
+  iEvent.put(e4x4                    , prefix + "e4x4"                       + suffix);
+  iEvent.put(SCetaPhiWidth           , prefix + "SuperClusterEtaPhiWidth"    + suffix);
+  iEvent.put(SCnXtals                , prefix + "SuperClusterNXtals"         + suffix);
 }
 
 #endif

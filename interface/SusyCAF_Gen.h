@@ -33,6 +33,7 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
  {
   produces <bool>   (Prefix + "GenInfoHandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
+  produces <std::vector<double> > (Prefix + "BinningValues" + Suffix);
   produces <bool >  (Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4"  + Suffix );
   produces <std::vector<int> > (Prefix + "PdgId" + Suffix);
@@ -48,7 +49,7 @@ template< typename T > int SusyCAF_Gen<T>::
 index(const reco::Candidate* item, const typename std::vector<const T*>& collection) {
   typename std::vector<const T*>::const_iterator it(collection.begin()), begin(collection.begin()), end(collection.end());
   for(; it!=end; it++) if ((*it)==item) return it-begin; //Compare addresses
-  return -2;
+  return -1;
 }
 
 template< typename T > void SusyCAF_Gen<T>::
@@ -61,6 +62,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<bool> handleValid ( new bool(collection.isValid()) );
   std::auto_ptr<bool> genInfoValid ( new bool( geninfo.isValid() && !geninfo->binningValues().empty()));
   std::auto_ptr<double> pthat (new double(*genInfoValid ? geninfo->binningValues()[0] : -1.));
+  std::auto_ptr<std::vector<double> > binningValues (*genInfoValid ? new std::vector<double>(geninfo->binningValues()) : new std::vector<double>());
   std::auto_ptr<std::vector<LorentzVector> >  p4  ( new std::vector<LorentzVector>()  ) ;
   std::auto_ptr<std::vector<int> > status ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
@@ -93,6 +95,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( handleValid,  Prefix + "HandleValid"        + Suffix);
   iEvent.put( genInfoValid, Prefix + "GenInfoHandleValid" + Suffix);
   iEvent.put( pthat,        Prefix + "pthat"  + Suffix);
+  iEvent.put( binningValues,Prefix + "BinningValues" + Suffix);
   iEvent.put( p4,           Prefix + "P4"     + Suffix );
   iEvent.put( status,       Prefix + "Status" + Suffix );
   iEvent.put( pdgId,        Prefix + "PdgId"  + Suffix );

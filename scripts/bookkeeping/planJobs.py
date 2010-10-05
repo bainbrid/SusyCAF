@@ -29,7 +29,7 @@ class planner:
             }
         self.dsetM = {
             "m": ("ain", lambda : menu(self.mainM)),
-            "l": ("ist datasets", lambda : self.list_entries('select rowid,* from dset')),
+            "l": ("ist datasets", lambda : self.list_entries('select rowid,dataset,globalTag,jec,mcInfo,otherOptions,filter from dset')),
             "n": ("ew dataset", lambda : self.new_entry('dset')),
             "d": ("elete", lambda : self.delete_row('dset'))
             }
@@ -55,13 +55,14 @@ class planner:
         if len(rows)>0 :
             print rows[0].keys()
         for row in rows :
-            print '\t\t'.join([str(item) for item in row])
+            print '\t'.join([str(item) for item in row])
 
     def new_entry(self,table,cols='*') :
         c = self.db.cursor()
         c.execute("select "+cols+" from "+table)
         inputs = []
         for item in c.description :
+            if item[0]=='NoiseCleaning' : continue
             input = raw_input(item[0]+": ")
             if item[0]=='jsonls' and len(input)>4 and input[-4:]=='.txt' :
                 input = open(input).readline()

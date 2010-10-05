@@ -50,7 +50,7 @@ def print_HEAD(file,name) :
     }
     .Complete {
     color:black;
-    background-color:#00FF00;//light green
+    background-color:#00FF00;
     }
     -->
     </style>
@@ -66,6 +66,15 @@ def print_HEAD(file,name) :
          el.style.display = '';
     }
     }
+    var jobSwitches = new Array();
+    var dsetSwitches = new Array();
+    var tagSwitches = new Array();
+
+    function switchAll(items) {
+      for( var i=0; i < items.length; i++) {
+        switchMenu(items[i])
+      }
+    }
     //-->
     </script>
 
@@ -73,16 +82,27 @@ def print_HEAD(file,name) :
     <body>
     '''
     return
+    
 
 def print_FOOT(file) :
-    print>>file,'''</body></html>'''
+    print>>file,'''<script type="text/javascript"><!--
+    switchAll(jobSwitches)
+    switchAll(dsetSwitches)
+    switchAll(tagSwitches)
+    //-->
+    </script>
+    </body></html>'''
 
 def print_JOB(file,job) :
     label = 'job%d' % job['rowid']
     print>>file,'\n'.join([
+        '''<script type="text/javascript"><!--
+        jobSwitches.push(\'%s\');//-->
+        </script>'''%label,
         '<br><a onclick="switchMenu(\'%s\');" class="%s">' % (label,job['state']),
-        job['rpath'] if job['rpath'] else 'Unclaimed',
+        "%d:"%job['rowid'],
         '</a>',
+        "&nbsp;%s" %((job['rpath'] if job['rpath'] else 'Unclaimed')),
         '<div id="%s" class=jobwrapper>' % label,
         ('<br>'+job['user']+'@'+job['node']+':'+job['path']) if job['user'] else '',
         ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'].split(',')) ])) if job['dash'] else '',
@@ -96,12 +116,15 @@ def print_DSET(file,db,dset,tagid) :
     jobs = db.execute('select rowid,* from job where dsetid=? and tagid=? order by user',(dset['rowid'],tagid)).fetchall()
     if len(jobs)>0 :
         print>>file,'\n'.join([
+            '''<script type="text/javascript"><!--
+            dsetSwitches.push(\'%s\');//-->
+            </script>'''%label,
             '<br><a onclick="switchMenu(\'%s\');">' % label,
             (10*'&nbsp;').join(['<b>%s</b>','%s','%s','%s','%s']) % (dset['dataset'].replace(",","<br>"),
                                                                      dset['globalTag'],
                                                                      dset['jec'],
                                                                      dset['filter'] if dset['filter'] else '',
-                                                                     dset['otherOptions']),
+                                                                     dset['otherOptions'] if dset['otherOptions'] else ''),
             '</a>',
             '<div id="%s" class=dsetwrapper>' % label,
             ])
@@ -113,6 +136,9 @@ def print_DSET(file,db,dset,tagid) :
 def print_TAG(file,db,tag) :
     label = 'tag%d' % tag['rowid']
     print>>file,'\n'.join([
+        '''<script type="text/javascript"><!--
+        tagSwitches.push(\'%s\');//-->
+        </script>'''%label,
         '<a onclick="switchMenu(\'%s\');">' % label,
         '<b>'+tag['cmssw']+':'+10*'&nbsp;'+'</b>'+tag['susycaf'],
         '</a>',
@@ -128,6 +154,11 @@ def print_TAG(file,db,tag) :
     return
 
 def print_BODY(file,db) :
+    print>>file,'''
+    <div><div><a onclick="switchAll(tagSwitches);">Toggle Tags</a></div>
+    <div><a onclick="switchAll(dsetSwitches);">Toggle Datasets</a></div>
+    <div><a onclick="switchAll(jobSwitches);">Toggle Jobs</a></div></div>
+    '''
     for tag in db.execute('select rowid,* from tag order by rowid desc').fetchall() :
         print>>file,'<p>'
         print_TAG(file,db,tag)

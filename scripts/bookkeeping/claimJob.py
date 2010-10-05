@@ -23,7 +23,7 @@ def get_jobrow(db) :
         db.disconnect()
         sys.exit()
     
-    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter,otherOptions,
+    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter,otherOptions
                          from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                          where state="Unclaimed" AND job.rowid='''+jobnumber).fetchone()
     return row

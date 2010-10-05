@@ -289,12 +289,22 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       e5x5 -> push_back(photon.e5x5());
       
       edm::Handle<EBRecHitCollection> pEBRecHits;
-      iEvent.getByLabel("barrelEcalHits", pEBRecHits);
-      const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+      iEvent.getByLabel(ebRecHitCollection, pEBRecHits);
+      const EcalRecHitCollection *ebRecHits;
+      if (pEBRecHits.isValid()) {
+        ebRecHits = pEBRecHits.product();
+      } else {
+        edm::LogError("") << "Error! Can't get the product " << ebRecHitCollection; 
+      }
 
       edm::Handle<EERecHitCollection> pEERecHits;
-      iEvent.getByLabel("endcapEcalHits", pEERecHits);
-      const EcalRecHitCollection *eeRecHits = pEERecHits.product();
+      iEvent.getByLabel(eeRecHitCollection, pEERecHits);
+      const EcalRecHitCollection *eeRecHits;
+      if (pEERecHits.isValid()) {
+        eeRecHits = pEERecHits.product();
+      } else {
+        edm::LogError("") << "Error! Can't get the product " << eeRecHitCollection; 
+      }
 
       edm::ESHandle<CaloTopology> pTopology;
       iSetup.get<CaloTopologyRecord>().get(pTopology);

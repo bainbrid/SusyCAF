@@ -180,7 +180,7 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py pa
       "mc" : job['mcInfo'],
       "jec" : job['jec'],
       "gt" : job['globalTag'],
-      "otherOptions" : job['otherOptions'],
+      "otherOptions" : job['otherOptions'] if job['otherOptions'] else '',
       "crab" : "multicrab" if MULTI else "crab"})
     return
 

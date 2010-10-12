@@ -95,7 +95,7 @@ events_per_job=20000'''
         file = open("%(PATH)s/jsonls.txt"%option,"w")
         print>>file,str(job['jsonls']).replace("'",'"')
         file.close()
-    
+
     crabfile = open("%(PATH)s/crab.cfg"%option,"w")
     print>>crabfile,'''
 [CMSSW]
@@ -103,9 +103,11 @@ get_edm_output = 1
 %(EVENTS)s
 pset=SusyCAF_Tree_cfg.py
 datasetpath=%(DATASET)s
+use_parent=%(USE_PARENT)s
 
 [GRID]
 virtual_organization=cms
+ce_white_list=%(WHITELIST)s
 
 [USER]
 copy_data=1
@@ -169,8 +171,7 @@ def run_crab(job,path,MULTI) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
-#source /afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh
+source %(crab_setup)s
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All %(otherOptions)s
 %(crab)s -create -submit
@@ -181,7 +182,11 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py pa
       "jec" : job['jec'],
       "gt" : job['globalTag'],
       "otherOptions" : job['otherOptions'] if job['otherOptions'] else '',
-      "crab" : "multicrab" if MULTI else "crab"})
+      "crab" : "multicrab" if MULTI else "crab",
+      "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_5_pre3/crab.sh" if "fromRAW=1" in job['otherOptions'] else \
+                     "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
+                     #"/afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh"
+      })
     return
 
 
@@ -201,9 +206,6 @@ def get_options(name) :
     option["SITE"] = raw_input("\t> ")
     option["SERVER"] = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
     option["SPLIT"] = True if job['jsonls'] and raw_input('Split by run with multicrab? [y/n]') in  ['Y','y',1] else False
-    print 'You have specified:'
-    for key,val in option.items() :
-        print key+": "+str(val)
     option["USER"] = getpass.getuser()
     option["NODE"] = socket.gethostname()
     option["PATH"] = '/'.join(['','tmp',option['USER'],name,timestamp,''])
@@ -211,6 +213,12 @@ def get_options(name) :
     option["JOBID"] = job['rowid']
     option['DATASET'] = job['dataset']
     option["MULTI"] = len(job['dataset'].split(','))>1
+    option["USE_PARENT"] = 1 if "fromRAW" in job["otherOptions"] else 0
+    option["WHITELIST"] = raw_input("whitelist sites containing both RECO and RAW: ") if option["USE_PARENT"] else ""
+
+    print 'You have specified:'
+    for key in ["SITE","SERVER"] + (["SPLIT"] if job['jsonls'] else []) + (["WHITELIST"] if option["USE_PARENT"] else []) :
+        print key+": "+str(option[key])
     return option
 
 

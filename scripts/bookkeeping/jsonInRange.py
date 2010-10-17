@@ -14,5 +14,7 @@ outJson = {}
 for run in json:
     if firstRun <= eval(run) <= lastRun:
         outJson[run] = json[run]
-print outJson
+ordered = sorted([pair for pair in outJson.iteritems()], key = lambda i: eval(i[0]))
+
+print "{%s}"%(', '.join(['"%s": %s'%(i,str(j)) for i,j in ordered]))
 

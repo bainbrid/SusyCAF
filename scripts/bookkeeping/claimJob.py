@@ -183,8 +183,7 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py pa
       "gt" : job['globalTag'],
       "otherOptions" : job['otherOptions'] if job['otherOptions'] else '',
       "crab" : "multicrab" if MULTI else "crab",
-      "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_7_5_pre3/crab.sh" if job['otherOptions'] and "fromRAW=1" in job['otherOptions'] else \
-                     "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
+      "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
                      #"/afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh"
       })
     return

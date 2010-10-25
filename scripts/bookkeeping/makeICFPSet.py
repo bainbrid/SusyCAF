@@ -5,7 +5,6 @@
 #Does not add the correct crosssections, this will need to be done by hand.
 
 import commands
-
 import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime,re
 
 #Connect to database
@@ -51,65 +50,99 @@ for row in rows:
 #disconect from database
 db.disconnect()
 
+
+
 #loop over datasets in job
 for path, shortName, xsec in zip(paths, shortNames, xsecs) :
 
-	print "Generating " + shortName + '.py'
+  print "Generating " + shortName + '.py'
+  
 
-	prefix = '\n' + '\t' +  "\"dcap://gfe02.grid.hep.ph.ic.ac.uk:22128/"# + path + '/'
-	suffix = '\" ,'
-
-	#ls DCAHCE
-	temp = commands.getstatusoutput("lcg-ls srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=" + path + "/")
-
-	#Succesful?
-	if temp[0] != 0 :
-		print "\tError occured:"
-		print temp
-		break
+  
+  prefix = '\n' + '\t' +  "\"dcap://gfe02.grid.hep.ph.ic.ac.uk:22128/"# + path + '/'
+  suffix = '\" ,'
+  
+  method = raw_input("Use srmls? [n] :\n")  
+  
+  if method in ["y","yes"] : ### srmls
+    offset = 0
+    count = 100
+    output = []
+    # Regular Expression for output path (why didn't I just use [\sA-Za-z0-9_\/\.]+(.root)...)
+    PathRE = re.compile('(/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/\w+\/+ICF/automated/[0-9_]+\/+SusyCAF_Tree_[0-9]+_+[0-9]+_+[a-zA-Z0-9]+\.root)')
+    #begin loop
+    while True :
+      print "Getting list of files %i to %i." % (offset, offset+count)
+      #print "srmls -count %i -offset %i srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=%s" % (count,offset,path)
+      temp = commands.getstatusoutput("srmls -count %i -offset %i srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=%s" % (count,offset,path))
+      #Succesful?
+      if temp[0] != 0 and temp[0] != 256 : #256 is a warning
+        print "\tError occured:"
+        print temp
+        break
+      #Find lines using regular expression 
+      lines = PathRE.findall(temp[1])
+      #print lines
+      #sys.exit()
+      for line in lines :
+        output.append(line)
+      print "Found %i files." % len(lines)
+      if len(lines)<count :
+        break 
+      offset +=count  
+    ##end loop
+  ##end srmls
+  else : ###lcg-ls 
+	  temp = commands.getstatusoutput("lcg-ls srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=" + path + "/")
+	  #Succesful?
+	  if temp[0] != 0 :
+		  print "\tError occured:"
+		  print temp
+		  break
+	  #split up chunk of text in to array of filenames
+	  output = temp[1].split('\n')
+	##end lcg-ls 
 	
-	#split up chunk of text in to array of filenames
-	infile = temp[1].split('\n')
-	infile.sort()
+  output.sort()
 
-	#Remove duplicate files
-	toRemove = []
-	for i,line1 in enumerate(infile[:-1]) : 
-		if (((line1.split('/'))[-1]).split('_'))[2] == (((infile[i+1].split('/'))[-1]).split('_'))[2] :
-			toRemove.append(i)
-	toRemove.sort()
-	toRemove.reverse()
-	for i in toRemove :
-		del infile[i]
+  #Remove duplicate files
+  toRemove = []
+  for i,line1 in enumerate(output[:-1]) : 
+    if (((line1.split('/'))[-1]).split('_'))[2] == (((output[i+1].split('/'))[-1]).split('_'))[2] :
+      toRemove.append(i)
+  toRemove.sort()
+  toRemove.reverse()
+  for i in toRemove :
+	  del output[i]
 
-	#Write PSet
-	outfile = open(shortName+'.py','w')
-	
-	#header
-	header = '\n'.join([
-		'from icf.core import PSet',
-		'',
-		'%s=PSet(' % shortName,
-		'\tName=\"%s\",' % shortName,
-		'\tFormat=(\"ICF\",2),',
-		'\tFile=['
-		])
-	outfile.write(header)
+  #Write PSet
+  outfile = open(shortName+'.py','w')
 
-	#body
-	filenames = []
-	for line in infile : 
-		line = line.rstrip()
-		line = prefix + line + suffix 
-		filenames.append(line)
-	for line in filenames :
-		outfile.write(line)
+  #header
+  header = '\n'.join([
+	  'from icf.core import PSet',
+	  '',
+	  '%s=PSet(' % shortName,
+	  '\tName=\"%s\",' % shortName,
+	  '\tFormat=(\"ICF\",2),',
+	  '\tFile=['
+	  ])
+  outfile.write(header)
 
-	#footer
-	footer = '\n'.join([
-		'',
-		'\t],',
-		'\tCrossSection=%d,' % xsec,
-		')'
-		])
-	outfile.write(footer)
+  #body
+  filenames = []
+  for line in output : 
+    line = line.rstrip()
+    line = prefix + line + suffix 
+    filenames.append(line)
+  for line in filenames :
+    outfile.write(line)
+
+  #footer
+  footer = '\n'.join([
+	  '',
+	  '\t],',
+	  '\tCrossSection=%d,' % xsec,
+	  ')'
+	  ])
+  outfile.write(footer)

@@ -15,6 +15,7 @@ options.register(          'GlobalTag', "",         single, vtype.string, "Globa
 options.register(     'JetCorrections', 'Spring10', single, vtype.string, "GlobalTaget corrections to use")
 options.register(             'mcInfo', False,      single, vtype.int,    "process MonteCarlo data")
 options.register(          'AllTracks', False,      single, vtype.int,    "include all tracks")
+options.register(    'hbheNoiseFilter', True,       single, vtype.int,    "include hbhe noise filter result")
 options.register('silentMessageLogger', True,       single, vtype.int,    "silence MessageLogger")
 options.register(             'patify', True,       single, vtype.int,    "run SUSYPAT on the fly")
 options.register(           'fromRECO', True,       single, vtype.int,    "process RECO data (else PAT is assumed)")
@@ -77,7 +78,7 @@ else : print "WARNING: selection (slimming) not applied for options patify(False
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
 adjust.addTypeIIMet(process)
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
-adjust.addHbheNoiseFilterResult(process, schedule)
+if options.hbheNoiseFilter : adjust.addHbheNoiseFilterResult(process, schedule)
 if options.fromRAW : adjust.addEcalUnpacking(process, schedule, options.mcInfo)
 
 process.lumiPath = cms.Path(process.lumiTree)

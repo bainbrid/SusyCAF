@@ -14,6 +14,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_Photon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamHaloSummary_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseFilter_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
@@ -42,7 +43,7 @@ nCommon = cms.Sequence( susycafevent +
                         susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
                         susycafL1triggers +
                         susycaftriggers +
-                        susycafbeamspot + susycafvertex + susycafhcalnoiserbx +
+                        susycafbeamspot + susycafbeamhalosummary + susycafvertex + susycafhcalnoiserbx +
                         susycafhcalnoisesummary + susycafhcalnoisefilter +
                         susycafcalotowers)
 

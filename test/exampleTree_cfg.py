@@ -36,7 +36,7 @@ if options.silentMessageLogger:
 #-- Input Source --------------------------------------------------------------
 defaultGT,defaultFile = ([[( 'GR_R_37X_V6::All','error, no default file defined'),
                            (  'START37_V5::All','error, no default file defined')],
-                          [('GR_R_38X_V13::All','/store/relval/CMSSW_3_8_4/MinimumBias/RECO/GR_R_38X_V13_RelVal_col_10-v1/0000/043C99EA-60C2-DF11-B6C3-0018F3D0970C.root'),
+                          [('GR10_P_V11::All','/store/data/Run2010B/MultiJet/RECO/PromptReco-v2/000/149/294/08FCCA78-05E5-DF11-8925-0030487CD6B4.root'),
                            ( 'START38_V12::All','/store/relval/CMSSW_3_8_4/RelValTTbar/GEN-SIM-RECO/START38_V12-v1/0024/1A650A81-83C2-DF11-B355-002618FDA287.root')]
                           ])[options.fromRECO][options.mcInfo]
 process.GlobalTag.globaltag = options.GlobalTag if options.GlobalTag else defaultGT

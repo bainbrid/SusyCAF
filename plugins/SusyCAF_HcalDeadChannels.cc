@@ -46,7 +46,6 @@ void SusyCAF_HcalDeadChannels::produce(edm::Event& iEvent, const edm::EventSetup
       const GlobalPoint& point = caloGeometry->getPosition(id);
       p4->push_back( PolarLorentzV(0.0, point.eta(), point.phi(), 0.0));
       status->push_back(channelStatus);
-      std::cout << "got one: " << id << std::endl;
     }
   }
 

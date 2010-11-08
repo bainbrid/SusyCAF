@@ -22,6 +22,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalDeadChannels_cfi import *
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalDeadChannels_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFRecHit_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
@@ -84,7 +85,9 @@ nRecoFlag = cms.Sequence( susycafhbherechit +
                           susycafpfrechithfem +
                           susycafpfrechithfhad +
                           susycafpfrechitps +
-                          susycafecaldeadchannels)
+                          susycafecaldeadchannels +
+                          susycafhcaldeadchannels )
+
 #this sequence holds everything that needs reco event content and that should run in pat jobs with on-the-fly patification
 nRecoPat = cms.Sequence( nRecoMet + nRecoFlag)
 

@@ -12,19 +12,11 @@ SusyCAF_HcalNoiseFilter::SusyCAF_HcalNoiseFilter(const edm::ParameterSet& iConfi
 
 void SusyCAF_HcalNoiseFilter::
 produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-
-  //declare
-  std::auto_ptr<bool> handle( new bool() );
-  std::auto_ptr<bool> result( new bool() );
-
-  //assign
   edm::Handle<bool> hcalnoisefilter;
   iEvent.getByLabel(inputTag,hcalnoisefilter);
   
-  *handle.get()=hcalnoisefilter.isValid();
-  if (*handle) { *result.get()=*hcalnoisefilter; }
-
-  //put
-  iEvent.put( handle, Prefix + "HandleValid" + Suffix );
-  iEvent.put( result, Prefix + "FilterResult" + Suffix );
+  iEvent.put( std::auto_ptr<bool>( new bool(hcalnoisefilter.isValid()) ),
+	      Prefix + "HandleValid" + Suffix  );
+  iEvent.put( std::auto_ptr<bool>( new bool(hcalnoisefilter.isValid()? *hcalnoisefilter : true) ),
+	      Prefix + "FilterResult" + Suffix );
 }

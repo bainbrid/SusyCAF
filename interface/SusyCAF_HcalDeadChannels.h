@@ -14,6 +14,13 @@ class SusyCAF_HcalDeadChannels : public edm::EDProducer {
   void produce(edm::Event&,const edm::EventSetup&);
   typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PolarLorentzV;
   const uint32_t statusMask;
+
+  uint32_t channelQuality_cache_id,caloGeometry_cache_id;
+
+  std::vector<PolarLorentzV> p4;
+  std::vector<unsigned> status;
+
+  void updateIfNecessary(const edm::EventSetup&);
 };
 
 #endif

@@ -13,26 +13,34 @@
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 SusyCAF_HcalDeadChannels::SusyCAF_HcalDeadChannels(const edm::ParameterSet& conf) :
-  statusMask(conf.getParameter<uint32_t>("StatusMask"))
+  statusMask(conf.getParameter<uint32_t>("StatusMask")),
+  channelQuality_cache_id(0),
+  caloGeometry_cache_id(0)
 {
   produces <std::vector<PolarLorentzV> > ("hcalDeadChannelP4");
   produces <std::vector<unsigned> >      ("hcalDeadChannelStatus");
 }
 
 void SusyCAF_HcalDeadChannels::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr <std::vector<PolarLorentzV> > p4(new std::vector<PolarLorentzV>());
-  std::auto_ptr <std::vector<unsigned> >  status(new std::vector<unsigned>());
+  updateIfNecessary(iSetup);
+  iEvent.put( std::auto_ptr <std::vector<PolarLorentzV> >(new std::vector<PolarLorentzV>(p4)),     "hcalDeadChannelP4");
+  iEvent.put( std::auto_ptr <std::vector<unsigned> >(new std::vector<unsigned>(status)),       "hcalDeadChannelStatus");
+}
 
-  //get geometry
-  edm::ESHandle<CaloGeometry> caloGeometryHandle;
-  iSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
-  const CaloGeometry* caloGeometry = caloGeometryHandle.product();
+void SusyCAF_HcalDeadChannels::
+updateIfNecessary(const edm::EventSetup& es) {
+  
+  const uint32_t quality_id = es.get<HcalChannelQualityRcd>().cacheIdentifier();
+  const uint32_t geom_id = es.get<CaloGeometryRecord>().cacheIdentifier();
 
-  //get channel status handle
-  edm::ESHandle<HcalChannelQuality> channelQualityHandle;
-  iSetup.get<HcalChannelQualityRcd>().get(channelQualityHandle);
-  const HcalChannelQuality* channelQuality = channelQualityHandle.product();
+  if ( quality_id == channelQuality_cache_id &&
+       geom_id == caloGeometry_cache_id ) return;
 
+  channelQuality_cache_id = quality_id; edm::ESHandle<HcalChannelQuality> channelQuality; es.get<HcalChannelQualityRcd>().get(channelQuality);
+  caloGeometry_cache_id = geom_id;      edm::ESHandle<CaloGeometry> caloGeometry;         es.get<CaloGeometryRecord>().get(caloGeometry);
+  
+  p4.clear();
+  status.clear();
   for (uint32_t i = 0; i < HcalDetId::kSizeForDenseIndexing; ++i) {
     HcalDetId id = HcalDetId::detIdFromDenseIndex(i);
     
@@ -40,15 +48,13 @@ void SusyCAF_HcalDeadChannels::produce(edm::Event& iEvent, const edm::EventSetup
     HcalSubdetector subdet = id.subdet();
     if (subdet!=HcalBarrel && subdet!=HcalEndcap && subdet!=HcalForward) continue;
 
-    uint32_t channelStatus = channelQuality->getValues(id.rawId())->getValue();
+    const uint32_t channelStatus = channelQuality->getValues(id.rawId())->getValue();
     
     if ( channelStatus & statusMask ) {
       const GlobalPoint& point = caloGeometry->getPosition(id);
-      p4->push_back( PolarLorentzV(0.0, point.eta(), point.phi(), 0.0));
-      status->push_back(channelStatus);
+      p4.push_back( PolarLorentzV(0.0, point.eta(), point.phi(), 0.0));
+      status.push_back(channelStatus);
     }
   }
 
-  iEvent.put( p4,     "hcalDeadChannelP4");
-  iEvent.put( status, "hcalDeadChannelStatus");
 }

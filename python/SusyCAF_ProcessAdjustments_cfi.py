@@ -44,3 +44,8 @@ def addTypeIIMet(process) :
         process.patMETs+
         process.patMETsAK5CaloTypeII
         )
+
+def removeJPT(process) :
+    for seq in [process.nPatJetMatched,process.nPatJet,process.nReco] :
+        JPTs = filter(lambda name: "jpt" in name, str(seq).split('+'))
+        for jpt in JPTs : seq.remove(eval("process."+jpt))

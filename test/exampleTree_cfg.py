@@ -20,6 +20,7 @@ options.register('silentMessageLogger', True,       single, vtype.int,    "silen
 options.register(             'patify', True,       single, vtype.int,    "run SUSYPAT on the fly")
 options.register(           'fromRECO', True,       single, vtype.int,    "process RECO data (else PAT is assumed)")
 options.register(            'fromRAW', False,      single, vtype.int,    "process RAW data")
+options.register(         'withoutJPT', False,      single, vtype.int,    "do not include JPT jets")
 options.register(         'SourceName', "",         single, vtype.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 options.parseArguments()
 options._tagOrder =[]
@@ -45,7 +46,8 @@ process.maxEvents.input = options.maxEvents
 
 
 if options.patify and options.fromRECO:
-    jetAlgoList = ['IC5Calo','AK7Calo','AK5PF','AK7PF','AK5JPT','AK5Track']
+    jetAlgoList = ['IC5Calo','AK7Calo','AK5PF','AK7PF']
+    if not options.withoutJPT : jetAlgoList +=['AK5JPT'] #+['AK5Track']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
     addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'',jetAlgoList)
     for algo in ['']+jetAlgoList :
@@ -69,17 +71,17 @@ if options.patify and options.fromRECO:
         del process.outpath
 
 
-
-if options.patify or not options.fromRECO :
-    from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
-    insertSelection(process)
-else : print "WARNING: selection (slimming) not applied for options patify(False) and fromRECO(True)."
-
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
 adjust.addTypeIIMet(process)
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
 if options.hbheNoiseFilter : adjust.addHbheNoiseFilterResult(process, schedule)
 if options.fromRAW : adjust.addEcalUnpacking(process, schedule, options.mcInfo)
+if options.withoutJPT : adjust.removeJPT(process)
+
+if options.patify or not options.fromRECO :
+    from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
+    insertSelection(process)
+else : print "WARNING: selection (slimming) not applied for options patify(False) and fromRECO(True)."
 
 process.lumiPath = cms.Path(process.lumiTree)
 schedule.append(process.lumiPath)

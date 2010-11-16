@@ -14,6 +14,7 @@ def loadAndConfigureHcalSeverityLevelProducer(process, mcInfo) :
 def addEcalUnpacking(process, schedule, mcInfo) :
     process.load("Configuration.StandardSequences.RawToDigi%s_cff"%("" if mcInfo else "_Data"))
     process.rawPath = cms.Path(process.ecalDigis)
+    process.susycafecaldeadchannels.InputTag = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
     schedule.append(process.rawPath)
 
 

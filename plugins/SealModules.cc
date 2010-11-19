@@ -32,6 +32,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Muon.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamSpot.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamHaloSummary.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_LogError.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Vertex.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
@@ -98,6 +99,7 @@ DEFINE_FWK_MODULE(SusyCAF_RecoMuon);
 DEFINE_FWK_MODULE(SusyCAF_PatMuon);
 DEFINE_FWK_MODULE(SusyCAF_BeamSpot);
 DEFINE_FWK_MODULE(SusyCAF_BeamHaloSummary);
+DEFINE_FWK_MODULE(SusyCAF_LogError);
 DEFINE_FWK_MODULE(SusyCAF_Vertex);
 DEFINE_FWK_MODULE(SusyCAF_L1GlobalTrigger);
 DEFINE_FWK_MODULE(SusyCAF_L1CaloTrigger);

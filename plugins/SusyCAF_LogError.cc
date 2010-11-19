@@ -12,7 +12,6 @@ SusyCAF_LogError::SusyCAF_LogError(const edm::ParameterSet& iConfig) :
   modulesOfInterest(setFromVector(iConfig.getParameter<std::vector<std::string> >("ModulesOfInterest"))),
   categoriesOfInterest(setFromVector(iConfig.getParameter<std::vector<std::string> >("CategoriesOfInterest")))
 {
-  std::cout << "here" << std::endl;
   BOOST_FOREACH(std::string err, modulesOfInterest)    assert(categoriesOfInterest.count(err)==0);
   BOOST_FOREACH(std::string err, modulesOfInterest)    produces<bool>(Prefix + err + Suffix);
   BOOST_FOREACH(std::string err, categoriesOfInterest) produces<bool>(Prefix + err + Suffix);

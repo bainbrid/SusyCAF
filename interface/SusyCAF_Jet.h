@@ -119,7 +119,7 @@ std::auto_ptr<std::vector<double> > SusyCAF_Jet<pat::Jet>::
 correctionFactors(const edm::Handle<edm::View<pat::Jet> >& jets) {
   std::auto_ptr<std::vector<double> > correction ( new std::vector<double>() );
   for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++)
-    correction->push_back( (*jets)[i].jecSetsAvailable() ? 
+    correction->push_back( (*jets)[i].hasCorrFactors() ? 
 			   (*jets)[i].energy() / (*jets)[i].correctedJet("RAW").energy() :
 			   1.0 );
   return correction;

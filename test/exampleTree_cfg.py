@@ -12,8 +12,7 @@ options.output = "SusyCAF_Tree.root"
 options.secondaryOutput = "" #switch PAT-tuple output off by default
 options.maxEvents = 100
 options.register(          'GlobalTag', "",         single, vtype.string, "GlobalTag to use")
-options.register(     'jetCorrections',['L2Relative','L3Absolute'], VarParsing.VarParsing.multiplicity.list, vtype.string, "jet correction levels to apply")
-options.register(     'JetCorrections', 'Spring10', single, vtype.string, "GlobalTag jet corrections to use, obsolete with SusyPAT for 3_8_6")
+options.register(     'JetCorrections', 'Spring10', single, vtype.string, "GlobalTaget corrections to use")
 options.register(             'mcInfo', False,      single, vtype.int,    "process MonteCarlo data")
 options.register(          'AllTracks', False,      single, vtype.int,    "include all tracks")
 options.register(    'hbheNoiseFilter', True,       single, vtype.int,    "include hbhe noise filter result")
@@ -25,19 +24,15 @@ options.register(         'withoutJPT', False,      single, vtype.int,    "do no
 options.register(         'SourceName', "",         single, vtype.string, "'S:streamName' or 'DS:datasetName' to store HLT paths in that stream/dataset")
 options.parseArguments()
 options._tagOrder =[]
+
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 process.susycaftriggers.SourceName  = options.SourceName
 process.load('Configuration.StandardSequences.Services_cff')
 process.add_( cms.Service( "TFileService", fileName = cms.string( options.output ), closeFileFast = cms.untracked.bool(True) ) )
 if options.silentMessageLogger:
     process.MessageLogger.categories.append('PATSummaryTables')
-    process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet( limit = cms.untracked.int32(-1), reportEvery = cms.untracked.int32(1))
-
-if len(options.jetCorrections) and type(options.jetCorrections[0]) is list :
-    #hack around bug
-    tmp = options.jetCorrections[0]
-    options.clearList("jetCorrections")
-    options.jetCorrections = tmp
+    process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet( limit = cms.untracked.int32(-1), reportEvery = cms.untracked.int32(100))
+    process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #-- Input Source --------------------------------------------------------------
 defaultGT,defaultFile = ([[( 'GR_R_37X_V6::All','error, no default file defined'),
@@ -54,7 +49,7 @@ if options.patify and options.fromRECO:
     jetAlgoList = ['IC5Calo','AK7Calo','AK5PF','AK7PF']
     if not options.withoutJPT : jetAlgoList +=['AK5JPT'] #+['AK5Track']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.jetCorrections,'',jetAlgoList)
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.JetCorrections,'',jetAlgoList)
     for algo in ['']+jetAlgoList :
         setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.5) )
     process.susyPat = cms.Path(process.susyPatDefaultSequence)

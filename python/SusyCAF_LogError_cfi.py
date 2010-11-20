@@ -5,5 +5,5 @@ susycaflogerror = cms.EDProducer("SusyCAF_LogError",
                                  Suffix = cms.string(''),
                                  InputTag = cms.InputTag('logErrorHarvester'),
                                  ModulesOfInterest = cms.vstring(),
-                                 CategoriesOfInterest = cms.vstring("TooManyClusters")
+                                 CategoriesOfInterest = cms.vstring("TooManyClusters","TooManySeeds")
                                  )

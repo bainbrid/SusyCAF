@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #Generates psets
 #Uses 'lcg-ls' which requires grid to be sourced and a valid grid proxy (voms-proxy-init)
@@ -8,7 +9,11 @@ import commands
 import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime,re
 
 #Connect to database
-user = getpass.getuser()
+userDef = getpass.getuser()
+
+user = raw_input("User? ["+userDef+"] :\n") 
+if user == "" :  user = userDef
+
 db = conf.lockedDB()
 db.connect()
 

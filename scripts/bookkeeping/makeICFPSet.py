@@ -6,25 +6,37 @@
 #Does not add the correct crosssections, this will need to be done by hand.
 
 import commands
-import configuration_SCBooks as conf,sys,os,readline,getpass,string,fileinput,socket,datetime,re
+#import configuration_SCBooks as conf,
+import sys,os,readline,getpass,string,fileinput,socket,datetime,re
+import sqlite3
 
 #Connect to database
 userDef = getpass.getuser()
-
 user = raw_input("User? ["+userDef+"] :\n") 
 if user == "" :  user = userDef
-
-db = conf.lockedDB()
-db.connect()
 
 paths=[]
 shortNames=[]
 xsecs=[]
 
-#Return users jobs
-rows = db.execute('''select job.rowid,state,path,dataset,rpath,node
+db_location = "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database"
+db_file = 'sqlite.db'
+
+db_path = db_location+'/'+db_file
+
+if not os.path.exists(db_path) :
+  print 'Cannot find database: ',db_path
+  sys.exit()
+
+conn = sqlite3.connect(db_path)
+conn.row_factory = sqlite3.Row
+
+rows = conn.execute('''select job.rowid,state,path,dataset,rpath,node
                      from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                      where user="'''+user+'''" order by state,path''').fetchall()
+
+
+
 for row in rows:
     print ('\t'.join([str(item) for item in row]))[0:90]+"..."
 jobnumber = raw_input("\n\n\tWhich job?  ")
@@ -53,9 +65,7 @@ for row in rows:
 		break
 		
 #disconect from database
-db.disconnect()
-
-
+#db.disconnect()
 
 #loop over datasets in job
 for path, shortName, xsec in zip(paths, shortNames, xsecs) :

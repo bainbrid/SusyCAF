@@ -28,6 +28,13 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   produces<Vector>  (prefix + "MPTwithAllPixelTracks"           + suffix);  // pixel seed, with chi2, pT, d0 cuts, no quality criteria
   produces<Vector>  (prefix + "MPTwithLoosePixelTracks"         + suffix);  // pixel seed, with chi2, pT, d0 cuts, and the stated quality 
   produces<Vector>  (prefix + "MPTwithHighPurityPixelTracks"    + suffix);  // pixel seed, with chi2, pT, d0 cuts, and the stated quality 
+  produces<double>  (prefix + "SumPTwithEverything"             + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithAllTracks"              + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithLooseTracks"            + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithHighPurityTracks"       + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithAllPixelTracks"         + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithLoosePixelTracks"       + suffix);  // same as above
+  produces<double>  (prefix + "SumPTwithHighPurityPixelTracks"  + suffix);  // same as above
   produces<int>     (prefix + "NEtaLT0p9AllTracks"              + suffix);
   produces<int>     (prefix + "NEtaLT0p9LooseTracks"            + suffix);
   produces<int>     (prefix + "NEtaLT0p9HighPurityTracks"       + suffix);
@@ -49,6 +56,13 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<Vector>     MPTwithAllPixelTracks           ( new Vector );
   std::auto_ptr<Vector>     MPTwithLoosePixelTracks         ( new Vector );
   std::auto_ptr<Vector>     MPTwithHighPurityPixelTracks    ( new Vector );
+  std::auto_ptr<double>     SumPTwithEverything             ( new double );
+  std::auto_ptr<double>     SumPTwithAllTracks              ( new double );
+  std::auto_ptr<double>     SumPTwithLooseTracks            ( new double );
+  std::auto_ptr<double>     SumPTwithHighPurityTracks       ( new double );
+  std::auto_ptr<double>     SumPTwithAllPixelTracks         ( new double );
+  std::auto_ptr<double>     SumPTwithLoosePixelTracks       ( new double );
+  std::auto_ptr<double>     SumPTwithHighPurityPixelTracks  ( new double );
   std::auto_ptr<int>        NEtaLT0p9AllTracks              ( new int    );
   std::auto_ptr<int>        NEtaLT0p9LooseTracks            ( new int    );
   std::auto_ptr<int>        NEtaLT0p9HighPurityTracks       ( new int    );
@@ -66,14 +80,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     std::vector<bool>       preselectedTracks(tracks->size(), true);
 
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithEverything              , false);
+    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithEverything           , *SumPTwithEverything              , false);
     preselectTracks(*tracks, vertices->front(), preselectedTracks);
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllTracks               , false);
-    computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLooseTracks             , false);
-    computeMHT(*tracks, preselectedTracks, reco::Track::highPurity    , *MPTwithHighPurityTracks        , false);
-    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllPixelTracks          , true );
-    computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLoosePixelTracks        , true );
-    computeMHT(*tracks, preselectedTracks, reco::Track::highPurity    , *MPTwithHighPurityPixelTracks   , true );
+    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllTracks            , *SumPTwithAllTracks               , false);
+    computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLooseTracks          , *SumPTwithLooseTracks             , false);
+    computeMHT(*tracks, preselectedTracks, reco::Track::highPurity    , *MPTwithHighPurityTracks     , *SumPTwithHighPurityTracks        , false);
+    computeMHT(*tracks, preselectedTracks, reco::Track::undefQuality  , *MPTwithAllPixelTracks       , *SumPTwithAllPixelTracks          , true );
+    computeMHT(*tracks, preselectedTracks, reco::Track::loose         , *MPTwithLoosePixelTracks     , *SumPTwithLoosePixelTracks        , true );
+    computeMHT(*tracks, preselectedTracks, reco::Track::highPurity    , *MPTwithHighPurityPixelTracks, *SumPTwithHighPurityPixelTracks   , true );
 
     countTracks(*tracks, reco::Track::undefQuality, *NEtaLT0p9AllTracks       , *NEta0p9to1p5AllTracks        , *NEtaGT1p5AllTracks       );
     countTracks(*tracks, reco::Track::loose       , *NEtaLT0p9LooseTracks     , *NEta0p9to1p5LooseTracks      , *NEtaGT1p5LooseTracks     );
@@ -89,6 +103,13 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(MPTwithAllPixelTracks          , prefix + "MPTwithAllPixelTracks"            + suffix);
   iEvent.put(MPTwithLoosePixelTracks        , prefix + "MPTwithLoosePixelTracks"          + suffix);
   iEvent.put(MPTwithHighPurityPixelTracks   , prefix + "MPTwithHighPurityPixelTracks"     + suffix);
+  iEvent.put(SumPTwithEverything            , prefix + "SumPTwithEverything"              + suffix);
+  iEvent.put(SumPTwithAllTracks             , prefix + "SumPTwithAllTracks"               + suffix);
+  iEvent.put(SumPTwithLooseTracks           , prefix + "SumPTwithLooseTracks"             + suffix);
+  iEvent.put(SumPTwithHighPurityTracks      , prefix + "SumPTwithHighPurityTracks"        + suffix);
+  iEvent.put(SumPTwithAllPixelTracks        , prefix + "SumPTwithAllPixelTracks"          + suffix);
+  iEvent.put(SumPTwithLoosePixelTracks      , prefix + "SumPTwithLoosePixelTracks"        + suffix);
+  iEvent.put(SumPTwithHighPurityPixelTracks , prefix + "SumPTwithHighPurityPixelTracks"   + suffix);
   iEvent.put(NEtaLT0p9AllTracks             , prefix + "NEtaLT0p9AllTracks"               + suffix);
   iEvent.put(NEtaLT0p9LooseTracks           , prefix + "NEtaLT0p9LooseTracks"             + suffix);
   iEvent.put(NEtaLT0p9HighPurityTracks      , prefix + "NEtaLT0p9HighPurityTracks"        + suffix);
@@ -117,9 +138,10 @@ preselectTracks(const reco::TrackCollection& tracks, const reco::Vertex& primary
 }
 
 void SusyCAF_Track::
-computeMHT(const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, const bool pixelSeedOnly) const
+computeMHT(const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, double& ht, const bool pixelSeedOnly) const
 {
   mht.SetCoordinates(0, 0, 0);
+  ht = 0.0;
 
   const unsigned int      numTracks = tracks.size();
   for (unsigned int iTrack = 0; iTrack < numTracks; ++iTrack) {
@@ -128,8 +150,10 @@ computeMHT(const reco::TrackCollection& tracks, const std::vector<bool>& presele
     const reco::Track&    track     = tracks[iTrack];
     if  ( (quality == reco::Track::undefQuality || track.quality(quality))
        && (!pixelSeedOnly || (track.algo()==reco::TrackBase::iter0 || track.algo()==reco::TrackBase::iter1 || track.algo()==reco::TrackBase::iter2 || track.algo()==reco::TrackBase::iter3))
-        )
+	  ) {
       mht -= track.momentum();
+      ht  += track.pt();
+    }
   } // end loop over tracks
 }
 

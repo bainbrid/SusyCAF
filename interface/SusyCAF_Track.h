@@ -17,7 +17,7 @@ private:
   
   void produce          (edm::Event&, const edm::EventSetup&);
   void preselectTracks  (const reco::TrackCollection& tracks, const reco::Vertex& primaryVertex, std::vector<bool>& preselectedTracks) const;
-  void computeMHT       (const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, const bool pixelSeedOnly) const;
+  void computeMHT       (const reco::TrackCollection& tracks, const std::vector<bool>& preselectedTracks, reco::Track::TrackQuality quality, Vector& mht, double& ht, const bool pixelSeedOnly) const;
   void countTracks      (const reco::TrackCollection& tracks, reco::Track::TrackQuality quality, int& nEtaLT0p9, int& nEta0p9to1p5, int& nEtaGT1p5) const;
 
   const edm::InputTag   inputTag;

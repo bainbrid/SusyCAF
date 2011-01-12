@@ -99,6 +99,7 @@ process.p = cms.Path(  (  process.nCommon +
                                  ( process.nPatJetMatched if options.mcInfo else process.nPatJet )))) +
                           ( process.nAllTrack if options.AllTracks else process.nEmpty ) +
                           ( process.nGen if options.mcInfo else process.nData ) )
+                       * process.susycafReducer
                        * process.susyTree )
 schedule.append(process.p)
 

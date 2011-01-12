@@ -64,7 +64,7 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
   edm::GroupSelector groupSelector_;
-  groupSelector_.initialize(edm::GroupSelectorRules(pset, "outputCommands", "ProductReducer"), allBranches);
+  groupSelector_.initialize(edm::GroupSelectorRules(pset, "selectionCommands", "ProductReducer"), allBranches);
   
   std::set<std::string> branchnames;
   BOOST_FOREACH( const edm::Selections::value_type& selection, allBranches) {
@@ -86,11 +86,13 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
       case fTypes::BOOL_V:   registerReducer<std::vector<bool>, std::vector<int> >(selection); break;
       case fTypes::LORENTZV: registerReducer<fTypes::dXYZLorentzV,fTypes::fPolarLorentzV>(selection); break;
       case fTypes::LORENTZV_V: registerReducer<std::vector<fTypes::dXYZLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
+      case fTypes::LORENTZV2: registerReducer<fTypes::dPolarLorentzV,fTypes::fPolarLorentzV>(selection); break;
+      case fTypes::LORENTZV2_V: registerReducer<std::vector<fTypes::dPolarLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
 
       case fTypes::BOOL: case fTypes::SHORT: case fTypes::SHORT_V: case fTypes::U_SHORT: case fTypes::U_SHORT_V:
       case fTypes::INT: case fTypes::INT_V: case fTypes::U_INT: case fTypes::U_INT_V: case fTypes::FLOAT: case fTypes::FLOAT_V:
-      case fTypes::U_LONG: case fTypes::U_LONG_V: case fTypes::LORENTZV2: case fTypes::POINT: case fTypes::VECTOR:
-      case fTypes::LORENTZV2_V: case fTypes::POINT_V: case fTypes::VECTOR_V:
+      case fTypes::U_LONG: case fTypes::U_LONG_V: case fTypes::POINT: case fTypes::VECTOR:
+      case fTypes::POINT_V: case fTypes::VECTOR_V:
       case fTypes::STRING: case fTypes::STRING_BOOL_M: case fTypes::STRING_INT_M: case fTypes::STRING_STRING_M:
       default : 
 	throw edm::Exception(edm::errors::Configuration) << "ProductReducer does not handle leaves of type " << selection->className();

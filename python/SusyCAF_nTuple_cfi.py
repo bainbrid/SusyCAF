@@ -33,13 +33,21 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_DQMFlags_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_DCSBits_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi import *
 
+toReduce = ['double_susycaf*_*_*',
+            'doubles_susycaf*_*_*',
+            'doubleROOTMathPxPyPzE4DROOTMathLorentzVector*_susycaf*_*_*',
+            'doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector*_susycaf*_*_*'
+            ]
+
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
     'drop *',
     'keep *_susycaf*_*_*',
-    'keep double_susyScan*_*_*' 
-    ))
+    'keep double_susyScan*_*_*') + ["drop "+item for item in toReduce]
+)
 
+susycafReducer = cms.EDProducer("ProductReducer", selectionCommands = cms.untracked.vstring('drop *') + ["keep "+item for item in toReduce])
+                                
 nCommon = cms.Sequence( susycafevent +
                         susycaftrack + 
                         susycafl1globaltrigger +  # to be dropped when all L1 triggers have names

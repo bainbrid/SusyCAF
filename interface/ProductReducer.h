@@ -10,7 +10,7 @@
  *  versions of the selected variables, which it obtains from the EDM
  *  tree.  
  *
- *  $Date: 2011/01/11 $
+ *  $Date: 2011/01/12 22:53:05 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -73,15 +73,6 @@ private:
 
 public:
   explicit ProductReducer(const edm::ParameterSet&);
-  
-  enum LEAFTYPE {BOOL=1,  BOOL_V,          
-		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       
-		 INT,     INT_V,             U_INT,   U_INT_V,
-		 FLOAT,   FLOAT_V,           DOUBLE,  DOUBLE_V,
-		 LONG,    LONG_V,	     U_LONG,  U_LONG_V,
-		 LORENTZV,   LORENTZV2,   POINT,   VECTOR,
-		 LORENTZV_V, LORENTZV2_V, POINT_V, VECTOR_V,
-     STRING,     STRING_BOOL_M, STRING_INT_M, STRING_STRING_M };
 };
 
 #endif

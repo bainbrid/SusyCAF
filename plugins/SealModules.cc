@@ -21,6 +21,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyTree.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/ProductReducer.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Track.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Triggers.h"
@@ -79,6 +80,7 @@ typedef SusyCAF_HcalRecHit<HORecHitCollection> SusyCAF_HORecHitsSorted;
 typedef SusyCAF_CaloTowers<CaloTowerCollection> SusyCAF_CT;
 
 DEFINE_FWK_MODULE(SusyTree);
+DEFINE_FWK_MODULE(ProductReducer);
 DEFINE_FWK_MODULE(SusyCAF_Event);
 DEFINE_FWK_MODULE(SusyCAF_Track);
 DEFINE_FWK_MODULE(SusyCAF_alltracks);

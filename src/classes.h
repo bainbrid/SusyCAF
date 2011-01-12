@@ -4,6 +4,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <string>
 #include <map>
+#include "Math/LorentzVector.h"
+#include "Math/PtEtaPhiE4D.h"
+
 
 namespace {
   struct dictionary {
@@ -15,6 +18,8 @@ namespace {
 
     std::map<std::string,std::string> dummee0;
     edm::Wrapper<std::map<std::string,std::string> > dummee1;
+
+    ROOT::Math::PtEtaPhiM4D<float> dumdum;
   };
 }
 

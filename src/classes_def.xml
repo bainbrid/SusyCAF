@@ -8,5 +8,6 @@
 
  <class name="std::map<std::string,std::string>"/>
  <class name="edm::Wrapper<std::map<std::string,std::string> >"/>
- 
+
+ <class name="ROOT::Math::PtEtaPhiM4D<float>"/>
 </lcgdict>

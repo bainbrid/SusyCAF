@@ -39,10 +39,7 @@ struct fTypes {
 		 POINTF, POINTF_V, VECTORF, VECTORF_V,
 		 STRING,     STRING_BOOL_M, STRING_INT_M, STRING_STRING_M };
 
-  static const std::map<std::string, LEAFTYPE> dict;
-  static std::map<std::string,LEAFTYPE> init_dict();
+  static std::map<std::string,LEAFTYPE> dict();
 };
-
-
 
 #endif

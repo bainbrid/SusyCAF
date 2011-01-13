@@ -77,6 +77,7 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
   edm::GroupSelector groupSelector_;
   groupSelector_.initialize(edm::GroupSelectorRules(pset, "selectionCommands", "ProductReducer"), allBranches);
   
+  std::map<std::string,fTypes::LEAFTYPE> dict = fTypes::dict();
   std::set<std::string> branchnames;
   BOOST_FOREACH( const edm::Selections::value_type& selection, allBranches) {
     if(groupSelector_.selected(*selection)) {
@@ -90,7 +91,7 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
       else 
 	branchnames.insert(name);
       
-      switch(fTypes::dict.find(selection->friendlyClassName())->second) {
+      switch(dict.find(selection->friendlyClassName())->second) {
 #define EXPAND(enumT,T1,T2) case fTypes::enumT: registerReducer<T1,T2 >(selection); break
 	EXPAND(LONG       , long,   int  );
 	EXPAND(DOUBLE     , double, float);

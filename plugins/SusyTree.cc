@@ -48,8 +48,8 @@ beginJob() {
   edm::GroupSelector groupSelector_;
   groupSelector_.initialize(groupSelectorRules_, allBranches);
 
+  std::map<std::string,fTypes::LEAFTYPE> dict = fTypes::dict();
   std::set<std::string> branchnames;
-
   BOOST_FOREACH( const edm::Selections::value_type& selection, allBranches) {
     if(groupSelector_.selected(*selection)) {
 
@@ -63,7 +63,7 @@ beginJob() {
 	branchnames.insert( selection->productInstanceName() );
       
       //Create SusyTree branch
-      switch(fTypes::dict.find( selection->friendlyClassName() )->second) {
+      switch(dict.find( selection->friendlyClassName() )->second) {
 #define EXPAND(enumT,typeT,charT) case fTypes::enumT : connectors.push_back( new TypedBranchConnector<typeT >(selection,charT,tree)); break
 	EXPAND(   BOOL,           bool, "/O");
 	EXPAND(    INT,            int, "/I");
@@ -110,7 +110,7 @@ beginJob() {
 	{
 	  std::string leafstring = "";
 	  typedef std::pair<std::string, fTypes::LEAFTYPE> pair_t;
-	  BOOST_FOREACH( const pair_t& leaf, fTypes::dict) 
+	  BOOST_FOREACH( const pair_t& leaf, dict) 
 	    leafstring+= "\t" + leaf.first + "\n";
 
 	  throw edm::Exception(edm::errors::Configuration)

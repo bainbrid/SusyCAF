@@ -1,10 +1,8 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/fTypes.h"
 
-const std::map<std::string,fTypes::LEAFTYPE> fTypes::dict = fTypes::init_dict();
-
-std::map<std::string,fTypes::LEAFTYPE> fTypes::init_dict() {
+std::map<std::string,fTypes::LEAFTYPE> fTypes::dict() {
   std::map<std::string,LEAFTYPE> dict;
-
+  
   dict["bool"]      = BOOL;       dict["bools"]     = BOOL_V;
   dict["short int"] = SHORT;      dict["shorts"]    = SHORT_V;
   dict["ushort int"]= U_SHORT;    dict["ushorts"]   = U_SHORT_V;

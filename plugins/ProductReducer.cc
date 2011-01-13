@@ -91,23 +91,28 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
 	branchnames.insert(name);
       
       switch(fTypes::dict.find(selection->friendlyClassName())->second) {
-      case fTypes::DOUBLE :  registerReducer<double,float>(selection); break;
-      case fTypes::LONG   :  registerReducer<long,int>(selection); break;
-      case fTypes::DOUBLE_V: registerReducer<std::vector<double>,std::vector<float> >(selection); break;
-      case fTypes::BOOL_V:   registerReducer<std::vector<bool>, std::vector<int> >(selection); break;
-      case fTypes::LORENTZV: registerReducer<fTypes::dXYZLorentzV,fTypes::fPolarLorentzV>(selection); break;
-      case fTypes::LORENTZV_V: registerReducer<std::vector<fTypes::dXYZLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
-      case fTypes::LORENTZV2: registerReducer<fTypes::dPolarLorentzV,fTypes::fPolarLorentzV>(selection); break;
-      case fTypes::LORENTZV2_V: registerReducer<std::vector<fTypes::dPolarLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
-      case fTypes::POINT: registerReducer<fTypes::dPoint,fTypes::fPoint>(selection); break;
-      case fTypes::POINT_V: registerReducer<std::vector<fTypes::dPoint>,std::vector<fTypes::fPoint> >(selection); break;
-      case fTypes::VECTOR: registerReducer<fTypes::dVector,fTypes::fVector>(selection); break;
-      case fTypes::VECTOR_V: registerReducer<std::vector<fTypes::dVector>,std::vector<fTypes::fVector> >(selection); break;
+#define EXPAND(enumT,T1,T2) case fTypes::enumT: registerReducer<T1,T2 >(selection); break
+	EXPAND(LONG       , long,   int  );
+	EXPAND(DOUBLE     , double, float);
+	EXPAND(POINTD     , fTypes::dPoint, fTypes::fPoint );
+	EXPAND(VECTORD    , fTypes::dVector,fTypes::fVector);
+	EXPAND(LORENTZVD  , fTypes::dXYZLorentzV,  fTypes::fPolarLorentzV );
+	EXPAND(LORENTZVP  , fTypes::dPolarLorentzV,fTypes::fPolarLorentzV);
 
-      case fTypes::BOOL: case fTypes::SHORT: case fTypes::SHORT_V: case fTypes::U_SHORT: case fTypes::U_SHORT_V:
-      case fTypes::INT: case fTypes::INT_V: case fTypes::U_INT: case fTypes::U_INT_V: case fTypes::FLOAT: case fTypes::FLOAT_V:
-      case fTypes::U_LONG: case fTypes::U_LONG_V: 
-      case fTypes::STRING: case fTypes::STRING_BOOL_M: case fTypes::STRING_INT_M: case fTypes::STRING_STRING_M:
+	EXPAND(BOOL_V     , std::vector<bool>,   std::vector<int>  );
+	EXPAND(DOUBLE_V   , std::vector<double>, std::vector<float>);
+	EXPAND(POINTD_V   , std::vector<fTypes::dPoint>,  std::vector<fTypes::fPoint>  );
+	EXPAND(VECTORD_V  , std::vector<fTypes::dVector>, std::vector<fTypes::fVector> );
+	EXPAND(LORENTZVD_V, std::vector<fTypes::dXYZLorentzV>,   std::vector<fTypes::fPolarLorentzV> );
+	EXPAND(LORENTZVP_V, std::vector<fTypes::dPolarLorentzV>, std::vector<fTypes::fPolarLorentzV> );
+#undef EXPAND
+      case fTypes::BOOL: case fTypes::SHORT: case fTypes::INT: case fTypes::FLOAT: case fTypes::STRING : 
+      case fTypes::U_LONG : case fTypes::U_SHORT: case fTypes::U_INT: 
+      case fTypes::POINTF: case fTypes::VECTORF: case fTypes::LORENTZVF  : 
+      case fTypes::SHORT_V: case fTypes::INT_V: case fTypes::FLOAT_V:
+      case fTypes::U_INT_V: case fTypes::U_LONG_V: case fTypes::U_SHORT_V:
+      case fTypes::POINTF_V: case fTypes::VECTORF_V: case fTypes::LORENTZVF_V: 
+      case fTypes::STRING_BOOL_M: case fTypes::STRING_INT_M: case fTypes::STRING_STRING_M:
       default : 
 	throw edm::Exception(edm::errors::Configuration) << "ProductReducer does not handle leaves of type " << selection->className();
       }

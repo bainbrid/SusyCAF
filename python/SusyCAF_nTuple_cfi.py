@@ -36,8 +36,11 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi import *
 toReduce = ['double_susycaf*_*_*',
             'doubles_susycaf*_*_*',
             'doubleROOTMathPxPyPzE4DROOTMathLorentzVector*_susycaf*_*_*',
-            'doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector*_susycaf*_*_*'
+            'doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector*_susycaf*_*_*',
+            'doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3D*_susycaf*_*_*',
+            'doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3D*_susycaf*_*_*'
             ]
+#toReduce = []
 
 susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(

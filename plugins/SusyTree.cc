@@ -70,6 +70,10 @@ beginJob() {
   leafmap["doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3Ds"] = VECTOR_V;
   leafmap["floatROOTMathPtEtaPhiM4DROOTMathLorentzVector"] = LORENTZV3;
   leafmap["floatROOTMathPtEtaPhiM4DROOTMathLorentzVectors"] = LORENTZV3_V;
+  leafmap["floatROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3D"] = VECTOR2;
+  leafmap["floatROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3Ds"] = VECTOR2_V;
+  leafmap["floatROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3D"] = POINT2;
+  leafmap["floatROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3Ds"] = POINT2_V;
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -125,6 +129,10 @@ beginJob() {
       case VECTOR_V   :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > > > (selection, "", tree) ); break;
       case LORENTZV3 : connectors.push_back( new TypedBranchConnector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(selection, "", tree)); break;
       case LORENTZV3_V : connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > > >(selection, "", tree)); break;
+      case POINT2: connectors.push_back(new TypedBranchConnector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float> > >(selection, "", tree)); break;
+      case POINT2_V: connectors.push_back(new TypedBranchConnector<std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float> > > >(selection, "", tree)); break;
+      case VECTOR2     :  connectors.push_back( new TypedBranchConnector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > > (selection, "", tree) ); break;
+      case VECTOR2_V    :  connectors.push_back( new TypedBranchConnector<std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > > > (selection, "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

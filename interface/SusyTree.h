@@ -10,8 +10,8 @@
  *  tree of the selected variables, which it obtains from the EDM
  *  tree.  
  *
- *  $Date: 2010/08/05 15:06:56 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/01/12 22:55:14 $
+ *  $Revision: 1.11 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -66,6 +66,7 @@ public:
 		 LORENTZV,   LORENTZV2,   POINT,   VECTOR,
 		 LORENTZV_V, LORENTZV2_V, POINT_V, VECTOR_V,
 		 LORENTZV3, LORENTZV3_V,
+		 POINT2, POINT2_V, VECTOR2, VECTOR2_V,
 		 STRING,     STRING_BOOL_M, STRING_INT_M, STRING_STRING_M };
 };
 

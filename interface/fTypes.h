@@ -10,6 +10,10 @@ struct fTypes {
   typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >   dXYZLorentzV;
   typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > dPolarLorentzV;
   typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >  fPolarLorentzV;
+  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > dPoint;
+  typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float> > fPoint;
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > dVector;
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > fVector;
 
   enum LEAFTYPE {BOOL=1,  BOOL_V,          
 		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       

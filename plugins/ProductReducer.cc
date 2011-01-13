@@ -58,6 +58,17 @@ static_convert(const fTypes::dPolarLorentzV& a) {
   return std::auto_ptr<fTypes::fPolarLorentzV>(new fTypes::fPolarLorentzV(a.Pt(), a.Eta(), a.Phi(), a.M()));
 }
 
+template<>
+std::auto_ptr<fTypes::fPoint> ProductReducer::UnitTypedReducer<fTypes::dPoint,fTypes::fPoint>::
+static_convert(const fTypes::dPoint& a) {
+  return std::auto_ptr<fTypes::fPoint>(new fTypes::fPoint(a.X(),a.Y(),a.Z()));
+}
+
+template<>
+std::auto_ptr<fTypes::fVector> ProductReducer::UnitTypedReducer<fTypes::dVector,fTypes::fVector>::
+static_convert(const fTypes::dVector& a) {
+  return std::auto_ptr<fTypes::fVector>(new fTypes::fVector(a.X(),a.Y(),a.Z()));
+}
   
 ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
 
@@ -88,11 +99,14 @@ ProductReducer::ProductReducer(const edm::ParameterSet& conf) : pset(conf) {
       case fTypes::LORENTZV_V: registerReducer<std::vector<fTypes::dXYZLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
       case fTypes::LORENTZV2: registerReducer<fTypes::dPolarLorentzV,fTypes::fPolarLorentzV>(selection); break;
       case fTypes::LORENTZV2_V: registerReducer<std::vector<fTypes::dPolarLorentzV>,std::vector<fTypes::fPolarLorentzV> >(selection); break; 
+      case fTypes::POINT: registerReducer<fTypes::dPoint,fTypes::fPoint>(selection); break;
+      case fTypes::POINT_V: registerReducer<std::vector<fTypes::dPoint>,std::vector<fTypes::fPoint> >(selection); break;
+      case fTypes::VECTOR: registerReducer<fTypes::dVector,fTypes::fVector>(selection); break;
+      case fTypes::VECTOR_V: registerReducer<std::vector<fTypes::dVector>,std::vector<fTypes::fVector> >(selection); break;
 
       case fTypes::BOOL: case fTypes::SHORT: case fTypes::SHORT_V: case fTypes::U_SHORT: case fTypes::U_SHORT_V:
       case fTypes::INT: case fTypes::INT_V: case fTypes::U_INT: case fTypes::U_INT_V: case fTypes::FLOAT: case fTypes::FLOAT_V:
-      case fTypes::U_LONG: case fTypes::U_LONG_V: case fTypes::POINT: case fTypes::VECTOR:
-      case fTypes::POINT_V: case fTypes::VECTOR_V:
+      case fTypes::U_LONG: case fTypes::U_LONG_V: 
       case fTypes::STRING: case fTypes::STRING_BOOL_M: case fTypes::STRING_INT_M: case fTypes::STRING_STRING_M:
       default : 
 	throw edm::Exception(edm::errors::Configuration) << "ProductReducer does not handle leaves of type " << selection->className();

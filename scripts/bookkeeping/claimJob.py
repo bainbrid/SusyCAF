@@ -81,7 +81,13 @@ def setup_crab(job,option) :
                          "USER_REMOTE":"%(RPATH)s",
                          "SCHEDULER":"glite",
                          "DBS_URL": option["DBS_URL"],
-                         "EXTRA": ""}
+                         "EXTRA": ""},
+             "OSETHACK" : {"SE":"T2_UK_London_IC",
+                           "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/%(USER)s/%(RPATH)s" % option,
+                           "USER_REMOTE":"%(RPATH)s",
+                           "SCHEDULER":"glidein",
+                           "DBS_URL": "http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_02/servlet/DBSServlet",
+                           "EXTRA": "[CRAB]\nserver_name=slc5ucsd\n[GRID]\nse_white_list=T1,T2\nce_white_list=T1,T2\n"}
              }
              
     option["INITIAL"] = option["USER"][0]
@@ -96,7 +102,7 @@ total_number_of_events=-1
 events_per_job=20000'''
     option["DBS_URL"] = ("dbs_url="+option["DBS_URL"]) if option["DBS_URL"] else ""
 
-    if option["SITE"] != "LONDON" :
+    if option["SITE"] != "LONDON" and option["SITE"]!="OSETHACK":
         setup_output_dirs(option)
     if not option["SPLIT"] and job['jsonls'] :
         file = open("%(PATH)s/jsonls.txt"%option,"w")
@@ -209,7 +215,7 @@ def get_options(name) :
     option = {}
     timestamp = '_'.join(['%02d'% i for i in datetime.datetime.now().timetuple()[:6]])
     print "Choose output site:"
-    for site in ["CASTOR","CAF","LONDON"] : print '\t'+site
+    for site in ["CASTOR","CAF","LONDON","OSETHACK"] : print '\t'+site
     option["SITE"] = raw_input("\t> ")
     option["SERVER"] = True if raw_input('Run Jobs via Server? [y/n]  ') in ['Y','y',1] else False
     option["SPLIT"] = True if job['jsonls'] and raw_input('Split by run with multicrab? [y/n]') in  ['Y','y',1] else False

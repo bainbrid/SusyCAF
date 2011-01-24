@@ -19,7 +19,7 @@ def get_jobrow(db) :
         print ('\t'.join([str(item) for item in row]))[0:120] + "..."
     jobnumber = raw_input("\n\n\tWhich job?  ")
     if not jobnumber in [str(row['rowid']) for row in rows] :
-        print jobnumber+' is not and `Unclaimed` job'
+        print jobnumber+' is not an `Unclaimed` job'
         db.disconnect()
         sys.exit()
     
@@ -64,20 +64,26 @@ def setup_crab(job,option) :
                          "FULL_RPATH":"/castor/cern.ch/user/%(INITIAL)s/%(USER)s/%(RPATH)s",
                          "USER_REMOTE": "user/%(INITIAL)s/%(USER)s/%(RPATH)s",
                          "SCHEDULER":"glite",
+                         "DBS_URL": option["DBS_URL"],
                          "EXTRA": "\n[USER]\nstorage_path=/srm/managerv2?SFN=/castor/cern.ch"
                          },
              "CAF"    : {"SE":"T2_CH_CAF",
                          "FULL_RPATH":"/castor/cern.ch/cms/store/caf/user/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
                          "SCHEDULER":"caf",
-                         "EXTRA":"\n[CAF]\nqueue=cmscaf1nd\n%s" % "" if job['dataset'].find('ExpressPhysics')<0 else \
-                         "[CMSSW]\ndbs_url = http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet"},
+                         "DBS_URL": (option["DBS_URL"] if option["DBS_URL"] \
+                                     else None if job['dataset'].find('ExpressPhysics')<0 \
+                                     else "http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet"),
+                         "EXTRA":"\n[CAF]\nqueue=cmscaf1nd\n"
+                         },
              "LONDON" : {"SE":"T2_UK_London_IC",
                          "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
                          "SCHEDULER":"glite",
+                         "DBS_URL": option["DBS_URL"],
                          "EXTRA": ""}
-              }
+             }
+             
     option["INITIAL"] = option["USER"][0]
     for key,val in SITE[option["SITE"]].items() :
         option[key] = eval('\'\'\''+val+'\'\'\'%option')
@@ -88,6 +94,7 @@ total_number_of_lumis=-1
 lumis_per_job=10'''%option if job['jsonls'] else '''
 total_number_of_events=-1
 events_per_job=20000'''
+    option["DBS_URL"] = ("dbs_url="+option["DBS_URL"]) if option["DBS_URL"] else ""
 
     if option["SITE"] != "LONDON" :
         setup_output_dirs(option)
@@ -104,6 +111,7 @@ get_edm_output = 1
 pset=SusyCAF_Tree_cfg.py
 datasetpath=%(DATASET)s
 use_parent=%(USE_PARENT)s
+%(DBS_URL)s
 
 [GRID]
 virtual_organization=cms
@@ -214,9 +222,15 @@ def get_options(name) :
     option["MULTI"] = len(job['dataset'].split(','))>1
     option["USE_PARENT"] = 1 if job["otherOptions"] and "fromRAW" in job["otherOptions"] else 0
     option["WHITELIST"] = raw_input("whitelist sites containing both RECO and RAW: ") if option["USE_PARENT"] else ""
+    option["DBS_URL"] = ( raw_input("dbs_url: ") \
+                          if raw_input("See advanced options? [y/n] ") in [1,'y','Y','yes','Yes'] \
+                          else None )
 
     print 'You have specified:'
-    for key in ["SITE","SERVER"] + (["SPLIT"] if job['jsonls'] else []) + (["WHITELIST"] if option["USE_PARENT"] else []) :
+    for key in (["SITE","SERVER"] + \
+        (["SPLIT"] if job['jsonls'] else []) + \
+        (["WHITELIST"] if option["USE_PARENT"] else []) + \
+        (["DBS_URL"] if option["DBS_URL"] else []) ):
         print key+": "+str(option[key])
     return option
 

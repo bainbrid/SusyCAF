@@ -18,7 +18,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-#include "MyAnalysis/IsolationTools/interface/SuperClusterHitsEcalIsolation.h"
+//#include "MyAnalysis/IsolationTools/interface/SuperClusterHitsEcalIsolation.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -48,13 +48,13 @@ private:
 
   void produceExtraTrackVars       (edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::TrackCollection> &);
   void produceExtraSuperClusterVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<EBRecHitCollection> &);
-  void produceExtraCaloIsoVars     (edm::Event &, const edm::EventSetup &,
+  /*void produceExtraCaloIsoVars     (edm::Event &, const edm::EventSetup &,
 				    edm::Handle<std::vector<T> > &,
 				    edm::ESHandle<CaloGeometry> &,
 				    edm::Handle<EBRecHitCollection> &,
 				    edm::Handle<EERecHitCollection> &,
 				    edm::Handle<HBHERecHitCollection> &
-				    );
+				    );*/
 
   void produceExtraSpikeVarsFunc(edm::Event &, const edm::EventSetup &,
 				 edm::Handle<std::vector<T> > &,
@@ -187,7 +187,7 @@ void SusyCAF_Photon<T>::initExtra()
     produces <std::vector<double> > (prefix + "SuperClusterMajorMajor" + suffix);
     produces <std::vector<double> > (prefix + "SuperClusterMinorMinor" + suffix);
     
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal01"  + suffix);
+    /*produces <std::vector<double> > (prefix + "ExtraHcalOverEcal01"  + suffix);
     produces <std::vector<double> > (prefix + "ExtraHcalOverEcal015" + suffix);
     produces <std::vector<double> > (prefix + "ExtraHcalOverEcal04"  + suffix);
     produces <std::vector<double> > (prefix + "ExtraHcalOverEcal05"  + suffix);
@@ -199,7 +199,7 @@ void SusyCAF_Photon<T>::initExtra()
     produces <std::vector<double> > (prefix + "ExtraEcalIso04"  + suffix);
     produces <std::vector<double> > (prefix + "ExtraEcalIso05"  + suffix);
     produces <std::vector<double> > (prefix + "ExtraEcalIso07"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso1"   + suffix);
+    produces <std::vector<double> > (prefix + "ExtraEcalIso1"   + suffix);*/
   }
 
   if (produceExtraSpikeVars) {
@@ -451,7 +451,7 @@ produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std:
     
     produceExtraTrackVars(iEvent, iSetup, photons, tracks);
     produceExtraSuperClusterVars(iEvent, iSetup, photons, ebRecHits);
-    produceExtraCaloIsoVars(iEvent, iSetup, photons, geometry, ebRecHits, eeRecHits, hbheRecHits);
+    //produceExtraCaloIsoVars(iEvent, iSetup, photons, geometry, ebRecHits, eeRecHits, hbheRecHits);
   }
 
   if (produceExtraSpikeVars) {
@@ -477,6 +477,7 @@ double SusyCAF_Photon<T>::hcalEnergy(const CaloGeometry* geometry,
   return answer;
 }
 
+/*
 template< typename T >
 void SusyCAF_Photon<T>::
 produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -554,7 +555,7 @@ produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup,
   iEvent.put(ecalIso05  , prefix + "ExtraEcalIso05"  + suffix);
   iEvent.put(ecalIso07  , prefix + "ExtraEcalIso07"  + suffix);
   iEvent.put(ecalIso1   , prefix + "ExtraEcalIso1"   + suffix);
- }
+ } */
 
 template< typename T >
 void SusyCAF_Photon<T>::

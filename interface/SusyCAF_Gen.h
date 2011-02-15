@@ -33,6 +33,13 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
  {
   produces <bool>   (Prefix + "GenInfoHandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
+  produces <int> (Prefix + "id1" + Suffix);
+  produces <int> (Prefix + "id2" + Suffix);
+  produces <double> (Prefix + "x1" + Suffix);
+  produces <double> (Prefix + "x2" + Suffix);
+  produces <double> (Prefix + "pdf1" + Suffix);
+  produces <double> (Prefix + "pdf2" + Suffix);
+  produces <float> (Prefix + "Q" + Suffix);
   produces <std::vector<double> > (Prefix + "BinningValues" + Suffix);
   produces <bool >  (Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4"  + Suffix );
@@ -59,6 +66,17 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > collection;   iEvent.getByLabel(inputTag,collection);
   edm::Handle<GenEventInfoProduct> geninfo;  iEvent.getByLabel("generator",geninfo);
 
+  
+  
+
+  std::auto_ptr<float> Q (new float(geninfo->pdf()->scalePDF));
+  std::auto_ptr<int> id1 (new int( geninfo->pdf()->id.first));
+  std::auto_ptr<int> id2 (new int( geninfo->pdf()->id.second));
+  std::auto_ptr<double> x1 (new double( geninfo->pdf()->x.first));
+  std::auto_ptr<double> x2 (new double( geninfo->pdf()->x.second));
+  std::auto_ptr<double> pdf1 (new double( geninfo->pdf()->xPDF.first));
+  std::auto_ptr<double> pdf2 (new double( geninfo->pdf()->xPDF.second));
+
   std::auto_ptr<bool> handleValid ( new bool(collection.isValid()) );
   std::auto_ptr<bool> genInfoValid ( new bool( geninfo.isValid() && !geninfo->binningValues().empty()));
   std::auto_ptr<double> pthat (new double(*genInfoValid ? geninfo->binningValues()[0] : -1.));
@@ -70,6 +88,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > motherPdgId ( new std::vector<int>() ) ;
   std::vector<const T*> self;
   std::vector<const reco::Candidate*> mom;
+
+  
 
   if(collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
@@ -101,6 +121,13 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( pdgId,        Prefix + "PdgId"  + Suffix );
   iEvent.put( motherIndex,  Prefix + "MotherIndex" + Suffix );
   iEvent.put( motherPdgId,  Prefix + "MotherPdgId" + Suffix );
+  iEvent.put( Q,            Prefix + "Q" + Suffix );
+  iEvent.put( x1,           Prefix + "x1" + Suffix );
+  iEvent.put( x2,           Prefix + "x2" + Suffix );
+  iEvent.put( pdf1,         Prefix + "pdf1" + Suffix );
+  iEvent.put( pdf2,         Prefix + "pdf2" + Suffix );
+  iEvent.put( id1,          Prefix + "id1" + Suffix );
+  iEvent.put( id2,          Prefix + "id2" + Suffix );
 }
 
 template< typename T > void SusyCAF_Gen<T>::

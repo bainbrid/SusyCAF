@@ -84,7 +84,7 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
     count = 100
     output = []
     # Regular Expression for output path (why didn't I just use [\sA-Za-z0-9_\/\.]+(.root)...)
-    PathRE = re.compile('(/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/\w+\/+ICF/automated/[0-9_]+\/+SusyCAF_Tree_[0-9]+_+[0-9]+_+[a-zA-Z0-9]+\.root)')
+    PathRE = re.compile('(/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/\w+\/+ICF/automated/\S+\/+SusyCAF_Tree_[0-9]+_+[0-9]+_+[a-zA-Z0-9]+\.root)')
     #begin loop
     while True :
       print "Getting list of files %i to %i." % (offset, offset+count)

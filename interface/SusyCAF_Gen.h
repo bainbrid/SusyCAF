@@ -29,8 +29,8 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   jetCollections(iConfig.getParameter<std::vector<edm::InputTag> >("JetCollections")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix")),
-  GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut"))
- {
+  GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut")) {
+  produces <unsigned int> (Prefix + "signalProcessID" + Suffix);
   produces <bool>   (Prefix + "GenInfoHandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
   produces <int> (Prefix + "id1" + Suffix);
@@ -68,7 +68,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   
   
-
+  std::auto_ptr<unsigned int> signalProcessID(new unsigned int(geninfo->signalProcessID()));
   std::auto_ptr<float> Q (new float(geninfo->pdf()->scalePDF));
   std::auto_ptr<int> id1 (new int( geninfo->pdf()->id.first));
   std::auto_ptr<int> id2 (new int( geninfo->pdf()->id.second));
@@ -121,6 +121,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( pdgId,        Prefix + "PdgId"  + Suffix );
   iEvent.put( motherIndex,  Prefix + "MotherIndex" + Suffix );
   iEvent.put( motherPdgId,  Prefix + "MotherPdgId" + Suffix );
+  iEvent.put( signalProcessID, Prefix + "signalProcessID" + Suffix );
   iEvent.put( Q,            Prefix + "Q" + Suffix );
   iEvent.put( x1,           Prefix + "x1" + Suffix );
   iEvent.put( x2,           Prefix + "x2" + Suffix );

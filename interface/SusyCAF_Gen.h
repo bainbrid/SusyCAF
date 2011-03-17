@@ -22,6 +22,7 @@ class SusyCAF_Gen : public edm::EDProducer {
   const std::vector<edm::InputTag> jetCollections;
   const std::string Prefix,Suffix;
   const double GenStatus1PtCut;
+  const double GenJetPtCut;
 };
 
 template< typename T > SusyCAF_Gen<T>::
@@ -30,7 +31,8 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   jetCollections(iConfig.getParameter<std::vector<edm::InputTag> >("JetCollections")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix")),
-  GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut")) {
+  GenStatus1PtCut(iConfig.getParameter<double>("GenStatus1PtCut")),
+  GenJetPtCut(iConfig.getParameter<double>("GenJetPtCut")) {
   produces <unsigned int> (Prefix + "signalProcessID" + Suffix);
   produces <bool>   (Prefix + "GenInfoHandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
@@ -140,8 +142,7 @@ produceGenJets(edm::Event& iEvent) {
     iEvent.getByLabel(jetCollections[i], genjets);
     if(genjets.isValid()) 
       for(edm::View<reco::GenJet>::const_iterator it(genjets->begin()), end(genjets->end()); it!=end; ++it) {
-	//if (it->pt() < GenStatus1PtCut ) break;
-	p4->push_back(it->p4());
+	if (it->pt() >= GenJetPtCut) p4->push_back(it->p4());
       }
     iEvent.put(p4, Prefix + jetCollections[i].label() + "P4" + Suffix);
   }

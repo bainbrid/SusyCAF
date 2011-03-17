@@ -28,7 +28,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_MET.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Jet.h"
-//#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Electron.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Muon.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamSpot.h"
@@ -63,8 +63,8 @@ typedef SusyCAF_Jet<reco::PFJet> SusyCAF_PFJet;
 typedef SusyCAF_Jet<reco::JPTJet> SusyCAF_JPTJet;
 typedef SusyCAF_Jet<reco::CaloJet> SusyCAF_CaloJet;
 typedef SusyCAF_Jet<pat::Jet> SusyCAF_PatJet;
-//typedef SusyCAF_Photon<reco::Photon> SusyCAF_RecoPhoton;
-//typedef SusyCAF_Photon<pat::Photon> SusyCAF_PatPhoton;
+typedef SusyCAF_Photon<reco::Photon> SusyCAF_RecoPhoton;
+typedef SusyCAF_Photon<pat::Photon> SusyCAF_PatPhoton;
 typedef SusyCAF_Electron<reco::GsfElectron> SusyCAF_GsfElectron;
 typedef SusyCAF_Electron<pat::Electron> SusyCAF_PatElectron;
 typedef SusyCAF_Muon<reco::Muon> SusyCAF_RecoMuon;
@@ -93,8 +93,8 @@ DEFINE_FWK_MODULE(SusyCAF_PFJet);
 DEFINE_FWK_MODULE(SusyCAF_JPTJet);
 DEFINE_FWK_MODULE(SusyCAF_CaloJet);
 DEFINE_FWK_MODULE(SusyCAF_PatJet);
-//DEFINE_FWK_MODULE(SusyCAF_RecoPhoton);
-//DEFINE_FWK_MODULE(SusyCAF_PatPhoton);
+DEFINE_FWK_MODULE(SusyCAF_RecoPhoton);
+DEFINE_FWK_MODULE(SusyCAF_PatPhoton);
 DEFINE_FWK_MODULE(SusyCAF_GsfElectron);
 DEFINE_FWK_MODULE(SusyCAF_PatElectron);
 DEFINE_FWK_MODULE(SusyCAF_RecoMuon);

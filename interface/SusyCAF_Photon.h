@@ -322,7 +322,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       for (unsigned int iConv = 0; iConv < conversions.size(); ++iConv) {
 	const reco::ConversionRef& conversion = conversions[iConv];
 	if  ( conversion->nTracks() != 2) continue;
-	std::vector<reco::TrackRef> tracks = conversion->tracks();
+	std::vector<edm::RefToBase<reco::Track> > tracks = conversion->tracks();
 	const reco::Vertex&         vertex = conversion->conversionVertex();
 	double chi2 = vertex.chi2();
 	double ndof = vertex.ndof();

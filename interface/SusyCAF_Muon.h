@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"

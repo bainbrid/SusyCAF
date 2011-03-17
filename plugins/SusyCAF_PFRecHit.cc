@@ -3,6 +3,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_PFRecHit::SusyCAF_PFRecHit(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),

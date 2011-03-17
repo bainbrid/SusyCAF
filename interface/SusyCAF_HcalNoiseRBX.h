@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
 class SusyCAF_HcalNoiseRBX : public edm::EDProducer {

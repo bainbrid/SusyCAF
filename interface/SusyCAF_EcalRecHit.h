@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 class SusyCAF_EcalRecHit : public edm::EDProducer {

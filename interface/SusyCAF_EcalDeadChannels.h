@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalRecHit.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/ESHandle.h"

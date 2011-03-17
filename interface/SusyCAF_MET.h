@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"

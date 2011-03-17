@@ -1,6 +1,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_BeamHaloSummary.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_BeamHaloSummary::SusyCAF_BeamHaloSummary(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),

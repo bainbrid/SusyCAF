@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class SusyCAF_HcalNoiseFilter : public edm::EDProducer {
  public: 

@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseRBX.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_HcalNoiseRBX::SusyCAF_HcalNoiseRBX(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),

@@ -8,6 +8,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_EcalRecHit::SusyCAF_EcalRecHit(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),

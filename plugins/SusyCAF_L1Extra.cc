@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 

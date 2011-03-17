@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class SusyCAF_Triggers : public edm::EDProducer 
 {

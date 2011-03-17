@@ -2,6 +2,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_Vertex::SusyCAF_Vertex(const edm::ParameterSet& cfg) 
   : inputTag(cfg.getParameter<edm::InputTag>("InputTag"))

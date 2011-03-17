@@ -3,7 +3,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   : inputTag        (iConfig.getParameter<edm::InputTag>("InputTag"         ))

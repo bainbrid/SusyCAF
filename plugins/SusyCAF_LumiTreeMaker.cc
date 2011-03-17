@@ -10,6 +10,7 @@
 #include <TTree.h>
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 class SusyCAF_LumiTreeMaker : public edm::EDAnalyzer {
 public:

@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummary.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 SusyCAF_HcalNoiseSummary::SusyCAF_HcalNoiseSummary(const edm::ParameterSet& iConfig) :

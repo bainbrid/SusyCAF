@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DQMFlags.h"
 
 SusyCAF_DQMFlags::SusyCAF_DQMFlags( const edm::ParameterSet& iConfig ) 

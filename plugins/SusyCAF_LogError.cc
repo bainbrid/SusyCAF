@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_LogError.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "boost/foreach.hpp"
 

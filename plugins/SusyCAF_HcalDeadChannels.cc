@@ -1,6 +1,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalDeadChannels.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

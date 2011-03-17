@@ -1,5 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "TMath.h"

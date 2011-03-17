@@ -40,9 +40,9 @@ if len(options.jetCorrections) and type(options.jetCorrections[0]) is list :
     options.jetCorrections = tmp
 
 #-- Input Source --------------------------------------------------------------
-defaultGT,defaultFile = ([[( 'GR_R_37X_V6::All','error, no default file defined'),
+defaultGT,defaultFile = ([[( 'GR_P_V14::All','error, no default file defined'),
                            (  'START37_V5::All','error, no default file defined')],
-                          [('GR10_P_V11::All','/store/data/Run2010B/MultiJet/RECO/PromptReco-v2/000/149/294/08FCCA78-05E5-DF11-8925-0030487CD6B4.root'),
+                          [('GR_P_V14::All','file:///afs/cern.ch/user/e/elaird/public/susypvt/32_test_file_41_prompt_reco/D810D5DD-374F-E011-BE08-0030487CF41E.root'),
                            ( 'START38_V12::All','/store/relval/CMSSW_3_8_4/RelValTTbar/GEN-SIM-RECO/START38_V12-v1/0024/1A650A81-83C2-DF11-B355-002618FDA287.root')]
                           ])[options.fromRECO][options.mcInfo]
 process.GlobalTag.globaltag = options.GlobalTag if options.GlobalTag else defaultGT

@@ -18,7 +18,6 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoCaloTools/Selectors"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="CalibCalorimetry/EcalTPGTools"/>

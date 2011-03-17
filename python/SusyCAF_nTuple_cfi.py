@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import SusyCAF_Drop_cfi
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Track_cfi import *
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
@@ -46,7 +46,7 @@ susyTree = cms.EDAnalyzer("SusyTree",
     outputCommands = cms.untracked.vstring(
     'drop *',
     'keep *_susycaf*_*_*',
-    'keep double_susyScan*_*_*') + ["drop "+item for item in toReduce]
+    'keep double_susyScan*_*_*') + ["drop "+item for item in toReduce] + ["drop "+item for item in SusyCAF_Drop_cfi.drop()]
 )
 
 susycafReducer = cms.EDProducer("ProductReducer", selectionCommands = cms.untracked.vstring('drop *') + ["keep "+item for item in toReduce])

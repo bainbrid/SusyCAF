@@ -43,7 +43,7 @@ if len(options.jetCorrections) and type(options.jetCorrections[0]) is list :
 defaultGT,defaultFile = ([[( 'GR_P_V14::All','error, no default file defined'),
                            (  'START37_V5::All','error, no default file defined')],
                           [('GR_P_V14::All','file:///afs/cern.ch/user/e/elaird/public/susypvt/32_test_file_41_prompt_reco/D810D5DD-374F-E011-BE08-0030487CF41E.root'),
-                           ( 'START38_V12::All','/store/relval/CMSSW_3_8_4/RelValTTbar/GEN-SIM-RECO/START38_V12-v1/0024/1A650A81-83C2-DF11-B355-002618FDA287.root')]
+                           ( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root')]
                           ])[options.fromRECO][options.mcInfo]
 process.GlobalTag.globaltag = options.GlobalTag if options.GlobalTag else defaultGT
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files if options.files else defaultFile) )

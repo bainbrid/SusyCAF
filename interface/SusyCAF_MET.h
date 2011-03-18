@@ -17,9 +17,9 @@ class SusyCAF_MET : public edm::EDProducer {
   explicit SusyCAF_MET(const edm::ParameterSet&);
  private: 
   void produce(edm::Event&, const edm::EventSetup& );
-  void produceSpecial(edm::Event&, const T& );
-  void produceCalo(edm::Event&, const T& );
-  void produceGenMetMatch(edm::Event&, const T&);
+  void produceSpecial(edm::Event&, const T* );
+  void produceCalo(edm::Event&, const T* );
+  void produceGenMetMatch(edm::Event&, const T*);
   void initSpecial();
   void initCalo();
   void initGenMetMatch();
@@ -39,6 +39,7 @@ SusyCAF_MET<T>::SusyCAF_MET(const edm::ParameterSet& cfg) :
 {
   produces <reco::Candidate::LorentzVector> ( Prefix + "P4"  + Suffix );
   produces <double>                         ( Prefix + "SumEt" + Suffix );
+  produces <bool>                           ( Prefix + "HandleValid" + Suffix );
   /* Methods not available or const correct in 3_3_4
   produces <double>                         ( Prefix + "Significance"  + Suffix );
   produces <std::vector<double> >           ( Prefix + "DmEx" + Suffix );
@@ -99,10 +100,14 @@ void SusyCAF_MET<T>::
 produce(edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<std::vector<T> > metcollection;
   event.getByLabel(inputTag, metcollection);
-  const T& met = metcollection->at(0);
-
-  event.put(std::auto_ptr<reco::Candidate::LorentzVector>( new reco::Candidate::LorentzVector(met.p4()) ), Prefix+"P4"+Suffix);
-  event.put(std::auto_ptr<double>( new double(     met.sumEt() )),         Prefix+"SumEt"        +Suffix);
+  
+  const T* met = metcollection.isValid() ? &(metcollection->at(0)) : 0;
+  event.put(std::auto_ptr<bool>(new bool(met)), Prefix + "HandleValid" + Suffix);
+  event.put(std::auto_ptr<double>( new double( met ? met->sumEt() : 0 )),  Prefix + "SumEt" +Suffix);
+  event.put(std::auto_ptr<reco::Candidate::LorentzVector>( met ?
+							   new reco::Candidate::LorentzVector(met->p4() ) :
+							   new reco::Candidate::LorentzVector(0,0,0,0)),    Prefix+"P4"+Suffix);
+  
   /* Methods not available or  const correct in 3_3_4
   event.put(std::auto_ptr<double>( new double(     met.significance() )),  Prefix+"Significance" +Suffix);
   event.put(std::auto_ptr<std::vector<double> >( &(met.dmEx()) ),          Prefix+"DmEx"         +Suffix);
@@ -110,18 +115,18 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   event.put(std::auto_ptr<std::vector<double> >( &(met.dsumEt()) ),        Prefix+"DsumEt"       +Suffix);
   event.put(std::auto_ptr<std::vector<double> >( &(met.dsignificance()) ), Prefix+"Dsignificance"+Suffix);
   */
-if(special) produceSpecial(event, met);
+  if(special) produceSpecial(event, met);
   
 }
 
-template<> void SusyCAF_MET<reco::CaloMET>::produceSpecial(edm::Event& event, const reco::CaloMET& met) { produceCalo(event,met);}
-template<> void SusyCAF_MET<pat::MET>::produceSpecial(edm::Event& event, const pat::MET& met) { 
+template<> void SusyCAF_MET<reco::CaloMET>::produceSpecial(edm::Event& event, const reco::CaloMET* met) { produceCalo(event,met);}
+template<> void SusyCAF_MET<pat::MET>::produceSpecial(edm::Event& event, const pat::MET* met) { 
   produceCalo(event,met);
   produceGenMetMatch(event,met);
-
-
 }
-template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, const reco::PFMET& met) {
+
+
+template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, const reco::PFMET* met) {
   /* Methods not available in 3_3_4 
   event.put( std::auto_ptr<double>( new double(met.NeutralEMEtFraction()) ) , Prefix+ "NeutralEMEtFraction"+Suffix);
   event.put( std::auto_ptr<double>( new double(met.NeutralHadEtFraction())),  Prefix+ "NeutralHadEtFraction"+Suffix); 
@@ -135,52 +140,43 @@ template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, cons
 
 template< typename T>
 void SusyCAF_MET<T>::
-produceCalo(edm::Event& event, const T& met) {
+produceCalo(edm::Event& event, const T* met) {
   if(!caloSpecific) return;
-  event.put( std::auto_ptr<double>( new double(met.CaloMETInmHF())), Prefix+"CaloMETInmHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.CaloMETInpHF())), Prefix+"CaloMETInpHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.CaloMETPhiInmHF())), Prefix+"CaloMETPhiInmHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.CaloMETPhiInpHF())), Prefix+"CaloMETPhiInpHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.CaloSETInmHF())), Prefix+"CaloSETInmHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.CaloSETInpHF())), Prefix+"CaloSETInpHF"+Suffix);
-
-  event.put( std::auto_ptr<double>( new double(met.emEtFraction())), Prefix+"EmEtFraction"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.etFractionHadronic())), Prefix+"EtFractionHadronic"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.maxEtInEmTowers())), Prefix+"MaxEtInEmTowers"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.maxEtInHadTowers())), Prefix+"MaxEtInHadTowers"+Suffix);
-
-  event.put( std::auto_ptr<double>( new double(met.emEtInEB())), Prefix+"EmEtInEB"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.emEtInEE())), Prefix+"EmEtInEE"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.emEtInHF())), Prefix+"EmEtInHF"+Suffix);
-
-  event.put( std::auto_ptr<double>( new double(met.hadEtInHB())), Prefix+"HadEtInHB"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.hadEtInHE())), Prefix+"HadEtInHE"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.hadEtInHF())), Prefix+"HadEtInHF"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.hadEtInHF())), Prefix+"HadEtInHO"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloMETInmHF())), Prefix+"CaloMETInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloMETInpHF())), Prefix+"CaloMETInpHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloMETPhiInmHF())), Prefix+"CaloMETPhiInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloMETPhiInpHF())), Prefix+"CaloMETPhiInpHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloSETInmHF())), Prefix+"CaloSETInmHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->CaloSETInpHF())), Prefix+"CaloSETInpHF"+Suffix);
+				    							  
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->emEtFraction())), Prefix+"EmEtFraction"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->etFractionHadronic())), Prefix+"EtFractionHadronic"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->maxEtInEmTowers())), Prefix+"MaxEtInEmTowers"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->maxEtInHadTowers())), Prefix+"MaxEtInHadTowers"+Suffix);
+				    							  
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->emEtInEB())), Prefix+"EmEtInEB"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->emEtInEE())), Prefix+"EmEtInEE"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->emEtInHF())), Prefix+"EmEtInHF"+Suffix);
+				    							  
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->hadEtInHB())), Prefix+"HadEtInHB"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->hadEtInHE())), Prefix+"HadEtInHE"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->hadEtInHF())), Prefix+"HadEtInHF"+Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->hadEtInHF())), Prefix+"HadEtInHO"+Suffix);
 }
 
 template<class T> void SusyCAF_MET<T>::
 initGenMetMatch() {//maybe add option to turn GenMetMatching on and off?
-  produces <int> (Prefix + "GenMetMatchExists" + Suffix);
+  produces <bool> (Prefix + "GenMetMatchExists" + Suffix);
   produces <reco::Candidate::LorentzVector> (Prefix + "GenMetP4" + Suffix);
 }
 
 template<class T> void SusyCAF_MET<T>::
-produceGenMetMatch(edm::Event& evt, const T& met){
-  std::auto_ptr<int> GenMetMatchExists(new int());
-  std::auto_ptr<reco::Candidate::LorentzVector> genMetP4 (new reco::Candidate::LorentzVector() );
-  const reco::GenMET *genmet = met.genMET();
-    if(genmet){
-      *GenMetMatchExists=1;
-      *genMetP4= (met.genMET())->p4();
-    }
-    else{
-      *GenMetMatchExists=0;
-    }
-   
-
-evt.put(GenMetMatchExists, Prefix + "GenMetMatchExists" + Suffix);
-evt.put(genMetP4, Prefix + "GenMetP4" + Suffix);
+produceGenMetMatch(edm::Event& evt, const T* met){
+  const reco::GenMET *genmet = met ? met->genMET() : 0;
+  evt.put(std::auto_ptr<bool>(new bool(genmet)), Prefix + "GenMetMatchExists" + Suffix);
+  evt.put(std::auto_ptr<reco::Candidate::LorentzVector> ( genmet ? 
+							  new reco::Candidate::LorentzVector(genmet->p4()) : 
+							  new reco::Candidate::LorentzVector()),             Prefix + "GenMetP4" + Suffix  );
 }
 
 #endif

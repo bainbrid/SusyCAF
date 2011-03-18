@@ -6,6 +6,7 @@
 #include <map>
 #include "Math/LorentzVector.h"
 #include "Math/PtEtaPhiE4D.h"
+#include "Math/PtEtaPhiM4D.h"
 
 
 namespace {

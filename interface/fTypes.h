@@ -5,6 +5,7 @@
 #include <string>
 #include "Math/LorentzVector.h"
 #include "Math/PtEtaPhiE4D.h"
+#include "Math/PtEtaPhiM4D.h"
 #include "Math/Vector3D.h"
 #include "Math/Point3D.h"
 

@@ -54,7 +54,7 @@ if options.patify and options.fromRECO:
     jetAlgoList = ['IC5Calo','AK7Calo','AK5PF','AK7PF']
     if not options.withoutJPT : jetAlgoList +=['AK5JPT'] #+['AK5Track']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.jetCorrections,'',jetAlgoList)
+    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.jetCorrections,'',jetAlgoList,'','','','','','','','')
     for algo in ['']+jetAlgoList :
         setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.5) )
     process.susyPat = cms.Path(process.susyPatDefaultSequence)

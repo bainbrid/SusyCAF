@@ -17,6 +17,7 @@ SusyCAF_LogError::SusyCAF_LogError(const edm::ParameterSet& iConfig) :
   BOOST_FOREACH(std::string err, modulesOfInterest)    produces<bool>(Prefix + err + Suffix);
   BOOST_FOREACH(std::string err, categoriesOfInterest) produces<bool>(Prefix + err + Suffix);
   produces<bool> (Prefix + "Any" + Suffix);
+  produces<bool> (Prefix + "HandleValid" +Suffix);
 }
 
 void SusyCAF_LogError::
@@ -30,14 +31,17 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   typedef std::vector<Error> Errors;
 
   edm::Handle<Errors> errors; iEvent.getByLabel(inputTag,errors);
-
-  BOOST_FOREACH(const Error &err, *errors) {
-    if(modules.count(err.module)) {
-      iEvent.put(std::auto_ptr<bool>( new bool(true)), Prefix + err.module   + Suffix ); modules.erase(err.module); }
-    if(categories.count(err.category)) {
-      iEvent.put(std::auto_ptr<bool>( new bool(true)), Prefix + err.category + Suffix ); categories.erase(err.category); }
+  
+  if(errors.isValid()) {
+    BOOST_FOREACH(const Error &err, *errors) {
+      if(modules.count(err.module)) {
+	iEvent.put(std::auto_ptr<bool>( new bool(true)), Prefix + err.module   + Suffix ); modules.erase(err.module); }
+      if(categories.count(err.category)) {
+	iEvent.put(std::auto_ptr<bool>( new bool(true)), Prefix + err.category + Suffix ); categories.erase(err.category); }
+    }
+    iEvent.put(std::auto_ptr<bool> (new bool(errors->size())), Prefix + "Any" + Suffix);
   }
   BOOST_FOREACH(std::string err, modules)    iEvent.put(std::auto_ptr<bool>( new bool(false)), Prefix + err + Suffix );
   BOOST_FOREACH(std::string err, categories) iEvent.put(std::auto_ptr<bool>( new bool(false)), Prefix + err + Suffix );
-  iEvent.put(std::auto_ptr<bool> (new bool(errors->size())), Prefix + "Any" + Suffix);
+  iEvent.put(std::auto_ptr<bool>( new bool(errors.isValid())), Prefix + "HandleValid" + Suffix);
 }

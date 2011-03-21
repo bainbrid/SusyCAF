@@ -121,7 +121,8 @@ void SusyCAF_Electron<T>::initRECO()
    produces <std::vector<double> > (  Prefix + "ConversionDCot" + Suffix );
    produces <std::vector<double> > (  Prefix + "ConversionDist" + Suffix );
    produces <std::vector<int> > (  Prefix + "ConversionMissingHits" + Suffix );
-   produces <std::vector<int> > ( Prefix + "ConversionPartnerTrackTrackerExpectedHitsInner" + Suffix);
+   produces <std::vector<int> > ( Prefix + "ConversionPartnerCtfTrackTrackerExpectedHitsInner" + Suffix);
+   produces <std::vector<int> > ( Prefix + "ConversionPartnerGsfTrackTrackerExpectedHitsInner" + Suffix);
  }
  produces <std::vector<float> > ( Prefix + "KfTrackCharge" + Suffix );
  produces <std::vector<int> > ( Prefix + "ScPixCharge" + Suffix );
@@ -229,7 +230,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<double> > dcot ( new std::vector<double>() ) ;
  std::auto_ptr<std::vector<double> > dist ( new std::vector<double>() ) ;
  std::auto_ptr<std::vector<int> > missingHits ( new std::vector<int>() ) ;
- std::auto_ptr<std::vector<int> > conversionPartnerTrackTrackerExpectedHitsInner ( new std::vector<int>() ) ;
+ std::auto_ptr<std::vector<int> > conversionPartnerCtfTrackTrackerExpectedHitsInner ( new std::vector<int>() ) ;
+ std::auto_ptr<std::vector<int> > conversionPartnerGsfTrackTrackerExpectedHitsInner ( new std::vector<int>() ) ;
  std::auto_ptr<std::vector<float> > kfcharge ( new std::vector<float>() );
  std::auto_ptr<std::vector<int> > scPixCharge ( new std::vector<int>() );
  std::auto_ptr<std::vector<int> > closestCtfTrackCharge( new std::vector<int>() );
@@ -325,8 +327,10 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
        dist->push_back(info.dist());
        dcot->push_back(info.dcot());
 	missingHits->push_back(it->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
-	conversionPartnerTrackTrackerExpectedHitsInner->push_back(info.conversionPartnerTk().isAvailable() ? 
-								  info.conversionPartnerTk()->trackerExpectedHitsInner().numberOfHits() : -1);
+	conversionPartnerCtfTrackTrackerExpectedHitsInner->push_back(info.conversionPartnerCtfTk().isAvailable() ? 
+								     info.conversionPartnerCtfTk()->trackerExpectedHitsInner().numberOfHits() : -1);
+	conversionPartnerGsfTrackTrackerExpectedHitsInner->push_back(info.conversionPartnerGsfTk().isAvailable() ? 
+								     info.conversionPartnerGsfTk()->trackerExpectedHitsInner().numberOfHits() : -1);
      }
      kfcharge->push_back(it->track().isAvailable() ? it->track()->charge() : 0);
      scPixCharge->push_back(it->scPixCharge());
@@ -401,7 +405,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
    iEvent.put( dist, Prefix + "ConversionDist" + Suffix );
    iEvent.put( dcot, Prefix + "ConversionDCot" + Suffix );
    iEvent.put( missingHits, Prefix + "ConversionMissingHits" + Suffix );
-   iEvent.put( conversionPartnerTrackTrackerExpectedHitsInner, Prefix + "ConversionPartnerTrackTrackerExpectedHitsInner" + Suffix );
+   iEvent.put( conversionPartnerCtfTrackTrackerExpectedHitsInner, Prefix + "ConversionPartnerCtfTrackTrackerExpectedHitsInner" + Suffix );
+   iEvent.put( conversionPartnerGsfTrackTrackerExpectedHitsInner, Prefix + "ConversionPartnerGsfTrackTrackerExpectedHitsInner" + Suffix );
  }
  iEvent.put( conversionInfoStored , Prefix + "ConversionInfoStored" + Suffix );
  iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix);

@@ -1,5 +1,5 @@
 def drop() :
     return [
-        #'*_susycafCTECALEsumcalo_*_*',
-        #'*_susycafCTHCALEsumcalo_*_*',
+        '*_susycaf*_CTECALEsumcalo*_*',
+        '*_susycaf*_CTHCALEsumcalo*_*',
         ]

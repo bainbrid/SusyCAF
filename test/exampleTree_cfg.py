@@ -51,8 +51,7 @@ process.maxEvents.input = options.maxEvents
 if not options.patify:
     print "WARNING: selection (slimming) not applied for options patify(False)."
 else:
-    jetAlgoList = ['IC5Calo','AK7Calo','AK5PF','AK7PF','AK5JPT']
-    jetAlgoList = []
+    jetAlgoList = ['AK7Calo','AK5PF','AK7PF']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
     addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.jetCorrections,'',jetAlgoList,'','','','','','','','')
     for algo in ['']+jetAlgoList :
@@ -79,10 +78,8 @@ else:
 
 
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
-adjust.addTypeIIMet(process)
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
 if options.hbheNoiseFilter : adjust.addHbheNoiseFilterResult(process, schedule)
-
 
 process.lumiPath = cms.Path(process.lumiTree)
 schedule.append(process.lumiPath)

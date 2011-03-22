@@ -19,10 +19,8 @@ class SusyCAF_MET : public edm::EDProducer {
   void produce(edm::Event&, const edm::EventSetup& );
   void produceSpecial(edm::Event&, const T* );
   void produceCalo(edm::Event&, const T* );
-  void produceGenMetMatch(edm::Event&, const T*);
   void initSpecial();
   void initCalo();
-  void initGenMetMatch();
   const edm::InputTag inputTag;
   const bool special, caloSpecific;
   const std::string Prefix,Suffix;
@@ -39,35 +37,56 @@ SusyCAF_MET<T>::SusyCAF_MET(const edm::ParameterSet& cfg) :
 {
   produces <reco::Candidate::LorentzVector> ( Prefix + "P4"  + Suffix );
   produces <double>                         ( Prefix + "SumEt" + Suffix );
-  produces <bool>                           ( Prefix + "HandleValid" + Suffix );
-  /* Methods not available or const correct in 3_3_4
-  produces <double>                         ( Prefix + "Significance"  + Suffix );
-  produces <std::vector<double> >           ( Prefix + "DmEx" + Suffix );
-  produces <std::vector<double> >           ( Prefix + "DmEy" + Suffix );
-  produces <std::vector<double> >           ( Prefix + "DsumEt" + Suffix );
-  produces <std::vector<double> >           ( Prefix + "Dsignificance" + Suffix );
-  */
+  produces <bool>             ( Prefix + "HandleValid" + Suffix );
+  produces <double>           ( Prefix + "Significance"  + Suffix );
   if(special) initSpecial();
- 
 }
 
+template< typename T >
+void SusyCAF_MET<T>::
+produce(edm::Event& event, const edm::EventSetup& setup) {
+  edm::Handle<std::vector<T> > metcollection;
+  event.getByLabel(inputTag, metcollection);
+  
+  const T* met = metcollection.isValid() ? &(metcollection->at(0)) : 0;
+  event.put(std::auto_ptr<bool>(new bool(met)), Prefix + "HandleValid" + Suffix);
+  event.put(std::auto_ptr<double>( new double( met ? met->sumEt() : 0 )),  Prefix + "SumEt" +Suffix);
+  event.put(std::auto_ptr<reco::Candidate::LorentzVector>( met ?
+							   new reco::Candidate::LorentzVector(met->p4() ) :
+							   new reco::Candidate::LorentzVector(0,0,0,0)),    Prefix+"P4"+Suffix);
+  
+  event.put(std::auto_ptr<double>( new double(!met ? 0 : met->significance() )),  Prefix+"Significance" +Suffix);
+  if(special) produceSpecial(event, met);
+}
+
+template<> void SusyCAF_MET<reco::GenMET>::initSpecial() { }
 template<> void SusyCAF_MET<reco::CaloMET>::initSpecial() { initCalo(); }
-template<> void SusyCAF_MET<pat::MET>::initSpecial() { 
-  initCalo();
-  initGenMetMatch();  
-  }
+template<> void SusyCAF_MET<pat::MET>::initSpecial() {  initCalo();}
+
+template<> void SusyCAF_MET<reco::GenMET>::produceSpecial(edm::Event& event, const reco::GenMET* met) { }
+template<> void SusyCAF_MET<reco::CaloMET>::produceSpecial(edm::Event& event, const reco::CaloMET* met) { produceCalo(event,met);}
+template<> void SusyCAF_MET<pat::MET>::produceSpecial(edm::Event& event, const pat::MET* met) { produceCalo(event,met);}
 
 template<> void SusyCAF_MET<reco::PFMET>::initSpecial() {
-  /* Methods not available in 3_3_4 
-  produces<double>(Prefix+ "NeutralEMEtFraction"+Suffix);  
-  produces<double>(Prefix+ "NeutralHadEtFraction"+Suffix);
-  produces<double>(Prefix+ "ChargedEMEtFraction"+Suffix);
-  produces<double>(Prefix+ "ChargedHadEtFraction"+Suffix);
-  produces<double>(Prefix+ "MuonEtFraction"+Suffix);
-  produces<double>(Prefix+ "Type6EtFraction"+Suffix);
-  produces<double>(Prefix+ "Type7EtFraction"+Suffix);
-  */
+  produces<double>( Prefix+ "PhotonEtFraction"        + Suffix);
+  produces<double>( Prefix+ "ElectronEtFraction"      + Suffix);
+  produces<double>( Prefix+ "NeutralHadronEtFraction" + Suffix);
+  produces<double>( Prefix+ "ChargedHadronEtFraction" + Suffix);
+  produces<double>( Prefix+ "MuonEtFraction"	      + Suffix);
+  produces<double>( Prefix+ "HFHadronEtFraction"      + Suffix);
+  produces<double>( Prefix+ "HFEMEtFraction"          + Suffix);
 }
+
+template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, const reco::PFMET* met) {
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->photonEtFraction() )),        Prefix + "PhotonEtFraction"        + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->electronEtFraction() )),	     Prefix + "ElectronEtFraction"      + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->neutralHadronEtFraction() )), Prefix + "NeutralHadronEtFraction" + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->chargedHadronEtFraction() )), Prefix + "ChargedHadronEtFraction" + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->muonEtFraction() )),	     Prefix + "MuonEtFraction"	        + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->HFHadronEtFraction() )),	     Prefix + "HFHadronEtFraction"      + Suffix);
+  event.put( std::auto_ptr<double>( new double(!met ? 0 : met->HFEMEtFraction() )),          Prefix + "HFEMEtFraction"          + Suffix);
+}
+
 
 template<class T>
 void SusyCAF_MET<T>::
@@ -90,52 +109,7 @@ initCalo() {
   produces <double> ( Prefix + "HadEtInHB"  + Suffix );
   produces <double> ( Prefix + "HadEtInHE"  + Suffix );
   produces <double> ( Prefix + "HadEtInHF"  + Suffix );
-  produces <double> ( Prefix + "HadEtInHO"  + Suffix ); 
-  
-}
-
-
-template< typename T >
-void SusyCAF_MET<T>::
-produce(edm::Event& event, const edm::EventSetup& setup) {
-  edm::Handle<std::vector<T> > metcollection;
-  event.getByLabel(inputTag, metcollection);
-  
-  const T* met = metcollection.isValid() ? &(metcollection->at(0)) : 0;
-  event.put(std::auto_ptr<bool>(new bool(met)), Prefix + "HandleValid" + Suffix);
-  event.put(std::auto_ptr<double>( new double( met ? met->sumEt() : 0 )),  Prefix + "SumEt" +Suffix);
-  event.put(std::auto_ptr<reco::Candidate::LorentzVector>( met ?
-							   new reco::Candidate::LorentzVector(met->p4() ) :
-							   new reco::Candidate::LorentzVector(0,0,0,0)),    Prefix+"P4"+Suffix);
-  
-  /* Methods not available or  const correct in 3_3_4
-  event.put(std::auto_ptr<double>( new double(     met.significance() )),  Prefix+"Significance" +Suffix);
-  event.put(std::auto_ptr<std::vector<double> >( &(met.dmEx()) ),          Prefix+"DmEx"         +Suffix);
-  event.put(std::auto_ptr<std::vector<double> >( &(met.dmEy()) ),          Prefix+"DmEy"         +Suffix);
-  event.put(std::auto_ptr<std::vector<double> >( &(met.dsumEt()) ),        Prefix+"DsumEt"       +Suffix);
-  event.put(std::auto_ptr<std::vector<double> >( &(met.dsignificance()) ), Prefix+"Dsignificance"+Suffix);
-  */
-  if(special) produceSpecial(event, met);
-  
-}
-
-template<> void SusyCAF_MET<reco::CaloMET>::produceSpecial(edm::Event& event, const reco::CaloMET* met) { produceCalo(event,met);}
-template<> void SusyCAF_MET<pat::MET>::produceSpecial(edm::Event& event, const pat::MET* met) { 
-  produceCalo(event,met);
-  produceGenMetMatch(event,met);
-}
-
-
-template<> void SusyCAF_MET<reco::PFMET>::produceSpecial(edm::Event& event, const reco::PFMET* met) {
-  /* Methods not available in 3_3_4 
-  event.put( std::auto_ptr<double>( new double(met.NeutralEMEtFraction()) ) , Prefix+ "NeutralEMEtFraction"+Suffix);
-  event.put( std::auto_ptr<double>( new double(met.NeutralHadEtFraction())),  Prefix+ "NeutralHadEtFraction"+Suffix); 
-  event.put( std::auto_ptr<double>( new double(met.ChargedEMEtFraction())),   Prefix+ "ChargedEMEtFraction"+Suffix);  
-  event.put( std::auto_ptr<double>( new double(met.ChargedHadEtFraction())),  Prefix+ "ChargedHadEtFraction"+Suffix); 
-  event.put( std::auto_ptr<double>( new double(met.MuonEtFraction())),        Prefix+ "MuonEtFraction"+Suffix);	   
-  event.put( std::auto_ptr<double>( new double(met.Type6EtFraction())),       Prefix+ "Type6EtFraction"+Suffix);	   
-  event.put( std::auto_ptr<double>( new double(met.Type7EtFraction())),       Prefix+ "Type7EtFraction"+Suffix);	   
-  */
+  produces <double> ( Prefix + "HadEtInHO"  + Suffix );
 }
 
 template< typename T>
@@ -164,19 +138,5 @@ produceCalo(edm::Event& event, const T* met) {
   event.put( std::auto_ptr<double>( new double(!met ? 0 : met->hadEtInHF())), Prefix+"HadEtInHO"+Suffix);
 }
 
-template<class T> void SusyCAF_MET<T>::
-initGenMetMatch() {//maybe add option to turn GenMetMatching on and off?
-  produces <bool> (Prefix + "GenMetMatchExists" + Suffix);
-  produces <reco::Candidate::LorentzVector> (Prefix + "GenMetP4" + Suffix);
-}
-
-template<class T> void SusyCAF_MET<T>::
-produceGenMetMatch(edm::Event& evt, const T* met){
-  const reco::GenMET *genmet = met ? met->genMET() : 0;
-  evt.put(std::auto_ptr<bool>(new bool(genmet)), Prefix + "GenMetMatchExists" + Suffix);
-  evt.put(std::auto_ptr<reco::Candidate::LorentzVector> ( genmet ? 
-							  new reco::Candidate::LorentzVector(genmet->p4()) : 
-							  new reco::Candidate::LorentzVector()),             Prefix + "GenMetP4" + Suffix  );
-}
 
 #endif

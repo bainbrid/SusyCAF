@@ -1,63 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-susycafmet = cms.EDProducer("SusyCAF_CaloMET",
-                            InputTag = cms.InputTag('met'),
-                            Prefix = cms.string('met'),
-                            Suffix = cms.string('Calo'),
-                            ProduceSpecial = cms.bool(True),
-                            Calo = cms.bool(True)
-                            
-                            )
+def met(mettype, input, suf, pre='met', special=True, calo=True) :
+    return cms.EDProducer("SusyCAF_%sMET"%mettype,
+                          InputTag = cms.InputTag(input),
+                          Prefix = cms.string(pre),
+                          Suffix = cms.string(suf),
+                          ProduceSpecial = cms.bool(special),
+                          Calo = cms.bool(calo))
 
-susycafmetnohf = cms.EDProducer("SusyCAF_CaloMET",
-                                InputTag = cms.InputTag('metNoHF'),
-                                Prefix = cms.string('metnohf'),
-                                Suffix = cms.string('Calo'),
-                                ProduceSpecial = cms.bool(True),
-                                Calo=cms.bool(True)
-                               
-                                )
-
-susycafmetIC5 = cms.EDProducer("SusyCAF_PatMET",
-                               InputTag = cms.InputTag('patMETsIC5Calo'),
-                               Prefix = cms.string('met'),
-                               Suffix = cms.string('IC5'),
-                               ProduceSpecial = cms.bool(True),
-                               Calo=cms.bool(True)
-                              
-                            )
-
-susycafmetAK5 = cms.EDProducer("SusyCAF_PatMET",
-                            InputTag = cms.InputTag('patMETsAK5Calo'),
-                            Prefix = cms.string('met'),
-                            Suffix = cms.string('AK5'),
-                            ProduceSpecial = cms.bool(True),
-                              Calo=cms.bool(True)
-                            )
-
-susycafmetAK5TypeII = cms.EDProducer("SusyCAF_PatMET",
-                            InputTag = cms.InputTag('patMETsAK5CaloTypeII'),
-                            Prefix = cms.string('met'),
-                            Suffix = cms.string('AK5TypeII'),
-                            ProduceSpecial = cms.bool(True),
-                              Calo=cms.bool(True)
-                            )
-
-susycafmetPF = cms.EDProducer("SusyCAF_PatMET",
-                            InputTag = cms.InputTag('patMETsPF'),
-                            Prefix = cms.string('met'),
-                            Suffix = cms.string('PF'),
-                            ProduceSpecial = cms.bool(True),
-                              Calo=cms.bool(False)
-                             
-                            )
-
-susycafmetTC = cms.EDProducer("SusyCAF_PatMET",
-                            InputTag = cms.InputTag('patMETsTC'),
-                            Prefix = cms.string('met'),
-                            Suffix = cms.string('TC'),
-                            ProduceSpecial = cms.bool(True),
-                              Calo=cms.bool(False)
-                              
-                            )
-
+susycafmet          = met('Calo','met',                 'Calo')
+susycafmetnohf      = met('Calo','metNoHF',             'Calo', 'metnohf')
+susycafmetIC5       = met('Pat', 'patMETsIC5Calo',      'ICF')
+susycafmetAK5       = met('Pat', 'patMETsAK5Calo',      'AK5')
+susycafmetAK5TypeII = met('Pat', 'patMETsAK5CaloTypeII','AK5TypeII')
+susycafmetPF        = met('Pat', 'patMETsPF',           'PF', calo=False)
+susycafmetTC        = met('Pat', 'patMETsTC',           'TC', calo=False)

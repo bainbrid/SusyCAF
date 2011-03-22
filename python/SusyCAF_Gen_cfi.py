@@ -8,3 +8,10 @@ susycafgen = cms.EDProducer("SusyCAF_GenParticle",
                             GenStatus1PtCut = cms.double(5.0),
                             GenJetPtCut = cms.double(10.0),
                         )
+
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_MET_cfi import met
+
+susycafgenMetCalo             = met('Gen','genMetCalo',             'Calo',          'genmet', calo=False)            
+susycafgenMetCaloAndNonPrompt = met('Gen','genMetCaloAndNonPrompt', 'CaloNonPrompt', 'genmet', calo=False)
+susycafgenMetTrue             = met('Gen','genMetTrue',             'True',          'genmet', calo=False)
+

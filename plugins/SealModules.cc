@@ -56,6 +56,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DQMFlags.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DCSBits.h"
 
+typedef SusyCAF_MET<reco::GenMET> SusyCAF_GenMET;
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_MET<reco::PFMET> SusyCAF_PFMET;
 typedef SusyCAF_MET<pat::MET> SusyCAF_PatMET;
@@ -86,6 +87,7 @@ DEFINE_FWK_MODULE(SusyCAF_Track);
 DEFINE_FWK_MODULE(SusyCAF_alltracks);
 DEFINE_FWK_MODULE(SusyCAF_Triggers);
 DEFINE_FWK_MODULE(SusyCAF_L1Triggers);
+DEFINE_FWK_MODULE(SusyCAF_GenMET);
 DEFINE_FWK_MODULE(SusyCAF_CaloMET);
 DEFINE_FWK_MODULE(SusyCAF_PFMET);
 DEFINE_FWK_MODULE(SusyCAF_PatMET);

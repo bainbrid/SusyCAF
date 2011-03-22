@@ -31,25 +31,20 @@ susycafReducer = cms.EDProducer("ProductReducer",
 
 nCommon = cms.Sequence( evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
                         evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
-                                                   'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) )
+                                                   'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
+                        susycafmet + susycafmetnohf +
+                        evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
+                        evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
+                        evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
+                        evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) )
 
-nAllTrack = cms.Sequence( susycafalltracks) # optional
-
+nPatJet =  cms.Sequence(evalSequence('susycaf%sjet', jettypes))              # without gen matching
+nPatJetMatched = cms.Sequence(evalSequence('susycaf%sjetMatched', jettypes)) # with gen matching
 nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TC']) + 
                      evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
                      evalSequence('susycafpf%s',['electron','muon','tau']) )
 
-nPatJet =  cms.Sequence(evalSequence('susycaf%sjet', jettypes))              # without jen matching
-nPatJetMatched = cms.Sequence(evalSequence('susycaf%sjetMatched', jettypes)) # with jen matching
-
-def nRecoMet() : return susycafmet + susycafmetnohf 
-def nRecoFlag() : return ( evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
-                           evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
-                           evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
-                           evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) )
-                          
-nRecoPat = cms.Sequence( nRecoMet() + nRecoFlag()) #stuff needs reco content but runs in pat jobs with pat-on-the-fly
-nReco = cms.Sequence( nRecoPat + susycafPFtau +
+nReco = cms.Sequence( susycafPFtau +
                       evalSequence('susycaf%sjetreco', jettypes) +
                       evalSequence('susycaf%sreco', ['photon','electron','muon']) )
 

@@ -40,7 +40,7 @@ nCommon = cms.Sequence( evalSequence('susycafhcalnoise%s', ['rbx','summary','fil
 
 nPatJet =  cms.Sequence(evalSequence('susycaf%sjet', jettypes))              # without gen matching
 nPatJetMatched = cms.Sequence(evalSequence('susycaf%sjetMatched', jettypes)) # with gen matching
-nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TC']) + 
+nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
                      evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
                      evalSequence('susycafpf%s',['electron','muon','tau']) )
 

@@ -11,4 +11,8 @@ def drop() :
     return [
         '*_susycaf*_CTECALEsumcalo*_*',
         '*_susycaf*_CTHCALEsumcalo*_*',
+        '*_susycaf*_*MPTwithLooseTracks*_*',
+        '*_susycaf*_*MPTwithAllTracks*_*',
+        '*_susycaf*_*MPTwithEverything*_*',
+        '*_susycaf*_hltL1Seeds*_*',
         ]

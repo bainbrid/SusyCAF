@@ -61,6 +61,7 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
 {
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
   produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
+  produces <std::vector<float> >                          ( Prefix + "JecUnc"     + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Eta2Moment" + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Phi2Moment" + Suffix );
   produces <reco::Candidate::LorentzVector>               ( Prefix + "DroppedSumP4" + Suffix );
@@ -77,6 +78,7 @@ produce(edm::Event& evt, const edm::EventSetup&) {
   edm::Handle<edm::View<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
 
   std::auto_ptr<std::vector<LorentzV> >   p4   ( new std::vector<LorentzV>()  )  ;
+  std::auto_ptr<std::vector<float> >  jecUnc   ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  phi2mom  ( new std::vector<float>()  )  ;
   std::auto_ptr<LorentzV>  droppedSumP4  ( new LorentzV()  )  ;
@@ -90,6 +92,8 @@ produce(edm::Event& evt, const edm::EventSetup&) {
     *droppedSumP4 -= (*jets)[i].p4();
     *droppedSumPT -= (*jets)[i].pt();
     *droppedSumET -= (*jets)[i].p4().Et();
+
+    jecUnc->push_back(0.0);
   }
   for(unsigned i=0; i<(*allJets).size(); i++) {
     *droppedSumP4 += (*allJets)[i].p4();
@@ -99,6 +103,7 @@ produce(edm::Event& evt, const edm::EventSetup&) {
 
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
+  evt.put(                  jecUnc, Prefix + "JecUnc"     + Suffix );
   evt.put(                 eta2mom, Prefix + "Eta2Moment" + Suffix );
   evt.put(                 phi2mom, Prefix + "Phi2Moment" + Suffix );
   evt.put(            droppedSumP4, Prefix + "DroppedSumP4" + Suffix );

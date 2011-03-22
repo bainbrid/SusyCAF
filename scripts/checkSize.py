@@ -101,14 +101,17 @@ def buildMatchDictionary() :
     d["hbhe noise filter"]     =["hbheNoise"]
     d["rechit"]                =["rechit"]
     d["vertex"]                =["vertex"]
-    d["calo towers"]           =["CT"]
+    d["calo towers"]           =["^CT"]
     d["dqm"]                   =["DQM"]
     d["dcs"]                   =["DCS"]
     d["beamspot"]              =["beamSpot"]
     d["coords"]                =["^fCoordinates"]
     d["tree"]                  =["tree"]
-    d["gen particles"]         =["^gen"]
+    d["gen particles"]         =["^gen(?!met)"]
     d["dead ecal"]             =["ecalDead"]
+    d["dead hcal"]             =["hcalDead"]
+    d["beam halo"]             =["beamHalo"]
+    d["log error"]             =["logError"]
     
     return d
 ####################################

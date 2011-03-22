@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ####################################
-import re
+import re,sys
 ####################################
 def makeResultsList(inFileName) :
     inFile=open(inFileName)
@@ -37,58 +37,52 @@ def makeResultsList(inFileName) :
     inFile.close()
     return results
 ####################################
-def buildMatchDictionary() :
-    d={}
-    d["trigger"]               =["triggered",
-                                 "physbits",
-                                 "techbits",
-                                 "^bx",
-                                 "physicsDeclared",
-                                 "hltHandleValid",
-                                 "L1HandleValid",
-                                 "prescaled",
-                                 "parasiticTrigger",
-                                 "hltKey",
-                                 "hltL1Seeds"
-                                 ]
+def buildMatchDictionary(zoomOut = False) :
+    d = {}
 
-    #d["ak5Jets"]                =["ak5"]
-    #d["ak7Jets"]                =["ak7"]
-    #d["ic5Jets"]                =["ic5"]
-
-    #Calo
-    d["ak5JetCalo"]            =["ak5Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
-    d["ak7JetCalo"]            =["ak7Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
-    d["ic5JetCalo"]            =["ic5Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
+    #jets
+    if zoomOut : 
+        d["ak5Jets"]                =["^ak5"]
+        d["ak7Jets"]                =["^ak7"]
+        d["ic5Jets"]                =["^ic5"]
+    else :
+        #Calo
+        d["ak5JetCalo"]            =["ak5Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
+        d["ak7JetCalo"]            =["ak7Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
+        d["ic5JetCalo"]            =["ic5Jet(?!Gen)(?!JPT)(?!PF)(?!MPT)"]
+        
+        d["ak5JetCaloGen"]         =["ak5JetGen(?!JPT)(?!PF)(?!MPT)"]
+        d["ak7JetCaloGen"]         =["ak7JetGen(?!JPT)(?!PF)(?!MPT)"]
+        d["ic5JetCaloGen"]         =["ic5JetGen(?!JPT)(?!PF)(?!MPT)"]
+        
+        #JPT
+        d["ak5JetJPT"]             =["ak5JetJPT(?!Gen)(?!MPT)"]
+        
+        d["ak5JetJPTGen"]          =["ak5JetJPTGen(?!MPT)"]
     
-    d["ak5JetCaloGen"]         =["ak5JetGen(?!JPT)(?!PF)(?!MPT)"]
-    d["ak7JetCaloGen"]         =["ak7JetGen(?!JPT)(?!PF)(?!MPT)"]
-    d["ic5JetCaloGen"]         =["ic5JetGen(?!JPT)(?!PF)(?!MPT)"]
+        #PF
+        d["ak5JetPF"]              =["ak5JetPF(?!2PAT)(?!Gen)(?!MPT)"]
+        d["ak7JetPF"]              =["ak7JetPF(?!2PAT)(?!Gen)(?!MPT)"]
+        
+        d["ak5JetPFGen"]           =["ak5JetPF(?!2PAT)Gen"]
+        d["ak7JetPFGen"]           =["ak7JetPF(?!2PAT)Gen"]
+        
+        #PF2PAT
+        d["ak5JetPF2PAT"]          =["ak5JetPF2PAT(?!Gen)(?!MPT)"]
+        d["ak7JetPF2PAT"]          =["ak7JetPF2PAT(?!Gen)(?!MPT)"]
+        
+        d["ak5JetPF2PATGen"]       =["ak5JetPF2PATGen"]
+        d["ak7JetPF2PATGen"]       =["ak7JetPF2PATGen"]
+        
+        #MPT
+        d["ak5MPT"]             =["ak5.*MPT.*"]
+        d["ak7MPT"]             =["ak7.*MPT.*"]
+        d["ic5MPT"]             =["ic5.*MPT.*"]
+    #end else
 
-    #JPT
-    d["ak5JetJPT"]             =["ak5JetJPT(?!Gen)(?!MPT)"]
-    
-    d["ak5JetJPTGen"]          =["ak5JetJPTGen(?!MPT)"]
-
-    #PF
-    d["ak5JetPF"]              =["ak5JetPF(?!2PAT)(?!Gen)(?!MPT)"]
-    d["ak7JetPF"]              =["ak7JetPF(?!2PAT)(?!Gen)(?!MPT)"]
-    
-    d["ak5JetPFGen"]           =["ak5JetPF(?!2PAT)Gen"]
-    d["ak7JetPFGen"]           =["ak7JetPF(?!2PAT)Gen"]
-
-    #PF2PAT
-    d["ak5JetPF2PAT"]          =["ak5JetPF2PAT(?!Gen)(?!MPT)"]
-    d["ak7JetPF2PAT"]          =["ak7JetPF2PAT(?!Gen)(?!MPT)"]
-    
-    d["ak5JetPF2PATGen"]       =["ak5JetPF2PATGen"]
-    d["ak7JetPF2PATGen"]       =["ak7JetPF2PATGen"]
-
-    #MPT
-    d["ak5MPT"]             =["ak5.*MPT.*"]
-    d["ak7MPT"]             =["ak7.*MPT.*"]
-    d["ic5MPT"]             =["ic5.*MPT.*"]
-
+    d["trigger"]               =["triggered","prescaled","hltHandleValid","L1HandleValid",
+                                 "physicsDeclared", "parasiticTrigger","hltKey","hltL1Seeds",
+                                 "physbits","techbits","^bx"]
     d["met"]                   =["met"]
     d["muons"]                 =["^muon"]
     d["photons"]               =["^photon"]
@@ -115,8 +109,8 @@ def buildMatchDictionary() :
     
     return d
 ####################################
-def histogramByCategory(results) :
-    matchDictionary=buildMatchDictionary()
+def histogramByCategory(results, zoomOut) :
+    matchDictionary = buildMatchDictionary(zoomOut)
 
     #build count dictionary
     categoryCountDictionary={}
@@ -142,7 +136,7 @@ def histogramByCategory(results) :
         outputList.append( (bytes, key, entries) )
 
     print "----------------------------------------------------------"
-    print "non or over-counted branches (or re-used names):"
+    print "non- or over-counted branches (or re-used names):"
     for key in categoryCountDictionary :
         if (categoryCountDictionary[key]!=1) :
             print key,categoryCountDictionary[key]
@@ -166,8 +160,8 @@ def printSorted(results) :
         outString+="  [%5.2f kB/event]"%( (bytes+0.0)/treeEntries/1024 )
         print outString
 ####################################
-def printCategories() :
-    dict=buildMatchDictionary()
+def printCategories(zoomOut) :
+    dict=buildMatchDictionary(zoomOut)
     print "----------------------------------------------------------"    
     print "category definitions:"
     
@@ -177,14 +171,20 @@ def printCategories() :
         outString+=str(dict[item])
         print outString
 ####################################
-
-import sys
-if len(sys.argv)<2 :
-    print "usage:",sys.argv[0]," file.txt"
-    sys.exit()
-            
-results=makeResultsList(sys.argv[1])
-#printSorted(results)
-categorizedResults=histogramByCategory(results)
-printSorted(categorizedResults)
-printCategories()
+def fileName() :
+    if len(sys.argv)<2 :
+        print "usage:",sys.argv[0]," file.txt"
+        sys.exit()
+    else :
+        return sys.argv[1]
+####################################
+def go(zoomOut, zoomIn) :
+    results = makeResultsList(fileName())
+    if zoomIn :
+        printSorted(results)
+    else :
+        categorizedResults = histogramByCategory(results, zoomOut)
+        printSorted(categorizedResults)
+        printCategories(zoomOut)
+####################################
+go(zoomOut = False, zoomIn = False)

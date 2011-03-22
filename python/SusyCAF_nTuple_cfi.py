@@ -11,7 +11,7 @@ for name in susycafModules :
     exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi import *'%name)
 
 
-jettypes = ['ak5calo', 'ak5pf', 'ak5jpt', 'ak5pf2pat', 'ic5calo', 'ak7calo', 'ak7pf', 'ak7jpt','ak7pf2pat'][:1]
+jettypes = ['ak5calo', 'ak5pf', 'ak5pf2pat', 'ak7calo', 'ak7pf','ak7pf2pat']
 nEmpty = cms.Sequence()
 def evalSequence(pattern, names) :
     return sum([eval(pattern%name) for name in names],nEmpty)
@@ -45,7 +45,7 @@ nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TC'])
                      evalSequence('susycafpf%s',['electron','muon','tau']) )
 
 nReco = cms.Sequence( susycafPFtau +
-                      evalSequence('susycaf%sjetreco', jettypes) +
+                      evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, jettypes)) +
                       evalSequence('susycaf%sreco', ['photon','electron','muon']) )
 
 nGen = cms.Sequence( susycafgen + evalSequence('susycafgenMet%s', ['Calo','CaloAndNonPrompt','True']))

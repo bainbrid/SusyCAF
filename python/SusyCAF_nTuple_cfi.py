@@ -1,118 +1,57 @@
 import FWCore.ParameterSet.Config as cms
 import SusyCAF_Drop_cfi
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Event_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Track_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Triggers_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Triggers_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1GlobalTrigger_cfi import *
-#from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1CaloTrigger_cfi import *
-#from SUSYBSMAnalysis.SusyCAF.SusyCAF_L1Extra_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Gen_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_MET_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Photon_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Muon_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Electron_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamSpot_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_BeamHaloSummary_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_LogError_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_Vertex_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseFilter_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseSummary_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalNoiseRBX_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalRecHit_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalRecHit_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_EcalDeadChannels_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_HcalDeadChannels_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFRecHit_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_CaloTowers_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_PFTau_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_AllTracks_cfi import *
 
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_DQMFlags_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_DCSBits_cfi import *
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi import *
+susycafModules = ['Event','Track', 'Triggers','L1Triggers',
+                  'Gen','MET','Jet','Photon','Muon','Electron',
+                  'BeamSpot','BeamHaloSummary','LogError','Vertex',
+                  'HcalRecHit','EcalRecHit','PFRecHit','HcalDeadChannels','EcalDeadChannels',
+                  'CaloTowers','PFTau','AllTracks','DQMFlags','DCSBits','LumiTreeMaker'
+                  ] + ['HcalNoise%s'%s for s in ['Filter','RBX','Summary']]
+for name in susycafModules :
+    exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi import *'%name)
 
-toReduce = ['double_susycaf*_*_*',
-            'doubles_susycaf*_*_*',
-            'doubleROOTMathPxPyPzE4DROOTMathLorentzVector*_susycaf*_*_*',
-            'doubleROOTMathPtEtaPhiE4DROOTMathLorentzVector*_susycaf*_*_*',
-            'doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathPositionVector3D*_susycaf*_*_*',
-            'doubleROOTMathCartesian3DROOTMathDefaultCoordinateSystemTagROOTMathDisplacementVector3D*_susycaf*_*_*'
-            ]
-#toReduce = []
+
+jettypes = ['ak5calo', 'ak5pf', 'ak5jpt', 'ak5pf2pat', 'ic5calo', 'ak7calo', 'ak7pf', 'ak7jpt','ak7pf2pat'][:1]
+nEmpty = cms.Sequence()
+def evalSequence(pattern, names) :
+    return sum([eval(pattern%name) for name in names],nEmpty)
+########################
 
 susyTree = cms.EDAnalyzer("SusyTree",
-    outputCommands = cms.untracked.vstring(
+                          outputCommands = cms.untracked.vstring(
     'drop *',
     'keep *_susycaf*_*_*',
-    'keep double_susyScan*_*_*') + ["drop "+item for item in toReduce] + ["drop "+item for item in SusyCAF_Drop_cfi.drop()]
-)
+    'keep double_susyScan*_*_*') + (
+    ["drop %s"%s for s in (SusyCAF_Drop_cfi.reduce()+
+                           SusyCAF_Drop_cfi.drop())]) )
 
-susycafReducer = cms.EDProducer("ProductReducer", selectionCommands = cms.untracked.vstring('drop *') + ["keep "+item for item in toReduce])
-                                
-nCommon = cms.Sequence( susycafevent +
-                        susycaftrack + 
-                        susycafl1globaltrigger +  # to be dropped when all L1 triggers have names
-                        susycafL1triggers +
-                        susycaftriggers +
-                        susycafbeamspot + susycafbeamhalosummary + susycafvertex + susycafhcalnoiserbx +
-                        susycafhcalnoisesummary + susycafhcalnoisefilter + susycaflogerror +
-                        susycafcalotowers)
+susycafReducer = cms.EDProducer("ProductReducer",
+                                selectionCommands = cms.untracked.vstring('drop *') +
+                                ["keep %s"%s for s in SusyCAF_Drop_cfi.reduce()])
 
-nAllTrack = cms.Sequence( susycafalltracks)
+nCommon = cms.Sequence( evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
+                        evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
+                                                   'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) )
 
-nPat = cms.Sequence( susycafmetIC5 + susycafmetAK5 +  susycafmetAK5TypeII +  susycafmetPF + susycafmetTC + 
-                     susycafphoton + 
-                     susycafelectron + susycafpfelectron + 
-                     susycafmuon + susycafpfmuon +
-                     susycaftau + susycafpftau )
+nAllTrack = cms.Sequence( susycafalltracks) # optional
 
-nPatJet = cms.Sequence(susycafic5calojet   +
-                       susycafak5calojet   + susycafak7calojet +
-                       susycafak5jptjet    + #susycafak7jptjet  +
-                       susycafak5pfjet     + susycafak7pfjet   +
-                       susycafak5pf2patjet + susycafak7pf2patjet
-                       )
+nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TC']) + 
+                     evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
+                     evalSequence('susycafpf%s',['electron','muon','tau']) )
 
-nPatJetMatched = cms.Sequence(susycafic5calojetMatched   +
-                              susycafak5calojetMatched   + susycafak7calojetMatched +
-                              susycafak5jptjetMatched    + #susycafak7jptjetMatched  +
-                              susycafak5pfjetMatched     + susycafak7pfjetMatched   +
-                              susycafak5pf2patjetMatched + susycafak7pf2patjetMatched
-                              )
+nPatJet =  cms.Sequence(evalSequence('susycaf%sjet', jettypes))              # without jen matching
+nPatJetMatched = cms.Sequence(evalSequence('susycaf%sjetMatched', jettypes)) # with jen matching
 
-nRecoMet = cms.Sequence( susycafmet + susycafmetnohf )
-nRecoFlag = cms.Sequence( susycafhbherechit +
-                          susycafhfrechit + 
-                          susycafebrechit +
-                          susycafeerechit +
-                          susycafpfrechitclusterecal +
-                          susycafpfrechitclusterhcal +
-                          susycafpfrechitclusterhfem +
-                          susycafpfrechitclusterhfhad +
-                          susycafpfrechitclusterps +
-                          susycafpfrechitecal +
-                          susycafpfrechithcal +
-                          susycafpfrechithfem +
-                          susycafpfrechithfhad +
-                          susycafpfrechitps +
-                          susycafecaldeadchannels +
-                          susycafhcaldeadchannels )
+def nRecoMet() : return susycafmet + susycafmetnohf 
+def nRecoFlag() : return ( evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
+                           evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
+                           evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
+                           evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) )
+                          
+nRecoPat = cms.Sequence( nRecoMet() + nRecoFlag()) #stuff needs reco content but runs in pat jobs with pat-on-the-fly
+nReco = cms.Sequence( nRecoPat + susycafPFtau +
+                      evalSequence('susycaf%sjetreco', jettypes) +
+                      evalSequence('susycaf%sreco', ['photon','electron','muon']) )
 
-#this sequence holds everything that needs reco event content and that should run in pat jobs with on-the-fly patification
-nRecoPat = cms.Sequence( nRecoMet + nRecoFlag)
-
-nReco = cms.Sequence( nRecoPat +
-                      susycafic5calojetreco + 
-                      susycafak5calojetreco + susycafak7calojetreco + 
-                      susycafak5jptjetreco  + #susycafak7jptjetreco +
-                      susycafak5pfjetreco   + susycafak7pfjetreco +
-                      susycafphotonreco +
-                      susycafelectronreco +                                    
-                      susycafmuonreco +
-                      susycafPFtau
-                      )
-
-nGen = cms.Sequence( susycafgen )
+nGen = cms.Sequence( susycafgen + evalSequence('susycafgenMet%s', ['Calo','CaloAndNonPrompt','True']))
 nData = cms.Sequence( susycafdqmflags + susycafdcsbits )

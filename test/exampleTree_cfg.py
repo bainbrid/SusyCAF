@@ -53,7 +53,7 @@ if not options.patify:
 else:
     jetAlgoList = ['AK7Calo','AK5PF','AK7PF']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
-    addDefaultSUSYPAT(process,options.mcInfo,'HLT',options.jetCorrections,'',jetAlgoList,'','','','','','','','')
+    addDefaultSUSYPAT(process, mcInfo = options.mcInfo, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
     for algo in ['']+jetAlgoList :
         setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.5) )
     process.susyPat = cms.Path(process.susyPatDefaultSequence)

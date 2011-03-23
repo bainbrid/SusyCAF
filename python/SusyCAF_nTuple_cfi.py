@@ -11,7 +11,6 @@ for name in susycafModules :
     exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi import *'%name)
 
 
-jettypes = ['ak5calo', 'ak5pf', 'ak5pf2pat', 'ak7calo', 'ak7pf','ak7pf2pat']
 nEmpty = cms.Sequence()
 def evalSequence(pattern, names) :
     return sum([eval(pattern%name) for name in names],nEmpty)
@@ -29,24 +28,30 @@ susycafReducer = cms.EDProducer("ProductReducer",
                                 selectionCommands = cms.untracked.vstring('drop *') +
                                 ["keep %s"%s for s in SusyCAF_Drop_cfi.reduce()])
 
-nCommon = cms.Sequence( evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
-                        evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
-                                                   'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
-                        susycafmet + susycafmetnohf +
-                        evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
-                        evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
-                        evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
-                        evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) )
+def susycafCommon(isData) :
+    return cms.Sequence( evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
+                         evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
+                                                    'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
+                         susycafmet + susycafmetnohf +
+                         evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
+                         evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
+                         evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
+                         evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
+                         
+                         [ (susycafgen + evalSequence('susycafgenMet%s', ['Calo','CaloAndNonPrompt','True'])), # Gen
+                           (susycafdqmflags + susycafdcsbits) # Data
+                           ][isData] )
 
-nPatJet =  cms.Sequence(evalSequence('susycaf%sjet', jettypes))              # without gen matching
-nPatJetMatched = cms.Sequence(evalSequence('susycaf%sjetMatched', jettypes)) # with gen matching
-nPat = cms.Sequence( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
-                     evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
-                     evalSequence('susycafpf%s',['electron','muon','tau']) )
+def susycafPatJet(isData, jetTypes) :
+    return cms.Sequence( evalSequence('susycaf%sjet'+['Matched',''][isData], jetTypes))
 
-nReco = cms.Sequence( susycafPFtau +
-                      evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, jettypes)) +
-                      evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+def susycafPat() :
+    return ( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
+             evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
+             evalSequence('susycafpf%s',['electron','muon','tau']) )
 
-nGen = cms.Sequence( susycafgen + evalSequence('susycafgenMet%s', ['Calo','CaloAndNonPrompt','True']))
-nData = cms.Sequence( susycafdqmflags + susycafdcsbits )
+def susycafReco(jetTypes) :
+    return ( susycafPFtau +
+             evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, jetTypes)) +
+             evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+

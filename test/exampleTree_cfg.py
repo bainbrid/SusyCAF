@@ -38,7 +38,9 @@ if options.silentMessageLogger:
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 process.susycaftriggers.SourceName  = options.SourceName
-
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import susycafCommon,susycafReco,susycafPat,susycafPatJet
+process.nCommon = susycafCommon(options.isData)
+process.nPatJet = susycafPatJet(options.isData,options.jetCollections)
 
 #-- Input Source --------------------------------------------------------------
 defaultGT,defaultFile = ([( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root'),
@@ -52,7 +54,7 @@ process.maxEvents.input = options.maxEvents
 if not options.patify:
     print "WARNING: selection (slimming) not applied for options patify(False)."
 else:
-    jetAlgoList = ['AK7Calo','AK5PF','AK7PF']
+    jetAlgoList = filter(lambda s: s.lower() in options.jetCollections, ['AK7Calo','AK5PF','AK7PF'])
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
     addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
     for algo in ['']+jetAlgoList :
@@ -86,10 +88,9 @@ process.lumiPath = cms.Path(process.lumiTree)
 schedule.append(process.lumiPath)
 
 process.p = cms.Path( ( process.nCommon +
-                        ( process.nReco if not options.patify else \
-                          ( process.nPat + ( process.nPatJet if options.isData else process.nPatJetMatched )))) +
-                       ( process.susycafalltracks if options.AllTracks else process.nEmpty ) +
-                       ( process.nData if options.isData else process.nGen ) 
+                        [ susycafReco(options.jetCollections),
+                          susycafPat() + process.nPatJet][options.patify] +
+                        [process.nEmpty,process.susycafalltracks][options.AllTracks] )
                        * process.susycafReducer
                        * process.susyTree )
 schedule.append(process.p)

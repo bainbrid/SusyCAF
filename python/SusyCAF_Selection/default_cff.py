@@ -12,7 +12,7 @@ def insertSelection(process):
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.helpers import applySelection
     selectors = []
     from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
-    for sequence in [process.nPatJetMatched, process.nPatJet] :
+    for sequence in [process.nPatJet] :
         selectors.extend(applySelection(process, sequence, "pt > 10", patJetSelector))
 
     #NOTE: filter=True here kills all events with no jets with pt > 8 *and* phi > 0

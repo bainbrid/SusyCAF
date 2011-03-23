@@ -16,7 +16,7 @@ vtype = VarParsing.VarParsing.varType
 mtype = VarParsing.VarParsing.multiplicity
 options.output = "SusyCAF_Tree.root"
 options.secondaryOutput = "" #switch PAT-tuple output off by default
-options.maxEvents = 10
+options.maxEvents = 100
 options.register('jetCollections',['ak5calo','ak5pf','ak5pf2pat','ak7calo','ak7pf','ak7pf2pat'],mtype.list,vtype.string,"jet types to store")
 options.register('jetCorrections',['L2Relative','L3Absolute'], mtype.list, vtype.string, "jet correction levels to apply")
 options.register(     'GlobalTag', "",    mtype.singleton, vtype.string, "GlobalTag to use")

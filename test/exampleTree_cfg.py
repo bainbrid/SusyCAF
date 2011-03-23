@@ -17,15 +17,17 @@ mtype = VarParsing.VarParsing.multiplicity
 options.output = "SusyCAF_Tree.root"
 options.secondaryOutput = "" #switch PAT-tuple output off by default
 options.maxEvents = 100
-options.register(     'jetCorrections',['L2Relative','L3Absolute'], mtype.list, vtype.string, "jet correction levels to apply")
-options.register(          'GlobalTag', "",     mtype.singleton, vtype.string, "GlobalTag to use")
-options.register(             'mcInfo', False,  mtype.singleton, vtype.int,    "process MonteCarlo data")
-options.register(          'AllTracks', False,  mtype.singleton, vtype.int,    "include all tracks")
-options.register('silentMessageLogger', True,   mtype.singleton, vtype.int,    "silence MessageLogger")
-options.register(             'patify', True,   mtype.singleton, vtype.int,    "run SUSYPAT on the fly")
-options.register(         'SourceName', "",     mtype.singleton, vtype.string, "'S:stream' or 'DS:dataset' to store those HLT paths")
+options.register('jetCollections',['ak5calo','ak5pf','ak5pf2pat','ak7calo','ak7pf','ak7pf2pat'],mtype.list,vtype.string,"jet types to store")
+options.register('jetCorrections',['L2Relative','L3Absolute'], mtype.list, vtype.string, "jet correction levels to apply")
+options.register(     'GlobalTag', "",    mtype.singleton, vtype.string, "GlobalTag to use")
+options.register(        'isData', True,  mtype.singleton, vtype.int,    "")
+options.register(     'AllTracks', False, mtype.singleton, vtype.int,    "include all tracks")
+options.register(        'patify', True,  mtype.singleton, vtype.int,    "run SUSYPAT on the fly")
+options.register(    'SourceName', "",    mtype.singleton, vtype.string, "'S:stream' or 'DS:dataset' to store those HLT paths")
+options.register('silentMessageLogger',True,mtype.singleton,vtype.int,    "silence MessageLogger")
 options.parseArguments()
-options._tagOrder =[] # weird option, but something to do with options.output
+options._tagOrder =[] # weird, but something to do with options.output
+hack_ListVarparsingBug( options, 'jetCollections')
 hack_ListVarparsingBug( options, 'jetCorrections')
 
 process.load('Configuration.StandardSequences.Services_cff')
@@ -39,9 +41,9 @@ process.susycaftriggers.SourceName  = options.SourceName
 
 
 #-- Input Source --------------------------------------------------------------
-defaultGT,defaultFile = ([('GR_P_V14::All','file:///afs/cern.ch/user/e/elaird/public/susypvt/32_test_file_41_prompt_reco/D810D5DD-374F-E011-BE08-0030487CF41E.root'),
-                          ( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root')]
-                         )[options.mcInfo]
+defaultGT,defaultFile = ([( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root'),
+                          ('GR_P_V14::All','file:///afs/cern.ch/user/e/elaird/public/susypvt/32_test_file_41_prompt_reco/D810D5DD-374F-E011-BE08-0030487CF41E.root')]
+                         )[options.isData]
 process.GlobalTag.globaltag = options.GlobalTag if options.GlobalTag else defaultGT
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files if options.files else defaultFile) )
 process.maxEvents.input = options.maxEvents
@@ -52,7 +54,7 @@ if not options.patify:
 else:
     jetAlgoList = ['AK7Calo','AK5PF','AK7PF']
     from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
-    addDefaultSUSYPAT(process, mcInfo = options.mcInfo, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
+    addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
     for algo in ['']+jetAlgoList :
         setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.5) )
     process.susyPat = cms.Path(process.susyPatDefaultSequence)
@@ -77,7 +79,7 @@ else:
 
 
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
-adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
+adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.isData)
 adjust.addHbheNoiseFilterResult(process, schedule)
 
 process.lumiPath = cms.Path(process.lumiTree)
@@ -85,9 +87,9 @@ schedule.append(process.lumiPath)
 
 process.p = cms.Path( ( process.nCommon +
                         ( process.nReco if not options.patify else \
-                          ( process.nPat + ( process.nPatJetMatched if options.mcInfo else process.nPatJet )))) +
+                          ( process.nPat + ( process.nPatJet if options.isData else process.nPatJetMatched )))) +
                        ( process.susycafalltracks if options.AllTracks else process.nEmpty ) +
-                       ( process.nGen if options.mcInfo else process.nData ) 
+                       ( process.nData if options.isData else process.nGen ) 
                        * process.susycafReducer
                        * process.susyTree )
 schedule.append(process.p)

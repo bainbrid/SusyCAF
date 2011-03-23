@@ -6,8 +6,8 @@ def addHbheNoiseFilterResult(process, schedule) :
     process.hbheflag = cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer)
     schedule.append(process.hbheflag)
 
-def loadAndConfigureHcalSeverityLevelProducer(process, mcInfo) :
+def loadAndConfigureHcalSeverityLevelProducer(process, isData) :
     process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-    if not mcInfo :
+    if isData :
         process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
         process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")

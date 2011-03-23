@@ -40,6 +40,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseFilter.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummary.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummaryExists.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseRBX.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalRecHit.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalRecHit.h"
@@ -110,6 +111,7 @@ DEFINE_FWK_MODULE(SusyCAF_L1CaloTrigger);
 DEFINE_FWK_MODULE(SusyCAF_L1Extra);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseFilter);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseSummary);
+DEFINE_FWK_MODULE(SusyCAF_HcalNoiseSummaryExists);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseRBX);
 DEFINE_FWK_MODULE(SusyCAF_HBHERecHitsSorted);
 DEFINE_FWK_MODULE(SusyCAF_HFRecHitsSorted);

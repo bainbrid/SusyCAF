@@ -21,7 +21,6 @@ options.register(     'jetCorrections',['L2Relative','L3Absolute'], mtype.list, 
 options.register(          'GlobalTag', "",     mtype.singleton, vtype.string, "GlobalTag to use")
 options.register(             'mcInfo', False,  mtype.singleton, vtype.int,    "process MonteCarlo data")
 options.register(          'AllTracks', False,  mtype.singleton, vtype.int,    "include all tracks")
-options.register(    'hbheNoiseFilter', True,   mtype.singleton, vtype.int,    "include hbhe noise filter result")
 options.register('silentMessageLogger', True,   mtype.singleton, vtype.int,    "silence MessageLogger")
 options.register(             'patify', True,   mtype.singleton, vtype.int,    "run SUSYPAT on the fly")
 options.register(         'SourceName', "",     mtype.singleton, vtype.string, "'S:stream' or 'DS:dataset' to store those HLT paths")
@@ -79,7 +78,7 @@ else:
 
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.mcInfo)
-if options.hbheNoiseFilter : adjust.addHbheNoiseFilterResult(process, schedule)
+adjust.addHbheNoiseFilterResult(process, schedule)
 
 process.lumiPath = cms.Path(process.lumiTree)
 schedule.append(process.lumiPath)

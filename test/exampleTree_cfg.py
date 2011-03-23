@@ -39,8 +39,8 @@ if options.silentMessageLogger:
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 process.susycaftriggers.SourceName  = options.SourceName
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import susycafCommon,susycafReco,susycafPat,susycafPatJet
-process.nCommon = susycafCommon(options.isData)
-process.nPatJet = susycafPatJet(options.isData,options.jetCollections)
+process.nCommon = cms.Sequence(susycafCommon(options.isData))
+process.nPatJet = cms.Sequence(susycafPatJet(options.isData,options.jetCollections))
 
 #-- Input Source --------------------------------------------------------------
 defaultGT,defaultFile = ([( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root'),

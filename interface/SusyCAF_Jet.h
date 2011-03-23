@@ -19,6 +19,10 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
 template< typename T >
 class SusyCAF_Jet : public edm::EDProducer {
  public: 
@@ -39,7 +43,7 @@ class SusyCAF_Jet : public edm::EDProducer {
   
   const edm::ParameterSet& config;
   const edm::InputTag jetsInputTag, genJetsInputTag, allJetsInputTag;
-  const std::string Prefix,Suffix;
+  const std::string Prefix,Suffix,JecRecord;
   const bool caloSpecific, jptSpecific, pfSpecific, mpt, jetid, gen;
 };
 
@@ -52,6 +56,7 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
   allJetsInputTag(cfg.getParameter<edm::InputTag>("AllJets")),
   Prefix(cfg.getParameter<std::string>("Prefix")),
   Suffix(cfg.getParameter<std::string>("Suffix")),
+  JecRecord(cfg.getParameter<std::string>("JecRecord")),
   caloSpecific(cfg.getParameter<bool>("Calo")),
   jptSpecific(cfg.getParameter<bool>("JPT")),
   pfSpecific(cfg.getParameter<bool>("PF")),
@@ -70,9 +75,21 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
   initSpecial();
 }
 
+JetCorrectionUncertainty* jetCorrUnc(const edm::EventSetup& setup, const std::string& jecRecord) {
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  setup.get<JetCorrectionsRecord>().get(jecRecord,JetCorParColl);
+  return new JetCorrectionUncertainty((*JetCorParColl)["Uncertainty"]);
+}
+
+float uncFunc(JetCorrectionUncertainty* jCU, const reco::Candidate::LorentzVector& jet) {
+  jCU->setJetEta(jet.eta());
+  jCU->setJetPt(jet.pt());// the uncertainty is a function of the corrected pt
+  return jCU->getUncertainty(true);
+}
+
 template< typename T > 
 void SusyCAF_Jet<T>::
-produce(edm::Event& evt, const edm::EventSetup&) {
+produce(edm::Event& evt, const edm::EventSetup& setup) {
   typedef reco::Candidate::LorentzVector LorentzV;
   edm::Handle<edm::View<T> > jets;     evt.getByLabel(jetsInputTag, jets);
   edm::Handle<edm::View<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
@@ -85,6 +102,8 @@ produce(edm::Event& evt, const edm::EventSetup&) {
   std::auto_ptr<float>  droppedSumPT  ( new float(0)  )  ;
   std::auto_ptr<float>  droppedSumET  ( new float(0)  )  ;
 
+  JetCorrectionUncertainty* jCU = jetCorrUnc(setup, JecRecord);
+
   for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
     p4->push_back((*jets)[i].p4());
     eta2mom->push_back((*jets)[i].etaetaMoment());
@@ -93,13 +112,15 @@ produce(edm::Event& evt, const edm::EventSetup&) {
     *droppedSumPT -= (*jets)[i].pt();
     *droppedSumET -= (*jets)[i].p4().Et();
 
-    jecUnc->push_back(0.0);
+    jecUnc->push_back(uncFunc(jCU, (*jets)[i].p4()));
   }
   for(unsigned i=0; i<(*allJets).size(); i++) {
     *droppedSumP4 += (*allJets)[i].p4();
     *droppedSumPT += (*allJets)[i].pt();
     *droppedSumET += (*allJets)[i].p4().Et();
   }
+
+  delete jCU;
 
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;

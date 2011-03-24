@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def met(mettype, input, suf, pre='met', special=True, calo=True) :
+def met(mettype, input, suf, pre='met', special=False, calo=True) :
     return cms.EDProducer("SusyCAF_%sMET"%mettype,
                           InputTag = cms.InputTag(input),
                           Prefix = cms.string(pre),

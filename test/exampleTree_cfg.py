@@ -44,7 +44,7 @@ process.nPatJet = cms.Sequence(susycafPatJet(options.isData,options.jetCollectio
 
 #-- Input Source --------------------------------------------------------------
 defaultGT,defaultFile = ([( 'START311_V2::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root'),
-                          ('GR_P_V14::All','file:///afs/cern.ch/user/e/elaird/public/susypvt/32_test_file_41_prompt_reco/D810D5DD-374F-E011-BE08-0030487CF41E.root')]
+                          ('GR_R_311_V2::All','/store/data/Run2011A/MultiJet/AOD/PromptReco-v1/000/160/943/06FEF977-FD54-E011-B367-001D09F2438A.root')]
                          )[options.isData]
 process.GlobalTag.globaltag = options.GlobalTag if options.GlobalTag else defaultGT
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files if options.files else defaultFile) )

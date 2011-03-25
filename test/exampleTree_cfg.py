@@ -34,7 +34,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.add_( cms.Service( "TFileService", fileName = cms.string( options.output ), closeFileFast = cms.untracked.bool(True) ) )
 if options.silentMessageLogger:
     process.MessageLogger.categories.append('PATSummaryTables')
-    process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet( limit = cms.untracked.int32(-1), reportEvery = cms.untracked.int32(1))
+    process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet( limit = cms.untracked.int32(-1), reportEvery = cms.untracked.int32(1000))
 
 process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
 process.susycaftriggers.SourceName  = options.SourceName

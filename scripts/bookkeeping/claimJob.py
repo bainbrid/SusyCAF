@@ -34,7 +34,7 @@ def setup_cmssw(job,path) :
 #!/usr/bin/env bash
 mkdir -p %(path)s
 cd %(path)s
-SCRAM_ARCH=%(arch)s
+export SCRAM_ARCH=%(arch)s
 scram project CMSSW %(cmssw)s
 cd %(cmssw)s/src/
 eval `scram runtime -sh`

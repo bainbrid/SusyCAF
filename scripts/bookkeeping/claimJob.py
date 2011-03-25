@@ -188,7 +188,7 @@ def run_crab(job,path,MULTI) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-####source %(crab_setup)s  # seems obsolete?
+source %(crab_setup)s
 cd %(path)s
 python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py isData=%(isData)d GlobalTag=%(gt)s::All %(other)s
 %(crab)s -create -submit

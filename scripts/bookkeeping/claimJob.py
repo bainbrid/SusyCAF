@@ -11,7 +11,7 @@ def print_and_execute(c) :
     return
 
 def get_jobrow(db) :
-    rows = db.execute('''select job.rowid,cmssw,susycaf,jec,globalTag,filter,dataset
+    rows = db.execute('''select job.rowid,cmssw,susycaf,globalTag,dataset
                              from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                              where state="Unclaimed"''').fetchall()
     for row in rows:
@@ -23,7 +23,7 @@ def get_jobrow(db) :
         db.disconnect()
         sys.exit()
     
-    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,susycaf,dataset,mcInfo,jec,globalTag,filter,otherOptions
+    row = db.execute('''select job.rowid,jsonls,cmssw,addpkg,cvsup,cmds,scram_arch,susycaf,dataset,isData,globalTag,nonDefault
                          from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                          where state="Unclaimed" AND job.rowid='''+jobnumber).fetchone()
     return row
@@ -34,11 +34,12 @@ def setup_cmssw(job,path) :
 #!/usr/bin/env bash
 mkdir -p %(path)s
 cd %(path)s
+SCRAM_ARCH=%(arch)s
 scram project CMSSW %(cmssw)s
 cd %(cmssw)s/src/
 eval `scram runtime -sh`
 cvs co -r %(susycaf)s -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-'''%{ "path":path, "cmssw":job['cmssw'], "susycaf":job['susycaf'] }            +''.join(['''
+'''%{ "path":path, "arch":job["scram_arch"], "cmssw":job['cmssw'], "susycaf":job['susycaf'] } +''.join(['''
 addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+''.join(['''
 cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +'''
 '''+'\n'.join( job['cmds'].split(';') if job['cmds'] else [''])+'''
@@ -95,12 +96,13 @@ def setup_crab(job,option) :
         if val is None : continue
         option[key] = eval('\'\'\''+val+'\'\'\'%option')
 
-    option["EVENTS"] = '' if option["SPLIT"] else '''
-lumi_mask=%(PATH)s/jsonls.txt
+    option["EVENTS"] = '''
+lumis_per_job=10
 total_number_of_lumis=-1
-lumis_per_job=10'''%option if job['jsonls'] else '''
+%s'''%('lumi_mask=%(PATH)s/jsonls.txt'%option if job['jsonls'] else '') if job['isData'] else '''
 total_number_of_events=-1
 events_per_job=20000'''
+    
     option["DBS_URL"] = ("dbs_url="+option["DBS_URL"]) if option["DBS_URL"] else ""
 
     if option["SITE"] != "LONDON" and option["SITE"]!="OSETHACK":
@@ -186,20 +188,18 @@ def run_crab(job,path,MULTI) :
 source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
-source %(crab_setup)s
+####source %(crab_setup)s  # seems obsolete?
 cd %(path)s
-python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py patify=1 fromRECO=1 mcInfo=%(mc)d JetCorrections=%(jec)s GlobalTag=%(gt)s::All %(otherOptions)s
+python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py isData=%(isData)d GlobalTag=%(gt)s::All %(other)s
 %(crab)s -create -submit
 %(crab)s -status &> crab.status
 '''%{ "path" : path,
       "cmssw" : job['cmssw'],
-      "mc" : job['mcInfo'],
-      "jec" : job['jec'],
+      "isData" : job['isData'],
       "gt" : job['globalTag'],
-      "otherOptions" : job['otherOptions'] if job['otherOptions'] else '',
+      "other" : job['nonDefault'] if job['nonDefault'] else '',
       "crab" : "multicrab" if MULTI else "crab",
       "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
-                     #"/afs/cern.ch/user/s/slacapra/public/CRAB_2_7_2_p1/crab.sh"
       })
     return
 
@@ -227,7 +227,7 @@ def get_options(name) :
     option["JOBID"] = job['rowid']
     option['DATASET'] = job['dataset']
     option["MULTI"] = len(job['dataset'].split(','))>1
-    option["USE_PARENT"] = 1 if job["otherOptions"] and "fromRAW" in job["otherOptions"] else 0
+    option["USE_PARENT"] = 0
     option["WHITELIST"] = raw_input("whitelist sites containing both RECO and RAW: ") if option["USE_PARENT"] else ""
     option["DBS_URL"] = ( raw_input("dbs_url: ") \
                           if raw_input("See advanced options? [y/n] ") in [1,'y','Y','yes','Yes'] \

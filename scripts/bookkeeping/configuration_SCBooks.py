@@ -1,25 +1,21 @@
 import webpage_SCBooks,sqlite3,os,sys,getpass,time
 
-SusyCAF = {"db_location": "/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_SUSY/SusyCAF/bookkeeping/",
-           "db_file": 'sqlite.db',
-           "db_lock": 'sqlite.lock',
-           "webpath": "/afs/cern.ch/user/b/bbetchar/www/web/SusyCAFpublic/status.html"}
-
 ICF = {"db_location": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database",
-       "db_file": 'sqlite.db',
-       "db_lock": 'sqlite.lock',
-       "webpath": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database/status.html"}
+       "db_file": 'sqlite2.db',
+       "db_lock": 'sqlite2.lock',
+       "webpath": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database/status2.html"}
 
 TEST  = {"db_location": "./",
          "db_file": 'sqlite.db',
          "db_lock": 'sqlite.lock',
          "webpath": "./status.html"}
 
-databases = {"SusyCAF":SusyCAF, "ICF": ICF, "TEST":TEST}
+databases = {"ICF": ICF, "TEST":TEST}
 
 def create_db(path) :
     conn = sqlite3.connect(path)
-    conn.execute('''CREATE TABLE tag( cmssw   TEXT NOT NULL,
+    conn.execute('''CREATE TABLE tag( scram_arch TEXT,
+                                      cmssw   TEXT NOT NULL,
                                       susycaf TEXT NOT NULL,
                                       addpkg  TEXT,
                                       cvsup   TEXT,
@@ -27,10 +23,8 @@ def create_db(path) :
                                      )''')
     conn.execute('''CREATE TABLE dset( dataset   TEXT NOT NULL,
                                        globalTag TEXT NOT NULL,
-                                       jec       TEXT NOT NULL,
-                                       mcInfo    BOOLEAN DEFAULT 0 NOT NULL,
-                                       otherOptions TEXT,
-                                       filter    TEXT
+                                       isData    BOOLEAN DEFAULT 0 NOT NULL,
+                                       nonDefault TEXT
                                       )''')
     conn.execute('''CREATE TABLE job( tagid  INT NOT NULL,
                                       dsetid INT NOT NULL,

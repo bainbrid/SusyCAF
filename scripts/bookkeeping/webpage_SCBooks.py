@@ -102,7 +102,7 @@ def print_JOB(file,job) :
         '<br><a onclick="switchMenu(\'%s\');" class="%s">' % (label,job['state']),
         "%d:"%job['rowid'],
         '</a>',
-        "&nbsp;%s" %((job['rpath'] if job['rpath'] else 'Unclaimed')),
+        "&nbsp;%s"%(job['rpath'] if job['rpath'] else 'Unclaimed'),
         '<div id="%s" class=jobwrapper>' % label,
         ('<br>'+job['user']+'@'+job['node']+':'+job['path']) if job['user'] else '',
         ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'].split(',')) ])) if job['dash'] else '',
@@ -120,11 +120,9 @@ def print_DSET(file,db,dset,tagid) :
             dsetSwitches.push(\'%s\');//-->
             </script>'''%label,
             '<br><a onclick="switchMenu(\'%s\');">' % label,
-            (10*'&nbsp;').join(['<b>%s</b>','%s','%s','%s','%s']) % (dset['dataset'].replace(",","<br>"),
+            (10*'&nbsp;').join(['<b>%s</b>','%s','%s']) % (dset['dataset'].replace(",","<br>"),
                                                                      dset['globalTag'],
-                                                                     dset['jec'],
-                                                                     dset['filter'] if dset['filter'] else '',
-                                                                     dset['otherOptions'] if dset['otherOptions'] else ''),
+                                                                     dset['nonDefault'] if dset['nonDefault'] else ''),
             '</a>',
             '<div id="%s" class=dsetwrapper>' % label,
             ])

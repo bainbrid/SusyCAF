@@ -38,6 +38,7 @@ def __patOutput__(process,fileName) :
 def susyPat(process,options) :
     if not options.patify:
         if not options.quiet : print "WARNING: selection (slimming) not applied for options patify(False)."
+        __patOutput__(process, options.secondaryOutput)
         return cms.Path()
     else:
         from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT

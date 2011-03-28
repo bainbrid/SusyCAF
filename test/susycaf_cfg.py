@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.PatAlgos.patTemplate_cfg import process
 process.setName_("SUSYCAF")
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_options_cff import options

@@ -10,11 +10,10 @@ process.GlobalTag.globaltag = options.GlobalTag
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
 process.add_( cms.Service( "TFileService", fileName = cms.string( options.output ), closeFileFast = cms.untracked.bool(True) ) )
 
-process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi')
-process.susycaftriggers.SourceName  = options.SourceName
-from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import susycafCommon,susycafReco,susycafPat,susycafPatJet
-process.nCommon = cms.Sequence(susycafCommon(options.isData))
-process.nPatJet = cms.Sequence(susycafPatJet(options.isData,options.jetCollections))
+from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import SusyCAF
+susycaf = SusyCAF(process,options)
+process.nCommon = cms.Sequence(susycaf.common())
+process.nPatJet = cms.Sequence(susycaf.patJet())
 
 # This is nasty
 if options.patify : 
@@ -30,11 +29,10 @@ process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_susyCAF = cms.Path( ( process.nCommon +
-                                [ susycafReco(options.jetCollections),
-                                  susycafPat() + process.nPatJet][options.patify] +
-                                [process.nEmpty,process.susycafalltracks][options.AllTracks] )
-                              * process.susycafReducer
-                              * process.susyTree )
+                                [ susycaf.reco(),  susycaf.pat() + process.nPatJet][options.patify] +
+                                susycaf.allTracks() )
+                              * susycaf.reducer()
+                              * susycaf.tree() )
 
 schedule = cms.Schedule( process.p_susyPat,
                          process.p_hbheFlag,

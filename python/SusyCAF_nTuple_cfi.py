@@ -1,56 +1,75 @@
 import FWCore.ParameterSet.Config as cms
 import SusyCAF_Drop_cfi
 
-susycafModules = ['Event','Track', 'Triggers','L1Triggers',
-                  'Gen','MET','Jet','Photon','Muon','Electron',
-                  'BeamSpot','BeamHaloSummary','LogError','Vertex',
-                  'HcalRecHit','EcalRecHit','PFRecHit','HcalDeadChannels','EcalDeadChannels',
-                  'CaloTowers','PFTau','AllTracks','DQMFlags','DCSBits'
-                  ] + ['HcalNoise%s'%s for s in ['Filter','RBX','Summary']]
-for name in susycafModules :
-    exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi import *'%name)
+class SusyCAF(object) :
+    def __init__(self,process,options) :
+        self.process = process
+        self.options = options
+        self.empty = process.empty = cms.Sequence()
+        
+    def tree(self) :
+        self.process.susyTree = cms.EDAnalyzer("SusyTree", outputCommands = cms.untracked.vstring(
+            'drop *',
+            'keep *_susycaf*_*_*',
+            'keep double_susyScan*_*_*') + (
+            ["drop %s"%s for s in (SusyCAF_Drop_cfi.reduce()+
+                                   SusyCAF_Drop_cfi.drop())]) )
+        return self.process.susyTree
+    
+    def reducer(self) :
+        self.process.susycafReducer = cms.EDProducer("ProductReducer",
+                                                     selectionCommands = cms.untracked.vstring('drop *') +
+                                                     ["keep %s"%s for s in SusyCAF_Drop_cfi.reduce()])
+        return self.process.susycafReducer
+    
 
-nEmpty = cms.Sequence()
-def evalSequence(pattern, names) :
-    return sum([eval(pattern%name) for name in names],nEmpty)
-########################
+    def evalSequence(self, pattern, names) :
+        return sum([getattr(self.process, pattern%name) for name in names], self.empty)
 
-susyTree = cms.EDAnalyzer("SusyTree",
-                          outputCommands = cms.untracked.vstring(
-    'drop *',
-    'keep *_susycaf*_*_*',
-    'keep double_susyScan*_*_*') + (
-    ["drop %s"%s for s in (SusyCAF_Drop_cfi.reduce()+
-                           SusyCAF_Drop_cfi.drop())]) )
 
-susycafReducer = cms.EDProducer("ProductReducer",
-                                selectionCommands = cms.untracked.vstring('drop *') +
-                                ["keep %s"%s for s in SusyCAF_Drop_cfi.reduce()])
+    def common(self) :
+        for module in (['HcalNoise%s'%s for s in ['Filter','RBX','Summary']] +
+                       ['Event','Track','Triggers','L1Triggers',
+                        'BeamSpot','BeamHaloSummary','LogError','Vertex',
+                        'HcalRecHit','EcalRecHit','PFRecHit','MET',
+                        'HcalDeadChannels','EcalDeadChannels','CaloTowers'] +
+                       [['Gen'],['DQMFlags','DCSBits']][self.options.isData]) :
+            self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
-def susycafCommon(isData) :
-    return ( evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
-             evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
-                                        'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
-             susycafmet + susycafmetnohf +
-             evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
-             evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
-             evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
-             evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
-             
-             [ (susycafgen + evalSequence('susycafgenMet%s', ['Calo','CaloAndNonPrompt','True'])), # Gen
-               (susycafdqmflags + susycafdcsbits) # Data
-               ][isData]
-             )
+        self.process.susycaftriggers.SourceName  = self.options.SourceName
+        return ( self.evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
+                 self.evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
+                                            'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
+                 self.process.susycafmet + self.process.susycafmetnohf +
+                 self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
+                 self.evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
+                 self.evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
+                 self.evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
+                 
+                 self.evalSequence(*[ ('susycafgen%s',['','MetCalo','MetCaloAndNonPrompt','MetTrue']), # Gen
+                                      ('susycaf%s',['dqmflags','dcsbits']) # Data
+                                      ][self.options.isData])
+                 )
 
-def susycafPatJet(isData, jetTypes) :
-    return ( evalSequence('susycaf%sjet'+['Matched',''][isData], jetTypes))
+    def patJet(self) :
+        self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi')
+        return ( self.evalSequence('susycaf%sjet'+['Matched',''][self.options.isData], self.options.jetCollections))
 
-def susycafPat() :
-    return ( evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
-             evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
-             evalSequence('susycafpf%s',['electron','muon','tau']) )
+    def pat(self) :
+        for module in ['MET','Photon','Muon','Electron','PFTau'] :
+            self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
+        return ( self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
+                 self.evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
+                 self.evalSequence('susycafpf%s',['electron','muon','tau']) )
 
-def susycafReco(jetTypes) :
-    return ( susycafPFtau +
-             evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, jetTypes)) +
-             evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+    def reco(self) :
+        for module in ['Jet','Photon','Muon','Electron','PFTau'] :
+            self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
+        return ( self.process.susycafPFtau +
+                 self.evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, self.options.jetCollections)) +
+                 self.evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+
+    def allTracks(self) :
+        if not self.options.AllTracks : return self.empty
+        process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_AllTracks_cfi')
+        return process.susycafalltracks

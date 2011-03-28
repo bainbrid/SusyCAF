@@ -722,6 +722,7 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
       for ( int deta = -1; deta <= +1; ++deta ) {
         for ( int dphi = -1; dphi <= +1; ++dphi ) {
           EBDetId idtmp = EBDetId::offsetBy(id,deta,dphi);
+	  if(ecalRecHits->find(idtmp) == ecalRecHits->end()) continue;
           float etmp = ecalRecHits->find(idtmp)->energy();
           float eapproxet = etmp / cosh( EBDetId::approxEta(idtmp) );
           if (etmp>e2 && eapproxet>1. && !(deta==0 && dphi==0)) {
@@ -732,7 +733,10 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
           }
         }
       }
-      Time2      -> push_back(ecalRecHits->find(id2)->time());
+      if(ecalRecHits->find(id2) == ecalRecHits->end())
+	Time2    -> push_back(-9999.);
+      else
+        Time2      -> push_back(ecalRecHits->find(id2)->time());
       SeedEnergy   -> push_back(ecalRecHits->find(id)->energy());
       Energy2      -> push_back(e2);
       e2overE9   -> push_back(e2/photon.e3x3());

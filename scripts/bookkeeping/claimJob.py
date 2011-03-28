@@ -190,7 +190,7 @@ cd %(path)s/%(cmssw)s/src/
 eval `scram runtime -sh`
 source %(crab_setup)s
 cd %(path)s
-python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/exampleTree_cfg.py isData=%(isData)d GlobalTag=%(gt)s::All %(other)s
+python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/susycaf_cfg.py isData=%(isData)d GlobalTag=%(gt)s::All %(other)s
 %(crab)s -create -submit
 %(crab)s -status &> crab.status
 '''%{ "path" : path,

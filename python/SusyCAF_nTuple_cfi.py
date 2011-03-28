@@ -5,11 +5,10 @@ susycafModules = ['Event','Track', 'Triggers','L1Triggers',
                   'Gen','MET','Jet','Photon','Muon','Electron',
                   'BeamSpot','BeamHaloSummary','LogError','Vertex',
                   'HcalRecHit','EcalRecHit','PFRecHit','HcalDeadChannels','EcalDeadChannels',
-                  'CaloTowers','PFTau','AllTracks','DQMFlags','DCSBits','LumiTreeMaker'
+                  'CaloTowers','PFTau','AllTracks','DQMFlags','DCSBits'
                   ] + ['HcalNoise%s'%s for s in ['Filter','RBX','Summary']]
 for name in susycafModules :
     exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi import *'%name)
-
 
 nEmpty = cms.Sequence()
 def evalSequence(pattern, names) :

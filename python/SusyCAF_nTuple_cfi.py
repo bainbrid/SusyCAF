@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SusyCAF_Drop_cfi
+import SusyCAF_Selection.helpers as helpers
 
 class SusyCAF(object) :
     def __init__(self,process,options) :
@@ -19,8 +20,9 @@ class SusyCAF(object) :
             'drop *',
             'keep *_susycaf*_*_*',
             'keep double_susyScan*_*_*') + (
-            ["drop %s"%s for s in (SusyCAF_Drop_cfi.reduce()+
-                                   SusyCAF_Drop_cfi.drop(self.options.lite))]) )
+            ["drop %s"%s for s in SusyCAF_Drop_cfi.drop(self.options.dropMore)] +
+            ["keep %s"%s for s in SusyCAF_Drop_cfi.keep()]) +
+            ["drop %s"%s for s in SusyCAF_Drop_cfi.reduce()] )
         return self.process.susyTree
     
     def reducer(self) :
@@ -66,22 +68,33 @@ class SusyCAF(object) :
                  self.evalSequence('susycaf%sreco', ['photon','electron','muon']) )
 
     def pat(self) :
-        for module in ['MET','Photon','Muon','Electron','PFTau'] :
+        for module in ['MET','Photon','PFTau'] :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
         return ( self.patJet() +
+                 self.patLepton('Electron') +
+                 self.patLepton('Muon') +
                  self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
                  self.evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
                  self.evalSequence('susycafpf%s',['electron','muon','tau']) )
 
+    def patLepton(self,lepton) :
+        self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%lepton)
+        exec('from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import pat%sSelector as patSelector'%lepton)
+        selectors = cms.Sequence()
+        setattr(self.process,'SusyCAFPat%sSelectors'%lepton, selectors)
+        modules = [getattr(self.process, pre%lepton.lower()) for pre in ['susycaf%s','susycafpf%s']]
+        for module in modules :
+            if self.options.leptonPtMin :
+                selectors += helpers.applySelection(self.process, module, "pt > %d"%self.options.leptonPtMin, patSelector)[0]
+        return selectors + sum(modules, self.empty)
+
     def patJet(self) :
         self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi')
         modules = [getattr(self.process,('susycaf%sjet'+['Matched',''][self.options.isData])%algo) for algo in self.options.jetCollections]
-        from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.helpers import applySelection
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
         selectors = self.process.SusyCAFPatJetSelectors = cms.Sequence()
         for module in modules :
-            if self.options.lite : map( lambda A: setattr(module,A,False), ["Calo","PF","JPT","MPT"] )
-            selectors += applySelection(self.process, module, "pt > 15", patJetSelector)[0]
+            selectors += helpers.applySelection(self.process, module, "pt > 15", patJetSelector)[0]
         return selectors + sum(modules,self.empty)
 
     def allTracks(self) :

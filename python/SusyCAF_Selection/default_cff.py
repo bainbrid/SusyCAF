@@ -23,10 +23,8 @@ def insertSelection(process):
 
     #add more selectors here...
 
-
-    process.objectSelectionSequence = cms.Sequence( selectors[0] )#sigh sequences are a pain
-    for selector in selectors[1:]:
-        process.objectSelectionSequence += selector
+    process.emptySelector = cms.Sequence()
+    process.objectSelectionSequence = cms.Sequence(sum(selectors,process.emptySelector))
     
 #process.jetSelector)
 

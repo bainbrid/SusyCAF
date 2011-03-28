@@ -12,14 +12,6 @@ process.add_( cms.Service( "TFileService", fileName = cms.string( options.output
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import SusyCAF
 susycaf = SusyCAF(process,options)
-process.nCommon = cms.Sequence(susycaf.common())
-process.nPatJet = cms.Sequence(susycaf.patJet())
-
-# This is nasty
-if options.patify : 
-    from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.default_cff import insertSelection
-    insertSelection(process)
-# End nasty
 
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
 adjust.messageLogger(process,options.quiet)
@@ -28,11 +20,7 @@ adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.isData)
 process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process)
 process.p_lumi     = adjust.lumiTree(process)
-process.p_susyCAF = cms.Path( ( process.nCommon +
-                                [ susycaf.reco(),  susycaf.pat() + process.nPatJet][options.patify] +
-                                susycaf.allTracks() )
-                              * susycaf.reducer()
-                              * susycaf.tree() )
+process.p_susyCAF  = susycaf.path()
 
 schedule = cms.Schedule( process.p_susyPat,
                          process.p_hbheFlag,

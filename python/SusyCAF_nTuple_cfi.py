@@ -6,7 +6,14 @@ class SusyCAF(object) :
         self.process = process
         self.options = options
         self.empty = process.empty = cms.Sequence()
-        
+
+    def path(self) :
+        return cms.Path( ( self.common() +
+                           [ self.reco,  self.pat][self.options.patify]() +
+                           self.allTracks() )
+                         * self.reducer()
+                         * self.tree() )
+    
     def tree(self) :
         self.process.susyTree = cms.EDAnalyzer("SusyTree", outputCommands = cms.untracked.vstring(
             'drop *',
@@ -51,23 +58,30 @@ class SusyCAF(object) :
                                       ][self.options.isData])
                  )
 
-    def patJet(self) :
-        self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi')
-        return ( self.evalSequence('susycaf%sjet'+['Matched',''][self.options.isData], self.options.jetCollections))
-
-    def pat(self) :
-        for module in ['MET','Photon','Muon','Electron','PFTau'] :
-            self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
-        return ( self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
-                 self.evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
-                 self.evalSequence('susycafpf%s',['electron','muon','tau']) )
-
     def reco(self) :
         for module in ['Jet','Photon','Muon','Electron','PFTau'] :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
         return ( self.process.susycafPFtau +
                  self.evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, self.options.jetCollections)) +
                  self.evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+
+    def pat(self) :
+        for module in ['MET','Photon','Muon','Electron','PFTau'] :
+            self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
+        return ( self.patJet() +
+                 self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC']) + 
+                 self.evalSequence('susycaf%s',  ['electron','muon','tau','photon']) +
+                 self.evalSequence('susycafpf%s',['electron','muon','tau']) )
+
+    def patJet(self) :
+        self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi')
+        modules = [getattr(self.process,('susycaf%sjet'+['Matched',''][self.options.isData])%algo) for algo in self.options.jetCollections]
+        from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.helpers import applySelection
+        from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
+        selectors = self.process.SusyCAFPatJetSelectors = cms.Sequence()
+        for module in modules :
+            selectors += applySelection(self.process, module, "pt > 15", patJetSelector)[0]
+        return selectors + sum(modules,self.empty)
 
     def allTracks(self) :
         if not self.options.AllTracks : return self.empty

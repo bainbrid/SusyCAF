@@ -75,6 +75,14 @@ def print_HEAD(file,name) :
         switchMenu(items[i])
       }
     }
+
+    function pop(text)
+    {
+      my_window = window.open("", "json", "status=1,width=500,height=300");
+      my_window.document.write(text);
+    }
+        
+
     //-->
     </script>
 
@@ -93,6 +101,15 @@ def print_FOOT(file) :
     </script>
     </body></html>'''
 
+def jsonDisplay(json) :
+    djson = eval(json)
+    runs = [eval(key) for key in djson]
+    minRun = min(runs)
+    maxRun = max(runs)
+    lumis = sum([1+pair[1]-pair[0] for pair in sum(djson.values(),[])])
+    jsonString = ', '.join(["%d: %s"%pair for pair in sorted([(eval(key),val) for key,val in djson.iteritems()])])
+    return 'Run Range <a onclick="return pop(\'%s\')">(%d,%d)</a> %d lumis'%(jsonString,minRun,maxRun,lumis)
+
 def print_JOB(file,job) :
     label = 'job%d' % job['rowid']
     print>>file,'\n'.join([
@@ -106,7 +123,7 @@ def print_JOB(file,job) :
         '<div id="%s" class=jobwrapper>' % label,
         ('<br>'+job['user']+'@'+job['node']+':'+job['path']) if job['user'] else '',
         ('<br>Dashboard: ' + ', '.join(['<a href="%s">Job%d</a>' % (item, index) for index,item in enumerate(job['dash'].split(',')) ])) if job['dash'] else '',
-        '<br>'+job['jsonls'] if job['jsonls'] else ''
+        '<br>'+jsonDisplay(job['jsonls']) if job['jsonls'] else ''
         ])
     print>>file,'</div>'
     return

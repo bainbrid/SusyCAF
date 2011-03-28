@@ -15,6 +15,7 @@ def options() :
     options.register('GlobalTag', mytype = VP.varType.string)
     options.register('quiet', default = True )
     options.register('isData', default = True )
+    options.register('lite', default = False , info = "keep less for a smaller footprint")
     options.register('patify', default = True,  info = "run SUSYPAT on the fly")
     options.register('AllTracks', default = False, info = "include all tracks")
     options.register('SourceName', info = "'S:stream' or 'DS:dataset' to store those HLT paths", mytype = VP.varType.string,)

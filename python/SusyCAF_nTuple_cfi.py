@@ -20,7 +20,7 @@ class SusyCAF(object) :
             'keep *_susycaf*_*_*',
             'keep double_susyScan*_*_*') + (
             ["drop %s"%s for s in (SusyCAF_Drop_cfi.reduce()+
-                                   SusyCAF_Drop_cfi.drop())]) )
+                                   SusyCAF_Drop_cfi.drop(self.options.lite))]) )
         return self.process.susyTree
     
     def reducer(self) :
@@ -44,9 +44,9 @@ class SusyCAF(object) :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
         self.process.susycaftriggers.SourceName  = self.options.SourceName
-        return ( self.evalSequence('susycafhcalnoise%s', ['rbx','summary','filter']) +
-                 self.evalSequence('susycaf%s', ['event','L1triggers', 'triggers',
-                                            'beamspot','track', 'vertex','beamhalosummary', 'logerror','calotowers']) +
+        return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
+                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers',
+                                                 'beamspot','beamhalosummary','logerror','vertex','calotowers']) +
                  self.process.susycafmet + self.process.susycafmetnohf +
                  self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
                  self.evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
@@ -80,6 +80,7 @@ class SusyCAF(object) :
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
         selectors = self.process.SusyCAFPatJetSelectors = cms.Sequence()
         for module in modules :
+            if self.options.lite : map( lambda A: setattr(module,A,False), ["Calo","PF","JPT","MPT"] )
             selectors += applySelection(self.process, module, "pt > 15", patJetSelector)[0]
         return selectors + sum(modules,self.empty)
 

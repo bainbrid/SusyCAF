@@ -39,7 +39,8 @@ scram project CMSSW %(cmssw)s
 cd %(cmssw)s/src/
 eval `scram runtime -sh`
 cvs co -r %(susycaf)s -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-'''%{ "path":path, "arch":job["scram_arch"], "cmssw":job['cmssw'], "susycaf":job['susycaf'] } +''.join(['''
+'''%{ "path":path, "arch":job["scram_arch"] if job["scram_arch"] else "$SCRAM_ARCH",
+      "cmssw":job['cmssw'], "susycaf":job['susycaf'] } +''.join(['''
 addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+''.join(['''
 cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +'''
 '''+'\n'.join( job['cmds'].split(';') if job['cmds'] else [''])+'''

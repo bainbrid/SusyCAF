@@ -32,10 +32,11 @@ private:
  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
  void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+ bool isInCollection(const T&, const std::vector<T>&);
 
  typedef reco::Candidate::LorentzVector LorentzVector;
 
- const edm::InputTag inputTag;
+ const edm::InputTag inputTag,selectedTag;
  const std::string Prefix,Suffix;
  const bool StoreConversionInfo;
 };
@@ -43,6 +44,7 @@ private:
 template< typename T >
 SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
  inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
+ selectedTag(iConfig.getParameter<edm::InputTag>("SelectedElectrons")),
  Prefix(iConfig.getParameter<std::string>("Prefix")),
  Suffix(iConfig.getParameter<std::string>("Suffix")),
  StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo"))
@@ -60,6 +62,7 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<double> > (  Prefix + "GsfTracknormalizedChi2" + Suffix);
  produces <std::vector<unsigned> > (  Prefix + "GsfTracknumberOfValidHits" + Suffix);
 
+ produces <std::vector<int> > (Prefix + "Selected" + Suffix );
  produces <std::vector<float> > (  Prefix + "GsfTrackChargeMode" + Suffix);
  produces <std::vector<float> > (  Prefix + "GsfTrackPtMode" + Suffix);
  produces <std::vector<float> > (  Prefix + "GsfTrackQoverPErrorMode" + Suffix);
@@ -87,10 +90,8 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<float> > (  Prefix + "ESeedClusterOverPout" + Suffix);
  produces <std::vector<float> > (  Prefix + "ESeedClusterOverP" + Suffix);
  produces <std::vector<float> > (  Prefix + "ESuperClusterOverP" + Suffix);
- //MICHELE
  produces <std::vector<float> > (  Prefix + "ESuperClusterEta" + Suffix);
  produces <std::vector<float> > (  Prefix + "ESuperClusterPhi" + Suffix); 
- //MICHELE
  produces <std::vector<float> > (  Prefix + "DeltaPhiSuperClusterTrackAtVtx" + Suffix);
  produces <std::vector<float> > (  Prefix + "DeltaEtaSuperClusterTrackAtVtx" + Suffix);
  produces <std::vector<float> > (  Prefix + "DeltaPhiSeedClusterTrackAtCalo" + Suffix);
@@ -142,7 +143,7 @@ void SusyCAF_Electron<T>::initPAT()
  produces <std::vector<float> >  (Prefix + "EIDRobustLoose"            + Suffix);
  produces <std::vector<float> > (Prefix + "EcalIsoDep" + Suffix);
  produces <std::vector<float> > (Prefix + "HcalIsoDep" + Suffix);
- produces <std::vector<int> > (Prefix + "ProducedFromPF" + Suffix);
+ produces <std::vector<int> >   (Prefix + "ProducedFromPF" + Suffix);
  produces <std::vector<float> > (Prefix + "IdPfevspi" + Suffix);
  produces <std::vector<float> > (Prefix + "ParticleIso" + Suffix);
  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
@@ -164,11 +165,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 template< typename T >
 void SusyCAF_Electron<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+
  std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> > p4 ( new std::vector<reco::Candidate::LorentzVector>() );
  std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_normalizedChi2   ( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<unsigned> >  gsfTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
+
+ std::auto_ptr<std::vector<int> >  selected     ( new std::vector<int>()  ) ;
 
  std::auto_ptr<std::vector<double> >  gsfTrack_dxy     ( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dz      ( new std::vector<double>()  ) ;
@@ -197,10 +201,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<float> >  eSeedClusterOverPout   ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  eSeedClusterOverP   ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  eSuperClusterOverP   ( new std::vector<float>()  ) ;
- //MICHELE
  std::auto_ptr<std::vector<float> >  eSuperClusterEta  ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  eSuperClusterPhi   ( new std::vector<float>()  ) ;
- //MICHELE
  std::auto_ptr<std::vector<float> >  deltaPhiSuperClusterTrackAtVtx   ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  deltaEtaSuperClusterTrackAtVtx   ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  deltaPhiSeedClusterTrackAtCalo   ( new std::vector<float>()  ) ;
@@ -252,6 +254,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
    iEvent.getByLabel("generalTracks", ctfTracks);
  }
 
+  edm::Handle<std::vector<T> > selectedHandle;
+  iEvent.getByLabel(selectedTag,selectedHandle);
+
  if (collection.isValid()){
    for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
 
@@ -259,6 +264,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      charge->push_back(it->charge());
      gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
      gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
+
+     selected->push_back(selectedHandle.isValid() && isInCollection(*it, *selectedHandle) ) ;
 
      if(vertices.isValid() && vertices->size()) vx = SusyCAF_functions::closestDzPrimaryVertexPosition(it->gsfTrack().get(),*vertices);
      gsfTrack_dxy->push_back(it->gsfTrack()->dxy(vx));
@@ -288,10 +295,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      eSeedClusterOverPout->push_back(it->eSeedClusterOverPout());
      eSeedClusterOverP->push_back(it->eSeedClusterOverP());
      eSuperClusterOverP->push_back(it->eSuperClusterOverP());
-     //MICHELE
      eSuperClusterEta->push_back(it->superClusterPosition().Eta());
      eSuperClusterPhi->push_back(it->superClusterPosition().Phi());      
-     //MICHELE
      deltaPhiSuperClusterTrackAtVtx->push_back(it->deltaPhiSuperClusterTrackAtVtx());
      deltaEtaSuperClusterTrackAtVtx->push_back(it->deltaEtaSuperClusterTrackAtVtx());
      deltaPhiSeedClusterTrackAtCalo->push_back(it->deltaPhiSeedClusterTrackAtCalo());
@@ -342,6 +347,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put( p4,  Prefix + "P4" + Suffix );
  iEvent.put( charge,  Prefix + "Charge" + Suffix );
 
+ iEvent.put( selected, Prefix + "Selected" + Suffix );
  iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );
  iEvent.put( gsfTrack_numberOfValidHits,  Prefix + "GsfTracknumberOfValidHits" + Suffix );
 
@@ -418,6 +424,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 template< typename T >
 void SusyCAF_Electron<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+
  std::auto_ptr<std::vector<float> >  ecalIso                  ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  hcalIso                  ( new std::vector<float>()  ) ;
  std::auto_ptr<std::vector<float> >  trackIso                 ( new std::vector<float>()  ) ;
@@ -436,8 +443,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
-
-
 
  if (collection.isValid()){
    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {

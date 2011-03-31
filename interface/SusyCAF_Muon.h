@@ -26,15 +26,17 @@ class SusyCAF_Muon : public edm::EDProducer {
   void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  bool isInCollection(const T&, const std::vector<T>&);
 
   typedef reco::Candidate::LorentzVector LorentzVector;
-  const edm::InputTag inputTag;
+  const edm::InputTag inputTag,selectedTag;
   const std::string Prefix,Suffix;
 };
 
 template< typename T >
 SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
   inputTag(iConfig.getParameter<edm::InputTag>("InputTag")),
+  selectedTag(iConfig.getParameter<edm::InputTag>("SelectedMuons")),
   Prefix(iConfig.getParameter<std::string>("Prefix")),
   Suffix(iConfig.getParameter<std::string>("Suffix"))
 {
@@ -49,6 +51,8 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
+
+  produces <std::vector<int> > (Prefix + "Selected" + Suffix );
 
   produces <std::vector<double> > (  Prefix + "GlobalTrackDxy" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTrackDz" + Suffix);
@@ -140,6 +144,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  selected     ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
@@ -178,6 +183,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel("offlinePrimaryVertices", vertices);
   if (beamspots.isValid()){ bs = beamspots->position();}
      
+  edm::Handle<std::vector<T> > selectedHandle;
+  iEvent.getByLabel(selectedTag,selectedHandle);
+
   if (collection.isValid()) {
     int indx1 = 0;
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
@@ -196,6 +204,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 
       p4->push_back(it->p4());
       charge->push_back(it->charge());
+      selected->push_back(selectedHandle.isValid() && isInCollection(*it, *selectedHandle) ) ;
       caloCompatibility->push_back(it->caloCompatibility());
       isolationR03sumPt->push_back(it->isolationR03().sumPt);
       isolationR03emEt->push_back(it->isolationR03().emEt);
@@ -242,6 +251,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
+  iEvent.put( selected, Prefix + "Selected" + Suffix );
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );
   iEvent.put( globalTrack_numberOfValidHits,  Prefix + "GlobalTracknumberOfValidHits" + Suffix );
   iEvent.put( globalTrack_dxy,  Prefix + "GlobalTrackDxy" + Suffix );

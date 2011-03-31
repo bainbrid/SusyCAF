@@ -34,6 +34,34 @@ def __patOutput__(process,fileName) :
         process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
         process.out.outputCommands.append('keep *_HBHENoiseFilterResultProducer_*_*')
 
+def patAllElectronsPF(process) :
+    from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import patElectrons
+    process.patAllElectronsPF = patElectrons.clone( # override defaults
+        pfElectronSource = "pfAllElectronsPF",
+        useParticleFlow = True,
+        genParticleMatch = "",
+        addGenMatch = False,
+        embedGenMatch = False,
+        embedTrack = True
+        )
+    return process.patAllElectronsPF
+
+def patAllMuonsPF(process) :
+    from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
+    process.patAllMuonsPF = patMuons.clone( #override defaults
+        pfMuonSource = "pfAllMuonsPF",
+        useParticleFlow = True,
+        addGenMatch = False,
+        genParticleMatch = "",
+        embedTrack = True,
+        embedGenMatch = False,
+        embedPickyMuon = False,
+        embedTpfmsMuon = False,
+        embedHighLevelSelection = False,
+        embedCaloMETMuonCorrs = False,
+        embedTcMETMuonCorrs = False
+        )
+    return process.patAllMuonsPF
 
 def susyPat(process,options) :
     if not options.patify:
@@ -47,8 +75,7 @@ def susyPat(process,options) :
         for algo in ['']+jetAlgoList :
             setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.7 if '7' in algo else 0.5) )
         __patOutput__(process, options.secondaryOutput)
-        return cms.Path(process.susyPatDefaultSequence)
-
+        return cms.Path(process.susyPatDefaultSequence + patAllElectronsPF(process) + patAllMuonsPF(process))
 
 def addHbheNoiseFilterResult(process) :
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')

@@ -23,3 +23,11 @@ void SusyCAF_Muon<pat::Muon>::produceTemplate(edm::Event& iEvent, const edm::Eve
   produceRECO(iEvent, iSetup, collection);
   producePAT(iEvent, iSetup, collection);
 }
+
+template<class T>
+bool SusyCAF_Muon<T>::isInCollection(const T& e, const std::vector<T>& ve) {
+  typename std::vector<T>::const_iterator it(ve.begin()),end(ve.end());
+  for(;it!=end;++it)
+    if( e.p4() == it->p4() ) return true;
+  return false;
+}

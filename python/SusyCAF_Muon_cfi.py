@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 susycafmuonreco = cms.EDProducer("SusyCAF_RecoMuon",
-                            InputTag = cms.InputTag('muons'),
-                            Prefix = cms.string('muon'),
-                            Suffix = cms.string('Global')
-                            )
+                                 InputTag = cms.InputTag('muons'),
+                                 SelectedMuons = cms.InputTag(''),
+                                 Prefix = cms.string('muon'),
+                                 Suffix = cms.string('Global')
+                                 )
 
 susycafmuon = cms.EDProducer("SusyCAF_PatMuon",
-                            InputTag = cms.InputTag('cleanPatMuons'),
-                            Prefix = cms.string('muon'),
-                            Suffix = cms.string('Pat')
-                            )
+                             InputTag = cms.InputTag('cleanPatMuons'),
+                             SelectedMuons = cms.InputTag(''),
+                             Prefix = cms.string('muon'),
+                             Suffix = cms.string('Pat')
+                             )
 
 
 susycafpfmuon = cms.EDProducer("SusyCAF_PatMuon",
-                               InputTag = cms.InputTag('selectedPatMuonsPF'),
                                Prefix = cms.string('muon'),
-                               Suffix = cms.string('PF'),
+                               SelectedMuons = cms.InputTag('selectedPatMuonsPF'),
+                               InputTag = cms.InputTag("patAllMuonsPF"),
+                               Suffix = cms.string('PFReco'),
                                )
+
+
+

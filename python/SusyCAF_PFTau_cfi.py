@@ -21,7 +21,6 @@ susycafpftau = cms.EDProducer("SusyCAF_PatTau",
 susycafHPStau = cms.EDProducer("SusyCAF_pfTau",
     Prefix = cms.string('tauHPS'),   
     InputTag = cms.InputTag("hpsPFTauProducer"),
-    Suffix = cms.string('PFReco'),
+    Suffix = cms.string('PF'),
     isHps= cms.untracked.bool(True)
 )
-

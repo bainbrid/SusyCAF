@@ -54,8 +54,13 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   event.put(std::auto_ptr<reco::Candidate::LorentzVector>( met ?
 							   new reco::Candidate::LorentzVector(met->p4() ) :
 							   new reco::Candidate::LorentzVector(0,0,0,0)),    Prefix+"P4"+Suffix);
-  
-  event.put(std::auto_ptr<double>( new double(!met ? 0 : met->significance() )),  Prefix+"Significance" +Suffix);
+  double significance = 0;
+  try {
+    significance = !met ? 0 : met->significance();
+  }
+  catch(...) { significance = -1; }
+  event.put(std::auto_ptr<double>( new double(significance)),  Prefix+"Significance" +Suffix);
+
   if(special) produceSpecial(event, met);
 }
 

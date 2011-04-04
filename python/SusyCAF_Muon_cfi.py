@@ -19,7 +19,7 @@ susycafpfmuon = cms.EDProducer("SusyCAF_PatMuon",
                                Prefix = cms.string('muon'),
                                SelectedMuons = cms.InputTag('selectedPatMuonsPF'),
                                InputTag = cms.InputTag("patAllMuonsPF"),
-                               Suffix = cms.string('PFReco'),
+                               Suffix = cms.string('PF'),
                                )
 
 

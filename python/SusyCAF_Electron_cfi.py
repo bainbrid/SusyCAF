@@ -20,7 +20,7 @@ susycafpfelectron = cms.EDProducer("SusyCAF_PatElectron",
                                    InputTag = cms.InputTag('patAllElectronsPF'),
                                    SelectedElectrons = cms.InputTag('selectedPatElectronsPF'),
                                    Prefix = cms.string('electron'),
-                                   Suffix = cms.string('PFReco'),
+                                   Suffix = cms.string('PF'),
                                    StoreConversionInfo = cms.bool(True)
                                    )
 

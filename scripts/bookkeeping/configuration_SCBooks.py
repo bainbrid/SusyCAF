@@ -154,6 +154,7 @@ class lockedDB:
                 self.conn.commit()
                 print 'Saved'
                 webpage_SCBooks.write_webpage(self.conn,self.webpath,self.name)
+                self.git()
 
     def disconnect(self):
         input = raw_input("Save before disconnecting? [y]")
@@ -167,3 +168,19 @@ class lockedDB:
     def execute(self,one): return self.conn.execute(one)
     def cursor(self): return self.conn.cursor()
 
+    def git(self) :
+        cmd = '''
+#!/usr/bin/env bash
+which git &> /dev/null && (
+cd %(path)s
+(ls .git &> /dev/null && true || git init)
+git add %(sqlite)s %(html)s
+git commit -m "%(script)s" &> /dev/null
+true
+) || echo "git not found"
+'''%{'path': self.db_location,
+     'sqlite':self.db_file,
+     'html':self.webpath,
+     'script':' '.join(sys.argv)}
+        print
+        os.system(cmd)

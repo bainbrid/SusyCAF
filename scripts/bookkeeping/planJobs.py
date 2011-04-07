@@ -67,8 +67,8 @@ class planner:
             pars['isData'] = pars['isData'] in [True,'True',1,'1','y','Y','yes','Yes']
             if pars['isData'] :
                 if 'nonDefault' not in pars : pars['nonDefault'] = ''
-                if not pars['nonDefault'].count('jetCorrections') :
-                    pars['nonDefault'] += " jetCorrections=L2Relative,L3Absolute,L2L3Residual"
+                #if not pars['nonDefault'].count('jetCorrections') :
+                #    pars['nonDefault'] += " jetCorrections=L2Relative,L3Absolute,L2L3Residual"
         pars = dict(filter(lambda i: i[1]!='',pars.iteritems()))
         print '-'*10
         for key,val in pars.iteritems() : print key.ljust(10), " : ", val

@@ -107,7 +107,7 @@ def jsonDisplay(json) :
     minRun = min(runs)
     maxRun = max(runs)
     lumis = sum([1+pair[1]-pair[0] for pair in sum(djson.values(),[])])
-    jsonString = '\\{'+', '.join(['<br>&quot;%d&quot;: %s'%pair for pair in sorted([(eval(key),val) for key,val in djson.iteritems()])]) + '\\}'
+    jsonString = '\\{'+', '.join(['&quot;%d&quot;: %s'%pair for pair in sorted([(eval(key),val) for key,val in djson.iteritems()])]) + '\\}'
     return 'Run Range <a onclick="return pop(\'%s\')">(%d,%d)</a> %d lumis'%(jsonString,minRun,maxRun,lumis)
 
 def print_JOB(file,job) :

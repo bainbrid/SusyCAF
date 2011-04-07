@@ -1,7 +1,6 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/ProductReducer.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/fTypes.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h" 
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"

@@ -1,6 +1,5 @@
 #include <memory>
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalDeadChannels.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_EcalDeadChannels::SusyCAF_EcalDeadChannels(const edm::ParameterSet& conf) 
   : inputTag(conf.getParameter<edm::InputTag>("InputTag")),

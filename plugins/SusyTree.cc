@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/Selections.h"
 
 #include "boost/foreach.hpp"
-#include <TBranch.h>
 
 void SusyTree::
 analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

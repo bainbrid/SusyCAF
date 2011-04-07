@@ -1,6 +1,5 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Event.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_Event::SusyCAF_Event(const edm::ParameterSet& iConfig) {
   produces <bool>         ( "isRealData"  );

@@ -1,7 +1,5 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DCSBits.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 SusyCAF_DCSBits::SusyCAF_DCSBits(const edm::ParameterSet& iConfig)
 {

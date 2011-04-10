@@ -20,7 +20,7 @@ shortNames=[]
 xsecs=[]
 
 db_location = "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database"
-db_file = 'sqlite.db'
+db_file = 'sqlite2.db'
 
 db_path = db_location+'/'+db_file
 

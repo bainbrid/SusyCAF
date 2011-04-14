@@ -79,7 +79,6 @@ private:
   const bool produceExtraIdVars;
   const bool produceExtraSpikeVars;
   const edm::InputTag trackTag;
-  const std::string ecalRecHitProducer;
   const std::string ebRecHitCollection;
   const std::string eeRecHitCollection;
   const std::string hbheRecHitCollection;
@@ -98,7 +97,6 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
   , produceExtraIdVars   (iConfig.getParameter<bool>("ProduceExtraIdVars"))
   , produceExtraSpikeVars(iConfig.getParameter<bool>("ProduceExtraSpikeVars"))
   , trackTag(iConfig.getParameter<edm::InputTag>("TrackTag"))
-  , ecalRecHitProducer(iConfig.getParameter<std::string>("EcalRecHitProducer"))
   , ebRecHitCollection(iConfig.getParameter<std::string>("EbRecHitCollection"))
   , eeRecHitCollection(iConfig.getParameter<std::string>("EeRecHitCollection"))
   , hbheRecHitCollection(iConfig.getParameter<std::string>("HbheRecHitCollection"))
@@ -436,8 +434,8 @@ produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std:
   edm::Handle<EERecHitCollection> eeRecHits;
 
   if (produceExtraIdVars || produceExtraSpikeVars) {
-    iEvent.getByLabel(ecalRecHitProducer, ebRecHitCollection, ebRecHits);
-    iEvent.getByLabel(ecalRecHitProducer, eeRecHitCollection, eeRecHits);
+    iEvent.getByLabel(ebRecHitCollection, ebRecHits);
+    iEvent.getByLabel(eeRecHitCollection, eeRecHits);
   }
 
   if (produceExtraIdVars) {

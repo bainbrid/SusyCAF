@@ -139,7 +139,7 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
 	  '',
 	  '%s=PSet(' % shortName,
 	  '\tName=\"%s\",' % shortName,
-	  '\tFormat=(\"ICF\",2),',
+	  '\tFormat=(\"ICF\",3),',
 	  '\tFile=['
 	  ])
   outfile.write(header)

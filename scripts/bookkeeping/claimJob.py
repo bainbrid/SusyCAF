@@ -94,8 +94,8 @@ def setup_crab(job,option) :
              
     option["INITIAL"] = option["USER"][0]
     for key,val in SITE[option["SITE"]].items() :
-        if val is None : continue
-        option[key] = eval('\'\'\''+val+'\'\'\'%option')
+      if val is None : continue
+      option[key] = eval('\'\'\''+val+'\'\'\'%option')
 
     option["EVENTS"] = '''
 lumis_per_job=10
@@ -126,6 +126,7 @@ use_parent=%(USE_PARENT)s
 [GRID]
 virtual_organization=cms
 ce_white_list=%(WHITELIST)s
+ce_black_list=T2_US_Caltech
 
 [USER]
 copy_data=1

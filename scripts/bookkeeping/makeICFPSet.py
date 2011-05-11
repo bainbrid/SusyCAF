@@ -43,27 +43,29 @@ jobnumber = raw_input("\n\n\tWhich job?  ")
 
 #get path and short name from user's selected job
 for row in rows:
-	if jobnumber == str(row['rowid']):
-		datasets = (row['dataset']).split(',')
-		if len(datasets) > 1 :
-			for dset in datasets :
-				path = (row['rpath'])+'/'+string.replace(dset[1:], '/', '.')
-				paths.append(path)
-				shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
-				shortName = string.replace(shortName,'-','_')
-				shortNames.append(shortName)
-				xsecs.append(0.0)
-				#Would be nice if this information was in the database.
-		else :
-			dset = datasets[0]
-			path = (row['rpath'])
-			paths.append(path)
-			shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
-			shortName = string.replace(shortName,'-','_')
-			shortNames.append(shortName)
-			xsecs.append(0.0)
-		break
-		
+  if jobnumber == str(row['rowid']):
+    datasets = (row['dataset']).split(',')
+    if len(datasets) > 1 :
+      for dset in datasets :
+        path = (row['rpath'])+'/'+string.replace(dset[1:], '/', '.')
+        path = path.replace('rjn04','rnandi')
+        paths.append(path)
+        shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
+        shortName = string.replace(shortName,'-','_')
+        shortNames.append(shortName)
+        xsecs.append(0.0)
+        #Would be nice if this information was in the database.
+    else :
+      dset = datasets[0]
+      path = (row['rpath'])
+      path = path.replace('rjn04','rnandi')
+      paths.append(path)
+      shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
+      shortName = string.replace(shortName,'-','_')
+      shortNames.append(shortName)
+      xsecs.append(0.0)
+    break
+
 #disconect from database
 #db.disconnect()
 

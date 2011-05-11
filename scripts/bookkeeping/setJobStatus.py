@@ -2,7 +2,10 @@
 
 import configuration_SCBooks as conf,sys,os,readline,getpass
 
-user = getpass.getuser()
+#Connect to database
+userDef = getpass.getuser()
+user = raw_input("User? ["+userDef+"] :\n") 
+if user == "" :  user = userDef
 db = conf.lockedDB()
 db.connect()
 

@@ -12,7 +12,7 @@ import sqlite3
 
 #Connect to database
 userDef = getpass.getuser()
-user = raw_input("User? ["+userDef+"] :\n") 
+user = raw_input("User? ["+userDef+"] :\n")
 if user == "" :  user = userDef
 
 paths=[]
@@ -73,14 +73,14 @@ for row in rows:
 for path, shortName, xsec in zip(paths, shortNames, xsecs) :
 
   print "Generating " + shortName + '.py'
-  
 
-  
-  prefix = '\n' + '\t' +  "\"dcap://gfe02.grid.hep.ph.ic.ac.uk:22128/"# + path + '/'
+
+
+  prefix = '\n' + '\t' +  "\"dcap://gfe02.grid.hep.ph.ic.ac.uk"# + path + '/'
   suffix = '\" ,'
-  
-  method = raw_input("Use srmls? [n] :\n")  
-  
+
+  method = raw_input("Use srmls? [n] :\n")
+
   if method in ["y","yes"] : ### srmls
     offset = 0
     count = 100
@@ -97,7 +97,7 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
         print "\tError occured:"
         print temp
         break
-      #Find lines using regular expression 
+      #Find lines using regular expression
       lines = PathRE.findall(temp[1])
       #print lines
       #sys.exit()
@@ -105,61 +105,61 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
         output.append(line)
       print "Found %i files." % len(lines)
       if len(lines)<count :
-        break 
-      offset +=count  
+        break
+      offset +=count
     ##end loop
   ##end srmls
-  else : ###lcg-ls 
-	  temp = commands.getstatusoutput("lcg-ls srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=" + path + "/")
-	  #Succesful?
-	  if temp[0] != 0 :
-		  print "\tError occured:"
-		  print temp
-		  break
-	  #split up chunk of text in to array of filenames
-	  output = temp[1].split('\n')
-	##end lcg-ls 
-	
+  else : ###lcg-ls
+    temp = commands.getstatusoutput("lcg-ls srm://gfe02.grid.hep.ph.ic.ac.uk:8443/srm/managerv2?SFN=" + path + "/")
+    #Succesful?
+    if temp[0] != 0 :
+      print "\tError occured:"
+      print temp
+      break
+    #split up chunk of text in to array of filenames
+    output = temp[1].split('\n')
+  ##end lcg-ls
+
   output.sort()
 
   #Remove duplicate files
   toRemove = []
-  for i,line1 in enumerate(output[:-1]) : 
+  for i,line1 in enumerate(output[:-1]) :
     if (((line1.split('/'))[-1]).split('_'))[2] == (((output[i+1].split('/'))[-1]).split('_'))[2] :
       toRemove.append(i)
   toRemove.sort()
   toRemove.reverse()
   for i in toRemove :
-	  del output[i]
+    del output[i]
 
   #Write PSet
   outfile = open(shortName+'.py','w')
 
   #header
   header = '\n'.join([
-	  'from icf.core import PSet',
-	  '',
-	  '%s=PSet(' % shortName,
-	  '\tName=\"%s\",' % shortName,
-	  '\tFormat=(\"ICF\",3),',
-	  '\tFile=['
-	  ])
+    'from icf.core import PSet',
+    '',
+    '%s=PSet(' % shortName,
+    '\tName=\"%s\",' % shortName,
+    '\tFormat=(\"ICF\",3),',
+    '\tFile=['
+    ])
   outfile.write(header)
 
   #body
   filenames = []
-  for line in output : 
+  for line in output :
     line = line.rstrip()
-    line = prefix + line + suffix 
+    line = prefix + line + suffix
     filenames.append(line)
   for line in filenames :
     outfile.write(line)
 
   #footer
   footer = '\n'.join([
-	  '',
-	  '\t],',
-	  '\tCrossSection=%d,' % xsec,
-	  ')'
-	  ])
+    '',
+    '\t],',
+    '\tCrossSection=%d,' % xsec,
+    ')'
+    ])
   outfile.write(footer)

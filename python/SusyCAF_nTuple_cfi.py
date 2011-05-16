@@ -19,6 +19,7 @@ class SusyCAF(object) :
         self.process.susyTree = cms.EDAnalyzer("SusyTree", outputCommands = cms.untracked.vstring(
             'drop *',
             'keep *_susycaf*_*_*',
+            'keep double_kt6PFJets_rho_%s'%self.process.name_(),
             'keep double_susyScan*_*_*') + (
             ["drop %s"%s for s in SusyCAF_Drop_cfi.drop(self.options.dropMore)] +
             ["keep %s"%s for s in SusyCAF_Drop_cfi.keep()]) +

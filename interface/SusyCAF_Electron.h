@@ -246,12 +246,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 
  const  MagneticField *mField = 0;
  edm::Handle<reco::TrackCollection> ctfTracks;
+ edm::Handle<reco::GsfTrackCollection> gsfTracks;
  ConversionFinder cf;
  if(StoreConversionInfo){
    edm::ESHandle<MagneticField> magneticField;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
    mField = magneticField.product();
    iEvent.getByLabel("generalTracks", ctfTracks);
+   iEvent.getByLabel("electronGsfTracks", gsfTracks);
  }
 
   edm::Handle<std::vector<T> > selectedHandle;
@@ -322,13 +324,13 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      vertex->push_back(it->vertex());
      vertexChi2->push_back(it->vertexChi2());
      vertexNdof->push_back(it->vertexNdof());
-     if(StoreConversionInfo && ctfTracks.isValid()){
+     if(StoreConversionInfo && ctfTracks.isValid() && gsfTracks.isValid()){
 	*conversionInfoStored = true;
 	
        const math::XYZPoint tpoint = it->gsfTrack()->referencePoint();
        const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
        double bfield = mField->inTesla(gp).mag();
-       ConversionInfo info = cf.getConversionInfo(*it, ctfTracks, bfield);
+       ConversionInfo info = cf.getConversionInfo(*it, ctfTracks, gsfTracks, bfield);
        dist->push_back(info.dist());
        dcot->push_back(info.dcot());
 	missingHits->push_back(it->gsfTrack()->trackerExpectedHitsInner().numberOfHits());

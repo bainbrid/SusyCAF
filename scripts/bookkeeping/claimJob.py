@@ -126,7 +126,6 @@ use_parent=%(USE_PARENT)s
 [GRID]
 virtual_organization=cms
 ce_white_list=%(WHITELIST)s
-ce_black_list=T2_US_Caltech
 
 [USER]
 copy_data=1

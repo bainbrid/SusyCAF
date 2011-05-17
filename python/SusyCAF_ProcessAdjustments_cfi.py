@@ -6,6 +6,8 @@ def loadAndConfigureHcalSeverityLevelProducer(process, isData) :
         process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
         process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
 
+def loadAndConfigureEcalSeverityLevelProducer(process) :
+    process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 def messageLogger(process,quiet) :
     if quiet :

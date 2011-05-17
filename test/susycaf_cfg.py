@@ -14,6 +14,7 @@ from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import SusyCAF
 import SUSYBSMAnalysis.SusyCAF.SusyCAF_ProcessAdjustments_cfi as adjust
 adjust.messageLogger(process,options.quiet)
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.isData)
+adjust.loadAndConfigureEcalSeverityLevelProducer(process)
 
 process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process)

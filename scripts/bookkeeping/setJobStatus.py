@@ -3,11 +3,10 @@
 import configuration_SCBooks as conf,sys,os,readline,getpass
 
 #Connect to database
-userDef = getpass.getuser()
-user = raw_input("User? ["+userDef+"] :\n") 
-if user == "" :  user = userDef
+user = getpass.getuser() if len(sys.argv)<2 else sys.argv[1]
 db = conf.lockedDB()
 db.connect()
+print "Showing jobs for user %s."%user
 
 rows = db.execute('''select job.rowid,state,path,dataset
                      from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid

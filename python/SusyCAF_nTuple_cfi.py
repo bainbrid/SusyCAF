@@ -71,8 +71,11 @@ class SusyCAF(object) :
     def pat(self) :
         for module in ['MET','Photon','PFTau'] :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
-        return ( self.patJet() + self.patLepton('Electron') + self.patLepton('Muon') +
-                 self.evalSequence('susycaf%s',  ['tau','HPStau','pftau','photon']) +
+        return ( self.patJet() +
+                 self.patLepton('Electron') + self.patLepton('Muon') +
+                 self.evalSequence('susycaf%s',  ['tau',
+                                                  #'HPStau',
+                                                  'pftau','photon']) +
                  self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC'])
                  )
 

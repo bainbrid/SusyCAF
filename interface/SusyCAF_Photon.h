@@ -85,7 +85,9 @@ private:
 
   typedef reco::Candidate::LorentzVector  LorentzVector;
   typedef reco::Candidate::Vector         Vector;
+  typedef math::XYZVectorF                VectorF;
   typedef reco::Candidate::Point          Point;
+  typedef math::XYZPointF                 PointF;
 };
 
 template< typename T >
@@ -110,7 +112,7 @@ void SusyCAF_Photon<T>::initRECO()
 {
   produces <bool                        >(prefix + "HandleValid"          + suffix);
   produces <std::vector<LorentzVector > >(prefix + "P4"                   + suffix);
-  produces <std::vector<Point         > >(prefix + "CaloPosition"         + suffix);
+  produces <std::vector<PointF        > >(prefix + "CaloPosition"         + suffix);
   produces <std::vector<float         > >(prefix + "HadronicDepth1OverEm" + suffix);
   produces <std::vector<float         > >(prefix + "HadronicDepth2OverEm" + suffix);
   produces <std::vector<float         > >(prefix + "HadronicOverEm"       + suffix);
@@ -138,8 +140,8 @@ void SusyCAF_Photon<T>::initRECO()
 
   produces <std::vector<int   > >(prefix + "NConversions"         + suffix);
   produces <std::vector<float > >(prefix + "AllConversionTracksSumPt" + suffix);
-  produces <std::vector<Vector> >(prefix + "BestConversionTrack0P3" + suffix);
-  produces <std::vector<Vector> >(prefix + "BestConversionTrack1P3" + suffix);
+  produces <std::vector<VectorF> >(prefix + "BestConversionTrack0P3" + suffix);
+  produces <std::vector<VectorF> >(prefix + "BestConversionTrack1P3" + suffix);
   produces <std::vector<Point > >(prefix + "BestConversionVertex" + suffix);
   produces <std::vector<float > >(prefix + "BestConversionEoverP" + suffix);
   produces <std::vector<float > >(prefix + "BestConversionMass"   + suffix);
@@ -203,7 +205,6 @@ void SusyCAF_Photon<T>::initExtra()
   }
 
   if (produceExtraSpikeVars) {
-    produces <std::vector<float> >  (prefix + "SwissCross"   + suffix);
     produces <std::vector<float> >  (prefix + "E2overE9"     + suffix);
     produces <std::vector<float> >  (prefix + "SeedTime"     + suffix);
     produces <std::vector<float> >  (prefix + "Time2"        + suffix);
@@ -244,7 +245,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 {
   std::auto_ptr<bool                        > isHandleValid       ( new bool(collection.isValid())    );
   std::auto_ptr<std::vector<LorentzVector > > p4                  ( new std::vector<LorentzVector >() );
-  std::auto_ptr<std::vector<Point> > caloPosition        ( new std::vector<Point>() );
+  std::auto_ptr<std::vector<PointF> >caloPosition        ( new std::vector<PointF>() );
   std::auto_ptr<std::vector<float> > hadronicDepth1OverEm( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > hadronicDepth2OverEm( new std::vector<float>() );
   std::auto_ptr<std::vector<float> > hadronicOverEm      ( new std::vector<float>() );
@@ -272,8 +273,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 
   std::auto_ptr<std::vector<int  > > nConversions        ( new std::vector<int  >() );
   std::auto_ptr<std::vector<float  > > allConversionTracksSumPt ( new std::vector<float  >() );
-  std::auto_ptr<std::vector<Vector > > bestConvTrack0P3   ( new std::vector<Vector >() );
-  std::auto_ptr<std::vector<Vector > > bestConvTrack1P3   ( new std::vector<Vector >() );
+  std::auto_ptr<std::vector<VectorF> > bestConvTrack0P3   ( new std::vector<VectorF>() );
+  std::auto_ptr<std::vector<VectorF> > bestConvTrack1P3   ( new std::vector<VectorF>() );
   std::auto_ptr<std::vector<Point  > > bestConvVertex     ( new std::vector<Point >() );
   std::auto_ptr<std::vector<float  > > bestConvEoverP     ( new std::vector<float >() ); 
   std::auto_ptr<std::vector<float  > > bestConvMass       ( new std::vector<float >() );
@@ -343,8 +344,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       
       nConversions->push_back(nConv);
       allConversionTracksSumPt->push_back(tracksSumPt);
-      bestConvTrack0P3->push_back(bestConv.isNull() ? Vector() : bestConv->tracksPin()[0]);
-      bestConvTrack1P3->push_back(bestConv.isNull() ? Vector() : bestConv->tracksPin()[1]);
+      bestConvTrack0P3->push_back(bestConv.isNull() ? VectorF() : bestConv->tracksPin()[0]);
+      bestConvTrack1P3->push_back(bestConv.isNull() ? VectorF() : bestConv->tracksPin()[1]);
       bestConvVertex ->push_back(bestConv.isNull() ? Point() : bestConv->conversionVertex().position());
       bestConvEoverP ->push_back(bestConv.isNull() ? 0 : bestConv->EoverP());
       bestConvMass   ->push_back(bestConv.isNull() ? 0 : bestConv->pairInvariantMass());
@@ -686,7 +687,6 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
 			  )
 
 {
-  std::auto_ptr<std::vector<float> > SwissCross   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e2overE9   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > SeedTime   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > Time2   (new std::vector<float>());
@@ -701,6 +701,7 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
   const CaloTopology *topo = topology.product();
 
   if ( photons.isValid() && topology.isValid() && ebRecHits.isValid() && eeRecHits.isValid() ) {
+
     for (typename std::vector<T>::const_iterator it = photons->begin(); 
 	 it != photons->end(); ++it) {
       const reco::Photon& photon = *it;
@@ -711,7 +712,6 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (subdet == EcalBarrel) ecalRecHits = ebRecHits.product();
       if (subdet == EcalEndcap) ecalRecHits = eeRecHits.product();
       DetId id = scluster->seed()->seed();
-      SwissCross -> push_back(EcalSeverityLevelAlgo::swissCross(id, *ecalRecHits, 0., false));
       SeedTime   -> push_back(ecalRecHits->find(id)->time());
       float e2 = -1;
       EBDetId id2 = 0;
@@ -750,7 +750,6 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
     }//end loop over photons
   }//end if photons valid
 
-  iEvent.put(SwissCross              , prefix + "SwissCross"                 + suffix);
   iEvent.put(e2overE9                , prefix + "E2overE9"                   + suffix);
   iEvent.put(SeedTime                , prefix + "SeedTime"                   + suffix);
   iEvent.put(Time2                   , prefix + "Time2"                      + suffix);

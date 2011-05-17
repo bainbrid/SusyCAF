@@ -317,7 +317,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      caloEnergy->push_back(it->caloEnergy());
      ecalEnergy->push_back(it->ecalEnergy());
      ecalEnergyError->push_back(it->ecalEnergyError());
-     electronMomentumError->push_back(it->electronMomentumError());
+     electronMomentumError->push_back(it->p4Error(it->candidateP4Kind()));
      numberOfTracks->push_back(it->numberOfTracks());
      numberOfBrems->push_back(it->numberOfBrems());
      shFracInnerHits->push_back(it->shFracInnerHits());

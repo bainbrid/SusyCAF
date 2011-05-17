@@ -6,6 +6,7 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,15 +34,13 @@ void SusyCAF_EcalRecHit::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::auto_ptr<std::vector<unsigned> >      flagWord      (new std::vector<unsigned> () );
   std::auto_ptr<std::vector<int> >           severityLevel (new std::vector<int>      () );
 
-  //Examples:  https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalFirstBeam09Anomalous
-  
   edm::Handle<EcalRecHitCollection> collection;  iEvent.getByLabel(inputTag, collection);
   if (collection.isValid()) {
-    edm::ESHandle<EcalChannelStatus> channelStatus;   iSetup.get<EcalChannelStatusRcd>().get(channelStatus);
+    edm::ESHandle<EcalSeverityLevelAlgo> severityLevelAlgo; iSetup.get<EcalSeverityLevelAlgoRcd>().get(severityLevelAlgo);
     edm::ESHandle<CaloGeometry> caloGeometry;         iSetup.get<CaloGeometryRecord>().get(caloGeometry);
 
     for(EcalRecHitCollection::const_iterator it = collection->begin(); it != collection->end(); ++it) {
-      const int theSeverityLevel = EcalSeverityLevelAlgo::severityLevel(it->detid(),*collection,*channelStatus);
+      const int theSeverityLevel = severityLevelAlgo->severityLevel(it->detid(),*collection);
       if (theSeverityLevel >= severityLevelCut) {
   
   	const GlobalPoint& point = caloGeometry->getPosition(it->detid());

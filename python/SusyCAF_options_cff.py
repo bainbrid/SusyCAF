@@ -31,8 +31,8 @@ def options() :
     options._tagOrder =[] # weird, but something to do with options.output
 
     defaultGT,defaultFile = (
-        [('START41_V0::All','/store/relval/CMSSW_4_1_2/RelValTTbar_Tauola/GEN-SIM-RECO/START311_V2_PU_E7TeV_AVE_2_BX156-v1/0028/104008AF-9846-E011-A794-0026189438EB.root'),
-         ('GR_R_41_V0::All','/store/data/Run2011A/MultiJet/AOD/PromptReco-v1/000/160/943/06FEF977-FD54-E011-B367-001D09F2438A.root')]
+        [('START42_V12::All','/store/relval/CMSSW_4_2_3/RelValTTbar_Tauola/GEN-SIM-RECO/START42_V12_PU_E7TeV_FlatDist10_2011EarlyData_inTimeOnly-v1/0072/16CE5EEA-B47C-E011-85A9-00248C0BE005.root'),
+         ('GR_R_42_V14::All','/store/data/Run2011A/MultiJet/AOD/PromptReco-v4/000/165/099/688A4436-D17F-E011-8580-0030487CBD0A.root')]
         )[options.isData]
     options.files = options.files if options.files else defaultFile
     options.GlobalTag = options.GlobalTag if options.GlobalTag else defaultGT

@@ -22,7 +22,7 @@ def options() :
     options.register('SourceName', info = "'S:stream' or 'DS:dataset' to store those HLT paths", mytype = VP.varType.string,)
     options.register('jetCollections', default = ['ak5calo','ak5pf','ak5pf2pat','ak7calo','ak7pf','ak7pf2pat'],
                      info = "jet types to store", mult = VP.multiplicity.list, mytype = VP.varType.string)
-    options.register('jetCorrections', default = ['L2Relative','L3Absolute'],
+    options.register('jetCorrections', default = ['L1FastJet','L2Relative','L3Absolute'],
                      info = "jet correction levels to apply", mult = VP.multiplicity.list, mytype = VP.varType.string)
 
     __hack_ListVarparsingBug__( options, 'jetCollections')

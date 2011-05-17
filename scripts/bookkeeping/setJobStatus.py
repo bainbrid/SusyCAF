@@ -2,10 +2,9 @@
 
 import configuration_SCBooks as conf,sys,os,readline,getpass
 
-#Connect to database
-user = getpass.getuser() if len(sys.argv)<2 else sys.argv[1]
 db = conf.lockedDB()
 db.connect()
+user = getpass.getuser() if len(sys.argv)<2 else sys.argv[1]
 print "Showing jobs for user %s."%user
 
 rows = db.execute('''select job.rowid,state,path,dataset

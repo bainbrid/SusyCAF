@@ -94,8 +94,8 @@ def setup_crab(job,option) :
              
     option["INITIAL"] = option["USER"][0]
     for key,val in SITE[option["SITE"]].items() :
-      if val is None : continue
-      option[key] = eval('\'\'\''+val+'\'\'\'%option')
+        if val is None : continue
+        option[key] = eval('\'\'\''+val+'\'\'\'%option')
 
     option["EVENTS"] = '''
 lumis_per_job=10

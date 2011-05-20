@@ -81,6 +81,9 @@ def susyPat(process,options) :
 
 def addHbheNoiseFilterResult(process) :
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
+    process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumE = 999999.0
+    process.HBHENoiseFilterResultProducer.minNumIsolatedNoiseChannels = 999999
+    process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumEt = 999999.0
     process.hcalNoiseSummaryExists = cms.EDFilter('SusyCAF_HcalNoiseSummaryExists')
     return cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer)
 

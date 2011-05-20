@@ -6,6 +6,8 @@ def loadAndConfigureHcalSeverityLevelProducer(process, isData) :
         process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
         process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
 
+def loadAndConfigureEcalSeverityLevelProducer(process) :
+    process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 def messageLogger(process,quiet) :
     if quiet :
@@ -79,6 +81,9 @@ def susyPat(process,options) :
 
 def addHbheNoiseFilterResult(process) :
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
+    process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumE = 999999.0
+    process.HBHENoiseFilterResultProducer.minNumIsolatedNoiseChannels = 999999
+    process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumEt = 999999.0
     process.hcalNoiseSummaryExists = cms.EDFilter('SusyCAF_HcalNoiseSummaryExists')
     return cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer)
 

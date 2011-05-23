@@ -74,7 +74,7 @@ class SusyCAF(object) :
         return ( self.patJet() +
                  self.patLepton('Electron') + self.patLepton('Muon') +
                  self.evalSequence('susycaf%s',  ['tau',
-                                                  #'HPStau',
+                                                  'HPStau',
                                                   'pftau','photon']) +
                  self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC'])
                  )

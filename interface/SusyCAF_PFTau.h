@@ -16,7 +16,7 @@ using namespace std;
 template< typename T >
 class SusyCAF_PFTau : public edm::EDProducer {
  public: 
-  explicit SusyCAF_PFTau(const edm::ParameterSet&);
+ explicit SusyCAF_PFTau(const edm::ParameterSet&);
  private:
   void initTemplate();
   void initRECO();
@@ -149,8 +149,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation",LIso);
     iEvent.getByLabel("hpsPFTauDiscriminationByMediumIsolation",MIso);
     iEvent.getByLabel("hpsPFTauDiscriminationByTightIsolation",TIso); 
-    iEvent.getByLabel("hpsPFTauDiscriminationAgainstElectron" ,AgEle);
-    iEvent.getByLabel("hpsPFTauDiscriminationAgainstMuon",AgMu);
+    iEvent.getByLabel("hpsPFTauDiscriminationByMediumElectronRejection" ,AgEle);
+    iEvent.getByLabel("hpsPFTauDiscriminationByLooseMuonRejection",AgMu);
     discr.push_back(*AgEle);
     discr.push_back(*AgMu);
     discr.push_back(*Decay);

@@ -16,5 +16,6 @@ addpkg RecoJets/JetProducers        V05-05-03
 # tau update
 addpkg DataFormats/TauReco          V01-00-07-01
 addpkg RecoTauTag/TauTagTools       V01-00-12
+addpkg RecoTauTag/RecoTau           V01-00-33-06 
 
-cvs co -rV15-03-00 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV15-03-01 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

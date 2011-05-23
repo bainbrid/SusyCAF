@@ -86,6 +86,8 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
   produces <std::vector<unsigned> > ( Prefix + "NumberOfMatches" + Suffix );
+  //MICHELE
+  produces <std::vector<double> > (  Prefix + "SigmaPt" + Suffix);
 }
 
 // extra information stored for PAT data
@@ -176,6 +178,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  hasOverlap   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<unsigned> >  numberOfMatches   ( new std::vector<unsigned>()  ) ;
+  //MICHELE
+  std::auto_ptr<std::vector<double> > sigmapt ( new std::vector<double>()  ) ;
 
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
   math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
@@ -245,6 +249,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
+	 //MICHELE
+      sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
+
     }
   }
   
@@ -283,6 +290,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
   iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );
+  //MICHELE
+  iEvent.put(sigmapt,Prefix + "SigmaPt" + Suffix );   
 }
 
 

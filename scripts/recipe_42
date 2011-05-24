@@ -4,9 +4,10 @@ cmsenv
 
 
 # susypat
-addpkg PhysicsTools/PatAlgos     V08-06-24
-addpkg MuonAnalysis/MuonAssociators       V01-13-00
-addpkg PhysicsTools/Configuration         V00-10-10
+addpkg PhysicsTools/Configuration    V00-10-11
+addpkg PhysicsTools/PatExamples      V00-05-17
+addpkg PhysicsTools/PatAlgos         V08-06-25
+addpkg MuonAnalysis/MuonAssociators  V01-13-00
 
 # For deterministic FastJet-rho
 addpkg RecoJets/Configuration       V02-04-16

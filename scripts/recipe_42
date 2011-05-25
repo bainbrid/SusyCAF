@@ -4,7 +4,7 @@ cmsenv
 
 
 # susypat
-addpkg PhysicsTools/Configuration    V00-10-12
+addpkg PhysicsTools/Configuration    V00-10-13
 addpkg PhysicsTools/PatAlgos         V08-06-25
 addpkg MuonAnalysis/MuonAssociators  V01-13-00
 

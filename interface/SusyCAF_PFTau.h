@@ -67,6 +67,7 @@ void SusyCAF_PFTau<T>::initRECO()
   produces <std::vector<double> > (Prefix + "SumPtIsoPFNeutCands" + Suffix);
   produces <std::vector<double> > (Prefix + "NeutCandsTotEnergy" + Suffix);
   produces <std::vector<double> > (Prefix + "NeutCandsHoverHPlusE" + Suffix);
+  
 
   if (hps){
       produces <std::vector<int> > (Prefix + "TauIdagainstElectron" + Suffix);
@@ -91,7 +92,6 @@ void SusyCAF_PFTau<T>::initPAT()
   produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
   produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
   produces <std::vector<float> > (Prefix + "PhotonIso" + Suffix);
-
   produces <std::vector<float> > (Prefix + "TauIdbyIsolation" + Suffix);
   produces <std::vector<float> > (Prefix + "TauIdbyTaNC" + Suffix);
   produces <std::vector<float> > (Prefix + "TauIdbyTaNCfrHalfPercent" + Suffix);
@@ -166,7 +166,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
       p4->push_back(it->p4());
       charge->push_back(it->charge());
-      vertex->push_back(it->vertex());
+         
+      if (it->signalPFChargedHadrCands().size()>0){
+         if (it->signalPFChargedHadrCands().begin()->isNonnull()) { 
+            if ((*it->signalPFChargedHadrCands().begin())->trackRef().isNonnull()){
+               vertex->push_back((*it->signalPFChargedHadrCands().begin())->trackRef()->vertex());
+            }else vertex->push_back(it->vertex());
+         } else vertex->push_back(it->vertex());
+      } else vertex->push_back(it->vertex());
       
       numSigTrks->push_back(it->signalTracks().size());
       numIsoTrks->push_back((it->isolationTracks()).size());

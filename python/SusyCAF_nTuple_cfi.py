@@ -91,7 +91,11 @@ class SusyCAF(object) :
         return selectors + sum(modules, self.empty)
 
     def patJet(self) :
-        self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi')
+        import SUSYBSMAnalysis.SusyCAF.SusyCAF_Jet_cfi as jets
+        for mod in filter(lambda mod: mod.startswith('susycaf'), dir(jets)) :
+            if mod.endswith('reco') : exec('self.process.%s = jets.%s'%(mod,mod))
+            else : exec('self.process.%s = jets.%s.clone( JetCorrections = [%s])'%(mod,mod,','.join(["'%s'"%s for s in self.options.jetCorrections])))
+                
         modules = [getattr(self.process,('susycaf%sjet'+['Matched',''][self.options.isData])%algo) for algo in self.options.jetCollections]
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Selection.selectors_cfi import patJetSelector
         selectors = self.process.SusyCAFPatJetSelectors = cms.Sequence()

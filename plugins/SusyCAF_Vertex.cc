@@ -81,7 +81,7 @@ produce(edm::Event& event, const edm::EventSetup& )
   event.put( chi2, prefix+"Chi2"+suffix);
   event.put( ndof, prefix+"Ndof"+suffix);
   event.put( isFake, prefix+"IsFake"+suffix);
-  event.put( sumWs, prefix+"SumW"+suffix);
+  event.put( sumWs, prefix+"SumWeight"+suffix);
   event.put( sumPts, prefix+"SumPt"+suffix);
   event.put( sumWPts, prefix+"SumWPt"+suffix);
   event.put( sumPt2s, prefix+"SumPt2"+suffix);

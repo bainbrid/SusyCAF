@@ -16,6 +16,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Triggers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_MET.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_SumP4.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Jet.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Photon.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Electron.h"
@@ -81,6 +82,7 @@ DEFINE_FWK_MODULE(SusyCAF_GenMET);
 DEFINE_FWK_MODULE(SusyCAF_CaloMET);
 DEFINE_FWK_MODULE(SusyCAF_PFMET);
 DEFINE_FWK_MODULE(SusyCAF_PatMET);
+DEFINE_FWK_MODULE(SusyCAF_SumP4);
 DEFINE_FWK_MODULE(SusyCAF_PFJet);
 DEFINE_FWK_MODULE(SusyCAF_JPTJet);
 DEFINE_FWK_MODULE(SusyCAF_CaloJet);

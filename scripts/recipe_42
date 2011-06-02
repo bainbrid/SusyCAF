@@ -18,4 +18,4 @@ addpkg DataFormats/TauReco          V01-00-07-01
 addpkg RecoTauTag/TauTagTools       V01-00-12
 addpkg RecoTauTag/RecoTau           V01-00-33-06 
 
-cvs co -rV15-03-02 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV15-03-03 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

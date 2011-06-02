@@ -166,15 +166,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
     for(typename std::vector<T>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
       p4->push_back(it->p4());
       charge->push_back(it->charge());
-         
-      if (it->signalPFChargedHadrCands().size()>0){
-         if (it->signalPFChargedHadrCands().begin()->isNonnull()) { 
-            if ((*it->signalPFChargedHadrCands().begin())->trackRef().isNonnull()){
-               vertex->push_back((*it->signalPFChargedHadrCands().begin())->trackRef()->vertex());
-            }else vertex->push_back(it->vertex());
-         } else vertex->push_back(it->vertex());
-      } else vertex->push_back(it->vertex());
       
+      bool pfVertex = (it->signalPFChargedHadrCands().size() && 
+		       it->signalPFChargedHadrCands().begin()->isNonnull() &&
+		       (*it->signalPFChargedHadrCands().begin())->trackRef().isNonnull() );
+      vertex->push_back( !pfVertex ? it->vertex() : (*it->signalPFChargedHadrCands().begin())->trackRef()->vertex() );
+         
       numSigTrks->push_back(it->signalTracks().size());
       numIsoTrks->push_back((it->isolationTracks()).size());
       numSigPFNeuHadCands->push_back((it->signalPFNeutrHadrCands()).size());

@@ -51,6 +51,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidTrackerHits" + Suffix);
 
   produces <std::vector<int> > (Prefix + "Selected" + Suffix );
 
@@ -65,12 +66,14 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<double> > (  Prefix + "InnerTrackDxyBS" + Suffix);
   produces <std::vector<double> > (  Prefix + "InnerTrackDz" + Suffix);
   produces <std::vector<double> > (  Prefix + "InnerTrackDzBS" + Suffix);
+  produces <std::vector<double> > (  Prefix + "InnerTrackVertexz" + Suffix);
   produces <std::vector<double> > (  Prefix + "InnerTrackDxyError" + Suffix);
   produces <std::vector<double> > (  Prefix + "InnerTrackDzError" + Suffix);
 
   produces <std::vector<double> > (  Prefix + "InnerTrackNormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "InnerTrackNumberOfValidHits" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "NumberOfValidPixelHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "NumberOfPixelLayersWithMeasurement" + Suffix);
 
   produces <std::vector<double> > (  Prefix + "OuterTrackNormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "OuterTrackNumberOfValidHits" + Suffix);
@@ -149,6 +152,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  selected     ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidTrackerHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dz   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxyBS   ( new std::vector<double>()  ) ;
@@ -158,10 +162,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  innerTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    innerTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    pixel_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    pixel_LayersWithMeasurement   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dz   ( new std::vector<double>()  ) ;
+  std::auto_ptr<std::vector<double> >  innerTrack_vertexz   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dzBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dzError   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  outerTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -233,19 +239,21 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_dzError->push_back( global? it->globalTrack()->dzError() : -10000);
       globalTrack_normalizedChi2->push_back( global? it->globalTrack()->normalizedChi2() : -1);
       globalTrack_numberOfValidHits->push_back( global? it->globalTrack()->numberOfValidHits() : 0);
+      globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
 
       bool inner = it->innerTrack().isNonnull();
       if(inner && vertices.isValid() && vertices->size()) vx = SusyCAF_functions::closestDzPrimaryVertexPosition(it->innerTrack().get(),*vertices);
-      innerTrack_dxy->push_back( inner? it->innerTrack()->dxy(vx) : 999999999.);
+      innerTrack_dxy->push_back( inner? it->innerTrack()->dxy(vx) : 999999999.); 
       innerTrack_dz->push_back( inner? it->innerTrack()->dz(vx) : 999999999.);
       innerTrack_dxyBS->push_back( inner? it->innerTrack()->dxy(bs) : 999999999.);
       innerTrack_dzBS->push_back( inner? it->innerTrack()->dz(bs) : 999999999.);
+      innerTrack_vertexz->push_back( inner? it->innerTrack()->vertex().z() : 999999999.);
       innerTrack_dxyError->push_back( inner? it->innerTrack()->dxyError() : -10000);
       innerTrack_dzError->push_back( inner? it->innerTrack()->dzError() : -10000);
       innerTrack_normalizedChi2->push_back( inner? it->innerTrack()->normalizedChi2() : -1);
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
-      pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0);
-
+      pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0); 
+      pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
@@ -261,6 +269,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( selected, Prefix + "Selected" + Suffix );
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );
   iEvent.put( globalTrack_numberOfValidHits,  Prefix + "GlobalTracknumberOfValidHits" + Suffix );
+  iEvent.put( globalTrack_numberOfValidTrackerHits,  Prefix + "GlobalTracknumberOfValidTrackerHits" + Suffix );
   iEvent.put( globalTrack_dxy,  Prefix + "GlobalTrackDxy" + Suffix );
   iEvent.put( globalTrack_dz,  Prefix + "GlobalTrackDz" + Suffix );
   iEvent.put( globalTrack_dxyBS,  Prefix + "GlobalTrackDxyBS" + Suffix );
@@ -271,11 +280,13 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( innerTrack_dz,  Prefix + "InnerTrackDz" + Suffix );
   iEvent.put( innerTrack_dxyBS,  Prefix + "InnerTrackDxyBS" + Suffix );
   iEvent.put( innerTrack_dzBS,  Prefix + "InnerTrackDzBS" + Suffix );
+  iEvent.put( innerTrack_vertexz,  Prefix + "InnerTrackVertexz" + Suffix );
   iEvent.put( innerTrack_dxyError,  Prefix + "InnerTrackDxyError" + Suffix );
   iEvent.put( innerTrack_dzError,  Prefix + "InnerTrackDzError" + Suffix );
   iEvent.put( innerTrack_normalizedChi2,  Prefix + "InnerTrackNormalizedChi2" + Suffix );
   iEvent.put( innerTrack_numberOfValidHits,  Prefix + "InnerTrackNumberOfValidHits" + Suffix );
   iEvent.put( pixel_numberOfValidHits,  Prefix + "NumberOfValidPixelHits" + Suffix );
+  iEvent.put( pixel_LayersWithMeasurement,  Prefix + "NumberOfPixelLayersWithMeasurement" + Suffix );
   iEvent.put( outerTrack_normalizedChi2,  Prefix + "OuterTrackNormalizedChi2" + Suffix );
   iEvent.put( outerTrack_numberOfValidHits,  Prefix + "OuterTrackNumberOfValidHits" + Suffix );
   iEvent.put( caloCompatibility,  Prefix + "CaloCompatibility" + Suffix );

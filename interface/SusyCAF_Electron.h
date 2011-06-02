@@ -76,6 +76,7 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<double> > (  Prefix + "GsfTrackDz" + Suffix);
  produces <std::vector<double> > (  Prefix + "GsfTrackDxyBS" + Suffix);
  produces <std::vector<double> > (  Prefix + "GsfTrackDzBS" + Suffix);
+ produces <std::vector<double> > (  Prefix + "GsfTrackVertexz" + Suffix);
  produces <std::vector<double> > (  Prefix + "GsfTrackDxyError" + Suffix);
  produces <std::vector<double> > (  Prefix + "GsfTrackDzError" + Suffix);
 
@@ -178,6 +179,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<double> >  gsfTrack_dz      ( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dxyBS   ( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dzBS    ( new std::vector<double>()  ) ;
+ std::auto_ptr<std::vector<double> >  gsfTrack_vertexz ( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dxyError( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dzError ( new std::vector<double>()  ) ;
 
@@ -274,6 +276,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      gsfTrack_dz->push_back(it->gsfTrack()->dz(vx));
      gsfTrack_dxyBS->push_back(it->gsfTrack()->dxy(bs));
      gsfTrack_dzBS->push_back(it->gsfTrack()->dz(bs));
+     gsfTrack_vertexz->push_back(it->gsfTrack()->vertex().z());
      gsfTrack_dxyError->push_back(it->gsfTrack()->dxyError());
      gsfTrack_dzError->push_back(it->gsfTrack()->dzError());
 
@@ -357,6 +360,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put( gsfTrack_dz,   Prefix + "GsfTrackDz" + Suffix );
  iEvent.put( gsfTrack_dxyBS,  Prefix + "GsfTrackDxyBS" + Suffix );
  iEvent.put( gsfTrack_dzBS,   Prefix + "GsfTrackDzBS" + Suffix );
+ iEvent.put( gsfTrack_vertexz,   Prefix + "GsfTrackVertexz" + Suffix );
  iEvent.put( gsfTrack_dxyError,  Prefix + "GsfTrackDxyError" + Suffix );
  iEvent.put( gsfTrack_dzError,   Prefix + "GsfTrackDzError" + Suffix );
 

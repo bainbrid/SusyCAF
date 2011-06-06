@@ -48,6 +48,9 @@ void SusyCAF_Muon<T>::initRECO()
 {
   produces <bool> (  Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "InnerTrackP" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "GlobalTrackP" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "OuterTrackP" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
@@ -147,6 +150,9 @@ void SusyCAF_Muon<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > innerTrackP ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > globalTrackP ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > outerTrackP ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  selected     ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -238,6 +244,11 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_normalizedChi2->push_back( global? it->globalTrack()->normalizedChi2() : -1);
       globalTrack_numberOfValidHits->push_back( global? it->globalTrack()->numberOfValidHits() : 0);
       globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
+      LorentzVector tmpGlbP;
+      if (global) { 
+	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.);
+	globalTrackP->push_back(tmpGlbP);
+      }
 
       bool inner = it->innerTrack().isNonnull();
       if(inner && vertices.isValid() && vertices->size()) vx = SusyCAF_functions::closestDzPrimaryVertexPosition(it->innerTrack().get(),*vertices);
@@ -252,9 +263,20 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
       pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0); 
       pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
+      LorentzVector tmpInrP; 
+      if (inner) { 
+	tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.);
+	innerTrackP->push_back(tmpInrP); 
+      }
+
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
+      LorentzVector tmpOtrP; 
+      if (outer) { 
+	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.);
+	outerTrackP->push_back(tmpOtrP);
+      }
       sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
 
     }
@@ -262,6 +284,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix );
+  iEvent.put( innerTrackP,  Prefix + "InnerTrackP" + Suffix );
+  iEvent.put( globalTrackP,  Prefix + "GlobalTrackP" + Suffix );
+  iEvent.put( outerTrackP,  Prefix + "OuterTrackP" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
   iEvent.put( selected, Prefix + "Selected" + Suffix );
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );

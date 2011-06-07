@@ -49,9 +49,9 @@ void SusyCAF_Muon<T>::initRECO()
 {
   produces <bool> (  Prefix + "HandleValid" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4" + Suffix );
-  produces <std::vector<LorentzVector> > ( Prefix + "InnerTrackP" + Suffix );
-  produces <std::vector<LorentzVector> > ( Prefix + "GlobalTrackP" + Suffix );
-  produces <std::vector<LorentzVector> > ( Prefix + "OuterTrackP" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "InnerTrackP4" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "GlobalTrackP4" + Suffix );
+  produces <std::vector<LorentzVector> > ( Prefix + "OuterTrackP4" + Suffix );
   produces <std::vector<int> > (  Prefix + "Charge" + Suffix);
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
@@ -151,9 +151,9 @@ void SusyCAF_Muon<T>::
 produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
   std::auto_ptr<bool> isHandleValid ( new bool(collection.isValid()) );
   std::auto_ptr<std::vector<LorentzVector> > p4 ( new std::vector<LorentzVector>() );
-  std::auto_ptr<std::vector<LorentzVector> > innerTrackP ( new std::vector<LorentzVector>() );
-  std::auto_ptr<std::vector<LorentzVector> > globalTrackP ( new std::vector<LorentzVector>() );
-  std::auto_ptr<std::vector<LorentzVector> > outerTrackP ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > innerTrackP4 ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > globalTrackP4 ( new std::vector<LorentzVector>() );
+  std::auto_ptr<std::vector<LorentzVector> > outerTrackP4 ( new std::vector<LorentzVector>() );
   std::auto_ptr<std::vector<int> >  charge   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  selected     ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
@@ -247,9 +247,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
       LorentzVector tmpGlbP;
       if (global) { 
-	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.); globalTrackP->push_back(tmpGlbP);
+	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.105); globalTrackP4->push_back(tmpGlbP);
       } else {
-	tmpGlbP.SetPxPyPzE(0.,0.,0.,0.); globalTrackP->push_back(tmpGlbP);
+	tmpGlbP.SetPxPyPzE(0.,0.,0.,0.); globalTrackP4->push_back(tmpGlbP);
       }
 
       bool inner = it->innerTrack().isNonnull();
@@ -267,15 +267,15 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
       LorentzVector tmpInrP;
       if (inner) {
-        tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.); innerTrackP->push_back(tmpInrP);
+        tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.105); innerTrackP4->push_back(tmpInrP);
       } else {
-        tmpInrP.SetPxPyPzE(0.,0.,0.,0.); innerTrackP->push_back(tmpInrP);
+        tmpInrP.SetPxPyPzE(0.,0.,0.,0.); innerTrackP4->push_back(tmpInrP);
       }
       /*
       if (inner) { 
-	Vector tmpInrP(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz()); innerTrackP->push_back(tmpInrP); 
+	Vector tmpInrP(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz()); innerTrackP4->push_back(tmpInrP); 
       } else {
-	Vector tmpInrP(0.,0.,0.); innerTrackP->push_back(tmpInrP); 
+	Vector tmpInrP(0.,0.,0.); innerTrackP4->push_back(tmpInrP); 
       }
       */
       bool outer = it->outerTrack().isNonnull();
@@ -283,9 +283,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
       LorentzVector tmpOtrP; 
       if (outer) { 
-	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.); outerTrackP->push_back(tmpOtrP);
+	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.105); outerTrackP4->push_back(tmpOtrP);
       } else {
-	tmpOtrP.SetPxPyPzE(0.,0.,0.,0.); outerTrackP->push_back(tmpOtrP);
+	tmpOtrP.SetPxPyPzE(0.,0.,0.,0.); outerTrackP4->push_back(tmpOtrP);
       }
 
       sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
@@ -295,9 +295,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   
   iEvent.put( isHandleValid,  Prefix + "HandleValid" + Suffix );
   iEvent.put( p4,  Prefix + "P4" + Suffix );
-  iEvent.put( innerTrackP,  Prefix + "InnerTrackP" + Suffix );
-  iEvent.put( globalTrackP,  Prefix + "GlobalTrackP" + Suffix );
-  iEvent.put( outerTrackP,  Prefix + "OuterTrackP" + Suffix );
+  iEvent.put( innerTrackP4,  Prefix + "InnerTrackP4" + Suffix );
+  iEvent.put( globalTrackP4,  Prefix + "GlobalTrackP4" + Suffix );
+  iEvent.put( outerTrackP4,  Prefix + "OuterTrackP4" + Suffix );
   iEvent.put( charge,  Prefix + "Charge" + Suffix );
   iEvent.put( selected, Prefix + "Selected" + Suffix );
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );

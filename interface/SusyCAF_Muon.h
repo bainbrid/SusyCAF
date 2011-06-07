@@ -29,6 +29,7 @@ class SusyCAF_Muon : public edm::EDProducer {
   bool isInCollection(const T&, const std::vector<T>&);
 
   typedef reco::Candidate::LorentzVector LorentzVector;
+  typedef reco::Candidate::Vector Vector;
   const edm::InputTag inputTag,selectedTag;
   const std::string Prefix,Suffix;
 };
@@ -246,8 +247,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
       LorentzVector tmpGlbP;
       if (global) { 
-	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.);
-	globalTrackP->push_back(tmpGlbP);
+	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.); globalTrackP->push_back(tmpGlbP);
+      } else {
+	tmpGlbP.SetPxPyPzE(0.,0.,0.,0.); globalTrackP->push_back(tmpGlbP);
       }
 
       bool inner = it->innerTrack().isNonnull();
@@ -263,20 +265,29 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
       pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0); 
       pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
-      LorentzVector tmpInrP; 
-      if (inner) { 
-	tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.);
-	innerTrackP->push_back(tmpInrP); 
+      LorentzVector tmpInrP;
+      if (inner) {
+        tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.); innerTrackP->push_back(tmpInrP);
+      } else {
+        tmpInrP.SetPxPyPzE(0.,0.,0.,0.); innerTrackP->push_back(tmpInrP);
       }
-
+      /*
+      if (inner) { 
+	Vector tmpInrP(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz()); innerTrackP->push_back(tmpInrP); 
+      } else {
+	Vector tmpInrP(0.,0.,0.); innerTrackP->push_back(tmpInrP); 
+      }
+      */
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
       LorentzVector tmpOtrP; 
       if (outer) { 
-	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.);
-	outerTrackP->push_back(tmpOtrP);
+	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.); outerTrackP->push_back(tmpOtrP);
+      } else {
+	tmpOtrP.SetPxPyPzE(0.,0.,0.,0.); outerTrackP->push_back(tmpOtrP);
       }
+
       sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
 
     }

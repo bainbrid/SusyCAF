@@ -27,12 +27,15 @@ class SusyCAF_Muon : public edm::EDProducer {
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   bool isInCollection(const T&, const std::vector<T>&);
+  reco::Candidate::LorentzVector muonP4FromP(const reco::Candidate::Vector &);
 
   typedef reco::Candidate::LorentzVector LorentzVector;
   typedef reco::Candidate::Vector Vector;
   const edm::InputTag inputTag,selectedTag;
   const std::string Prefix,Suffix;
 };
+
+
 
 template< typename T >
 SusyCAF_Muon<T>::SusyCAF_Muon(const edm::ParameterSet& iConfig) :
@@ -245,12 +248,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_normalizedChi2->push_back( global? it->globalTrack()->normalizedChi2() : -1);
       globalTrack_numberOfValidHits->push_back( global? it->globalTrack()->numberOfValidHits() : 0);
       globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
-      LorentzVector tmpGlbP;
-      if (global) { 
-	tmpGlbP.SetPxPyPzE(it->globalTrack()->px(),it->globalTrack()->py(),it->globalTrack()->pz(),0.105); globalTrackP4->push_back(tmpGlbP);
-      } else {
-	tmpGlbP.SetPxPyPzE(0.,0.,0.,0.); globalTrackP4->push_back(tmpGlbP);
-      }
+      globalTrackP4->push_back( global ? muonP4FromP(it->globalTrack()->momentum()) : LorentzVector() );
 
       bool inner = it->innerTrack().isNonnull();
       if(inner && vertices.isValid() && vertices->size()) vx = SusyCAF_functions::closestDzPrimaryVertexPosition(it->innerTrack().get(),*vertices);
@@ -265,29 +263,13 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
       pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0); 
       pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
-      LorentzVector tmpInrP;
-      if (inner) {
-        tmpInrP.SetPxPyPzE(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz(),0.105); innerTrackP4->push_back(tmpInrP);
-      } else {
-        tmpInrP.SetPxPyPzE(0.,0.,0.,0.); innerTrackP4->push_back(tmpInrP);
-      }
-      /*
-      if (inner) { 
-	Vector tmpInrP(it->innerTrack()->px(),it->innerTrack()->py(),it->innerTrack()->pz()); innerTrackP4->push_back(tmpInrP); 
-      } else {
-	Vector tmpInrP(0.,0.,0.); innerTrackP4->push_back(tmpInrP); 
-      }
-      */
+      innerTrackP4->push_back( inner ? muonP4FromP(it->innerTrack()->momentum()) : LorentzVector() );
+
       bool outer = it->outerTrack().isNonnull();
       outerTrack_normalizedChi2->push_back( outer? it->outerTrack()->normalizedChi2() : -1);
       outerTrack_numberOfValidHits->push_back(outer? it->outerTrack()->numberOfValidHits() : 0);
-      LorentzVector tmpOtrP; 
-      if (outer) { 
-	tmpOtrP.SetPxPyPzE(it->outerTrack()->px(),it->outerTrack()->py(),it->outerTrack()->pz(),0.105); outerTrackP4->push_back(tmpOtrP);
-      } else {
-	tmpOtrP.SetPxPyPzE(0.,0.,0.,0.); outerTrackP4->push_back(tmpOtrP);
-      }
-
+      outerTrackP4->push_back( outer ? muonP4FromP(it->outerTrack()->momentum()) : LorentzVector() );
+      
       sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
 
     }

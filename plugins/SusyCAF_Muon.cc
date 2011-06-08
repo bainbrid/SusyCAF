@@ -31,3 +31,11 @@ bool SusyCAF_Muon<T>::isInCollection(const T& e, const std::vector<T>& ve) {
     if( e.p4() == it->p4() ) return true;
   return false;
 }
+
+
+
+template<class T>
+reco::Candidate::LorentzVector SusyCAF_Muon<T>::muonP4FromP(const reco::Candidate::Vector & p) {
+  double E = sqrt(pow(p.r(),2) + pow(0.105,2));
+  return reco::Candidate::LorentzVector(p.x(),p.y(),p.z(),E);
+}

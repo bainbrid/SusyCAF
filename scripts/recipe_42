@@ -9,7 +9,7 @@ addpkg PhysicsTools/PatAlgos         V08-06-25
 addpkg MuonAnalysis/MuonAssociators  V01-13-00
 
 # For deterministic FastJet-rho
-addpkg RecoJets/Configuration       V02-04-16
+addpkg RecoJets/Configuration       V02-04-17
 
 # tau update
 addpkg DataFormats/TauReco          V01-00-07-01

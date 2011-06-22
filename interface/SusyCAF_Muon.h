@@ -97,6 +97,10 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
   produces <std::vector<unsigned> > ( Prefix + "NumberOfMatches" + Suffix );
   produces <std::vector<double> > (  Prefix + "SigmaPt" + Suffix);
+
+   //AGB - add EcalVetoDep and HcalVetoDep 
+  produces <std::vector<float> > (Prefix + "EcalVetoDep" + Suffix);
+  produces <std::vector<float> > (Prefix + "HcalVetoDep" + Suffix);
 }
 
 // extra information stored for PAT data
@@ -195,6 +199,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<unsigned> >  numberOfMatches   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> > sigmapt ( new std::vector<double>()  ) ;
 
+  std::auto_ptr<std::vector<float> > EcalVetoDep( new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalVetoDep( new std::vector<float>());
+
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
   math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
   edm::Handle<reco::BeamSpot> beamspots;  iEvent.getByLabel("offlineBeamSpot", beamspots);
@@ -272,6 +279,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       
       sigmapt->push_back(global? it->globalTrack()->ptError(): it->pt());
 
+      EcalVetoDep->push_back(it->isolationR03().emVetoEt);
+      HcalVetoDep->push_back(it->isolationR03().hadVetoEt);
+
     }
   }
   
@@ -316,7 +326,10 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
   iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );
-  iEvent.put(sigmapt,Prefix + "SigmaPt" + Suffix );   
+  iEvent.put(sigmapt,Prefix + "SigmaPt" + Suffix );
+
+  iEvent.put(EcalVetoDep, Prefix + "EcalVetoDep" + Suffix);
+  iEvent.put(HcalVetoDep, Prefix + "HcalVetoDep" + Suffix);
 }
 
 
@@ -333,6 +346,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
+
 
   std::auto_ptr<std::vector<int> > TrackerMuonArbitrated_( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > AllArbitrated_( new std::vector<int>() );
@@ -384,6 +398,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());
       trackIso->push_back(it->trackIso());
+      
     
 
  //pf

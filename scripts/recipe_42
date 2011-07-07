@@ -6,17 +6,20 @@ cmsrel $CMSSW
 cd $CMSSW/src
 cmsenv
 
-
 # susypat
-addpkg PhysicsTools/Configuration    V00-10-13
+addpkg PhysicsTools/Configuration    V00-10-15
 addpkg MuonAnalysis/MuonAssociators  V01-13-00
+addpkg PhysicsTools/PatAlgos         V08-06-36
+addpkg DataFormats/PatCandidates     V06-04-18
+addpkg PhysicsTools/SelectorUtils    V00-03-17
 
 # For deterministic FastJet-rho
 addpkg RecoJets/Configuration       V02-04-17
 
 # tau update
-addpkg DataFormats/TauReco          V01-00-07-01
-addpkg RecoTauTag/TauTagTools       V01-00-12
-addpkg RecoTauTag/RecoTau           V01-00-33-06 
+addpkg DataFormats/TauReco        V01-00-07-01
+addpkg RecoTauTag/Configuration   V01-02-03
+addpkg RecoTauTag/RecoTau         V01-02-07
+addpkg RecoTauTag/TauTagTools     V01-02-00
 
 cvs co -rV15-03-06 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

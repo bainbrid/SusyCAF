@@ -39,6 +39,9 @@ SusyCAF_MET<T>::SusyCAF_MET(const edm::ParameterSet& cfg) :
   produces <double>                         ( Prefix + "SumEt" + Suffix );
   produces <bool>             ( Prefix + "HandleValid" + Suffix );
   produces <double>           ( Prefix + "Significance"  + Suffix );
+  produces <double>           ( Prefix + "SigmaXX"  + Suffix );
+  produces <double>           ( Prefix + "SigmaYY"  + Suffix );
+  produces <double>           ( Prefix + "SigmaXY"  + Suffix );
   if(special) initSpecial();
 }
 
@@ -54,12 +57,19 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   event.put(std::auto_ptr<reco::Candidate::LorentzVector>( met ?
 							   new reco::Candidate::LorentzVector(met->p4() ) :
 							   new reco::Candidate::LorentzVector(0,0,0,0)),    Prefix+"P4"+Suffix);
-  double significance = 0;
+  double significance(0), sigmaXX(0), sigmaYY(0), sigmaXY(0);
   try {
     significance = !met ? 0 : met->significance();
+    if(significance) {
+      TMatrixD M = met->getSignificanceMatrix();
+      sigmaXX = M(0,0); sigmaXY = M(0,1); sigmaYY = M(1,1);
+    }
   }
   catch(...) { significance = -1; }
   event.put(std::auto_ptr<double>( new double(significance)),  Prefix+"Significance" +Suffix);
+  event.put(std::auto_ptr<double>( new double(sigmaXX)),  Prefix+"SigmaXX" +Suffix);
+  event.put(std::auto_ptr<double>( new double(sigmaYY)),  Prefix+"SigmaYY" +Suffix);
+  event.put(std::auto_ptr<double>( new double(sigmaXY)),  Prefix+"SigmaXY" +Suffix);
 
   if(special) produceSpecial(event, met);
 }

@@ -39,9 +39,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if(categories.count(err.category)) {
 	iEvent.put(std::auto_ptr<bool>( new bool(true)), Prefix + err.category + Suffix ); categories.erase(err.category); }
     }
-    iEvent.put(std::auto_ptr<bool> (new bool(errors->size())), Prefix + "Any" + Suffix);
   }
   BOOST_FOREACH(std::string err, modules)    iEvent.put(std::auto_ptr<bool>( new bool(false)), Prefix + err + Suffix );
   BOOST_FOREACH(std::string err, categories) iEvent.put(std::auto_ptr<bool>( new bool(false)), Prefix + err + Suffix );
+  iEvent.put(std::auto_ptr<bool> (new bool(errors.isValid() && errors->size())), Prefix + "Any" + Suffix);
   iEvent.put(std::auto_ptr<bool>( new bool(errors.isValid())), Prefix + "HandleValid" + Suffix);
 }

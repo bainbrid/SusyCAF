@@ -1,5 +1,9 @@
-cmsrel CMSSW_4_2_4_patch1
-cd CMSSW_4_2_6/src
+#!/bin/bash
+
+CMSSW=CMSSW_4_2_6
+
+cmsrel $CMSSW
+cd $CMSSW/src
 cmsenv
 
 

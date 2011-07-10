@@ -13,8 +13,7 @@ scram b
 cmsenv
 
 SCAN_TEST_FILE=test.py
-rm $SCAN_TEST_FILE
-echo "import FWCore.ParameterSet.Config as cms" >> $SCAN_TEST_FILE
+echo "import FWCore.ParameterSet.Config as cms" > $SCAN_TEST_FILE
 echo "from PhysicsTools.PatAlgos.patTemplate_cfg import process" >> $SCAN_TEST_FILE
 echo "process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_Scan_cfi')" >> $SCAN_TEST_FILE
 echo "process.p = cms.Path(process.susycafscan)" >> $SCAN_TEST_FILE

@@ -47,6 +47,8 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DQMFlags.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_DCSBits.h"
 
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Scan.h"
+
 typedef SusyCAF_MET<reco::GenMET> SusyCAF_GenMET;
 typedef SusyCAF_MET<reco::CaloMET> SusyCAF_CaloMET;
 typedef SusyCAF_MET<reco::PFMET> SusyCAF_PFMET;
@@ -122,4 +124,5 @@ DEFINE_FWK_MODULE(SusyCAF_GenParticle);
 DEFINE_FWK_MODULE(SusyCAF_DQMFlags);
 DEFINE_FWK_MODULE(SusyCAF_DCSBits);
 
+DEFINE_FWK_MODULE(SusyCAF_Scan);
 

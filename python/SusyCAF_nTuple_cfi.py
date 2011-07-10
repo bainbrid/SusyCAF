@@ -43,12 +43,12 @@ class SusyCAF(object) :
                         'BeamSpot','BeamHaloSummary','LogError','Vertex',
                         'HcalRecHit','EcalRecHit','PFRecHit','MET','SumP4',
                         'HcalDeadChannels','EcalDeadChannels','CaloTowers'] +
-                       [['Gen'],['DQMFlags','DCSBits']][self.options.isData]) :
+                       [['Gen','Scan'],['DQMFlags','DCSBits']][self.options.isData]) :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
         self.process.susycaftriggers.SourceName  = self.options.SourceName
         return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
-                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4',
+                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4','scan',
                                                  'beamspot','beamhalosummary','logerror','vertex','calotowers']) +
                  self.process.susycafmet + self.process.susycafmetnohf +
                  self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +

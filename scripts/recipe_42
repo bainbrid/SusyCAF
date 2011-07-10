@@ -22,4 +22,4 @@ addpkg RecoTauTag/Configuration   V01-02-03
 addpkg RecoTauTag/RecoTau         V01-02-07
 addpkg RecoTauTag/TauTagTools     V01-02-00
 
-cvs co -rV15-03-09 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV15-03-10 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

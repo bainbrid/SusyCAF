@@ -35,3 +35,6 @@ produce(edm::Event& event, const edm::EventSetup&) {
   for(unsigned i=0; i<scanPars.size(); ++i) 
     event.put(std::auto_ptr<double>(new double(valid ? boost::lexical_cast<double>(matches[i+1].str()) : 0 )),  Prefix + scanPars[i] + Suffix );
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SusyCAF_Scan);

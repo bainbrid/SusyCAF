@@ -1,6 +1,6 @@
 #!/bin/bash
 
-susycaftag=V15-03-10
+susycaftag=V15-03-11
 CMSSW=CMSSW_4_2_5
 
 cmsrel $CMSSW

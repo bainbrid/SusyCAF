@@ -10,7 +10,8 @@ SusyCAF_Scan::SusyCAF_Scan(const edm::ParameterSet& cfg) :
   Prefix  (cfg.getParameter<std::string>  ("Prefix"  )),
   Suffix  (cfg.getParameter<std::string>  ("Suffix"  )),
   scanFormat(cfg.getParameter<std::string>("ScanFormat")),
-  scanPars(cfg.getParameter<std::vector<std::string> >("ScanParameters"))
+  scanPars(cfg.getParameter<std::vector<std::string> >("ScanParameters")),
+  debug(cfg.getUntrackedParameter<bool>("Debug",false))
 {
   BOOST_FOREACH(const std::string& par, scanPars) 
     produces<double>( Prefix + par + Suffix );
@@ -31,9 +32,15 @@ produce(edm::Event& event, const edm::EventSetup&) {
   }
 
   bool valid(matches.size() == scanPars.size()+1);
+  if(debug) std::cout << matches[0].str() << std::endl;
   event.put( std::auto_ptr<bool>(new bool(valid)),  Prefix + "HandleValid" + Suffix );
   for(unsigned i=0; i<scanPars.size(); ++i) 
-    event.put(std::auto_ptr<double>(new double(valid ? boost::lexical_cast<double>(matches[i+1].str()) : 0 )),  Prefix + scanPars[i] + Suffix );
+    event.put(std::auto_ptr<double>(new double(!valid ? 0.0 : convert(matches[i+1].str()))),  Prefix + scanPars[i] + Suffix );
+}
+
+double SusyCAF_Scan::convert(std::string s) {
+  if(s[0]=='m') s[0] = '-';
+  return boost::lexical_cast<double>(s);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -31,11 +31,10 @@ produce(edm::Event& event, const edm::EventSetup&) {
       if (boost::regex_match(comment, matches, scanFormat)) break;
   }
 
-  bool valid(matches.size() == scanPars.size()+1);
   if(debug) std::cout << matches[0].str() << std::endl;
-  event.put( std::auto_ptr<bool>(new bool(valid)),  Prefix + "HandleValid" + Suffix );
+  event.put( std::auto_ptr<bool>(new bool(matches[0].matched)),  Prefix + "HandleValid" + Suffix );
   for(unsigned i=0; i<scanPars.size(); ++i) 
-    event.put(std::auto_ptr<double>(new double(!valid ? 0.0 : convert(matches[i+1].str()))),  Prefix + scanPars[i] + Suffix );
+    event.put(std::auto_ptr<double>(new double(!matches[0].matched ? 0.0 : convert(matches[i+1].str()))),  Prefix + scanPars[i] + Suffix );
 }
 
 double SusyCAF_Scan::convert(std::string s) {

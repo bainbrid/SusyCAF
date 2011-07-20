@@ -48,7 +48,7 @@ class SusyCAF(object) :
 
         self.process.susycaftriggers.SourceName  = self.options.SourceName
         return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
-                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4','scan',
+                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4',
                                                  'beamspot','beamhalosummary','logerror','vertex','calotowers']) +
                  self.process.susycafmet + self.process.susycafmetnohf +
                  self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
@@ -56,7 +56,7 @@ class SusyCAF(object) :
                  self.evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
                  self.evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
                  
-                 self.evalSequence(*[ ('susycafgen%s',['','MetCalo','MetCaloAndNonPrompt','MetTrue']), # Gen
+                 self.evalSequence(*[ ('susycaf%s',['gen','genMetCalo','genMetCaloAndNonPrompt','genMetTrue','scan']), # Gen
                                       ('susycaf%s',['dqmflags','dcsbits']) # Data
                                       ][self.options.isData])
                  )

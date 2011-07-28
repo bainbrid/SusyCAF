@@ -24,7 +24,8 @@ def options() :
                      info = "jet types to store", mult = VP.multiplicity.list, mytype = VP.varType.string)
     options.register('jetCorrections', default = ['L2Relative','L3Absolute'],
                      info = "jet correction levels to apply", mult = VP.multiplicity.list, mytype = VP.varType.string)
-
+    options.register('hbheNoiseFilterDefaultIsoReq', default = False , info = "Configure the HBHE noise filter to use default isolation requirements")
+    
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')
     options.parseArguments()

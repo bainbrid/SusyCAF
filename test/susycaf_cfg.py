@@ -17,7 +17,7 @@ adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.isData)
 adjust.loadAndConfigureEcalSeverityLevelProducer(process)
 
 process.p_susyPat  = adjust.susyPat(process,options)
-process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process)
+process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process,options)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_susyCAF  = SusyCAF(process,options).path()
 

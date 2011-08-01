@@ -27,8 +27,8 @@ susycafscan = cms.EDProducer( "SusyCAF_Scan",
                               ScanFormat = cms.string(r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s"),
                               ScanParameters = cms.vstring('M0', 'M12', 'tanbeta', 'A0', 'Mu'),
 
-                              AdditionalParameters = cms.VPSet( parseXSecFiles(basePath + "goodModelNames_40_m500_1.txt", xSecRegExpr)
+#                              AdditionalParameters = cms.VPSet( parseXSecFiles(basePath + "goodModelNames_40_m500_1.txt", xSecRegExpr)
 #                                                                parseXSecFiles(basePath + "badModelNames_40_m500_1.txt", xSecRegExpr, -1.)
-                                                                ),
-                              AdditionalParameterDefaults = cms.PSet( Crosssection = cms.double(-10.0) ),
+#                                                               ),
+#                              AdditionalParameterDefaults = cms.PSet( Crosssection = cms.double(-10.0) ),
 )

@@ -70,7 +70,7 @@ produce(edm::Event& event, const edm::EventSetup&) {
     bool useDefault = (additionalDoubleVars_[point].count(defaultPair.first) == 0);
     double addParam = useDefault ? defaultPair.second : additionalDoubleVars_[point][defaultPair.first];
     event.put(std::auto_ptr<double>( new double(addParam)), Prefix + defaultPair.first + Suffix );
-    if(debug) std::cout << Prefix + defaultPair.first + Suffix << " -> "<< additionalDoubleVars_[point]["Crosssection"];
+    if(debug) std::cout << Prefix + defaultPair.first + Suffix << " -> "<< addParam;
     if(debug) std::cout << " (default n = "<< additionalDoubleVars_[point].count(defaultPair.first)<<", "<< useDefault<< ")"<<std::endl;
   }
 }

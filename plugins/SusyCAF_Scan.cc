@@ -5,6 +5,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/foreach.hpp"
 
+
 SusyCAF_Scan::SusyCAF_Scan(const edm::ParameterSet& cfg) :
   inputTag(cfg.getParameter<edm::InputTag>("InputTag")),
   Prefix  (cfg.getParameter<std::string>  ("Prefix"  )),
@@ -16,7 +17,29 @@ SusyCAF_Scan::SusyCAF_Scan(const edm::ParameterSet& cfg) :
   BOOST_FOREACH(const std::string& par, scanPars) 
     produces<double>( Prefix + par + Suffix );
   produces <bool>   ( Prefix + "HandleValid" + Suffix );
+  if(cfg.existsAs<edm::VParameterSet>("AdditionalParameters") &&\
+     cfg.existsAs<edm::ParameterSet>("AdditionalParameterDefaults")){
+      edm::VParameterSet allAddParams = cfg.getParameter<edm::VParameterSet>("AdditionalParameters");
+      edm::ParameterSet defaultAddParams = cfg.getParameter<edm::ParameterSet>("AdditionalParameterDefaults");
+
+      std::vector<std::string> addParamNames = defaultAddParams.getParameterNamesForType<double>();
+      BOOST_FOREACH(const std::string paramName, addParamNames){
+	additionalDoubleDefaultVars_[paramName] = defaultAddParams.getParameter<double>(paramName);
+	produces<double>( Prefix + paramName + Suffix );
+	if(debug) std::cout << paramName <<"(default):"<< additionalDoubleDefaultVars_[paramName]<<std::endl;
+      }
+      BOOST_FOREACH(const edm::ParameterSet addParams, allAddParams){
+	ScanPoint point = ScanPoint(scanPars, addParams);
+	if(additionalDoubleVars_.count(point) == 0)
+	  additionalDoubleVars_[point] = std::map< std::string, double>();
+	BOOST_FOREACH(const std::string paramName, addParamNames){
+	  additionalDoubleVars_[point][paramName] = addParams.getParameter<double>(paramName);
+	  if(debug) std::cout << paramName <<":"<< additionalDoubleVars_[point][paramName]<<std::endl;
+	}
+      }
+    }
 }
+
 
 void SusyCAF_Scan::
 produce(edm::Event& event, const edm::EventSetup&) {
@@ -24,18 +47,32 @@ produce(edm::Event& event, const edm::EventSetup&) {
   boost::smatch matches;
   edm::Handle<LHEEventProduct> lhe;
   event.getByLabel(inputTag, lhe);
-
   if(lhe.isValid()) {
     const std::vector<std::string> comments(lhe->comments_begin(),lhe->comments_end());
-    BOOST_FOREACH(const std::string& comment, comments) 
+    BOOST_FOREACH(const std::string& comment, comments) {
       if (boost::regex_match(comment, matches, scanFormat)) break;
+    }
   }
   
   bool valid = matches.size() && matches[0].matched;
   if(valid && debug) std::cout << matches[0].str() << std::endl;
   event.put( std::auto_ptr<bool>(new bool(valid)),  Prefix + "HandleValid" + Suffix );
-  for(unsigned i=0; i<scanPars.size(); ++i) 
-    event.put(std::auto_ptr<double>(new double(!valid ? 0.0 : convert(matches[i+1].str()))),  Prefix + scanPars[i] + Suffix );
+  ScanPoint::PointMap pointMap =  ScanPoint::PointMap();
+  for(unsigned i=0; i<scanPars.size(); ++i) {
+    pointMap[scanPars[i]] = !valid ? 0.0 : convert(matches[i+1].str());
+    event.put(std::auto_ptr<double>(new double(pointMap[scanPars[i]])),\
+	      Prefix + scanPars[i] + Suffix );
+    if(debug) std::cout << scanPars[i] <<": "<<pointMap[scanPars[i]] <<", ";
+  }
+
+  ScanPoint point = ScanPoint(pointMap);
+  BOOST_FOREACH(const DoubleParameterMap::value_type& defaultPair, additionalDoubleDefaultVars_) {				
+    bool useDefault = (additionalDoubleVars_[point].count(defaultPair.first) == 0);
+    double addParam = useDefault ? defaultPair.second : additionalDoubleVars_[point][defaultPair.first];
+    event.put(std::auto_ptr<double>( new double(addParam)), Prefix + defaultPair.first + Suffix );
+    if(debug) std::cout << Prefix + defaultPair.first + Suffix << " -> "<< additionalDoubleVars_[point]["Crosssection"];
+    if(debug) std::cout << " (default n = "<< additionalDoubleVars_[point].count(defaultPair.first)<<", "<< useDefault<< ")"<<std::endl;
+  }
 }
 
 double SusyCAF_Scan::convert(std::string s) {

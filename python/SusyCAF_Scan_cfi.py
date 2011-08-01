@@ -17,8 +17,27 @@ def parseXSecFiles(path, regExpr, factor = 1.):
             print "WARNING: ignoring line '%s' in '%s'"%(line, path)
     return result
 
-basePath = "/.automount/home/home__home4/institut_1b/edelhoff/superSymmetry/CMSSW_4_2_5/src/SUSYBSMAnalysis/SusyCAF/"
-xSecRegExpr = r".*msugra_(?P<M0>[0-9]*)_(?P<M12>[0-9]*)_(?P<tanbeta>m?[0-9]*)_(?P<A0>m?[0-9]*)_(?P<Mu>m?[0-9]*)\.slha[\w]*(?P<Crosssection>.*)"
+def exportAdditionParameters( basePath, outPath):
+    xSecRegExpr = r".*msugra_(?P<M0>[0-9]*)_(?P<M12>[0-9]*)_(?P<tanbeta>m?[0-9]*)_(?P<A0>m?[0-9]*)_(?P<Mu>m?[0-9]*)\.slha[\w]*(?P<CrossSection>.*)"
+    pSetList = []
+    pSetList += parseXSecFiles(basePath + "goodModelNames_40_m500_1.txt", xSecRegExpr)
+    pSetList += parseXSecFiles(basePath + "badModelNames_40_m500_1.txt", xSecRegExpr, -1.)
+    template = """
+import FWCore.ParameterSet.Config as cms
+parameters = %s    
+"""
+
+    outFile = open(outPath,"w")
+    outFile.write(template%(cms.VPSet(pSetList).dumpPython())[1:-1])
+    outFile.close()
+
+if __name__ == "__main__":
+    from sys import argv
+    assert len(argv) == 3, "usage: SusyCAF_Scan_cfi.py basePath outPath"
+    exportAdditionParameters(argv[1], argv[2])
+
+#generated running this file as __main__:
+from xSecLO_Scan_40_m500_cff import parameters as xSecLO_Scan_40_m500_Parameters
 
 susycafscan = cms.EDProducer( "SusyCAF_Scan",
                               InputTag  = cms.InputTag('source'),
@@ -26,9 +45,12 @@ susycafscan = cms.EDProducer( "SusyCAF_Scan",
                               Suffix    = cms.string(''),
                               ScanFormat = cms.string(r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s"),
                               ScanParameters = cms.vstring('M0', 'M12', 'tanbeta', 'A0', 'Mu'),
-
-#                              AdditionalParameters = cms.VPSet( parseXSecFiles(basePath + "goodModelNames_40_m500_1.txt", xSecRegExpr)
-#                                                                parseXSecFiles(basePath + "badModelNames_40_m500_1.txt", xSecRegExpr, -1.)
+                              AdditionalParameters = xSecLO_Scan_40_m500_Parameters,
+#For on the fly parsing: 
+#                              AdditionalParameters = cms.VPSet( parseXSecFiles("goodModelNames_40_m500_1.txt", xSecRegExpr)
+#                                                                +parseXSecFiles("badModelNames_40_m500_1.txt", xSecRegExpr, -1.)
 #                                                               ),
-#                              AdditionalParameterDefaults = cms.PSet( Crosssection = cms.double(-10.0) ),
+                              AdditionalParameterDefaults = cms.PSet( CrossSection = cms.double(-10.0) ),
 )
+
+

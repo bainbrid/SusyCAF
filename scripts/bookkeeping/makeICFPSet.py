@@ -31,14 +31,15 @@ if not os.path.exists(db_path) :
 conn = sqlite3.connect(db_path)
 conn.row_factory = sqlite3.Row
 
-rows = conn.execute('''select job.rowid,state,path,dataset,rpath,node
+rows = conn.execute('''select
+job.rowid,state,path,dataset,rpath,node,susycaf,dset.nonDefault,dset.isData
                      from job join tag on tag.rowid=job.tagid join dset on dset.rowid=job.dsetid
                      where user="'''+user+'''" order by state,path''').fetchall()
 
 
 
 for row in rows:
-    print ('\t'.join([str(item) for item in row]))[0:90]+"..."
+    print ('\t'.join([str(item) for item in row]))[0:90] + "..."
 jobnumber = raw_input("\n\n\tWhich job?  ")
 
 #get path and short name from user's selected job
@@ -51,9 +52,14 @@ for row in rows:
         path = path.replace('rjn04','rnandi')
         paths.append(path)
         shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
+        shortName = shortName +"_" + row['susycaf']
+        if row['nonDefault'] != None: shortName = shortName + "_" + row['nonDefault']
         shortName = string.replace(shortName,'-','_')
+        shortName = string.replace(shortName,',','_')
+        shortName =string.replace(shortName,'=','_')
         shortNames.append(shortName)
-        xsecs.append(0.0)
+        if row['isData']: xsecs.append('Weight')
+        if not row['isData']:xsecs.append(0.0)
         #Would be nice if this information was in the database.
     else :
       dset = datasets[0]
@@ -61,9 +67,14 @@ for row in rows:
       path = path.replace('rjn04','rnandi')
       paths.append(path)
       shortName = (string.split(dset, '/'))[1] + "_" + (string.split(dset, '/'))[2]
+      shortName = shortName +"_" + row['susycaf']
+      if row['nonDefault'] != None: shortName = shortName + "_" + row['nonDefault']
       shortName = string.replace(shortName,'-','_')
+      shortName = string.replace(shortName,',','_')
+      shortName = string.replace(shortName,'=','_')
       shortNames.append(shortName)
-      xsecs.append(0.0)
+      if row['isData']: xsecs.append('Weight')
+      if not row['isData']:xsecs.append(0.0)
     break
 
 #disconect from database
@@ -156,10 +167,13 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
     outfile.write(line)
 
   #footer
-  footer = '\n'.join([
+  if xsec != 'Weight': 
+    footer = '\n'.join([
     '',
     '\t],',
     '\tCrossSection=%d,' % xsec,
-    ')'
+    ')',
     ])
+  if xsec == 'Weight':
+    footer = "] \n \tWeight = 1.0, \n )"
   outfile.write(footer)

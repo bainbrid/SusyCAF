@@ -56,7 +56,8 @@ for row in rows:
         if row['nonDefault'] != None: shortName = shortName + "_" + row['nonDefault']
         shortName = string.replace(shortName,'-','_')
         shortName = string.replace(shortName,',','_')
-        shortName =string.replace(shortName,'=','_')
+        shortName = string.replace(shortName,'=','_')
+        shortName = string.replace(shortName,' ','_')
         shortNames.append(shortName)
         if row['isData']: xsecs.append('Weight')
         if not row['isData']:xsecs.append(0.0)
@@ -72,6 +73,7 @@ for row in rows:
       shortName = string.replace(shortName,'-','_')
       shortName = string.replace(shortName,',','_')
       shortName = string.replace(shortName,'=','_')
+      shortName = string.replace(shortName,' ','_')
       shortNames.append(shortName)
       if row['isData']: xsecs.append('Weight')
       if not row['isData']:xsecs.append(0.0)

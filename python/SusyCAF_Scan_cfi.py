@@ -1,17 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-scanFormats = {'T1' : r"# model T1_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
-               'T2' : r"# model T2_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
-               'T1taunu' : r"# model T1taunu_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
-               'mSugra' : r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s"}
-
-ScanParameters = {"T1" : ['xCHI', 'mGL', 'mLSP'],
-                  "T2" : [ 'mGL', 'mLSP'],
-                  "T1taunu" : ['xCHI', 'mGL', 'mLSP'],
-                  'mSugra' : ['M0', 'M12', 'tanbeta', 'A0', 'Mu']}
-
-mode = "T2"
-                  
 def parseXSecFiles(path, regExpr, factor = 1.):
     from re import match
     result = []
@@ -53,13 +41,10 @@ from xSecLO_Scan_40_m500_cff import parameters as xSecLO_Scan_40_m500_Parameters
 
 susycafscan = cms.EDProducer( "SusyCAF_Scan",
                               InputTag  = cms.InputTag('source'),
-                              Prefix    = cms.string('SimpModelScan'),
+                              Prefix    = cms.string('susyScan'),
                               Suffix    = cms.string(''),
-                              ScanFormat = cms.string(scanFormats[mode]),
-                              ScanParameters = cms.vstring(*scanParameters[mode]),
-                              Debug = cms.untracked.bool(False)
-                              )
-
+                              ScanFormat = cms.string(r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s"),
+                              ScanParameters = cms.vstring('M0', 'M12', 'tanbeta', 'A0', 'Mu'),
                               AdditionalParameters = xSecLO_Scan_40_m500_Parameters,
 #For on the fly parsing: 
 #                              AdditionalParameters = cms.VPSet( parseXSecFiles("goodModelNames_40_m500_1.txt", xSecRegExpr)
@@ -67,5 +52,3 @@ susycafscan = cms.EDProducer( "SusyCAF_Scan",
 #                                                               ),
                               AdditionalParameterDefaults = cms.PSet( CrossSection = cms.double(-10.0) ),
 )
-
-

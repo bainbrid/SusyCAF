@@ -10,7 +10,7 @@ ScanParameters = {"T1" : ['xCHI', 'mGL', 'mLSP'],
                   "T1taunu" : ['xCHI', 'mGL', 'mLSP'],
                   'mSugra' : ['M0', 'M12', 'tanbeta', 'A0', 'Mu']}
 
-mode = "T1"
+mode = "T2"
                   
 def parseXSecFiles(path, regExpr, factor = 1.):
     from re import match

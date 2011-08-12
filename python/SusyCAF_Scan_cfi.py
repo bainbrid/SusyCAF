@@ -10,7 +10,7 @@ scanParameters = {"T1" : ['xCHI', 'mGL', 'mLSP'],
                   "T1taunu" : ['xCHI', 'mGL', 'mLSP'],
                   'mSugra' : ['M0', 'M12', 'tanbeta', 'A0', 'Mu']}
 
-mode = "T1"
+mode = "T2"
 
 susycafscan = cms.EDProducer( "SusyCAF_Scan",
                               InputTag  = cms.InputTag('source'),

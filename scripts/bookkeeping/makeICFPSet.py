@@ -131,7 +131,9 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
       break
     #split up chunk of text in to array of filenames
     output = temp[1].split('\n')
-  ##end lcg-ls
+    for i,l in enumerate(output):
+      output[i] = l[30:]
+ ##end lcg-ls
 
   output.sort()
 

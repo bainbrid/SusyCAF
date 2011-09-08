@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+
+scanFormats = {"msugra": r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s" }
+scanParameters = {"msugra": ('M0', 'M12', 'tanbeta', 'A0', 'Mu')}
+
 def parseXSecFiles(path, regExpr, factor = 1.):
     from re import match
     result = []
@@ -31,7 +35,7 @@ parameters = %s
     outFile.write(template%(cms.VPSet(pSetList).dumpPython())[1:-1])
     outFile.close()
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
     from sys import argv
     assert len(argv) == 3, "usage: SusyCAF_Scan_cfi.py basePath outPath"
     exportAdditionParameters(argv[1], argv[2])
@@ -39,16 +43,18 @@ if __name__ == "__main__":
 #generated running this file as __main__:
 from xSecLO_Scan_40_m500_cff import parameters as xSecLO_Scan_40_m500_Parameters
 
-susycafscan = cms.EDProducer( "SusyCAF_Scan",
-                              InputTag  = cms.InputTag('source'),
-                              Prefix    = cms.string('susyScan'),
-                              Suffix    = cms.string(''),
-                              ScanFormat = cms.string(r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s"),
-                              ScanParameters = cms.vstring('M0', 'M12', 'tanbeta', 'A0', 'Mu'),
-                              AdditionalParameters = xSecLO_Scan_40_m500_Parameters,
-#For on the fly parsing: 
-#                              AdditionalParameters = cms.VPSet( parseXSecFiles("goodModelNames_40_m500_1.txt", xSecRegExpr)
-#                                                                +parseXSecFiles("badModelNames_40_m500_1.txt", xSecRegExpr, -1.)
-#                                                               ),
-                              AdditionalParameterDefaults = cms.PSet( CrossSection = cms.double(-10.0) ),
-)
+
+def susycafscanFunc(mode, other = {}) :
+    return cms.EDProducer( "SusyCAF_Scan",
+                           InputTag  = cms.InputTag('source'),
+                           Prefix    = cms.string('susyScan'),
+                           Suffix    = cms.string(''),
+                           ScanFormat = cms.string(scanFormats[mode]),
+                           ScanParameters = cms.vstring(*scanParameters[mode]),
+                           **other)
+
+susycafscan = susycafscanFunc("msugra",
+                              other = {"AdditionalParameters" : xSecLO_Scan_40_m500_Parameters,
+                                       "AdditionalParameterDefaults" : cms.PSet( CrossSection = cms.double(-10.0) ) }
+                              )
+

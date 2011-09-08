@@ -46,6 +46,8 @@ class SusyCAF(object) :
                        [['Gen','Scan'],['DQMFlags','DCSBits']][self.options.isData]) :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
+        from SUSYBSMAnalysis.SusyCAF.SusyCAF_Scan_cfi import susycafscanFunc as susycafscanFunc
+        self.process.susycafscan = susycafscanFunc(self.options.scan) if self.options.scan else self.empty
         self.process.susycaftriggers.SourceName  = self.options.SourceName
         return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
                  self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4',

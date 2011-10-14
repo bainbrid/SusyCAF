@@ -88,6 +88,10 @@ def addHbheNoiseFilterResult(process, options) :
     process.hcalNoiseSummaryExists = cms.EDFilter('SusyCAF_HcalNoiseSummaryExists')
     return cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer)
 
+def addEcalDeadCellFlag(process, options) :
+    from JetMETAnalysis.ecalDeadCellTools.EcalDeadCellEventFilter_cfi import *
+    process.ecaldeadcellfilterflag = EcalDeadCellEventFilter.clone(taggingMode = True)
+    return cms.Path(process.ecaldeadcellfilterflag)
 
 def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')

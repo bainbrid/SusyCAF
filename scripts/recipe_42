@@ -29,4 +29,4 @@ rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
 rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
 
 #cvs co -rV15-03-13 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-cvs co -rHEAD -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV15-03-19 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

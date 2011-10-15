@@ -22,11 +22,11 @@ addpkg RecoTauTag/Configuration   V01-02-03
 addpkg RecoTauTag/RecoTau         V01-02-07
 addpkg RecoTauTag/TauTagTools     V01-02-00
 
-#compile error
-#cvs co -rTrackingfailTagMode_13Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
-
+#Markus filter tags
 cvs co -rColin_TaggingMode_June30 JetMETAnalysis/ecalDeadCellTools
-
+cvs co -rTrackingfailTagMode_13Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
+rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
+rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
 
 #cvs co -rV15-03-13 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 cvs co -rHEAD -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

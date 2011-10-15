@@ -93,6 +93,12 @@ def addEcalDeadCellFlag(process, options) :
     process.ecaldeadcellfilterflag = EcalDeadCellEventFilter.clone(taggingMode = True)
     return cms.Path(process.ecaldeadcellfilterflag)
 
+def addTrackingFailureFlag(process, options) :
+    process.load('SandBox.Skims.vertex_cfi')
+    from SandBox.Skims.trackingFailureFilter_cfi import trackingFailureFilter
+    process.trackingfailurefilterflag = trackingFailureFilter.clone(taggingMode = True)
+    return cms.Path( process.goodVerticesRA2 * process.trackingfailurefilterflag )
+
 def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')
     return cms.Path(process.lumiTree)

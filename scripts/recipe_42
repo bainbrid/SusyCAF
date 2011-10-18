@@ -24,7 +24,7 @@ addpkg RecoTauTag/TauTagTools     V01-02-00
 
 #Markus filter tags
 cvs co -rColin_TaggingMode_June30 JetMETAnalysis/ecalDeadCellTools
-cvs co -rTrackingfailTagMode_13Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
+cvs co -rTrackingfailTagMode_18Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
 rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
 rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
 

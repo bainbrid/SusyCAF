@@ -28,6 +28,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1GlobalTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1CaloTrigger.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_L1Extra.h"
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PileupSummary.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseFilter.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummary.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalNoiseSummaryExists.h"
@@ -100,6 +101,7 @@ DEFINE_FWK_MODULE(SusyCAF_Vertex);
 DEFINE_FWK_MODULE(SusyCAF_L1GlobalTrigger);
 DEFINE_FWK_MODULE(SusyCAF_L1CaloTrigger);
 DEFINE_FWK_MODULE(SusyCAF_L1Extra);
+DEFINE_FWK_MODULE(SusyCAF_PileupSummary);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseFilter);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseSummary);
 DEFINE_FWK_MODULE(SusyCAF_HcalNoiseSummaryExists);

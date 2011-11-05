@@ -45,7 +45,7 @@ class SusyCAF(object) :
                         'BeamSpot','BeamHaloSummary','LogError','Vertex',
                         'HcalRecHit','EcalRecHit','PFRecHit','MET','SumP4',
                         'HcalDeadChannels','EcalDeadChannels','CaloTowers'] +
-                       [['Gen','Scan'],['DQMFlags','DCSBits']][self.options.isData]) :
+                       [['Gen','Scan','PileupSummary'],['DQMFlags','DCSBits']][self.options.isData]) :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Scan_cfi import susycafscanFunc as susycafscanFunc
@@ -60,7 +60,7 @@ class SusyCAF(object) :
                  self.evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
                  self.evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
                  
-                 self.evalSequence(*[ ('susycaf%s',['gen','genMetCalo','genMetCaloAndNonPrompt','genMetTrue','scan']), # Gen
+                 self.evalSequence(*[ ('susycaf%s',['gen','genMetCalo','genMetCaloAndNonPrompt','genMetTrue','scan','pileupsummary']), # Gen
                                       ('susycaf%s',['dqmflags','dcsbits']) # Data
                                       ][self.options.isData])
                  )

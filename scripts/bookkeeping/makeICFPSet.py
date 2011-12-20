@@ -89,7 +89,7 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
 
 
 
-  prefix = '\n' + '\t' +  "\"root://gfe02.grid.hep.ph.ic.ac.uk"# + path + '/'
+  prefix = '\n' + '\t' +  "root://xrootd.grid.hep.ph.ic.ac.uk/"# + path + '/'
   suffix = '\" ,'
 
   method = raw_input("Use srmls? [n] :\n")

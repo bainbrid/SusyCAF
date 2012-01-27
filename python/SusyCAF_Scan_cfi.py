@@ -13,6 +13,7 @@ scanFormats = {'T1' : r"# model T1_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'msugra' : r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s",
                'msugra_Winter11':r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d*) (%(floatEx)s) (%(floatEx)s)\\s"%{"floatEx":floatRegExp},
                'TGQ' : r"# model TGQ_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
+ 	       'TGQ2' : r"# model TGQ2_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",                   
                'T5zz' : r"# model T5zz_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T1tttt' : r"# model T1tttt_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T5zzInc' : r"# model T5zzInc_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s"}
@@ -29,6 +30,7 @@ scanParameters = {"T1" : ['xCHI', 'mGL', 'mLSP'],
                   'msugra' : ['M0', 'M12', 'tanbeta', 'A0', 'Mu'],
                   'msugra_Winter11' :['M0', 'M12', 'tanbeta', 'A0', 'Mu','LOXSection', 'GenFilterEfficiency'],
                   "TGQ" : ['xCHI', 'mGL', 'mLSP'],
+                  "TGQ2" : ['xCHI','mGL','mLSP'],
                   "T5zz" : ['xCHI', 'mGL', 'mLSP'],
                   "T5zzInc" : ['xCHI', 'mGL', 'mLSP']}
 

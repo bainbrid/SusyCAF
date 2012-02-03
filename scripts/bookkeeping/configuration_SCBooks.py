@@ -1,9 +1,9 @@
 import webpage_SCBooks,sqlite3,os,sys,getpass,time
 
 ICF = {"db_location": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database",
-       "db_file": 'sqlite2.db',
-       "db_lock": 'sqlite2.lock',
-       "webpath": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database/status2.html"}
+       "db_file": 'sqlite3.db',
+       "db_lock": 'sqlite3.lock',
+       "webpath": "/afs/cern.ch/user/a/arlogb/www/web/ICF_Database/status3.html"}
 
 TEST  = {"db_location": "./",
          "db_file": 'sqlite.db',

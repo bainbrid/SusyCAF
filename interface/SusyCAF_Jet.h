@@ -102,7 +102,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
   std::auto_ptr<float>  droppedSumPT  ( new float(0)  )  ;
   std::auto_ptr<float>  droppedSumET  ( new float(0)  )  ;
 
-  //JetCorrectionUncertainty* jCU = jetCorrUnc(setup, JecRecord);
+  JetCorrectionUncertainty* jCU = jetCorrUnc(setup, JecRecord);
 
   for(unsigned i=0; jets.isValid() && i<(*jets).size(); i++) {
     p4->push_back((*jets)[i].p4());
@@ -112,7 +112,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
     *droppedSumPT -= (*jets)[i].pt();
     *droppedSumET -= (*jets)[i].p4().Et();
 
-    jecUnc->push_back(0);//uncFunc(jCU, (*jets)[i].p4()));
+    jecUnc->push_back(uncFunc(jCU, (*jets)[i].p4()));
   }
   for(unsigned i=0; i<(*allJets).size(); i++) {
     *droppedSumP4 += (*allJets)[i].p4();
@@ -120,7 +120,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
     *droppedSumET += (*allJets)[i].p4().Et();
   }
 
-  //delete jCU;
+  delete jCU;
 
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;

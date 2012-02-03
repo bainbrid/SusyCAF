@@ -16,4 +16,4 @@ cvs co -rTrackingfailTagMode_18Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skim
 rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
 rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
 
-cvs co -rV15-04-00 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV15-04-90 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

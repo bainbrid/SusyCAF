@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CMSSW=CMSSW_4_4_3
+
+cmsrel $CMSSW
+cd $CMSSW/src
+cmsenv
+
+# susypat
+addpkg PhysicsTools/Configuration    V00-11-01
+addpkg PhysicsTools/PatAlgos         V08-07-38-02
+
+#Markus filter tags
+cvs co -rColin_TaggingMode_June30 JetMETAnalysis/ecalDeadCellTools
+cvs co -rTrackingfailTagMode_18Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
+rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
+rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
+
+cvs co -rV15-04-00 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

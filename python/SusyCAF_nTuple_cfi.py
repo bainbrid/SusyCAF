@@ -52,8 +52,8 @@ class SusyCAF(object) :
         self.process.susycafscan = susycafscanFunc(self.options.scan) if self.options.scan else self.empty
         self.process.susycaftriggers.SourceName  = self.options.SourceName
         return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
-                 self.evalSequence('susycaf%s', ['event','track','triggers','L1triggers','pfsump4',
-                                                 'beamspot','beamhalosummary','logerror','vertex','calotowers']) +
+                 self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','beamhalosummary','logerror','vertex','calotowers'] +
+                                                 (['triggers','L1triggers'] if self.options.triggers else [])) ) +
                  self.process.susycafmet + self.process.susycafmetnohf +
                  self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
                  self.evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
@@ -68,18 +68,16 @@ class SusyCAF(object) :
     def reco(self) :
         for module in ['Jet','Photon','Muon','Electron','PFTau'] :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
-        return ( self.process.susycafPFtau +
-                 self.evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, self.options.jetCollections)) +
-                 self.evalSequence('susycaf%sreco', ['photon','electron','muon']) )
+        return sum( [ self.evalSequence('susycaf%sjetreco', filter(lambda x:"pf2pat" not in x, self.options.jetCollections)),
+                      self.evalSequence('susycaf%sreco', ['photon','electron','muon'])],
+                    [ self.process.susycafPFtau ] if self.options.taus else [] )
 
     def pat(self) :
         for module in ['MET','Photon','PFTau'] :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
         return ( self.patJet() +
                  self.patLepton('Electron') + self.patLepton('Muon') +
-                 self.evalSequence('susycaf%s',  ['tau',
-                                                  'HPStau',
-                                                  'pftau','photon']) +
+                 self.evalSequence('susycaf%s',  ['photon']+(['tau','HPStau','pftau'] if self.options.taus else [])) +
                  self.evalSequence('susycafmet%s', ['AK5','AK5TypeII','PF','TypeIPF','TC'])
                  )
 

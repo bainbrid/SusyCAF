@@ -36,7 +36,7 @@ def options() :
 
     defaultGT,defaultFile = {
         "44X" : [('START44_V12::All','/store/mc/Fall11/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/AODSIM/RecoTest_PU_S5_START44_V4-v1/0000/F474926B-AACF-E011-B064-0018F3D0960C.root'),
-                 ('GR_R_44_V13::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')],
+                 ('GR_R_44_V13::All','/../user/b/bbetchar/store/data/Run2011A/MultiJet/AOD/08Nov2011-v1/0000/D667AB02-A90A-E111-810A-0030487F1717.root')],
         "42X" : [('START42_V17::All','/../user/b/bbetchar/CMSSW_4_2_8/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v1/0026/9C0E8835-9ABB-E011-95B0-0026189438BA.root'),
                  ('GR_R_42_V24::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')]
         }["44X"][options.isData]

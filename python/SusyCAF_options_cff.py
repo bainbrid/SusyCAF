@@ -20,11 +20,11 @@ def options() :
     options.register('patify', default = True,  info = "run SUSYPAT on the fly")
     options.register('AllTracks', default = False, info = "include all tracks")
     options.register('SourceName', info = "'S:stream' or 'DS:dataset' to store those HLT paths", mytype = VP.varType.string,)
-    options.register('jetCollections', default = ['ak5calo','ak5pf','ak7calo','ak7pf'], # + ['ak5pf2pat','ak7pf2pat']
+    options.register('jetCollections', default = ['ak5calo','ak5pf'], # + ['ak7calo','ak7pf','ak5pf2pat','ak7pf2pat']
                      info = "jet types to store", mult = VP.multiplicity.list, mytype = VP.varType.string)
     options.register('jetCorrections', default = ['L1FastJet','L2Relative','L3Absolute','L2L3Residual'], #L2L3Residual removed from options for simulation (below)
                      info = "jet correction levels to apply", mult = VP.multiplicity.list, mytype = VP.varType.string)
-    options.register('hbheNoiseFilterDefaultIsoReq', default = False , info = "Configure the HBHE noise filter to use default isolation requirements")
+    options.register('hbheNoiseFilterDefaultIsoReq', default = True , info = "Configure the HBHE noise filter to use default isolation requirements")
     options.register('scan', default = "", info = "code for CMSSM or SMS scan", mytype = VP.varType.string)
     options.register('triggers', default = -1, info = "store trigger information in the ntuple") # defaults to isData (below)
     options.register('taus', default = True, info = "store tau information in the ntuple")

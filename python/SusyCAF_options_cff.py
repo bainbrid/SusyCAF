@@ -22,7 +22,7 @@ def options() :
     options.register('SourceName', info = "'S:stream' or 'DS:dataset' to store those HLT paths", mytype = VP.varType.string,)
     options.register('jetCollections', default = ['ak5calo','ak5pf','ak5pf2pat','ak7calo','ak7pf','ak7pf2pat'],
                      info = "jet types to store", mult = VP.multiplicity.list, mytype = VP.varType.string)
-    options.register('jetCorrections', default = ['L2Relative','L3Absolute'],
+    options.register('jetCorrections', default = ['L1FastJet','L2Relative','L3Absolute','L2L3Residual'], #L2L3Residual removed from options below for simulation
                      info = "jet correction levels to apply", mult = VP.multiplicity.list, mytype = VP.varType.string)
     options.register('hbheNoiseFilterDefaultIsoReq', default = False , info = "Configure the HBHE noise filter to use default isolation requirements")
     options.register('scan', default = "", info = "code for CMSSM or SMS scan", mytype = VP.varType.string)
@@ -32,10 +32,18 @@ def options() :
     options.parseArguments()
     options._tagOrder =[] # weird, but something to do with options.output
 
-    defaultGT,defaultFile = (
-        [('START42_V15B::All','/../user/b/bbetchar/CMSSW_4_2_8/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v1/0026/9C0E8835-9ABB-E011-95B0-0026189438BA.root'),
-         ('GR_R_42_V21A::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')]        
-        )[options.isData]
+    defaultGT,defaultFile = {
+        "44X" : [('START44_V12::All','/store/mc/Fall11/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/AODSIM/RecoTest_PU_S5_START44_V4-v1/0000/F474926B-AACF-E011-B064-0018F3D0960C.root'),
+                 ('GR_R_44_V13::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')],
+        "42X" : [('START42_V17::All','/../user/b/bbetchar/CMSSW_4_2_8/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v1/0026/9C0E8835-9ABB-E011-95B0-0026189438BA.root'),
+                 ('GR_R_42_V24::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')]
+        }["44X"][options.isData]
     options.files = options.files if options.files else defaultFile
     options.GlobalTag = options.GlobalTag if options.GlobalTag else defaultGT
+
+    if not options.isData : #remove L2L3Residual correction from simulation options
+        jecs = [jc for jc in options.jetCorrections if jc!='L2L3Residual']
+        options.clearList('jetCorrections')
+        options.jetCorrections = jecs
+
     return options

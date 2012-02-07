@@ -483,67 +483,58 @@ produceJetID(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) {
 
 template<class T> void SusyCAF_Jet<T>::
 initMPT() { if(!mpt) return;
+  const std::vector<int> qualities(config.getParameter<std::vector<int> >("TrackQualities"));
   typedef reco::TrackBase::Vector Vector; 
-  produces <std::vector<int> > ( Prefix + "NAssoTracksEverything"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksAll"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksLoose"  + Suffix );
-  produces <std::vector<int> > ( Prefix + "NAssoTracksHighPurity"  + Suffix );
-  produces <std::vector<Vector> > ( Prefix + "MPTwithEverything"  + Suffix );
-  produces <std::vector<Vector> > ( Prefix + "MPTwithAllTracks"  + Suffix );
-  produces <std::vector<Vector> > ( Prefix + "MPTwithLooseTracks"  + Suffix );
-  produces <std::vector<Vector> > ( Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  for(unsigned j=0; j < qualities.size(); ++j) {
+    std::string name = (qualities[j]<0 ? "All" : reco::Track::qualityNames[qualities[j]]) + "Tracks" + Suffix;
+    name[0] = toupper((unsigned char) name[0]);
+    produces <std::vector<unsigned> > (Prefix + "N" + name);
+    produces <std::vector<unsigned> > (Prefix + "NOther" + name);
+    produces   <std::vector<Vector> > (Prefix + "SumP3with" + name );
+    produces   <std::vector<Vector> > (Prefix + "SumP3Otherwith" + name );
+    std::cout << name << " ";
+  }
+  std::cout << std::endl;
 }
 
 template<class T> void SusyCAF_Jet<T>::
 produceMPT(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!mpt) return;
   typedef reco::TrackBase::Vector Vector; 
-  std::auto_ptr<std::vector<int> >  nAssoTracksEverything  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksAll  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksLoose  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<int> >  nAssoTracksHighPurity  ( new std::vector<int>()  ) ;
-  std::auto_ptr<std::vector<Vector> >  mptEverything       ( new std::vector<Vector>() ) ;
-  std::auto_ptr<std::vector<Vector> >  mptAllTracks        ( new std::vector<Vector>() ) ;
-  std::auto_ptr<std::vector<Vector> >  mptLooseTracks      ( new std::vector<Vector>() ) ;
-  std::auto_ptr<std::vector<Vector> >  mptHighPurityTracks ( new std::vector<Vector>() ) ;
-
-  const double 
-    maxD0(config.getParameter<double>("MaxD0Trk")),
-    ptErrFrac(config.getParameter<double>("PtErrFracTrk"));
-
+  const std::vector<int> qualities(config.getParameter<std::vector<int> >("TrackQualities"));
+  const double maxD0(config.getParameter<double>("MaxD0Trk"));
   edm::Handle<reco::VertexCollection> vertices;   
   evt.getByLabel(config.getParameter<edm::InputTag>("PrimaryVertexTag"), vertices);
   const reco::Vertex& PrimaryVertex = vertices->front();
- 
- for( unsigned i=0; jets.isValid() && i<(*jets).size(); i++ ) {
-    unsigned nAll(0),nLoose(0),nHighPurity(0);
-    nAssoTracksEverything->push_back((*jets)[i].associatedTracks().size());
-    Vector vEverything, vAll, vLoose, vHighPurity;
 
+  std::vector< std::vector<unsigned> > ntracks( qualities.size(), std::vector<unsigned>(jets->size(),0) ) ;
+  std::vector< std::vector<unsigned> > ntracks_other( qualities.size(), std::vector<unsigned>(jets->size(),0) ) ;
+  std::vector< std::vector  <Vector> >   sump3( qualities.size(), std::vector<Vector>(jets->size(), Vector())   ) ;
+  std::vector< std::vector  <Vector> >   sump3_other( qualities.size(), std::vector<Vector>(jets->size(), Vector())   ) ;
+ 
+  for( unsigned i=0; jets.isValid() && i< jets->size(); ++i ) {    
     for (reco::TrackRefVector::iterator trk = (*jets)[i].associatedTracks().begin(); trk != (*jets)[i].associatedTracks().end(); ++trk) {
-      vEverything += (*trk)->momentum();
-      if ( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 && 
-      	  (*trk)->ptError()*(*trk)->normalizedChi2() < ptErrFrac*(*trk)->pt() ) {
-      	if((*trk)->quality(reco::Track::undefQuality)) {  nAll++;           vAll        += (*trk)->momentum();	  }
-      	if((*trk)->quality(reco::Track::loose)) {	  nLoose++;               vLoose      += (*trk)->momentum();       }
-      	if((*trk)->quality(reco::Track::highPurity)) {	  nHighPurity++;    vHighPurity += (*trk)->momentum();   }
+      for(unsigned j=0; j<qualities.size(); ++j) {
+	if((*trk)->quality(reco::TrackBase::TrackQuality(qualities[j]))) {
+	  if ( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 ) {
+	    ntracks[j][i]++;
+	    sump3[j][i] += (*trk)->momentum();
+	  } else {
+	    ntracks_other[j][i]++;
+	    sump3_other[j][i] += (*trk)->momentum();
+	  }
+	}
       }
     }
-    nAssoTracksAll->push_back(nAll);
-    nAssoTracksLoose->push_back(nLoose);
-    nAssoTracksHighPurity->push_back(nHighPurity);
-    mptEverything->push_back(vEverything);
-    mptAllTracks->push_back(vAll);
-    mptLooseTracks->push_back(vLoose);
-    mptHighPurityTracks->push_back(vHighPurity);
   }
-  evt.put( nAssoTracksEverything,  Prefix + "NAssoTracksEverything"  + Suffix );
-  evt.put( nAssoTracksAll,  Prefix + "NAssoTracksAll"  + Suffix );
-  evt.put( nAssoTracksLoose,  Prefix + "NAssoTracksLoose"  + Suffix );
-  evt.put( nAssoTracksHighPurity,  Prefix + "NAssoTracksHighPurity"  + Suffix );
-  evt.put( mptEverything,  Prefix + "MPTwithEverything"  + Suffix );
-  evt.put( mptAllTracks,  Prefix + "MPTwithAllTracks"  + Suffix );
-  evt.put( mptLooseTracks,  Prefix + "MPTwithLooseTracks"  + Suffix );
-  evt.put( mptHighPurityTracks,  Prefix + "MPTwithHighPurityTracks"  + Suffix );
+  
+  for(unsigned j=0; j<qualities.size(); ++j) {
+    std::string name = (qualities[j]<0 ? "All" : reco::Track::qualityNames[qualities[j]]) + "Tracks" + Suffix;
+    name[0] = toupper((unsigned char) name[0]);
+    evt.put( std::auto_ptr<std::vector<unsigned> > ( new std::vector<unsigned>(      ntracks[j].begin(),      ntracks[j].end())), Prefix + "N" + name);
+    evt.put( std::auto_ptr<std::vector<unsigned> > ( new std::vector<unsigned>(ntracks_other[j].begin(),ntracks_other[j].end())), Prefix + "NOther" + name);
+    evt.put( std::auto_ptr<std::vector<Vector> >   ( new std::vector<Vector>(          sump3[j].begin(),        sump3[j].end())), Prefix + "SumP3with" + name );
+    evt.put( std::auto_ptr<std::vector<Vector> >   ( new std::vector<Vector>(    sump3_other[j].begin(),  sump3_other[j].end())), Prefix + "SumP3Otherwith" + name );
+  }
 }
 
 

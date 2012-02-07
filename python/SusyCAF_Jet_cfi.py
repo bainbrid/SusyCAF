@@ -18,7 +18,7 @@ def patjets( calo = True, input = '', genInput = '', prefix = '', jecRecord = ''
                            GenInfo = cms.bool(False),
                            PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
                            MaxD0Trk = cms.double(0.02),
-                           PtErrFracTrk = cms.double(0.2),
+                           TrackQualities = cms.vint32(2), # highPurity (see reco::TrackBase::TrackQuality)
                            JetCorrections = cms.vstring()
                            )
 

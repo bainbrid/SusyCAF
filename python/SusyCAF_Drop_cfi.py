@@ -10,9 +10,6 @@ def reduce() :
 def keep() :
     '''These products will be kept regardless of what is written in drop()'''
     return [
-        '*_susycaf*_*HighPurityTracks*_*',       ## MPT associated with high purity tracks, both track-based and jet based
-        '*_susycaf*_*NAssoTracksHighPurity*_*',  # (request of Henning)... we have vertex-based quantities which are not dropped.
-        '*_susycaf*_*NEta*AllTracks_*',          # required by somewhat antiquated 'monsterEventFilter'
         '*_susycaf*_*PFJetID*_*',                ## JetID that we use
         '*_susycaf*_*JetIDminimal*_*',           #
         '*_susycaf*_*JetIDloose*_*',             #
@@ -23,10 +20,6 @@ def drop(more = False) :
     return [
         '*_susycaf*_CTECALEsumcalo*_*',
         '*_susycaf*_CTHCALEsumcalo*_*',
-        '*_susycaf*_*MPTwith*_*',     ## Jet and track based MPT
-        '*_susycaf*_*NAssoTracks*_*', # jet
-        '*_susycaf*_*SumPTwith*_*',   # track
-        '*_susycaf*_*NEta*Tracks*_*', # track
         '*_susycaf*_hltL1Seeds*_*',
         ] + [] if not more else [
         '*_susycaf*_*DroppedSumP4*_*',   ## dropped jet summary

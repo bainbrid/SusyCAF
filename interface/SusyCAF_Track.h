@@ -25,13 +25,9 @@ private:
   const std::string     prefix, suffix;
   const double          ptErrFrac;
   const double          maxD0;
+  const std::vector<int> qualities;
+  const bool pixelSeedOnly,monsterVars;
 
-  template<typename T>
-  struct GreaterByPerp2 {
-	  bool operator()( const T & t1, const T & t2 ) const {
-		  return t1.Perp2() > t2.Perp2();
-	  }
-  };
 };
 
 #endif

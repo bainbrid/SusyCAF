@@ -3,29 +3,29 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+const std::string SusyCAF_Track::vertex_names[2] = {"Primary", "PileUp"};
+
 SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
   : inputTag        (iConfig.getParameter<edm::InputTag>("InputTag"         ))
   , primaryVertexTag(iConfig.getParameter<edm::InputTag>("PrimaryVertexTag" ))
   , prefix          (iConfig.getParameter<std::string>  ("Prefix"           ))
   , suffix          (iConfig.getParameter<std::string>  ("Suffix"           ))
-  , ptErrFrac       (iConfig.getParameter<double>       ("PTErrFrac"        ))
   , maxD0           (iConfig.getParameter<double>       ("MaxD0"            ))
   , qualities       (iConfig.getParameter<std::vector<int> > ("Qualities"        ))
   , pixelSeedOnly   (iConfig.getParameter<bool>         ("PixelSeedOnly"    ))
-  , monsterVars     (iConfig.getParameter<bool>         ("MonsterVars"))
+  , scraping        (iConfig.getParameter<bool>         ("ScrapingVars"))
 {
-  for(unsigned j=0; j<qualities.size(); ++j) {
-    std::string name = (qualities[j] < 0 ? "All" : reco::Track::qualityNames[qualities[j]]) + (pixelSeedOnly? "PixelTracks" : "Tracks") + suffix;
+  for(unsigned q=0; q<qualities.size(); ++q) {
+    std::string name = (qualities[q] < 0 ? "All" : reco::Track::qualityNames[qualities[q]]) + (pixelSeedOnly? "PixelTracks" : "Tracks") + suffix;
     name[0] = toupper((unsigned char) name[0]);
-    produces<Vector>  (prefix + "SumP3with"    + name );
-    produces<double>  (prefix + "SumPTwith"    + name );
-    produces<unsigned>(prefix + "NEtaLT0p9"    + name );
-    produces<unsigned>(prefix + "NEta0p9to1p5" + name );
-    produces<unsigned>(prefix + "NEtaGT1p5"    + name );
-    std::cout << name << " ";
+    for(unsigned v=VINIT; v<VSIZE; v++) {
+      std::string name2 = "with" + vertex_names[v] + name;
+      produces<unsigned>(prefix + "Count" + name2 );
+      produces<double>  (prefix + "SumPT" + name2 );
+      produces<Vector>  (prefix + "SumP3" + name2 );
+    }
   }
-  std::cout << std::endl;
-  if(monsterVars) {
+  if(scraping) {
     produces<unsigned> ("nTracksAll");
     produces<unsigned> ("nTracksHighPurity");
   }
@@ -34,53 +34,51 @@ SusyCAF_Track::SusyCAF_Track(const edm::ParameterSet& iConfig)
 void SusyCAF_Track::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
-  std::vector< Vector >  sump3 (qualities.size(), Vector(0.,0.,0.) );
-  std::vector< double >  sumpt (qualities.size(), 0.);
-  std::vector< unsigned > nEtaLT0p9 (qualities.size(), 0);
-  std::vector< unsigned > nEta0p9to1p5 (qualities.size(), 0);
-  std::vector< unsigned > nEtaGT1p5 (qualities.size(), 0);
-  unsigned nTracksAll(0), nTracksHighPurity(0); //without any D0 cut
-
+  unsigned nTracksAll(0), nTracksHighPurity(0); //without any cut
+  std::vector< std::vector< Vector > > sump3(VSIZE, std::vector< Vector >(qualities.size(), Vector(0.,0.,0.) )); 
+  std::vector< std::vector< double > > sumpt(VSIZE, std::vector< double >(qualities.size(), 0.));
+  std::vector< std::vector<unsigned> > ntrks(VSIZE, std::vector<unsigned>(qualities.size(), 0));
+  
   edm::Handle<reco::VertexCollection> vertices;   iEvent.getByLabel(primaryVertexTag, vertices);
   edm::Handle<reco::TrackCollection>  tracks;     iEvent.getByLabel(inputTag        , tracks  );
   if (vertices.isValid() && tracks.isValid()) {
     const reco::Vertex& primaryVertex = vertices->front();
     for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track ) {
-      
+
+      if( track->quality(reco::Track::highPurity) ) 
+	nTracksHighPurity++;
+      nTracksAll++;
+
       if( (    maxD0  < 0 || fabs(track->dxy(primaryVertex.position())) < maxD0 ) &&
-	  ( ptErrFrac < 0 || track->ptError()*track->normalizedChi2() < ptErrFrac*track->pt() ) &&
 	  (!pixelSeedOnly || ( track->algo()==reco::TrackBase::iter0 || 
 			       track->algo()==reco::TrackBase::iter1 || 
 			       track->algo()==reco::TrackBase::iter2 || 
 			       track->algo()==reco::TrackBase::iter3))) {
-	const double eta = fabs(track->eta());
-	for(unsigned j=0; j<qualities.size(); ++j) {
-	  sump3[j] += track->momentum();
-	  sumpt[j] += track->pt();
-	  if      (eta < 0.9) nEtaLT0p9[j]++;
-	  else if (eta < 1.5) nEta0p9to1p5[j]++;
-	  else                nEtaGT1p5[j]++;
+
+	std::vector<double> dist; std::transform(vertices->begin(), vertices->end(), back_inserter(dist), dsz(*track) );
+	std::vector<double>::const_iterator dmin = min_element(dist.begin(), dist.end());
+	unsigned v = (dmin==dist.begin()) ? V_PRIMARY : V_PILEUP;
+
+	for(unsigned q=0; q<qualities.size(); ++q) {
+	  ntrks[v][q]++;
+	  sump3[v][q] += track->momentum();
+	  sumpt[v][q] += track->pt();
 	}
       }
-      if(monsterVars) {
-	if( track->ptError()*track->normalizedChi2() < 0.2*track->pt() ) {
-	  nTracksAll++;
-	  if(track->quality(reco::Track::highPurity)) nTracksHighPurity++;
-	}
-      }    
     }
   }
   
-  for(unsigned j=0; j<qualities.size(); ++j) {
-    std::string name = (qualities[j] < 0 ? "All" : reco::Track::qualityNames[qualities[j]]) + (pixelSeedOnly? "PixelTracks" : "Tracks") + suffix;
+  for(unsigned q=0; q<qualities.size(); ++q) {
+    std::string name = (qualities[q] < 0 ? "All" : reco::Track::qualityNames[qualities[q]]) + (pixelSeedOnly? "PixelTracks" : "Tracks") + suffix;
     name[0] = toupper((unsigned char) name[0]);
-    iEvent.put( std::auto_ptr< Vector > ( new Vector( sump3[j]) ),   prefix + "SumP3with"    + name );
-    iEvent.put( std::auto_ptr< double > ( new double( sumpt[j]) ),   prefix + "SumPTwith"    + name );
-    iEvent.put( std::auto_ptr< unsigned >( new unsigned(nEtaLT0p9[j]) ),   prefix + "NEtaLT0p9"    + name );
-    iEvent.put( std::auto_ptr< unsigned >( new unsigned(nEta0p9to1p5[j]) ),prefix + "NEta0p9to1p5" + name );
-    iEvent.put( std::auto_ptr< unsigned >( new unsigned(nEtaGT1p5[j]) ),   prefix + "NEtaGT1p5"    + name );
+    for(unsigned v=VINIT; v<VSIZE; v++) {
+      std::string name2 = "with" + vertex_names[v] + name;
+      iEvent.put( std::auto_ptr<unsigned>( new unsigned(ntrks[v][q]) ), prefix + "Count" + name2 );
+      iEvent.put( std::auto_ptr< double > ( new double( sumpt[v][q]) ), prefix + "SumPT" + name2 );
+      iEvent.put( std::auto_ptr< Vector > ( new Vector( sump3[v][q]) ), prefix + "SumP3" + name2 );
+    }
   }
-  if(monsterVars) {
+  if(scraping) {
     iEvent.put( std::auto_ptr< unsigned>( new unsigned(nTracksAll)), "nTracksAll");
     iEvent.put( std::auto_ptr< unsigned>( new unsigned(nTracksHighPurity)), "nTracksHighPurity");
   }

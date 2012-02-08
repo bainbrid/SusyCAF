@@ -5,10 +5,9 @@ susycaftrack = cms.EDProducer ( "SusyCAF_Track",
                                 PrimaryVertexTag  = cms.InputTag('offlinePrimaryVertices'),
                                 Prefix            = cms.string('tracks'),
                                 Suffix            = cms.string(''),
-                                MaxD0             = cms.double(0.02),
-                                PTErrFrac         = cms.double(-1),
+                                MaxD0             = cms.double(5), # wide enough to include tracks from most b-jets?
                                 Qualities         = cms.vint32(2), # highPurity (see reco::TrackBase::TrackQuality)
                                 PixelSeedOnly     = cms.bool(False),
-                                MonsterVars       = cms.bool(True),
+                                ScrapingVars      = cms.bool(True),
                                 )
 

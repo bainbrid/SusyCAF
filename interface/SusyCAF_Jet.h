@@ -45,8 +45,20 @@ class SusyCAF_Jet : public edm::EDProducer {
   const edm::InputTag jetsInputTag, genJetsInputTag, allJetsInputTag;
   const std::string Prefix,Suffix,JecRecord;
   const bool caloSpecific, jptSpecific, pfSpecific, mpt, jetid, gen;
+
+
+  enum VERTEX {VINIT=0, V_PRIMARY=0, V_PILEUP=1, VSIZE=2};
+  static const std::string vertex_names[];
+
+  struct dsz {
+    const reco::Track& track;
+    dsz(const reco::Track& t) : track(t) {}
+    double operator()(const reco::Vertex& v) {return fabs(track.dsz(v.position()));}
+  };
 };
 
+template <class T> 
+const std::string SusyCAF_Jet<T>::vertex_names[2] = {"Primary", "PileUp"};
 
 template<class T> SusyCAF_Jet<T>::
 SusyCAF_Jet(const edm::ParameterSet& cfg) :
@@ -488,13 +500,12 @@ initMPT() { if(!mpt) return;
   for(unsigned j=0; j < qualities.size(); ++j) {
     std::string name = (qualities[j]<0 ? "All" : reco::Track::qualityNames[qualities[j]]) + "Tracks" + Suffix;
     name[0] = toupper((unsigned char) name[0]);
-    produces <std::vector<unsigned> > (Prefix + "N" + name);
-    produces <std::vector<unsigned> > (Prefix + "NOther" + name);
-    produces   <std::vector<Vector> > (Prefix + "SumP3with" + name );
-    produces   <std::vector<Vector> > (Prefix + "SumP3Otherwith" + name );
-    std::cout << name << " ";
+    for(unsigned v=VINIT; v<VSIZE; v++) {
+      std::string name2 = "with" + vertex_names[v] + name;
+      produces <std::vector<unsigned> > (Prefix + "Count" + name2);
+      produces   <std::vector<Vector> > (Prefix + "SumP3" + name2);
+    }
   }
-  std::cout << std::endl;
 }
 
 template<class T> void SusyCAF_Jet<T>::
@@ -506,34 +517,35 @@ produceMPT(edm::Event& evt, const edm::Handle<edm::View<T> >& jets) { if(!mpt) r
   evt.getByLabel(config.getParameter<edm::InputTag>("PrimaryVertexTag"), vertices);
   const reco::Vertex& PrimaryVertex = vertices->front();
 
-  std::vector< std::vector<unsigned> > ntracks( qualities.size(), std::vector<unsigned>(jets->size(),0) ) ;
-  std::vector< std::vector<unsigned> > ntracks_other( qualities.size(), std::vector<unsigned>(jets->size(),0) ) ;
-  std::vector< std::vector  <Vector> >   sump3( qualities.size(), std::vector<Vector>(jets->size(), Vector())   ) ;
-  std::vector< std::vector  <Vector> >   sump3_other( qualities.size(), std::vector<Vector>(jets->size(), Vector())   ) ;
+  std::vector< std::vector< std::vector<unsigned> > > ntracks( VSIZE, std::vector< std::vector<unsigned> > (qualities.size(), std::vector<unsigned>(jets->size(),0) )) ;
+  std::vector< std::vector< std::vector  <Vector> > >   sump3( VSIZE, std::vector< std::vector  <Vector> > (qualities.size(), std::vector<Vector>(jets->size(), Vector()) )) ;
  
   for( unsigned i=0; jets.isValid() && i< jets->size(); ++i ) {    
     for (reco::TrackRefVector::iterator trk = (*jets)[i].associatedTracks().begin(); trk != (*jets)[i].associatedTracks().end(); ++trk) {
-      for(unsigned j=0; j<qualities.size(); ++j) {
-	if((*trk)->quality(reco::TrackBase::TrackQuality(qualities[j]))) {
-	  if ( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 ) {
-	    ntracks[j][i]++;
-	    sump3[j][i] += (*trk)->momentum();
-	  } else {
-	    ntracks_other[j][i]++;
-	    sump3_other[j][i] += (*trk)->momentum();
+      if ( fabs((*trk)->dxy(PrimaryVertex.position())) < maxD0 ) {
+
+	std::vector<double> dist; std::transform(vertices->begin(), vertices->end(), back_inserter(dist), dsz(*(*trk)) );
+	std::vector<double>::const_iterator dmin = min_element(dist.begin(), dist.end());
+	unsigned v = (dmin==dist.begin()) ? V_PRIMARY : V_PILEUP;
+	
+	for(unsigned q=0; q<qualities.size(); ++q) {
+	  if((*trk)->quality(reco::TrackBase::TrackQuality(qualities[q]))) {
+	    ntracks[v][q][i]++;
+	    sump3[v][q][i] += (*trk)->momentum();
 	  }
 	}
       }
     }
   }
   
-  for(unsigned j=0; j<qualities.size(); ++j) {
-    std::string name = (qualities[j]<0 ? "All" : reco::Track::qualityNames[qualities[j]]) + "Tracks" + Suffix;
+  for(unsigned q=0; q<qualities.size(); ++q) {
+    std::string name = (qualities[q]<0 ? "All" : reco::Track::qualityNames[qualities[q]]) + "Tracks" + Suffix;
     name[0] = toupper((unsigned char) name[0]);
-    evt.put( std::auto_ptr<std::vector<unsigned> > ( new std::vector<unsigned>(      ntracks[j].begin(),      ntracks[j].end())), Prefix + "N" + name);
-    evt.put( std::auto_ptr<std::vector<unsigned> > ( new std::vector<unsigned>(ntracks_other[j].begin(),ntracks_other[j].end())), Prefix + "NOther" + name);
-    evt.put( std::auto_ptr<std::vector<Vector> >   ( new std::vector<Vector>(          sump3[j].begin(),        sump3[j].end())), Prefix + "SumP3with" + name );
-    evt.put( std::auto_ptr<std::vector<Vector> >   ( new std::vector<Vector>(    sump3_other[j].begin(),  sump3_other[j].end())), Prefix + "SumP3Otherwith" + name );
+    for(unsigned v=VINIT; v<VSIZE; v++) {
+      std::string name2 = "with" + vertex_names[v] + name;
+      evt.put( std::auto_ptr<std::vector<unsigned> > ( new std::vector<unsigned>(      ntracks[v][q].begin(),      ntracks[v][q].end())), Prefix + "Count" + name2);
+      evt.put( std::auto_ptr<std::vector<Vector> >   ( new std::vector<Vector>(          sump3[v][q].begin(),        sump3[v][q].end())), Prefix + "SumP3" + name2);
+    }
   }
 }
 

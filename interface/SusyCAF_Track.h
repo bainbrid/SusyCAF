@@ -23,11 +23,19 @@ private:
   const edm::InputTag   inputTag;
   const edm::InputTag   primaryVertexTag;
   const std::string     prefix, suffix;
-  const double          ptErrFrac;
   const double          maxD0;
   const std::vector<int> qualities;
-  const bool pixelSeedOnly,monsterVars;
+  const bool pixelSeedOnly,scraping;
 
+  enum VERTEX {VINIT=0, V_PRIMARY=0, V_PILEUP=1, VSIZE=2};
+  static const std::string vertex_names[];
+
+  struct dsz {
+    const reco::Track& track;
+    dsz(const reco::Track& t) : track(t) {}
+    double operator()(const reco::Vertex& v) {return fabs(track.dsz(v.position()));}
+  };
 };
+
 
 #endif

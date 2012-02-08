@@ -14,10 +14,10 @@ def patjets( calo = True, input = '', genInput = '', prefix = '', jecRecord = ''
                            JPT = cms.bool(jpt),
                            PF = cms.bool(pf),
                            JetID = cms.bool(jetid),
-                           MPT = cms.bool(True),
                            GenInfo = cms.bool(False),
+                           MPT = cms.bool(True),
                            PrimaryVertexTag = cms.InputTag('offlinePrimaryVertices'),
-                           MaxD0Trk = cms.double(0.02),
+                           MaxD0Trk = cms.double(5), # wide enough to include most tracks from b-jets?
                            TrackQualities = cms.vint32(2), # highPurity (see reco::TrackBase::TrackQuality)
                            JetCorrections = cms.vstring()
                            )

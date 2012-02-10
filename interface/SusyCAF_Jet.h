@@ -96,7 +96,11 @@ JetCorrectionUncertainty* jetCorrUnc(const edm::EventSetup& setup, const std::st
 float uncFunc(JetCorrectionUncertainty* jCU, const reco::Candidate::LorentzVector& jet) {
   jCU->setJetEta(jet.eta());
   jCU->setJetPt(jet.pt());// the uncertainty is a function of the corrected pt
-  return jCU->getUncertainty(true);
+  try {return jCU->getUncertainty(true);} // sigh,,, they are still throwing exceptions
+  catch (...) {
+    std::cout << "JetCorrectionUncertainty::getUncertainty threw exception on jet with pt( " << jet.pt() << " ) and eta ( " << jet.eta() << " )." << std::endl;
+    return 0.0;
+  }
 }
 
 template< typename T > 

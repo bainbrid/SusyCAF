@@ -13,8 +13,8 @@ addpkg MuonAnalysis/MuonAssociators  V01-13-00
 
 #Markus filter tags
 cvs co -rColin_TaggingMode_June30 JetMETAnalysis/ecalDeadCellTools
-cvs co -rTrackingfailTagMode_18Oct11 -dSandBox/Skims UserCode/seema/SandBox/Skims
+cvs co -rTrackingfailQuiet_10Feb2012 -dSandBox/Skims UserCode/seema/SandBox/Skims
 rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
 rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
 
-cvs co -rV16-00-00 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV16-00-01 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

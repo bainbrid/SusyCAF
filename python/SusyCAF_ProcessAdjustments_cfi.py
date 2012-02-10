@@ -96,7 +96,7 @@ def addEcalDeadCellFlag(process, options) :
 def addTrackingFailureFlag(process, options) :
     process.load('SandBox.Skims.vertex_cfi')
     from SandBox.Skims.trackingFailureFilter_cfi import trackingFailureFilter
-    process.trackingfailurefilterflag = trackingFailureFilter.clone(taggingMode = True)
+    process.trackingfailurefilterflag = trackingFailureFilter.clone(taggingMode = True, quiet = True)
     return cms.Path( process.goodVerticesRA2 * process.trackingfailurefilterflag )
 
 def lumiTree(process) :

@@ -81,23 +81,47 @@ def susyPat(process,options) :
 
 def addHbheNoiseFilterResult(process, options) :
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
-    if not options.hbheNoiseFilterDefaultIsoReq :
-        process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumE = 999999.0
-        process.HBHENoiseFilterResultProducer.minNumIsolatedNoiseChannels = 999999
-        process.HBHENoiseFilterResultProducer.minIsolatedNoiseSumEt = 999999.0
+    process.HBHENoiseFilterResultProducerNoIso = process.HBHENoiseFilterResultProducer.clone( minIsolatedNoiseSumE = 999999.0,
+                                                                                              minNumIsolatedNoiseChannels = 999999,
+                                                                                              minIsolatedNoiseSumEt = 999999.0  )
     process.hcalNoiseSummaryExists = cms.EDFilter('SusyCAF_HcalNoiseSummaryExists')
-    return cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer)
+    return cms.Path(process.hcalNoiseSummaryExists + process.HBHENoiseFilterResultProducer + process.HBHENoiseFilterResultProducerNoIso )
 
-def addEcalDeadCellFlag(process, options) :
-    from JetMETAnalysis.ecalDeadCellTools.EcalDeadCellEventFilter_cfi import *
-    process.ecaldeadcellfilterflag = EcalDeadCellEventFilter.clone(taggingMode = True)
-    return cms.Path(process.ecaldeadcellfilterflag)
+def addMetFilterFlags(process, options) :
+    # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters
+    from RecoMET.METFilters.trackingFailureFilter_cfi import trackingFailureFilter
+    from RecoMET.METFilters.hcalLaserEventFilter_cfi import hcalLaserEventFilter
+    from RecoMET.METFilters.inconsistentMuonPFCandidateFilter_cfi import inconsistentMuonPFCandidateFilter
+    from RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi import greedyMuonPFCandidateFilter
+    from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import EcalDeadCellTriggerPrimitiveFilter
+    from RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi import EcalDeadCellBoundaryEnergyFilter
 
-def addTrackingFailureFlag(process, options) :
-    process.load('SandBox.Skims.vertex_cfi')
-    from SandBox.Skims.trackingFailureFilter_cfi import trackingFailureFilter
-    process.trackingfailurefilterflag = trackingFailureFilter.clone(taggingMode = True, quiet = True)
-    return cms.Path( process.goodVerticesRA2 * process.trackingfailurefilterflag )
+    process.trackingFailureFilterFlag = trackingFailureFilter.clone(taggingMode = True)#, quiet = True)
+    process.hcalLaserEventFilterFlag = hcalLaserEventFilter.clone(taggingMode = True)
+    process.greedyMuonPFCandidateFilterFlag = greedyMuonPFCandidateFilter.clone(taggingMode = True)
+    process.inconsistentMuonPFCandidateFilterFlag = inconsistentMuonPFCandidateFilter.clone(taggingMode = True)
+    process.ecalDeadCellTPFilterFlag = EcalDeadCellTriggerPrimitiveFilter.clone(taggingMode = True)
+    process.ecalDeadCellBEFilterFlag = EcalDeadCellBoundaryEnergyFilter.clone(taggingMode = True,
+                                                                              cutBoundEnergyDeadCellsEB = 10.0,
+                                                                              cutBoundEnergyDeadCellsEE = 10.0,
+                                                                              cutBoundEnergyGapEB = 100.0,
+                                                                              cutBoundEnergyGapEE = 100.0,
+                                                                              enableGap = False,
+                                                                              limitDeadCellToChannelStatusEB = cms.vint32(12,14),
+                                                                              limitDeadCellToChannelStatusEE = cms.vint32(12,14))
+    process.goodVertices = cms.EDFilter("VertexSelector",
+                                        filter = cms.bool(False),
+                                        src = cms.InputTag("offlinePrimaryVertices"),
+                                        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2"))
+
+    return cms.Path( process.goodVertices *
+                     process.trackingFailureFilterFlag *
+                     process.hcalLaserEventFilterFlag *
+                     process.greedyMuonPFCandidateFilterFlag *
+                     process.inconsistentMuonPFCandidateFilterFlag *
+                     process.ecalDeadCellTPFilterFlag
+                     # * process.ecalDeadCellBEFilterFlag # product not found : EcalRecHitsEB
+                     )
 
 def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')

@@ -20,8 +20,7 @@ class SusyCAF(object) :
             'drop *',
             'keep *_susycaf*_*_*',
             'keep double_kt6PFJets_rho_%s'%self.process.name_(),
-            'keep *_ecaldeadcellfilterflag_*_*',
-            'keep *_trackingfailurefilterflag_*_*',
+            'keep *_*FilterFlag__*',
             'keep double_susyScan*_*_*') + (
             ["drop %s"%s for s in SusyCAF_Drop_cfi.drop(self.options.dropMore)] +
             ["keep %s"%s for s in SusyCAF_Drop_cfi.keep()]) +
@@ -51,7 +50,7 @@ class SusyCAF(object) :
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Scan_cfi import susycafscanFunc as susycafscanFunc
         self.process.susycafscan = susycafscanFunc(self.options.scan) if self.options.scan else self.empty
         self.process.susycaftriggers.SourceName  = self.options.SourceName
-        return ( self.evalSequence('susycafhcalnoise%s', ['filter','rbx','summary']) +
+        return ( self.evalSequence('susycafhcalnoise%s', ['filter','filternoiso','rbx','summary']) +
                  self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','beamhalosummary','logerror','vertex','calotowers'] +
                                                  (['triggers','L1triggers'] if self.options.triggers else [])) ) +
                  self.process.susycafmet + self.process.susycafmetnohf +

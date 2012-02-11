@@ -11,10 +11,9 @@ addpkg PhysicsTools/Configuration    V00-11-01
 addpkg PhysicsTools/PatAlgos         V08-07-38-02
 addpkg MuonAnalysis/MuonAssociators  V01-13-00
 
-#Markus filter tags
-cvs co -rColin_TaggingMode_June30 JetMETAnalysis/ecalDeadCellTools
-cvs co -rTrackingfailQuiet_10Feb2012 -dSandBox/Skims UserCode/seema/SandBox/Skims
-rm SandBox/Skims/python/RA2Cleaning_cff.py # fails to compile
-rm SandBox/Skims/python/RA2Objects_cff.py # fails to compile
+
+#MET filters
+addpkg DataFormats/METReco lhx_12JAN2012_v1
+cvs co -r lhx_08FEB2012_v2 RecoMET/METFilters
 
 cvs co -rV16-00-01 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

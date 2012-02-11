@@ -18,15 +18,13 @@ adjust.loadAndConfigureEcalSeverityLevelProducer(process)
 
 process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process,options)
-process.p_ecalFlag = adjust.addEcalDeadCellFlag(process,options)
-process.p_trackFlag= adjust.addTrackingFailureFlag(process,options)
+process.p_fltrFlgs = adjust.addMetFilterFlags(process,options)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_susyCAF  = SusyCAF(process,options).path()
 
 schedule = cms.Schedule( process.p_susyPat,
                          process.p_hbheFlag,
-                         process.p_ecalFlag,
-                         process.p_trackFlag,
+                         process.p_fltrFlgs,
                          process.p_lumi,
                          process.p_susyCAF )
 

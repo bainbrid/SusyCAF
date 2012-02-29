@@ -81,7 +81,7 @@ def setup_crab(job,option) :
              "LONDON" : {"SE":"T2_UK_London_IC",
                          "FULL_RPATH":"/pnfs/hep.ph.ic.ac.uk/data/cms/store/user/%(USER)s/%(RPATH)s" % option,
                          "USER_REMOTE":"%(RPATH)s",
-                         "SCHEDULER":"glite",
+                         "SCHEDULER":"glidein",
                          "DBS_URL": option["DBS_URL"],
                          "EXTRA": ""},
              "OSETHACK" : {"SE":"T2_UK_London_IC",
@@ -98,7 +98,7 @@ def setup_crab(job,option) :
         option[key] = eval('\'\'\''+val+'\'\'\'%option')
 
     option["EVENTS"] = '''
-lumis_per_job=10
+lumis_per_job=30
 total_number_of_lumis=-1
 %s'''%('lumi_mask=%(PATH)s/jsonls.txt'%option if job['jsonls'] else '') if job['isData'] else '''
 total_number_of_events=-1

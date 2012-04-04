@@ -715,8 +715,8 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
       SeedTime   -> push_back(ecalRecHits->find(id)->time());
       float e2 = -1;
       EBDetId id2 = 0;
-      int e2eta = 0;
-      int e2phi = 0;
+      //int e2eta = 0; //unused
+      //int e2phi = 0; //unused
       for ( int deta = -1; deta <= +1; ++deta ) {
         for ( int dphi = -1; dphi <= +1; ++dphi ) {
           EBDetId idtmp = EBDetId::offsetBy(id,deta,dphi);
@@ -726,8 +726,8 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
           if (etmp>e2 && eapproxet>1. && !(deta==0 && dphi==0)) {
             e2=etmp;
             id2=idtmp;
-            e2eta=deta;
-            e2phi=dphi;
+            //e2eta=deta;
+            //e2phi=dphi;
           }
         }
       }

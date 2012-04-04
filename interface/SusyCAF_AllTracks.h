@@ -104,7 +104,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel("offlinePrimaryVertices", vertices); 
 
   math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
-  math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
+  //math::XYZPoint vx = math::XYZPoint(0.,0.,0.);//unused
 
 
   if (beamspots.isValid()){ bs = beamspots->position(); } 

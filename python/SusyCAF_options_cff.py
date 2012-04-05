@@ -33,8 +33,9 @@ def options() :
     options.parseArguments()
     options._tagOrder =[] # weird, but something to do with options.output
 
+    #eos ls /eos/cms/store/relval/CMSSW_5_2_2/RelValTTbar/GEN-SIM-RECO/PU_START52_V4-v1/0256
     defaultGT,defaultFile = {
-        "52X" : [('START44_V12::All',''),#need example 52X MC file
+        "52X" : [('START52_V4::All','/store/relval/CMSSW_5_2_2/RelValTTbar/GEN-SIM-RECO/PU_START52_V4-v1/0256/1AF8A650-0B76-E111-BA3B-003048FFD76E.root'),
                  ('GR_R_52_V4::All' ,'/store/relval/CMSSW_5_2_2/DoubleMu/RECO/GR_R_52_V4_RelVal_zMu2011A-v2/0252/2A3FC019-9774-E111-87DC-002618943821.root')],
         "44X" : [('START44_V12::All','/../user/b/bbetchar//CMSSW_4_4_2_patch10/RelValProdTTbar/AODSIM/START44_V7_special_120119-v1/0088/0ECC7FA5-7A43-E111-9B36-002618943861.root'),
                  ('GR_R_44_V13::All','/../user/b/bbetchar/data/Run2011A/SingleMu/AOD/08Nov2011-v1/0001/80D61727-200D-E111-B7F4-1CC1DE0571C8.root')],

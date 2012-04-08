@@ -16,5 +16,4 @@ addpkg PhysicsTools/Configuration  V00-12-00
 #MET filters
 cvs co -r lhx_08FEB2012_v2 RecoMET/METFilters
 
-cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-#cvs co -rV16-00-01 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV17-pre1 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

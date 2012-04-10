@@ -81,6 +81,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<unsigned> > (  Prefix + "InnerTrackNumberOfValidHits" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "NumberOfValidPixelHits" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "NumberOfPixelLayersWithMeasurement" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "NumberOfTrackerLayersWithMeasurement" + Suffix);
 
   produces <std::vector<double> > (  Prefix + "OuterTrackNormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "OuterTrackNumberOfValidHits" + Suffix);
@@ -176,6 +177,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<unsigned> >    innerTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    pixel_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    pixel_LayersWithMeasurement   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    tracker_LayersWithMeasurement ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyBS   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  innerTrack_dxyError   ( new std::vector<double>()  ) ;
@@ -270,6 +272,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       innerTrack_numberOfValidHits->push_back( inner? it->innerTrack()->numberOfValidHits() : 0);
       pixel_numberOfValidHits->push_back( inner? it->innerTrack()->hitPattern().numberOfValidPixelHits() : 0); 
       pixel_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().pixelLayersWithMeasurement() : 0 );
+      tracker_LayersWithMeasurement->push_back( inner? it->innerTrack()->hitPattern().trackerLayersWithMeasurement() : 0 );
       innerTrackP4->push_back( inner ? muonP4FromP(it->innerTrack()->momentum()) : LorentzVector() );
 
       bool outer = it->outerTrack().isNonnull();
@@ -312,6 +315,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( innerTrack_numberOfValidHits,  Prefix + "InnerTrackNumberOfValidHits" + Suffix );
   iEvent.put( pixel_numberOfValidHits,  Prefix + "NumberOfValidPixelHits" + Suffix );
   iEvent.put( pixel_LayersWithMeasurement,  Prefix + "NumberOfPixelLayersWithMeasurement" + Suffix );
+  iEvent.put( tracker_LayersWithMeasurement,  Prefix + "NumberOfTrackerLayersWithMeasurement" + Suffix );
   iEvent.put( outerTrack_normalizedChi2,  Prefix + "OuterTrackNormalizedChi2" + Suffix );
   iEvent.put( outerTrack_numberOfValidHits,  Prefix + "OuterTrackNumberOfValidHits" + Suffix );
   iEvent.put( caloCompatibility,  Prefix + "CaloCompatibility" + Suffix );

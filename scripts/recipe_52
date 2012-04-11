@@ -20,3 +20,12 @@ cvs co -r lhx_10APR2012_v1 RecoMET/METFilters
 
 cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 #cvs co -rV17-pre1 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+
+
+## TODO ##
+# taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)
+# rho25 for photons (https://twiki.cern.ch/twiki/bin/view/CMS/Vgamma2011PhotonID)
+# store multiple rhos
+# store jet areas
+# check severity level adjustments
+# FNAL stage out

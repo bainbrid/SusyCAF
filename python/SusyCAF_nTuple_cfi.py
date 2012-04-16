@@ -60,7 +60,7 @@ class SusyCAF(object) :
                  self.evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
                  
                  self.evalSequence(*[ ('susycaf%s',['gen','genMetCalo','genMetCaloAndNonPrompt','genMetTrue','scan','pileupsummary']), # Gen
-                                      ('susycaf%s',['dqmflags','dcsbits']) # Data
+                                      ('susycaf%s',['dqmflags','dcsbits'][(not self.options.dqm):]) # Data
                                       ][self.options.isData])
                  )
 

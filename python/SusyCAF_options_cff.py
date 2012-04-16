@@ -27,6 +27,7 @@ def options() :
     options.register('scan', default = "", info = "code for CMSSM or SMS scan", mytype = VP.varType.string)
     options.register('triggers', default = -1, info = "store trigger information in the ntuple") # defaults to isData (below)
     options.register('taus', default = True, info = "store tau information in the ntuple")
+    options.register('dqm', default = False, info = "store dqm information in the ntuple")
     
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+export SCRAM_ARCH=slc5_amd64_gcc462
+CMSSW=CMSSW_5_1_2
+
+cmsrel $CMSSW
+cd $CMSSW/src
+cmsenv
+
+# susypat
+addpkg CommonTools/ParticleFlow   V00-03-06-01
+addpkg DataFormats/PatCandidates  V06-04-33
+addpkg PhysicsTools/PatAlgos      V08-08-11-03-01
+addpkg PhysicsTools/PatUtils      V03-09-18-03
+addpkg PhysicsTools/SelectorUtils V00-03-24-01
+addpkg FWCore/GuiBrowsers V00-00-60
+
+addpkg PhysicsTools/Configuration        V00-12-00
+
+#MET filters
+cvs co -r lhx_12JAN2012_v1 DataFormats/METReco 
+cvs co -r lhx_10APR2012_v1 RecoMET/METFilters 
+
+#cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV17-pre2 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF

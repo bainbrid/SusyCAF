@@ -79,6 +79,7 @@ SusyCAF_Jet(const edm::ParameterSet& cfg) :
   produces <std::vector<reco::Candidate::LorentzVector> > ( Prefix + "CorrectedP4"  + Suffix );
   produces <std::vector<double> >                         ( Prefix + "CorrFactor"  + Suffix );
   produces <std::vector<float> >                          ( Prefix + "JecUnc"     + Suffix );
+  produces <std::vector<float> >                          ( Prefix + "Area"       + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Eta2Moment" + Suffix );
   produces <std::vector<float> >                          ( Prefix + "Phi2Moment" + Suffix );
   produces <reco::Candidate::LorentzVector>               ( Prefix + "DroppedSumP4" + Suffix );
@@ -111,6 +112,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
   edm::Handle<edm::View<T> > allJets;  evt.getByLabel(allJetsInputTag, allJets);
 
   std::auto_ptr<std::vector<LorentzV> >   p4   ( new std::vector<LorentzV>()  )  ;
+  std::auto_ptr<std::vector<float> >  jetArea  ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  jecUnc   ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  eta2mom  ( new std::vector<float>()  )  ;
   std::auto_ptr<std::vector<float> >  phi2mom  ( new std::vector<float>()  )  ;
@@ -124,6 +126,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
     p4->push_back((*jets)[i].p4());
     eta2mom->push_back((*jets)[i].etaetaMoment());
     phi2mom->push_back((*jets)[i].phiphiMoment());
+    jetArea->push_back((*jets)[i].jetArea());
     *droppedSumP4 -= (*jets)[i].p4();
     *droppedSumPT -= (*jets)[i].pt();
     *droppedSumET -= (*jets)[i].p4().Et();
@@ -141,6 +144,7 @@ produce(edm::Event& evt, const edm::EventSetup& setup) {
   evt.put(                      p4, Prefix + "CorrectedP4" + Suffix );
   evt.put( correctionFactors(jets), Prefix + "CorrFactor"  + Suffix) ;
   evt.put(                  jecUnc, Prefix + "JecUnc"     + Suffix );
+  evt.put(                 jetArea, Prefix + "Area"       + Suffix );
   evt.put(                 eta2mom, Prefix + "Eta2Moment" + Suffix );
   evt.put(                 phi2mom, Prefix + "Phi2Moment" + Suffix );
   evt.put(            droppedSumP4, Prefix + "DroppedSumP4" + Suffix );

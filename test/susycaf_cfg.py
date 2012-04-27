@@ -16,6 +16,7 @@ adjust.messageLogger(process,options.quiet)
 adjust.loadAndConfigureHcalSeverityLevelProducer(process, options.isData)
 adjust.loadAndConfigureEcalSeverityLevelProducer(process)
 
+process.p_tauReco  = adjust.tauReco(process,options)
 process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process,options)
 process.p_fltrFlgs = adjust.addMetFilterFlags(process,options)
@@ -23,7 +24,8 @@ process.p_fltrFlgs = adjust.addMetFilterFlags(process,options)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_susyCAF  = SusyCAF(process,options).path()
 
-schedule = cms.Schedule( process.p_susyPat,
+schedule = cms.Schedule( process.p_tauReco,
+                         process.p_susyPat,
                          process.p_hbheFlag,
                          process.p_fltrFlgs,
                          process.p_lumi,

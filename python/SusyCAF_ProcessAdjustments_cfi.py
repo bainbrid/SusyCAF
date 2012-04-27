@@ -127,4 +127,8 @@ def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')
     return cms.Path(process.lumiTree)
 
-
+def rho25(process) :
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.kt6PFJets25 = process.kt6PFJets.clone( doRhoFastjet = True )
+    process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
+    return cms.Path( process.kt6PFJets25 )

@@ -21,7 +21,7 @@ cvs co -r lhx_14APR2012_v1 RecoMET/METFilters
 #cvs co -r lhx_24APR2012_v2 RecoMET/METFilters
 
 #cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-cvs co -rV17-pre2 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -rV17-pre3 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 
 
 ## TODO ##

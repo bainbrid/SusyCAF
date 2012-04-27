@@ -132,3 +132,11 @@ def rho25(process) :
     process.kt6PFJets25 = process.kt6PFJets.clone( doRhoFastjet = True )
     process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
     return cms.Path( process.kt6PFJets25 )
+
+def tauReco(process,options) :
+    if options.doTauReco :
+        #https://hypernews.cern.ch/HyperNews/CMS/get/physTools/2710/1/1/2/1.html
+        process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
+        return cms.Path(process.PFTau)
+    else :
+        return cms.Path()

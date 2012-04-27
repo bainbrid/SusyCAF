@@ -1,18 +1,19 @@
 #!/bin/bash
 
 export SCRAM_ARCH=slc5_amd64_gcc462
-CMSSW=CMSSW_5_2_3
+CMSSW=CMSSW_5_2_4_patch1
 
 cmsrel $CMSSW
 cd $CMSSW/src
 cmsenv
 
-# susypat
-addpkg PhysicsTools/PatAlgos       V08-08-25
+# susypat (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SusyPatLayer1DefV12)
+addpkg DataFormats/PatCandidates   V06-05-00
+addpkg PhysicsTools/PatAlgos       V08-09-02
 addpkg PhysicsTools/PatUtils       V03-09-18-03
-addpkg CommonTools/ParticleFlow    V00-03-07-01
-addpkg RecoParticleFlow/PFProducer V15-01-05
-
+addpkg CommonTools/ParticleFlow    V00-03-08
+addpkg RecoParticleFlow/PFProducer V15-01-06
+addpkg FWCore/GuiBrowsers          V00-00-60
 addpkg PhysicsTools/Configuration  V00-12-00
 
 #MET filters
@@ -26,6 +27,4 @@ cvs co -rV17-pre2 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 # taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)
 # rho25 for photons (https://twiki.cern.ch/twiki/bin/view/CMS/Vgamma2011PhotonID)
 # store multiple rhos
-# store jet areas
 # check severity level adjustments
-# FNAL stage out

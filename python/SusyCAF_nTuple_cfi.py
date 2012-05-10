@@ -50,24 +50,10 @@ class SusyCAF(object) :
         from SUSYBSMAnalysis.SusyCAF.SusyCAF_Scan_cfi import susycafscanFunc as susycafscanFunc
         self.process.susycafscan = susycafscanFunc(self.options.scan) if self.options.scan else self.empty
         self.process.susycaftriggers.SourceName  = self.options.SourceName
-        if self.options.beamHaloVars :
-           return ( self.evalSequence('susycafhcalnoise%s', ['filter','filternoiso','rbx','summary']) +
-                 self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','beamhalosummary','logerror','vertex','calotowers'] +
-                                                 (['triggers','L1triggers','l1extra'] if self.options.triggers else [])) ) +
-                 self.process.susycafmet + self.process.susycafmetnohf +
-                 self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +
-                 self.evalSequence('susycaf%srechit', [ 'hbhe', 'hf', 'eb', 'ee' ]) +
-                 self.evalSequence('susycafpfrechitcluster%s', ['ecal','hcal','hfem','hfhad','ps']) +
-                 self.evalSequence('susycafpfrechit%s',        ['ecal','hcal','hfem','hfhad','ps']) +
-                 
-                 self.evalSequence(*[ ('susycaf%s',['gen','genMetCalo','genMetCaloAndNonPrompt','genMetTrue','scan','pileupsummary']), # Gen
-                                      ('susycaf%s',['dqmflags','dcsbits'][(not self.options.dqm):]) # Data
-                                      ][self.options.isData])
-                 )
-        else:
-           #introduced to remove the beam halo variables which are problematic with fastsim scans
-           return ( self.evalSequence('susycafhcalnoise%s', ['filter','filternoiso','rbx','summary']) +
+
+        return ( self.evalSequence('susycafhcalnoise%s', ['filter','filternoiso','rbx','summary']) +
                  self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','logerror','vertex','calotowers'] +
+                                                 (['beamhalosummary'] if self.options.beamHaloVars else [] ) +
                                                  (['triggers','L1triggers','l1extra'] if self.options.triggers else [])) ) +
                  self.process.susycafmet + self.process.susycafmetnohf +
                  self.evalSequence('susycaf%sdeadchannels', ['ecal','hcal']) +

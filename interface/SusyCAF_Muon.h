@@ -89,11 +89,21 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "IsolationR03sumPt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03emEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03hadEt" + Suffix);
+
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04ChgHadPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04ChgParPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04NeuHadEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04GamEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04PUPt" + Suffix);
+
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexNdof" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsGlobalMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsTrackerMuon" + Suffix);
+  produces <std::vector<int> > (  Prefix + "IsPFMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
   produces <std::vector<unsigned> > ( Prefix + "NumberOfMatches" + Suffix );
@@ -191,11 +201,21 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> >  isolationR03sumPt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03emEt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03hadEt   ( new std::vector<float>()  ) ;
+
+  std::auto_ptr<std::vector<float> >  pfIsolationR04ChgHadPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04ChgParPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04NeuHadEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04GamEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04NeuHadHiThrEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04GamHiThrEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04PUPt	( new std::vector<float>() ) ;
+
   std::auto_ptr<std::vector<math::XYZPoint> > vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexNdof   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<int> >  isGlobalMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isTrackerMuon   ( new std::vector<int>()  ) ;
+  std::auto_ptr<std::vector<int> >  isPFMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  hasOverlap   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<unsigned> >  numberOfMatches   ( new std::vector<unsigned>()  ) ;
@@ -236,11 +256,21 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isolationR03sumPt->push_back(it->isolationR03().sumPt);
       isolationR03emEt->push_back(it->isolationR03().emEt);
       isolationR03hadEt->push_back(it->isolationR03().hadEt);
+
+      pfIsolationR04ChgHadPt->push_back(it->pfIsolationR04().sumChargedHadronPt);
+      pfIsolationR04ChgParPt->push_back(it->pfIsolationR04().sumChargedParticlePt);
+      pfIsolationR04NeuHadEt->push_back(it->pfIsolationR04().sumNeutralHadronEt);
+      pfIsolationR04GamEt->push_back(it->pfIsolationR04().sumPhotonEt);
+      pfIsolationR04NeuHadHiThrEt->push_back(it->pfIsolationR04().sumNeutralHadronEtHighThreshold);
+      pfIsolationR04GamHiThrEt->push_back(it->pfIsolationR04().sumPhotonEtHighThreshold);
+      pfIsolationR04PUPt->push_back(it->pfIsolationR04().sumPUPt);
+
       vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
       vertexNdof->push_back(it->vertexNdof());
       isGlobalMuon->push_back(it->isGlobalMuon());
       isTrackerMuon->push_back(it->isTrackerMuon());
+      isPFMuon->push_back(it->isPFMuon());
       isStandAloneMuon->push_back(it->isStandAloneMuon());
       numberOfMatches->push_back(it->numberOfMatches());
       if (sumHasOverlap) { hasOverlap->push_back(1); }
@@ -313,6 +343,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( innerTrack_dzError,  Prefix + "InnerTrackDzError" + Suffix );
   iEvent.put( innerTrack_normalizedChi2,  Prefix + "InnerTrackNormalizedChi2" + Suffix );
   iEvent.put( innerTrack_numberOfValidHits,  Prefix + "InnerTrackNumberOfValidHits" + Suffix );
+  //iEvent.put( LongDistTrackvsPriVer,  Prefix + "LongDistTrackvsPriVer" + Suffix ); //NEW
   iEvent.put( pixel_numberOfValidHits,  Prefix + "NumberOfValidPixelHits" + Suffix );
   iEvent.put( pixel_LayersWithMeasurement,  Prefix + "NumberOfPixelLayersWithMeasurement" + Suffix );
   iEvent.put( tracker_LayersWithMeasurement,  Prefix + "NumberOfTrackerLayersWithMeasurement" + Suffix );
@@ -322,11 +353,21 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isolationR03sumPt,  Prefix + "IsolationR03sumPt" + Suffix );
   iEvent.put( isolationR03emEt,  Prefix + "IsolationR03emEt" + Suffix );
   iEvent.put( isolationR03hadEt,  Prefix + "IsolationR03hadEt" + Suffix );
+
+  iEvent.put( pfIsolationR04ChgHadPt, Prefix + "PfIsolationR04ChgHadPt" + Suffix);
+  iEvent.put( pfIsolationR04ChgParPt, Prefix + "PfIsolationR04ChgParPt" + Suffix);
+  iEvent.put( pfIsolationR04NeuHadEt, Prefix + "PfIsolationR04NeuHadEt" + Suffix);
+  iEvent.put( pfIsolationR04GamEt, Prefix + "PfIsolationR04GamEt" + Suffix);
+  iEvent.put( pfIsolationR04NeuHadHiThrEt, Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
+  iEvent.put( pfIsolationR04GamHiThrEt, Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
+  iEvent.put( pfIsolationR04PUPt, Prefix + "PfIsolationR04PUPt" + Suffix);
+
   iEvent.put( vertex,      Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );
   iEvent.put( vertexNdof,  Prefix + "VertexNdof" + Suffix );
   iEvent.put( isGlobalMuon,  Prefix + "IsGlobalMuon" + Suffix );
   iEvent.put( isTrackerMuon,  Prefix + "IsTrackerMuon" + Suffix );
+  iEvent.put( isPFMuon,  Prefix + "IsPFMuon" + Suffix );
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
   iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );

@@ -23,22 +23,25 @@
 template< typename T >
 class SusyCAF_Electron : public edm::EDProducer {
 public:
- explicit SusyCAF_Electron(const edm::ParameterSet&);
+  explicit SusyCAF_Electron(const edm::ParameterSet&);
 private:
- void initTemplate();
- void initRECO();
- void initPAT();
- void produce(edm::Event &, const edm::EventSetup & );
- void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
- void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
- void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
- bool isInCollection(const T&, const std::vector<T>&);
-
- typedef reco::Candidate::LorentzVector LorentzVector;
-
- const edm::InputTag inputTag,selectedTag;
- const std::string Prefix,Suffix;
- const bool StoreConversionInfo;
+  void initTemplate();
+  void initRECO();
+  void initPAT();
+  std::string underscoreless(std::string);
+  void produce(edm::Event &, const edm::EventSetup & );
+  void produceTemplate(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
+  bool isInCollection(const T&, const std::vector<T>&);
+  
+  typedef reco::Candidate::LorentzVector LorentzVector;
+  
+  const edm::InputTag inputTag,selectedTag;
+  const std::string Prefix,Suffix;
+  const bool StoreConversionInfo;
+  const std::vector<std::string> IdFlagsOldStyle;
+  const std::vector<std::string> IdFlags;
 };
 
 template< typename T >
@@ -47,7 +50,9 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
  selectedTag(iConfig.getParameter<edm::InputTag>("SelectedElectrons")),
  Prefix(iConfig.getParameter<std::string>("Prefix")),
  Suffix(iConfig.getParameter<std::string>("Suffix")),
- StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo"))
+ StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo")),
+ IdFlagsOldStyle(iConfig.getParameter<std::vector< std::string> >("IdFlagsOldStyle")),
+ IdFlags(iConfig.getParameter<std::vector< std::string> >("IdFlags"))
 {
  initTemplate();
 }
@@ -131,26 +136,30 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<int> > ( Prefix + "ClosestCtfTrackCharge" + Suffix );
 }
 
+template< typename T >
+std::string SusyCAF_Electron<T>::underscoreless(std::string s) {
+  while(s.find("_")!=std::string::npos) s.replace(s.find("_"), 1, "");
+  return s;
+}
+
 // extra information stored for PAT data
 template< typename T >
 void SusyCAF_Electron<T>::initPAT()
 {
- produces <std::vector<float> >  (Prefix + "EcalIso"                   + Suffix);
- produces <std::vector<float> >  (Prefix + "HcalIso"                   + Suffix);
- produces <std::vector<float> >  (Prefix + "TrackIso"                  + Suffix);
- produces <std::vector<float> >  (Prefix + "EIDTight"                  + Suffix);
- produces <std::vector<float> >  (Prefix + "EIDRobustTight"            + Suffix);
- produces <std::vector<float> >  (Prefix + "EIDLoose"                  + Suffix);
- produces <std::vector<float> >  (Prefix + "EIDRobustLoose"            + Suffix);
- produces <std::vector<float> > (Prefix + "EcalIsoDep" + Suffix);
- produces <std::vector<float> > (Prefix + "HcalIsoDep" + Suffix);
- produces <std::vector<int> >   (Prefix + "ProducedFromPF" + Suffix);
- produces <std::vector<float> > (Prefix + "IdPfevspi" + Suffix);
- produces <std::vector<float> > (Prefix + "ParticleIso" + Suffix);
+ produces <std::vector<float> > (Prefix + "EcalIso"          + Suffix);
+ produces <std::vector<float> > (Prefix + "HcalIso"          + Suffix);
+ produces <std::vector<float> > (Prefix + "TrackIso"         + Suffix);
+ produces <std::vector<float> > (Prefix + "EcalIsoDep"       + Suffix);
+ produces <std::vector<float> > (Prefix + "HcalIsoDep"       + Suffix);
+ produces <std::vector<int> >   (Prefix + "ProducedFromPF"   + Suffix);
+ produces <std::vector<float> > (Prefix + "ParticleIso"      + Suffix);
  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
  produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
- produces <std::vector<float> > (Prefix + "PhotonIso" + Suffix);
+ produces <std::vector<float> > (Prefix + "PhotonIso"        + Suffix);
 
+  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
+    produces <std::vector<float> >  (Prefix + underscoreless(*name) + Suffix);//int
+  }
 
 }
 
@@ -431,79 +440,62 @@ template< typename T >
 void SusyCAF_Electron<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
 
- std::auto_ptr<std::vector<float> >  ecalIso                  ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  hcalIso                  ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  trackIso                 ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  eIDTight                 ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  eIDRobustTight           ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  eIDLoose                 ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> >  eIDRobustLoose           ( new std::vector<float>()  ) ;
- std::auto_ptr<std::vector<float> > ecalIsoDep( new std::vector<float>() );
- std::auto_ptr<std::vector<float> > hcalIsoDep( new std::vector<float>() );
+  std::map< std::string, std::vector<float> > idsOld;
+  
+  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
+    idsOld[*name] = std::vector<float>();
+  }
+  
+  std::auto_ptr<std::vector<float> >  ecalIso   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  hcalIso   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  trackIso  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  ecalIsoDep( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  hcalIsoDep( new std::vector<float>() );
+  
+  std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
+  std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
+  
+  if (collection.isValid()){
+    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+      
+      for(std::map< std::string, std::vector<float> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+	idsOld[id->first].push_back(it->electronID(id->first));
+      }
+      
+      ecalIso ->push_back(it->ecalIso());
+      hcalIso ->push_back(it->hcalIso());
+      trackIso->push_back(it->trackIso());
+      ecalIsoDep->push_back(it->ecalIsoDeposit() ? it->ecalIsoDeposit()->candEnergy() : -999.9);
+      hcalIsoDep->push_back(it->hcalIsoDeposit() ? it->hcalIsoDeposit()->candEnergy() : -999.9);
 
- //pf
-
- std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
- std::auto_ptr<std::vector<float> > ElId_pf_evspi (new std::vector<float>() );
- std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
- std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
- std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
- std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
-
- if (collection.isValid()){
-   for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-
-     ecalIso->push_back(it->ecalIso());
-     hcalIso                 ->push_back(it->hcalIso                   ());
-     trackIso                ->push_back(it->trackIso                  ());
-     eIDTight                ->push_back(it->electronID("eidTight"));
-     eIDRobustTight          ->push_back(it->electronID("eidRobustTight"));
-     eIDLoose                ->push_back(it->electronID("eidLoose"));
-     eIDRobustLoose          ->push_back(it->electronID("eidRobustLoose"));
-     if(it->ecalIsoDeposit() && it->hcalIsoDeposit()){//this is needed to avoid the code seg faulting in 341 - NM 05/01/10
-	ecalIsoDep->push_back(it->ecalIsoDeposit()->candEnergy());
-	hcalIsoDep->push_back(it->hcalIsoDeposit()->candEnergy());
-     }
-
-     //pf
-     ispf->push_back(it->pfCandidateRef().isAvailable()); //just for safety, could be removed later
-     if(it->pfCandidateRef().isAvailable()){
-
-	for(std::vector<std::pair<std::string, float> >::const_iterator ElIds = (it->electronIDs()).begin(); ElIds!=(it->electronIDs()).end(); ElIds++){
-	  if(ElIds->first=="pf_evspi"){
-	    ElId_pf_evspi ->push_back(ElIds->second);
-	  }
-	}
-	partIso->push_back(it->particleIso());
-	charHadIso->push_back(it->chargedHadronIso());
-	neutHadIso->push_back(it->neutralHadronIso());
-	photIso->push_back(it->photonIso());
-
-     }
-   }
-
-
-
+      ispf->push_back(it->pfCandidateRef().isAvailable());
+      partIso->push_back(it->particleIso());
+      charHadIso->push_back(it->chargedHadronIso());
+      neutHadIso->push_back(it->neutralHadronIso());
+      photIso->push_back(it->photonIso());
+    }
    } // end loop over electrons
 
+  //store ids
+  for(std::map< std::string, std::vector<float> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+    std::auto_ptr<std::vector<float> > ptr( new std::vector<float>(id->second) );
+    iEvent.put(ptr, Prefix + underscoreless(id->first) + Suffix);
+  }
+  
+  iEvent.put(ecalIso,    Prefix + "EcalIso"    + Suffix);
+  iEvent.put(hcalIso,    Prefix + "HcalIso"    + Suffix);
+  iEvent.put(trackIso,   Prefix + "TrackIso"   + Suffix);
+  iEvent.put(ecalIsoDep, Prefix + "EcalIsoDep" + Suffix);
+  iEvent.put(hcalIsoDep, Prefix + "HcalIsoDep" + Suffix);
 
-
- iEvent.put(ecalIso                 , Prefix + "EcalIso"                  + Suffix);
- iEvent.put(hcalIso                 , Prefix + "HcalIso"                  + Suffix);
- iEvent.put(trackIso                , Prefix + "TrackIso"                 + Suffix);
- iEvent.put(eIDTight                , Prefix + "EIDTight"                 + Suffix);
- iEvent.put(eIDRobustTight          , Prefix + "EIDRobustTight"           + Suffix);
- iEvent.put(eIDLoose                , Prefix + "EIDLoose"                 + Suffix);
- iEvent.put(eIDRobustLoose          , Prefix + "EIDRobustLoose"           + Suffix);
- iEvent.put(ecalIsoDep, Prefix + "EcalIsoDep" + Suffix);
- iEvent.put(hcalIsoDep, Prefix + "HcalIsoDep" + Suffix);
- //pf stuff
- iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
- iEvent.put(ElId_pf_evspi, Prefix + "IdPfevspi" + Suffix);
- iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
- iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
- iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
- iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
+  iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
+  iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
+  iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
+  iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
+  iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
 }
 
 #endif

@@ -17,6 +17,9 @@ addpkg PhysicsTools/Configuration        V00-12-01
 cvs co -r lhx_14APR2012_v1 RecoMET/METFilters
 #cvs co -r lhx_24APR2012_v2 RecoMET/METFilters
 
+# functions to compute electron IDs
+cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+
 #cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 cvs co -rV17-pre4 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 

@@ -20,6 +20,10 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+// ID computation
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+
 template< typename T >
 class SusyCAF_Electron : public edm::EDProducer {
 public:
@@ -34,13 +38,19 @@ private:
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   bool isInCollection(const T&, const std::vector<T>&);
+  void pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& ele,
+	     bool& veto, bool& loose, bool& medium, bool& tight);
   
   typedef reco::Candidate::LorentzVector LorentzVector;
   
+  // input tags
   const edm::InputTag inputTag,selectedTag;
   const std::string Prefix,Suffix;
   const bool StoreConversionInfo;
   const std::vector<std::string> IdFlagsOldStyle;
+
+  const edm::InputTag conversionsInputTag_, beamSpotInputTag_, rhoIsoInputTag_, primaryVertexInputTag_;
+  const std::vector<edm::InputTag> isoValInputTags_;
   const std::vector<std::string> IdFlags;
 };
 
@@ -52,6 +62,12 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
  Suffix(iConfig.getParameter<std::string>("Suffix")),
  StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo")),
  IdFlagsOldStyle(iConfig.getParameter<std::vector< std::string> >("IdFlagsOldStyle")),
+
+ conversionsInputTag_(iConfig.getParameter<edm::InputTag>("conversionsInputTag")),
+ beamSpotInputTag_(iConfig.getParameter<edm::InputTag>("beamSpotInputTag")),
+ rhoIsoInputTag_(iConfig.getParameter<edm::InputTag>("rhoIsoInputTag")),
+ primaryVertexInputTag_(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag")),
+ isoValInputTags_(iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags")),
  IdFlags(iConfig.getParameter<std::vector< std::string> >("IdFlags"))
 {
  initTemplate();
@@ -158,7 +174,7 @@ void SusyCAF_Electron<T>::initPAT()
  produces <std::vector<float> > (Prefix + "PhotonIso"        + Suffix);
 
   for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
-    produces <std::vector<float> >  (Prefix + underscoreless(*name) + Suffix);//int
+    produces <std::vector<int> > (Prefix + underscoreless(*name) + Suffix);
   }
 
 }
@@ -250,8 +266,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<int> > closestCtfTrackCharge( new std::vector<int>() );
  math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
  math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
- edm::Handle<reco::BeamSpot> beamspots;        iEvent.getByLabel("offlineBeamSpot", beamspots);
- edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel("offlinePrimaryVertices", vertices);
+ edm::Handle<reco::BeamSpot> beamspots;        iEvent.getByLabel(beamSpotInputTag_, beamspots);
+ edm::Handle<reco::VertexCollection> vertices; iEvent.getByLabel(primaryVertexInputTag_, vertices);
 
  if (beamspots.isValid()) bs = beamspots->position();
 
@@ -435,15 +451,62 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put(closestCtfTrackCharge, Prefix + "ClosestCtfTrackCharge" + Suffix);
 }
 
+
+template< typename T >
+void SusyCAF_Electron<T>::
+pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& electron,
+      bool& veto, bool& loose, bool& medium, bool& tight)
+{
+  //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleIdAnalyzer.cc?revision=1.2&view=markup
+
+  // conversions
+  edm::Handle<reco::ConversionCollection> conversions_h;
+  iEvent.getByLabel(conversionsInputTag_, conversions_h);
+
+  // iso deposits
+  std::vector< edm::Handle< edm::ValueMap<double> > > isoVals(isoValInputTags_.size());
+  for (size_t j = 0; j < isoValInputTags_.size(); ++j) {
+    iEvent.getByLabel(isoValInputTags_[j], isoVals[j]);
+  }
+
+  // beam spot
+  edm::Handle<reco::BeamSpot> beamspot_h;
+  iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+  const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+
+  // vertices
+  edm::Handle<reco::VertexCollection> vtx_h;
+  iEvent.getByLabel(primaryVertexInputTag_, vtx_h);
+
+  // rho for isolation
+  edm::Handle<double> rhoIso_h;
+  iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h);
+  double rhoIso = *(rhoIso_h.product());
+
+  // reference to electron
+  reco::GsfElectronRef ele(electron);
+  
+  // particle flow isolation
+  double iso_ch =  (*(isoVals)[0])[ele];
+  double iso_em = (*(isoVals)[1])[ele];
+  double iso_nh = (*(isoVals)[2])[ele];
+  
+  // working points
+  veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  loose  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  medium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  tight  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+ }
+
 // extra information stored for PAT data
 template< typename T >
 void SusyCAF_Electron<T>::
 producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
 
-  std::map< std::string, std::vector<float> > idsOld;
+  std::map< std::string, std::vector<int> > idsOld;
   
   for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
-    idsOld[*name] = std::vector<float>();
+    idsOld[*name] = std::vector<int>();
   }
   
   std::auto_ptr<std::vector<float> >  ecalIso   ( new std::vector<float>() );
@@ -460,10 +523,15 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   
   if (collection.isValid()){
     for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
-      
-      for(std::map< std::string, std::vector<float> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+
+      //old-style IDs
+      for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
 	idsOld[id->first].push_back(it->electronID(id->first));
       }
+
+//      //2012 POG IDs
+//      pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& electron,
+//	    bool& veto, bool& loose, bool& medium, bool& tight)
       
       ecalIso ->push_back(it->ecalIso());
       hcalIso ->push_back(it->hcalIso());
@@ -479,9 +547,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     }
    } // end loop over electrons
 
-  //store ids
-  for(std::map< std::string, std::vector<float> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
-    std::auto_ptr<std::vector<float> > ptr( new std::vector<float>(id->second) );
+  //store old-style IDs
+  for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+    std::auto_ptr<std::vector<int> > ptr( new std::vector<int>(id->second) );
     iEvent.put(ptr, Prefix + underscoreless(id->first) + Suffix);
   }
   

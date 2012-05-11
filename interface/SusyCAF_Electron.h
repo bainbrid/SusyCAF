@@ -38,8 +38,10 @@ private:
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   bool isInCollection(const T&, const std::vector<T>&);
-  void pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& ele,
-	     bool& veto, bool& loose, bool& medium, bool& tight);
+  void pogId1(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
+	      bool& veto, bool& loose, bool& medium, bool& tight);
+  void pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
+	      bool& veto, bool& loose, bool& medium, bool& tight);
   
   typedef reco::Candidate::LorentzVector LorentzVector;
   
@@ -172,10 +174,14 @@ void SusyCAF_Electron<T>::initPAT()
  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
  produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
  produces <std::vector<float> > (Prefix + "PhotonIso"        + Suffix);
+ produces <std::vector<int> >   (Prefix + "IdVeto"           + Suffix);
+ produces <std::vector<int> >   (Prefix + "IdLoose"          + Suffix);
+ produces <std::vector<int> >   (Prefix + "IdMedium"         + Suffix);
+ produces <std::vector<int> >   (Prefix + "IdTight"          + Suffix);
 
-  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
-    produces <std::vector<int> > (Prefix + underscoreless(*name) + Suffix);
-  }
+ for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
+   produces <std::vector<int> > (Prefix + underscoreless(*name) + Suffix);
+ }
 
 }
 
@@ -451,10 +457,96 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put(closestCtfTrackCharge, Prefix + "ClosestCtfTrackCharge" + Suffix);
 }
 
-
+// extra information stored for PAT data
 template< typename T >
 void SusyCAF_Electron<T>::
-pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& electron,
+producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
+
+  std::map< std::string, std::vector<int> > idsOld;
+  
+  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
+    idsOld[*name] = std::vector<int>();
+  }
+
+  std::auto_ptr<std::vector<int> >   idVeto(   new std::vector<int>() );
+  std::auto_ptr<std::vector<int> >   idLoose(  new std::vector<int>() );
+  std::auto_ptr<std::vector<int> >   idMedium( new std::vector<int>() );
+  std::auto_ptr<std::vector<int> >   idTight(  new std::vector<int>() );
+  
+  std::auto_ptr<std::vector<float> >  ecalIso   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  hcalIso   ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  trackIso  ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  ecalIsoDep( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> >  hcalIsoDep( new std::vector<float>() );
+  
+  std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
+  std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
+  
+  if (collection.isValid()){
+    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+
+      //old-style IDs
+      for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+	idsOld[id->first].push_back(it->electronID(id->first));
+      }
+
+      //2012 POG IDs: use either the function pogId1 or pogId2
+      {
+	bool veto,loose,medium,tight;
+	//pogId1(iEvent, iSetup, reco::GsfElectronRef(*it), veto, loose, medium, tight); //not yet working
+	pogId2(iEvent, iSetup, *it, veto, loose, medium, tight);
+
+	idVeto->push_back(veto);
+	idLoose->push_back(loose);
+	idMedium->push_back(medium);
+	idTight->push_back(tight);
+      }
+
+      ecalIso ->push_back(it->ecalIso());
+      hcalIso ->push_back(it->hcalIso());
+      trackIso->push_back(it->trackIso());
+      ecalIsoDep->push_back(it->ecalIsoDeposit() ? it->ecalIsoDeposit()->candEnergy() : -999.9);
+      hcalIsoDep->push_back(it->hcalIsoDeposit() ? it->hcalIsoDeposit()->candEnergy() : -999.9);
+
+      ispf->push_back(it->pfCandidateRef().isAvailable());
+      partIso->push_back(it->particleIso());
+      charHadIso->push_back(it->chargedHadronIso());
+      neutHadIso->push_back(it->neutralHadronIso());
+      photIso->push_back(it->photonIso());
+    }
+   } // end loop over electrons
+
+  //store old-style IDs
+  for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
+    std::auto_ptr<std::vector<int> > ptr( new std::vector<int>(id->second) );
+    iEvent.put(ptr, Prefix + underscoreless(id->first) + Suffix);
+  }
+
+  iEvent.put(idVeto,     Prefix + "IdVeto"     + Suffix);
+  iEvent.put(idLoose,    Prefix + "IdLoose"    + Suffix);
+  iEvent.put(idMedium,   Prefix + "IdMedium"   + Suffix);
+  iEvent.put(idTight,    Prefix + "IdTight"    + Suffix);
+  
+  iEvent.put(ecalIso,    Prefix + "EcalIso"    + Suffix);
+  iEvent.put(hcalIso,    Prefix + "HcalIso"    + Suffix);
+  iEvent.put(trackIso,   Prefix + "TrackIso"   + Suffix);
+  iEvent.put(ecalIsoDep, Prefix + "EcalIsoDep" + Suffix);
+  iEvent.put(hcalIsoDep, Prefix + "HcalIsoDep" + Suffix);
+
+  iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
+  iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
+  iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
+  iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
+  iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
+}
+
+//2012 ID helper functions
+template< typename T >
+void SusyCAF_Electron<T>::
+pogId1(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
       bool& veto, bool& loose, bool& medium, bool& tight)
 {
   //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleIdAnalyzer.cc?revision=1.2&view=markup
@@ -483,87 +575,76 @@ pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& elec
   iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h);
   double rhoIso = *(rhoIso_h.product());
 
-  // reference to electron
-  reco::GsfElectronRef ele(electron);
-  
   // particle flow isolation
   double iso_ch =  (*(isoVals)[0])[ele];
   double iso_em = (*(isoVals)[1])[ele];
   double iso_nh = (*(isoVals)[2])[ele];
   
   // working points
-  veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
-  loose  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO,   ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  loose  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE,  ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
   medium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
-  tight  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+  tight  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT,  ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
  }
 
-// extra information stored for PAT data
 template< typename T >
 void SusyCAF_Electron<T>::
-producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& collection) {
-
-  std::map< std::string, std::vector<int> > idsOld;
+pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
+      bool& veto, bool& loose, bool& medium, bool& tight)
+{
   
-  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
-    idsOld[*name] = std::vector<int>();
-  }
+  // kinematic variables
+  bool isEB           = ele.isEB() ? true : false;
+  float pt            = ele.pt();
+  float eta           = ele.superCluster()->eta();
   
-  std::auto_ptr<std::vector<float> >  ecalIso   ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >  hcalIso   ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >  trackIso  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >  ecalIsoDep( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >  hcalIsoDep( new std::vector<float>() );
+  // id variables
+  float dEtaIn        = ele.deltaEtaSuperClusterTrackAtVtx();
+  float dPhiIn        = ele.deltaPhiSuperClusterTrackAtVtx();
+  float sigmaIEtaIEta = ele.sigmaIetaIeta();
+  float hoe           = ele.hadronicOverEm();
+  float ooemoop       = (1.0/ele.ecalEnergy() - ele.eSuperClusterOverP()/ele.ecalEnergy());
   
-  std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
-  std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
-  
-  if (collection.isValid()){
-    for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+  // impact parameter variables
+  float d0vtx         = 0.0;
+  float dzvtx         = 0.0;
+//  if (vtxs->size() > 0) {
+//    reco::VertexRef vtx(vtxs, 0);    
+//    d0vtx = ele->gsfTrack()->dxy(vtx->position());
+//    dzvtx = ele->gsfTrack()->dz(vtx->position());
+//  } else {
+//    d0vtx = ele->gsfTrack()->dxy();
+//    dzvtx = ele->gsfTrack()->dz();
+//  }
+//  
 
-      //old-style IDs
-      for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
-	idsOld[id->first].push_back(it->electronID(id->first));
-      }
+  double iso_ch = ele.chargedHadronIso();
+  double iso_nh = ele.neutralHadronIso();
+  double iso_em = ele.photonIso();
 
-//      //2012 POG IDs
-//      pogId(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectron& electron,
-//	    bool& veto, bool& loose, bool& medium, bool& tight)
-      
-      ecalIso ->push_back(it->ecalIso());
-      hcalIso ->push_back(it->hcalIso());
-      trackIso->push_back(it->trackIso());
-      ecalIsoDep->push_back(it->ecalIsoDeposit() ? it->ecalIsoDeposit()->candEnergy() : -999.9);
-      hcalIsoDep->push_back(it->hcalIsoDeposit() ? it->hcalIsoDeposit()->candEnergy() : -999.9);
+  // conversion rejection variables
+  //  bool vtxFitConversion = ConversionTools::hasMatchedConversion(*ele, conversions, beamspot.position());
+  bool vtxFitConversion = false;
+  float mHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
 
-      ispf->push_back(it->pfCandidateRef().isAvailable());
-      partIso->push_back(it->particleIso());
-      charHadIso->push_back(it->chargedHadronIso());
-      neutHadIso->push_back(it->neutralHadronIso());
-      photIso->push_back(it->photonIso());
-    }
-   } // end loop over electrons
+  double rho = 0.0;
 
-  //store old-style IDs
-  for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
-    std::auto_ptr<std::vector<int> > ptr( new std::vector<int>(id->second) );
-    iEvent.put(ptr, Prefix + underscoreless(id->first) + Suffix);
-  }
-  
-  iEvent.put(ecalIso,    Prefix + "EcalIso"    + Suffix);
-  iEvent.put(hcalIso,    Prefix + "HcalIso"    + Suffix);
-  iEvent.put(trackIso,   Prefix + "TrackIso"   + Suffix);
-  iEvent.put(ecalIsoDep, Prefix + "EcalIsoDep" + Suffix);
-  iEvent.put(hcalIsoDep, Prefix + "HcalIsoDep" + Suffix);
-
-  iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
-  iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
-  iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
-  iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
-  iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
+  veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, isEB, pt, eta,
+				       dEtaIn, dPhiIn, sigmaIEtaIEta, hoe,
+				       ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, 
+				       vtxFitConversion, mHits, rho);
+  loose  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, isEB, pt, eta,
+				       dEtaIn, dPhiIn, sigmaIEtaIEta, hoe,
+				       ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, 
+				       vtxFitConversion, mHits, rho);
+  medium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, isEB, pt, eta,
+				       dEtaIn, dPhiIn, sigmaIEtaIEta, hoe,
+				       ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, 
+				       vtxFitConversion, mHits, rho);
+  tight  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, isEB, pt, eta,
+				       dEtaIn, dPhiIn, sigmaIEtaIEta, hoe,
+				       ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, 
+				       vtxFitConversion, mHits, rho);
 }
 
 #endif

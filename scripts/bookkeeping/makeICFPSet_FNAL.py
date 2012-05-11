@@ -183,7 +183,8 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
     footer = '\n'.join([
     '',
     '\t],',
-    '\tCrossSection=%d,' % xsec,
+#    '\tCrossSection=%d,' % xsec,
+    '\tWeight = 1.0,\n'
     ')',
     ])
   if xsec == 'Weight':

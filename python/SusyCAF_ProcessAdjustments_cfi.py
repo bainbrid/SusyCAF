@@ -127,11 +127,17 @@ def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')
     return cms.Path(process.lumiTree)
 
-def rho25(process) :
+def rho25_photIso(process) :
     process.load('RecoJets.Configuration.RecoPFJets_cff')
     process.kt6PFJets25 = process.kt6PFJets.clone( doRhoFastjet = True )
     process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
     return cms.Path( process.kt6PFJets25 )
+
+def rho25_elecIso(process) :
+    from RecoJets.JetProducers.kt4PFJets_cfi import *
+    process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+    process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
+    return cms.Path( process.kt6PFJetsForIsolation )
 
 def tauReco(process,options) :
     if options.doTauReco :

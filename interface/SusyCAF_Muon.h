@@ -13,6 +13,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_functions.h"
 #include <string>
+#include <algorithm>
 
 template< typename T >
 class SusyCAF_Muon : public edm::EDProducer {
@@ -97,6 +98,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04PUPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationDeltaB" + Suffix);
 
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
@@ -209,6 +211,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> >  pfIsolationR04NeuHadHiThrEt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04GamHiThrEt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04PUPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationDeltaB		(new std::vector<float>() ) ;
 
   std::auto_ptr<std::vector<math::XYZPoint> > vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
@@ -242,10 +245,10 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bool sumHasOverlap = false;
       int indx2 = 0;
       for(typename std::vector<T>::const_iterator it2 = collection->begin(); it2!=collection->end(); it2++) { 
-	if (indx2==indx1) { continue; }
-	tmpHasOverlap = muon::overlap(*it, *it2, 1.,1., false);
-	sumHasOverlap += tmpHasOverlap;
-	indx2++;
+	    if (indx2==indx1) { continue; }
+	    tmpHasOverlap = muon::overlap(*it, *it2, 1.,1., false);
+	    sumHasOverlap += tmpHasOverlap;
+	    indx2++;
       }
       indx1++;
 
@@ -257,13 +260,23 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isolationR03emEt->push_back(it->isolationR03().emEt);
       isolationR03hadEt->push_back(it->isolationR03().hadEt);
 
-      pfIsolationR04ChgHadPt->push_back(it->pfIsolationR04().sumChargedHadronPt);
+      float sumChgHadPt,sumNeuHadEt,sumGamEt,sumPUPt, isoDelB;
+
+      sumChgHadPt 	= it->pfIsolationR04().sumChargedHadronPt;
+      sumNeuHadEt 	= it->pfIsolationR04().sumNeutralHadronEt;
+      sumGamEt 		= it->pfIsolationR04().sumPhotonEt;
+      sumPUPt 		= it->pfIsolationR04().sumPUPt;
+
+      isoDelB = (sumChgHadPt + std::max(0., (sumNeuHadEt + sumGamEt - 0.5*sumPUPt)))/(it->p4()).Pt();
+
+      pfIsolationR04ChgHadPt->push_back(sumChgHadPt);
       pfIsolationR04ChgParPt->push_back(it->pfIsolationR04().sumChargedParticlePt);
-      pfIsolationR04NeuHadEt->push_back(it->pfIsolationR04().sumNeutralHadronEt);
-      pfIsolationR04GamEt->push_back(it->pfIsolationR04().sumPhotonEt);
+      pfIsolationR04NeuHadEt->push_back(sumNeuHadEt);
+      pfIsolationR04GamEt->push_back(sumGamEt);
       pfIsolationR04NeuHadHiThrEt->push_back(it->pfIsolationR04().sumNeutralHadronEtHighThreshold);
       pfIsolationR04GamHiThrEt->push_back(it->pfIsolationR04().sumPhotonEtHighThreshold);
-      pfIsolationR04PUPt->push_back(it->pfIsolationR04().sumPUPt);
+      pfIsolationR04PUPt->push_back(sumPUPt);
+      pfIsolationDeltaB->push_back(isoDelB);
 
       vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
@@ -361,6 +374,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( pfIsolationR04NeuHadHiThrEt, Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
   iEvent.put( pfIsolationR04GamHiThrEt, Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
   iEvent.put( pfIsolationR04PUPt, Prefix + "PfIsolationR04PUPt" + Suffix);
+  iEvent.put( pfIsolationDeltaB, Prefix + "PfIsolationDeltaB" + Suffix);
 
   iEvent.put( vertex,      Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );

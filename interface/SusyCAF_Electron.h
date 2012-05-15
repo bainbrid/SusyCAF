@@ -592,7 +592,8 @@ void SusyCAF_Electron<T>::
 pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
       bool& veto, bool& loose, bool& medium, bool& tight)
 {
-  
+  //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleId.cc?revision=1.7&view=markup
+
   // kinematic variables
   bool isEB           = ele.isEB() ? true : false;
   float pt            = ele.pt();
@@ -627,7 +628,10 @@ pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
   bool vtxFitConversion = false;
   float mHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
 
-  double rho = 0.0;
+  // rho for isolation
+  edm::Handle<double> rhoIso_h;
+  iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h);
+  double rho = *(rhoIso_h.product());
 
   veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, isEB, pt, eta,
 				       dEtaIn, dPhiIn, sigmaIEtaIEta, hoe,

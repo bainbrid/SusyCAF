@@ -9,13 +9,14 @@ cmsenv
 
 # susypat (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SusyPatLayer1DefV12)
 addpkg DataFormats/PatCandidates   V06-05-01
-addpkg PhysicsTools/PatAlgos       V08-09-05
+addpkg PhysicsTools/PatAlgos       V08-09-06
 addpkg CommonTools/ParticleFlow    V00-03-11
-addpkg PhysicsTools/Configuration        V00-12-01
 
-#MET filters
-cvs co -r lhx_14APR2012_v1 RecoMET/METFilters
-#cvs co -r lhx_24APR2012_v2 RecoMET/METFilters
+addpkg PhysicsTools/Configuration  V00-12-02
+
+
+#MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters)
+cvs co -r V00-00-01 RecoMET/METFilters
 
 # functions to compute electron IDs
 cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools

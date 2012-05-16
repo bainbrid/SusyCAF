@@ -5,7 +5,6 @@ def kargs() :
         "StoreConversionInfo": cms.bool(True),
         #"IdFlagsOldStyle": cms.vstring("eidTight", "eidRobustTight", "eidLoose", "eidRobustLoose"),
         "IdFlagsOldStyle": cms.vstring(),
-        "IdFlags": cms.vstring(),
 
         #http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/test/run_exampleCuts_cfg.py?revision=1.1&view=markup
         "conversionsInputTag": cms.InputTag("allConversions"),

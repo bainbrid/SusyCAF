@@ -39,17 +39,17 @@ private:
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   bool isInCollection(const T&, const std::vector<T>&);
-  void pogId1(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
-	      bool& veto, bool& loose, bool& medium, bool& tight);
-  void pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
-	      bool& veto, bool& loose, bool& medium, bool& tight);
+  void pogIdReco(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
+		 bool& veto, bool& loose, bool& medium, bool& tight);
+  void pogIdPat(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
+		bool& veto, bool& loose, bool& medium, bool& tight);
   
   typedef reco::Candidate::LorentzVector LorentzVector;
   
   // input tags
   const edm::InputTag inputTag,selectedTag;
   const std::string Prefix,Suffix;
-  const bool StoreConversionInfo;
+  const bool StoreConversionInfo,IdFromReco;
   const std::vector<std::string> IdFlagsOldStyle;
 
   const edm::InputTag conversionsInputTag_, beamSpotInputTag_, rhoIsoInputTag_, primaryVertexInputTag_;
@@ -63,6 +63,7 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
  Prefix(iConfig.getParameter<std::string>("Prefix")),
  Suffix(iConfig.getParameter<std::string>("Suffix")),
  StoreConversionInfo(iConfig.getParameter<bool>("StoreConversionInfo")),
+ IdFromReco(iConfig.getParameter<bool>("IdFromReco")),
  IdFlagsOldStyle(iConfig.getParameter<std::vector< std::string> >("IdFlagsOldStyle")),
 
  conversionsInputTag_(iConfig.getParameter<edm::InputTag>("conversionsInputTag")),
@@ -151,6 +152,13 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<float> > ( Prefix + "KfTrackCharge" + Suffix );
  produces <std::vector<int> > ( Prefix + "ScPixCharge" + Suffix );
  produces <std::vector<int> > ( Prefix + "ClosestCtfTrackCharge" + Suffix );
+
+ if(IdFromReco){
+   produces <std::vector<int> >   (Prefix + "IdVeto"          + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdLoose"         + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdMedium"        + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdTight"         + Suffix);
+ }
 }
 
 template< typename T >
@@ -173,10 +181,13 @@ void SusyCAF_Electron<T>::initPAT()
  produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
  produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
  produces <std::vector<float> > (Prefix + "PhotonIso"        + Suffix);
- produces <std::vector<int> >   (Prefix + "IdVeto"           + Suffix);
- produces <std::vector<int> >   (Prefix + "IdLoose"          + Suffix);
- produces <std::vector<int> >   (Prefix + "IdMedium"         + Suffix);
- produces <std::vector<int> >   (Prefix + "IdTight"          + Suffix);
+
+ if(!IdFromReco) {
+   produces <std::vector<int> >   (Prefix + "IdVeto"          + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdLoose"         + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdMedium"        + Suffix);
+   produces <std::vector<int> >   (Prefix + "IdTight"         + Suffix);
+ }
 
  for(std::vector<std::string>::const_iterator name=IdFlagsOldStyle.begin(); name!=IdFlagsOldStyle.end(); ++name) {
    produces <std::vector<int> > (Prefix + underscoreless(*name) + Suffix);
@@ -269,6 +280,12 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<float> > kfcharge ( new std::vector<float>() );
  std::auto_ptr<std::vector<int> > scPixCharge ( new std::vector<int>() );
  std::auto_ptr<std::vector<int> > closestCtfTrackCharge( new std::vector<int>() );
+
+ std::auto_ptr<std::vector<int> > idVeto(   new std::vector<int>() );
+ std::auto_ptr<std::vector<int> > idLoose(  new std::vector<int>() );
+ std::auto_ptr<std::vector<int> > idMedium( new std::vector<int>() );
+ std::auto_ptr<std::vector<int> > idTight(  new std::vector<int>() );
+
  math::XYZPoint bs = math::XYZPoint(0.,0.,0.);
  math::XYZPoint vx = math::XYZPoint(0.,0.,0.);
  edm::Handle<reco::BeamSpot> beamspots;        iEvent.getByLabel(beamSpotInputTag_, beamspots);
@@ -375,6 +392,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      kfcharge->push_back(it->track().isAvailable() ? it->track()->charge() : 0);
      scPixCharge->push_back(it->scPixCharge());
      closestCtfTrackCharge->push_back(it->closestCtfTrackRef().isAvailable() ? it->closestCtfTrackRef()->charge() : 0) ;
+
+     //not yet working
+     if(IdFromReco) {
+       //bool veto,loose,medium,tight;
+       //pogIdReco(iEvent, iSetup, reco::GsfElectronRef(*it), veto, loose, medium, tight);
+       //idVeto->push_back(veto);
+       //idLoose->push_back(loose);
+       //idMedium->push_back(medium);
+       //idTight->push_back(tight);
+     }
    }
  }
 
@@ -413,10 +440,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put( eEleClusterOverPout,  Prefix + "EEleClusterOverPout" + Suffix );
  iEvent.put( eSeedClusterOverPout,  Prefix + "ESeedClusterOverPout" + Suffix );
  iEvent.put( eSeedClusterOverP,  Prefix + "ESeedClusterOverP" + Suffix );
- //Michele (this stuff was missing - AGB)
  iEvent.put (eSuperClusterEta, Prefix + "ESuperClusterEta" + Suffix);
  iEvent.put (eSuperClusterPhi, Prefix + "ESuperClusterPhi" + Suffix);
- //
  iEvent.put( eSuperClusterOverP,  Prefix + "ESuperClusterOverP" + Suffix );
  iEvent.put( deltaPhiSuperClusterTrackAtVtx,  Prefix + "DeltaPhiSuperClusterTrackAtVtx" + Suffix );
  iEvent.put( deltaEtaSuperClusterTrackAtVtx,  Prefix + "DeltaEtaSuperClusterTrackAtVtx" + Suffix );
@@ -454,6 +479,14 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put(kfcharge, Prefix + "KfTrackCharge" + Suffix);
  iEvent.put(scPixCharge, Prefix + "ScPixCharge" + Suffix);
  iEvent.put(closestCtfTrackCharge, Prefix + "ClosestCtfTrackCharge" + Suffix);
+
+ if(IdFromReco) {
+   iEvent.put(idVeto,     Prefix + "IdVeto"    + Suffix);
+   iEvent.put(idLoose,    Prefix + "IdLoose"   + Suffix);
+   iEvent.put(idMedium,   Prefix + "IdMedium"  + Suffix);
+   iEvent.put(idTight,    Prefix + "IdTight"   + Suffix);
+ }
+
 }
 
 // extra information stored for PAT data
@@ -471,7 +504,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<int> >   idLoose(  new std::vector<int>() );
   std::auto_ptr<std::vector<int> >   idMedium( new std::vector<int>() );
   std::auto_ptr<std::vector<int> >   idTight(  new std::vector<int>() );
-  
+
   std::auto_ptr<std::vector<float> >  ecalIso   ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso   ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso  ( new std::vector<float>() );
@@ -492,11 +525,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 	idsOld[id->first].push_back(it->electronID(id->first));
       }
 
-      //2012 POG IDs: use either the function pogId1 or pogId2
-      {
+      if(!IdFromReco) {
 	bool veto,loose,medium,tight;
-	//pogId1(iEvent, iSetup, reco::GsfElectronRef(*it), veto, loose, medium, tight); //not yet working
-	pogId2(iEvent, iSetup, *it, veto, loose, medium, tight);
+	pogIdPat(iEvent, iSetup, *it, veto, loose, medium, tight);
 
 	idVeto->push_back(veto);
 	idLoose->push_back(loose);
@@ -524,11 +555,13 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
     iEvent.put(ptr, Prefix + underscoreless(id->first) + Suffix);
   }
 
-  iEvent.put(idVeto,     Prefix + "IdVeto"     + Suffix);
-  iEvent.put(idLoose,    Prefix + "IdLoose"    + Suffix);
-  iEvent.put(idMedium,   Prefix + "IdMedium"   + Suffix);
-  iEvent.put(idTight,    Prefix + "IdTight"    + Suffix);
-  
+  if(!IdFromReco) {
+    iEvent.put(idVeto,     Prefix + "IdVeto"    + Suffix);
+    iEvent.put(idLoose,    Prefix + "IdLoose"   + Suffix);
+    iEvent.put(idMedium,   Prefix + "IdMedium"  + Suffix);
+    iEvent.put(idTight,    Prefix + "IdTight"   + Suffix);
+  }
+
   iEvent.put(ecalIso,    Prefix + "EcalIso"    + Suffix);
   iEvent.put(hcalIso,    Prefix + "HcalIso"    + Suffix);
   iEvent.put(trackIso,   Prefix + "TrackIso"   + Suffix);
@@ -545,7 +578,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
 //2012 ID helper functions
 template< typename T >
 void SusyCAF_Electron<T>::
-pogId1(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
+pogIdReco(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef ele,
       bool& veto, bool& loose, bool& medium, bool& tight)
 {
   //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleIdAnalyzer.cc?revision=1.2&view=markup
@@ -588,7 +621,7 @@ pogId1(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRef e
 
 template< typename T >
 void SusyCAF_Electron<T>::
-pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
+pogIdPat(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
       bool& veto, bool& loose, bool& medium, bool& tight)
 {
   //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleId.cc?revision=1.7&view=markup

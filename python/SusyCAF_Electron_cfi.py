@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def kargs() :
     return {
-        "StoreConversionInfo": cms.bool(True),
+        "StoreConversionInfo": cms.bool(False), #RecoEgamma/EgammaTools/[interface,src]/ConversionFinder[.h,.cc] seem not to be maintained
         "IdFromReco": cms.bool(False),#True does not yet work
         #"IdFlagsOldStyle": cms.vstring("eidTight", "eidRobustTight", "eidLoose", "eidRobustLoose"),
         "IdFlagsOldStyle": cms.vstring(),

@@ -127,14 +127,9 @@ def lumiTree(process) :
     process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_LumiTreeMaker_cfi')
     return cms.Path(process.lumiTree)
 
-def rho25_photIso(process) :
-    process.load('RecoJets.Configuration.RecoPFJets_cff')
-    process.kt6PFJets25 = process.kt6PFJets.clone( doRhoFastjet = True )
-    process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
-    return cms.Path( process.kt6PFJets25 )
-
-def rho25_elecIso(process) :
+def rho25(process) :
     #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaEARhoCorrection
+    #(also https://twiki.cern.ch/twiki/bin/view/CMS/Vgamma2011PhotonID)
     from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
     process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
     process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)

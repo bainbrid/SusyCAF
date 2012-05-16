@@ -20,8 +20,7 @@ process.p_tauReco  = adjust.tauReco(process,options)
 process.p_susyPat  = adjust.susyPat(process,options)
 process.p_hbheFlag = adjust.addHbheNoiseFilterResult(process,options)
 process.p_fltrFlgs = adjust.addMetFilterFlags(process,options)
-#process.p_rho25_photIso = adjust.rho25_photIso(process)
-process.p_rho25_elecIso = adjust.rho25_elecIso(process)
+process.p_rho25    = adjust.rho25(process)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_susyCAF  = SusyCAF(process,options).path()
 
@@ -30,8 +29,7 @@ schedule = cms.Schedule( process.p_tauReco,
                          process.p_hbheFlag,
                          process.p_fltrFlgs,
                          process.p_lumi,
-                         #process.p_rho25_photIso,
-                         process.p_rho25_elecIso,
+                         process.p_rho25,
                          process.p_susyCAF )
 
 # write this config as a single file

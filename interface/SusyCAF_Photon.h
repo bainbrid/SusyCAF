@@ -48,16 +48,6 @@ private:
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceExtra(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
 
-  void produceExtraTrackVars       (edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<reco::TrackCollection> &);
-  void produceExtraSuperClusterVars(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &, edm::Handle<EBRecHitCollection> &);
-  /*void produceExtraCaloIsoVars     (edm::Event &, const edm::EventSetup &,
-				    edm::Handle<std::vector<T> > &,
-				    edm::ESHandle<CaloGeometry> &,
-				    edm::Handle<EBRecHitCollection> &,
-				    edm::Handle<EERecHitCollection> &,
-				    edm::Handle<HBHERecHitCollection> &
-				    );*/
-
   void produceExtraSpikeVarsFunc(edm::Event &, const edm::EventSetup &,
 				 edm::Handle<std::vector<T> > &,
 				 edm::ESHandle<CaloTopology> &,
@@ -65,23 +55,14 @@ private:
 				 edm::Handle<EERecHitCollection> &
 				 );
 
-  double hcalEnergy(const CaloGeometry* geometry,
-		    const HBHERecHitMetaCollection& mHbhe,
-		    reco::SuperClusterRef& sc,
-		    typename std::vector<T>::const_iterator it,
-		    double coneSize);
-
   double ebEeBoundary() const {return 1.479;}
 
   const edm::InputTag   inputTag;
   const std::string     prefix,suffix;
 
-  const bool produceExtraIdVars;
   const bool produceExtraSpikeVars;
-  const edm::InputTag trackTag;
   const std::string ebRecHitCollection;
   const std::string eeRecHitCollection;
-  const std::string hbheRecHitCollection;
 
   typedef reco::Candidate::LorentzVector  LorentzVector;
   typedef reco::Candidate::Vector         Vector;
@@ -96,16 +77,12 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
   , prefix  (iConfig.getParameter<std::string>  ("Prefix"  ))
   , suffix  (iConfig.getParameter<std::string>  ("Suffix"  ))
 
-  , produceExtraIdVars   (iConfig.getParameter<bool>("ProduceExtraIdVars"))
   , produceExtraSpikeVars(iConfig.getParameter<bool>("ProduceExtraSpikeVars"))
-  , trackTag(iConfig.getParameter<edm::InputTag>("TrackTag"))
   , ebRecHitCollection(iConfig.getParameter<std::string>("EbRecHitCollection"))
   , eeRecHitCollection(iConfig.getParameter<std::string>("EeRecHitCollection"))
-  , hbheRecHitCollection(iConfig.getParameter<std::string>("HbheRecHitCollection"))
 {
   initTemplate();
 }
-
 
 template< typename T >
 void SusyCAF_Photon<T>::initRECO()
@@ -169,46 +146,6 @@ void SusyCAF_Photon<T>::initPAT()
 template< typename T >
 void SusyCAF_Photon<T>::initExtra()
 {
-  if (produceExtraIdVars) {
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso0015" + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso035"  + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso04"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso05"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso07"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPtIso1"    + suffix);
-    
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso0015" + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso035"  + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso04"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso05"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso07"   + suffix);
-    produces <std::vector<float> >  (prefix + "ExtraTrkPIso1"    + suffix);
-    
-    produces <std::vector<int> >    (prefix + "ExtraNTrk0015"   + suffix);
-    produces <std::vector<int> >    (prefix + "ExtraNTrk035"    + suffix);
-    produces <std::vector<int> >    (prefix + "ExtraNTrk04"     + suffix);
-    produces <std::vector<int> >    (prefix + "ExtraNTrk05"     + suffix);
-    produces <std::vector<int> >    (prefix + "ExtraNTrk07"     + suffix);
-    produces <std::vector<int> >    (prefix + "ExtraNTrk1"      + suffix);
-    
-    produces <std::vector<double> > (prefix + "SuperClusterMajorMajor" + suffix);
-    produces <std::vector<double> > (prefix + "SuperClusterMinorMinor" + suffix);
-    
-    /*produces <std::vector<double> > (prefix + "ExtraHcalOverEcal01"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal015" + suffix);
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal04"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal05"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal07"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraHcalOverEcal1"   + suffix);
-    
-    produces <std::vector<double> > (prefix + "ExtraEcalIso01"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso015" + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso04"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso05"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso07"  + suffix);
-    produces <std::vector<double> > (prefix + "ExtraEcalIso1"   + suffix);*/
-  }
-
   if (produceExtraSpikeVars) {
     produces <std::vector<float> >  (prefix + "E2overE9"     + suffix);
     produces <std::vector<float> >  (prefix + "SeedTime"     + suffix);
@@ -454,25 +391,9 @@ produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std:
   edm::Handle<EBRecHitCollection> ebRecHits;
   edm::Handle<EERecHitCollection> eeRecHits;
 
-  if (produceExtraIdVars || produceExtraSpikeVars) {
+  if (produceExtraSpikeVars) {
     iEvent.getByLabel(ebRecHitCollection, ebRecHits);
     iEvent.getByLabel(eeRecHitCollection, eeRecHits);
-  }
-
-  if (produceExtraIdVars) {
-    //ID from CMS AN 2010/141
-    edm::Handle<reco::TrackCollection> tracks;
-    iEvent.getByLabel(trackTag,tracks);
-  
-    edm::Handle<HBHERecHitCollection> hbheRecHits;
-    iEvent.getByLabel(hbheRecHitCollection, hbheRecHits);
-
-    edm::ESHandle<CaloGeometry> geometry;
-    iSetup.get<CaloGeometryRecord>().get(geometry);
-    
-    produceExtraTrackVars(iEvent, iSetup, photons, tracks);
-    produceExtraSuperClusterVars(iEvent, iSetup, photons, ebRecHits);
-    //produceExtraCaloIsoVars(iEvent, iSetup, photons, geometry, ebRecHits, eeRecHits, hbheRecHits);
   }
 
   if (produceExtraSpikeVars) {
@@ -481,220 +402,6 @@ produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std:
 
       produceExtraSpikeVarsFunc(iEvent, iSetup, photons, topology, ebRecHits, eeRecHits);
   }
-}
-
-template< typename T >
-double SusyCAF_Photon<T>::hcalEnergy(const CaloGeometry* geometry,
-				     const HBHERecHitMetaCollection& mHbhe,
-				     reco::SuperClusterRef& sc,
-				     typename std::vector<T>::const_iterator it,
-				     double coneSize) {
-
-  CaloConeSelector selector(coneSize, geometry, DetId::Hcal);
-  std::auto_ptr<CaloRecHitMetaCollectionV> selected = selector.select(sc->eta(), sc->phi(), mHbhe);
-
-  double answer = 0.0;
-  for (CaloRecHitMetaCollectionV::const_iterator hit=selected->begin(); hit != selected->end(); ++hit) answer += hit->energy();
-  return answer;
-}
-
-/*
-template< typename T >
-void SusyCAF_Photon<T>::
-produceExtraCaloIsoVars(edm::Event& iEvent, const edm::EventSetup& iSetup,
-			edm::Handle<std::vector<T> >& photons,
-			edm::ESHandle<CaloGeometry>& geometry,
-			edm::Handle<EBRecHitCollection>& ebRecHits,
-			edm::Handle<EERecHitCollection>& eeRecHits,
-			edm::Handle<HBHERecHitCollection>& hbheRecHits
-			)
-{
-  std::auto_ptr<std::vector<double> > hcalOverEcal01 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > hcalOverEcal015(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > hcalOverEcal04 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > hcalOverEcal05 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > hcalOverEcal07 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > hcalOverEcal1  (new std::vector<double>());
-
-  std::auto_ptr<std::vector<double> > ecalIso01 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ecalIso015(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ecalIso04 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ecalIso05 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ecalIso07 (new std::vector<double>());
-  std::auto_ptr<std::vector<double> > ecalIso1  (new std::vector<double>());
-
-  const HBHERecHitMetaCollection mHbhe(*hbheRecHits);
- 
-  bool allValid = geometry.isValid() && hbheRecHits.isValid() && ebRecHits.isValid() && eeRecHits.isValid();
-  double dummyValue = -100.0;
-
-  if (photons.isValid()) {
-    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
-      const reco::Photon& photon = *it;
-      reco::SuperClusterRef scluster = photon.superCluster();
-      hcalOverEcal01 ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.1 )/it->energy() : dummyValue );
-      hcalOverEcal015->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.15)/it->energy() : dummyValue );
-      hcalOverEcal04 ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.4 )/it->energy() : dummyValue );
-      hcalOverEcal05 ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.5 )/it->energy() : dummyValue );
-      hcalOverEcal07 ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 0.7 )/it->energy() : dummyValue );
-      hcalOverEcal1  ->push_back( allValid ? hcalEnergy(geometry.product(), mHbhe, scluster, it, 1.0 )/it->energy() : dummyValue );
-
-      reco::CaloClusterPtr SCseed = scluster->seed();
-      SuperClusterHitsEcalIsolation scBasedIsolation(ebRecHits.product(),eeRecHits.product());
-      scBasedIsolation.setExtRadius(0.1);
-      scBasedIsolation.excludeHalo(false);
-      ecalIso01->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-      scBasedIsolation.setExtRadius(0.15);
-      ecalIso015->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-      scBasedIsolation.setExtRadius(0.4);
-      ecalIso04->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-      scBasedIsolation.setExtRadius(0.5);
-      ecalIso05->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-      scBasedIsolation.setExtRadius(0.7);
-      ecalIso07->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-      scBasedIsolation.setExtRadius(1.);
-      ecalIso1->push_back( allValid ? scBasedIsolation.getSum(iEvent,iSetup,&(*SCseed)) : dummyValue );
-
-    }//end loop over photons
-  }//end photon collection is valid
-  
-  iEvent.put(hcalOverEcal01  , prefix + "ExtraHcalOverEcal01"  + suffix);
-  iEvent.put(hcalOverEcal015 , prefix + "ExtraHcalOverEcal015" + suffix);
-  iEvent.put(hcalOverEcal04  , prefix + "ExtraHcalOverEcal04"  + suffix);
-  iEvent.put(hcalOverEcal05  , prefix + "ExtraHcalOverEcal05"  + suffix);
-  iEvent.put(hcalOverEcal07  , prefix + "ExtraHcalOverEcal07"  + suffix);
-  iEvent.put(hcalOverEcal1   , prefix + "ExtraHcalOverEcal1"   + suffix);
-
-  iEvent.put(ecalIso01  , prefix + "ExtraEcalIso01"  + suffix);
-  iEvent.put(ecalIso015 , prefix + "ExtraEcalIso015" + suffix);
-  iEvent.put(ecalIso04  , prefix + "ExtraEcalIso04"  + suffix);
-  iEvent.put(ecalIso05  , prefix + "ExtraEcalIso05"  + suffix);
-  iEvent.put(ecalIso07  , prefix + "ExtraEcalIso07"  + suffix);
-  iEvent.put(ecalIso1   , prefix + "ExtraEcalIso1"   + suffix);
- } */
-
-template< typename T >
-void SusyCAF_Photon<T>::
-produceExtraSuperClusterVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& photons, edm::Handle<EBRecHitCollection>& ebRecHits)
-{
-
-  std::auto_ptr<std::vector<double> > SCMajorMajor(new std::vector<double>());
-  std::auto_ptr<std::vector<double> > SCMinorMinor(new std::vector<double>());
-
-  if (photons.isValid()) {
-    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
-      const reco::Photon& photon = *it;
-      reco::SuperClusterRef scluster = photon.superCluster();
-      SCMajorMajor->push_back(-100.0);
-      SCMinorMinor->push_back(-100.0);
-
-      reco::CaloClusterPtr SCseed = scluster->seed();
-      if (ebRecHits.isValid() && fabs(SCseed->eta())<ebEeBoundary()) {
-      	Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*SCseed, *(ebRecHits.product()) );
-      	SCMajorMajor->back()=moments.sMaj;
-      	SCMinorMinor->back()=moments.sMin;
-      }
-    }//end loop over photons
-  }//end photon collection is valid
-  
-  iEvent.put(SCMajorMajor            , prefix + "SuperClusterMajorMajor"     + suffix);
-  iEvent.put(SCMinorMinor            , prefix + "SuperClusterMinorMinor"     + suffix);
- }
-
-template< typename T >
-void SusyCAF_Photon<T>::
-produceExtraTrackVars(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<T> >& photons, edm::Handle<reco::TrackCollection>& tracks)
-{
-  std::auto_ptr<std::vector<float> > TrkPtIso0015( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPtIso035 ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPtIso04  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPtIso05  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPtIso07  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPtIso1   ( new std::vector<float>() );
-  
-  std::auto_ptr<std::vector<float> > TrkPIso0015( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPIso035 ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPIso04  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPIso05  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPIso07  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > TrkPIso1   ( new std::vector<float>() );
-  
-  std::auto_ptr<std::vector<int> > NTrk0015( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > NTrk035 ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > NTrk04  ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > NTrk05  ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > NTrk07  ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> > NTrk1   ( new std::vector<int>() );
-
-  if (photons.isValid()) {
-    for (typename std::vector<T>::const_iterator it = photons->begin(); it != photons->end(); ++it) {
-      const reco::Photon& photon = *it;
-
-      TrkPtIso0015->push_back(0.0);
-      TrkPtIso035 ->push_back(0.0);
-      TrkPtIso04  ->push_back(0.0);
-      TrkPtIso05  ->push_back(0.0);
-      TrkPtIso07  ->push_back(0.0);
-      TrkPtIso1   ->push_back(0.0);
-  
-      TrkPIso0015->push_back(0.0);
-      TrkPIso035 ->push_back(0.0);
-      TrkPIso04  ->push_back(0.0);
-      TrkPIso05  ->push_back(0.0);
-      TrkPIso07  ->push_back(0.0);
-      TrkPIso1   ->push_back(0.0);
-  
-      NTrk0015->push_back(0);
-      NTrk035 ->push_back(0);
-      NTrk04  ->push_back(0);
-      NTrk05  ->push_back(0);
-      NTrk07  ->push_back(0);
-      NTrk1   ->push_back(0);
-
-      if (tracks.isValid()) {
-	for (reco::TrackCollection::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) {
-	  double deltaR = ROOT::Math::VectorUtil::DeltaR(itTrack->innerMomentum(), photon.p4());
-	  double p  = itTrack->innerMomentum().R();
-	  double pt = itTrack->innerMomentum().Rho();
-	  
-	  if (deltaR < 0.015) {TrkPtIso0015->back() += pt; TrkPIso0015->back() += p; NTrk0015->back()++;}
-	  if (deltaR < 0.350) {TrkPtIso035 ->back() += pt; TrkPIso035 ->back() += p; NTrk035 ->back()++;}
-	  if (deltaR < 0.400) {TrkPtIso04  ->back() += pt; TrkPIso04  ->back() += p; NTrk04  ->back()++;}
-	  if (deltaR < 0.500) {TrkPtIso05  ->back() += pt; TrkPIso05  ->back() += p; NTrk05  ->back()++;}
-	  if (deltaR < 0.700) {TrkPtIso07  ->back() += pt; TrkPIso07  ->back() += p; NTrk07  ->back()++;}
-	  if (deltaR < 1.000) {TrkPtIso1   ->back() += pt; TrkPIso1   ->back() += p; NTrk1   ->back()++;}
-	  
-	}//track collection
-      }//track collection handle valid
-
-    }//photon collection
-  }//photon collection handle valid
-
-  iEvent.put(TrkPtIso0015, prefix + "ExtraTrkPtIso0015" + suffix);
-  iEvent.put(TrkPtIso035 , prefix + "ExtraTrkPtIso035"  + suffix);
-  iEvent.put(TrkPtIso04  , prefix + "ExtraTrkPtIso04"   + suffix);
-  iEvent.put(TrkPtIso05  , prefix + "ExtraTrkPtIso05"   + suffix);
-  iEvent.put(TrkPtIso07  , prefix + "ExtraTrkPtIso07"   + suffix);
-  iEvent.put(TrkPtIso1   , prefix + "ExtraTrkPtIso1"    + suffix);
-
-  iEvent.put(TrkPIso0015, prefix + "ExtraTrkPIso0015" + suffix);
-  iEvent.put(TrkPIso035 , prefix + "ExtraTrkPIso035"  + suffix);
-  iEvent.put(TrkPIso04  , prefix + "ExtraTrkPIso04"   + suffix);
-  iEvent.put(TrkPIso05  , prefix + "ExtraTrkPIso05"   + suffix);
-  iEvent.put(TrkPIso07  , prefix + "ExtraTrkPIso07"   + suffix);
-  iEvent.put(TrkPIso1   , prefix + "ExtraTrkPIso1"    + suffix);
-
-  iEvent.put(NTrk0015, prefix + "ExtraNTrk0015" + suffix);
-  iEvent.put(NTrk035 , prefix + "ExtraNTrk035"  + suffix);
-  iEvent.put(NTrk04  , prefix + "ExtraNTrk04"   + suffix);
-  iEvent.put(NTrk05  , prefix + "ExtraNTrk05"   + suffix);
-  iEvent.put(NTrk07  , prefix + "ExtraNTrk07"   + suffix);
-  iEvent.put(NTrk1   , prefix + "ExtraNTrk1"    + suffix);
 }
 
 template< typename T >

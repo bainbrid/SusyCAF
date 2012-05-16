@@ -15,6 +15,7 @@
 #include <string>
 
 // Conversion variables
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -53,7 +54,6 @@ private:
 
   const edm::InputTag conversionsInputTag_, beamSpotInputTag_, rhoIsoInputTag_, primaryVertexInputTag_;
   const std::vector<edm::InputTag> isoValInputTags_;
-  const std::vector<std::string> IdFlags;
 };
 
 template< typename T >
@@ -69,8 +69,7 @@ SusyCAF_Electron<T>::SusyCAF_Electron(const edm::ParameterSet& iConfig) :
  beamSpotInputTag_(iConfig.getParameter<edm::InputTag>("beamSpotInputTag")),
  rhoIsoInputTag_(iConfig.getParameter<edm::InputTag>("rhoIsoInputTag")),
  primaryVertexInputTag_(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag")),
- isoValInputTags_(iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags")),
- IdFlags(iConfig.getParameter<std::vector< std::string> >("IdFlags"))
+ isoValInputTags_(iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags"))
 {
  initTemplate();
 }
@@ -594,6 +593,19 @@ pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
 {
   //http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/EGamma/EGammaAnalysisTools/src/EGammaCutBasedEleId.cc?revision=1.7&view=markup
 
+  // conversions
+  edm::Handle<reco::ConversionCollection> conversions_h;
+  iEvent.getByLabel(conversionsInputTag_, conversions_h);
+
+  // beam spot
+  edm::Handle<reco::BeamSpot> beamspot_h;
+  iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+  const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+
+  // vertices
+  edm::Handle<reco::VertexCollection> vtxs;
+  iEvent.getByLabel(primaryVertexInputTag_, vtxs);
+
   // kinematic variables
   bool isEB           = ele.isEB() ? true : false;
   float pt            = ele.pt();
@@ -609,24 +621,22 @@ pogId2(edm::Event& iEvent, const edm::EventSetup& iSetup, const T& ele,
   // impact parameter variables
   float d0vtx         = 0.0;
   float dzvtx         = 0.0;
-//  if (vtxs->size() > 0) {
-//    reco::VertexRef vtx(vtxs, 0);    
-//    d0vtx = ele->gsfTrack()->dxy(vtx->position());
-//    dzvtx = ele->gsfTrack()->dz(vtx->position());
-//  } else {
-//    d0vtx = ele->gsfTrack()->dxy();
-//    dzvtx = ele->gsfTrack()->dz();
-//  }
-//  
+  if (vtxs->size() > 0) {
+    reco::VertexRef vtx(vtxs, 0);    
+    d0vtx = ele.gsfTrack()->dxy(vtx->position());
+    dzvtx = ele.gsfTrack()->dz(vtx->position());
+  } else {
+    d0vtx = ele.gsfTrack()->dxy();
+    dzvtx = ele.gsfTrack()->dz();
+  }
 
   double iso_ch = ele.chargedHadronIso();
   double iso_nh = ele.neutralHadronIso();
   double iso_em = ele.photonIso();
 
   // conversion rejection variables
-  //  bool vtxFitConversion = ConversionTools::hasMatchedConversion(*ele, conversions, beamspot.position());
-  bool vtxFitConversion = false;
-  float mHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
+  bool vtxFitConversion = ConversionTools::hasMatchedConversion((const reco::GsfElectron)ele, conversions_h, beamSpot.position());
+  float mHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
 
   // rho for isolation
   edm::Handle<double> rhoIso_h;

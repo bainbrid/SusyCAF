@@ -179,6 +179,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> >  globalTrack_normalizedChi2   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidTrackerHits   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >    globalTrack_numberOfValidMuonHits   ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxy   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dz   ( new std::vector<double>()  ) ;
   std::auto_ptr<std::vector<double> >  globalTrack_dxyBS   ( new std::vector<double>()  ) ;
@@ -222,6 +223,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int> >  isStandAloneMuon   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<int> >  hasOverlap   ( new std::vector<int>()  ) ;
   std::auto_ptr<std::vector<unsigned> >  numberOfMatches   ( new std::vector<unsigned>()  ) ;
+  std::auto_ptr<std::vector<unsigned> >  numberOfMatchedStations ( new std::vector<unsigned>()  ) ;
   std::auto_ptr<std::vector<double> > sigmapt ( new std::vector<double>()  ) ;
 
   std::auto_ptr<std::vector<float> > EcalVetoDep( new std::vector<float>());
@@ -286,6 +288,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isPFMuon->push_back(it->isPFMuon());
       isStandAloneMuon->push_back(it->isStandAloneMuon());
       numberOfMatches->push_back(it->numberOfMatches());
+      numberOfMatchedStations->push_back(it->numberOfMatchedStations());
       if (sumHasOverlap) { hasOverlap->push_back(1); }
       else { hasOverlap->push_back(0); }
 
@@ -300,6 +303,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       globalTrack_normalizedChi2->push_back( global? it->globalTrack()->normalizedChi2() : -1);
       globalTrack_numberOfValidHits->push_back( global? it->globalTrack()->numberOfValidHits() : 0);
       globalTrack_numberOfValidTrackerHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidTrackerHits() : 0);
+      globalTrack_numberOfValidMuonHits->push_back( global? it->globalTrack()->hitPattern().numberOfValidMuonHits() : 0);
       globalTrackP4->push_back( global ? muonP4FromP(it->globalTrack()->momentum()) : LorentzVector() );
 
       bool inner = it->innerTrack().isNonnull();
@@ -341,6 +345,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( globalTrack_normalizedChi2,  Prefix + "GlobalTracknormalizedChi2" + Suffix );
   iEvent.put( globalTrack_numberOfValidHits,  Prefix + "GlobalTracknumberOfValidHits" + Suffix );
   iEvent.put( globalTrack_numberOfValidTrackerHits,  Prefix + "GlobalTracknumberOfValidTrackerHits" + Suffix );
+  iEvent.put( globalTrack_numberOfValidMuonHits,  Prefix + "GlobalTracknumberOfValidMuonHits" + Suffix );
   iEvent.put( globalTrack_dxy,  Prefix + "GlobalTrackDxy" + Suffix );
   iEvent.put( globalTrack_dz,  Prefix + "GlobalTrackDz" + Suffix );
   iEvent.put( globalTrack_dxyBS,  Prefix + "GlobalTrackDxyBS" + Suffix );
@@ -385,6 +390,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
   iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );
+  iEvent.put( numberOfMatches, Prefix + "NumberOfMatchedStations" + Suffix );
   iEvent.put(sigmapt,Prefix + "SigmaPt" + Suffix );
 
   iEvent.put(EcalVetoDep, Prefix + "EcalVetoDep" + Suffix);
@@ -422,8 +428,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<int> > TMOneStationAngLoose_( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > TMOneStationAngTight_( new std::vector<int>() );
 
-//pf
-  
   std::auto_ptr<std::vector<int> > ispf (new std::vector<int>() );
   std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
@@ -439,20 +443,20 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       TMLastStationOptimBarrelLowPtTight->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtTight"));
       TMLastStationOptimBarrelLowPtLoose->push_back(it->muonID("TMLastStationOptimizedBarrelLowPtLoose"));
   
-  TrackerMuonArbitrated_->push_back(it->muonID("TrackerMuonArbitrated"));
-  AllArbitrated_->push_back(it->muonID("AllArbitrated"));
-  TMLastStationLoose_->push_back(it->muonID("TMLastStationLoose"));
-  TMLastStationTight_->push_back(it->muonID("TMLastStationTight"));
-  TM2DCompatibilityLoose_->push_back(it->muonID("TM2DCompatibilityLoose"));
-  TM2DCompatibilityTight_->push_back(it->muonID("TM2DCompatibilityTight"));
-  TMOneStationLoose_->push_back(it->muonID("TMOneStationLoose"));
-  TMOneStationTight_->push_back(it->muonID("TMOneStationTight"));
-  GMTkChiCompatibility_->push_back(it->muonID("GMTkChiCompatibility"));
-  GMStaChiCompatibility_->push_back(it->muonID("GMStaChiCompatibility"));
-  GMTkKinkTight_->push_back(it->muonID("GMTkKinkTight"));
-  TMLastStationAngLoose_->push_back(it->muonID("TMLastStationAngLoose"));
-  TMOneStationAngLoose_->push_back(it->muonID("TMOneStationAngLoose"));
-  TMOneStationAngTight_->push_back(it->muonID("TMOneStationAngTight"));
+      TrackerMuonArbitrated_->push_back(it->muonID("TrackerMuonArbitrated"));
+      AllArbitrated_->push_back(it->muonID("AllArbitrated"));
+      TMLastStationLoose_->push_back(it->muonID("TMLastStationLoose"));
+      TMLastStationTight_->push_back(it->muonID("TMLastStationTight"));
+      TM2DCompatibilityLoose_->push_back(it->muonID("TM2DCompatibilityLoose"));
+      TM2DCompatibilityTight_->push_back(it->muonID("TM2DCompatibilityTight"));
+      TMOneStationLoose_->push_back(it->muonID("TMOneStationLoose"));
+      TMOneStationTight_->push_back(it->muonID("TMOneStationTight"));
+      GMTkChiCompatibility_->push_back(it->muonID("GMTkChiCompatibility"));
+      GMStaChiCompatibility_->push_back(it->muonID("GMStaChiCompatibility"));
+      GMTkKinkTight_->push_back(it->muonID("GMTkKinkTight"));
+      TMLastStationAngLoose_->push_back(it->muonID("TMLastStationAngLoose"));
+      TMOneStationAngLoose_->push_back(it->muonID("TMOneStationAngLoose"));
+      TMOneStationAngTight_->push_back(it->muonID("TMOneStationAngTight"));
       
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());

@@ -27,6 +27,6 @@ cvs co -rV17-pre4 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 
 ## TODO ##
 # taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)
-# rho25 for photons (https://twiki.cern.ch/twiki/bin/view/CMS/Vgamma2011PhotonID)
+# consider conversion module
 # store multiple rhos
 # check severity level adjustments

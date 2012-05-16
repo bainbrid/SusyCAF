@@ -122,6 +122,11 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<int           > >(prefix + "IsEBGap"              + suffix);
   produces <std::vector<int           > >(prefix + "IsEEGap"              + suffix);
   produces <std::vector<int           > >(prefix + "IsEBEEGap"            + suffix);
+
+  produces <std::vector<float> >  (prefix + "TrkSumPtHollowConeDR03"     + suffix);
+  produces <std::vector<float> >  (prefix + "EcalRecHitEtConeDR03"       + suffix);
+  produces <std::vector<float> >  (prefix + "HcalTowSumEtConeDR03"       + suffix);
+
   produces <std::vector<float> >  (prefix + "TrkSumPtHollowConeDR04"     + suffix);
   produces <std::vector<float> >  (prefix + "EcalRecHitEtConeDR04"       + suffix);
   produces <std::vector<float> >  (prefix + "HcalTowSumEtConeDR04"       + suffix);
@@ -256,11 +261,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<int  > > isEEGap             ( new std::vector<int  >() );
   std::auto_ptr<std::vector<int  > > isEBEEGap           ( new std::vector<int  >() );
 
+  std::auto_ptr<std::vector<float> > trkSumPtHolConeDR03 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > EcalrechitEtConeDR03 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDR03   (new std::vector<float>());
+
   std::auto_ptr<std::vector<float> > trkSumPtHolConeDR04 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > EcalrechitEtConeDR04 (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > Hcal       (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > HcalDepth1 (new std::vector<float>());
-  std::auto_ptr<std::vector<float> > HcalDepth2 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDR04   (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDepth1DR04 (new std::vector<float>());
+  std::auto_ptr<std::vector<float> > HcalDepth2DR04 (new std::vector<float>());
+
   std::auto_ptr<std::vector<float> > R9   (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e1x5 (new std::vector<float>());
   std::auto_ptr<std::vector<float> > e2x5 (new std::vector<float>());
@@ -271,7 +281,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double> > SCetaWidth (new std::vector<double>());
   std::auto_ptr<std::vector<double> > SCphiWidth (new std::vector<double>());
 
-  std::auto_ptr<std::vector<int  > > nConversions        ( new std::vector<int  >() );
+  std::auto_ptr<std::vector<int    > > nConversions       ( new std::vector<int  >() );
   std::auto_ptr<std::vector<float  > > allConversionTracksSumPt ( new std::vector<float  >() );
   std::auto_ptr<std::vector<VectorF> > bestConvTrack0P3   ( new std::vector<VectorF>() );
   std::auto_ptr<std::vector<VectorF> > bestConvTrack1P3   ( new std::vector<VectorF>() );
@@ -295,11 +305,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isEEGap             ->push_back(photon.isEEGap              ());
       isEBEEGap           ->push_back(photon.isEBEEGap            ());
       
+      trkSumPtHolConeDR03  -> push_back(photon.trkSumPtHollowConeDR03());
+      EcalrechitEtConeDR03 -> push_back(photon.ecalRecHitSumEtConeDR03());
+      HcalDR03             -> push_back(photon.hcalTowerSumEtConeDR03());
+
       trkSumPtHolConeDR04  -> push_back(photon.trkSumPtHollowConeDR04());
       EcalrechitEtConeDR04 -> push_back(photon.ecalRecHitSumEtConeDR04());
-      Hcal                 -> push_back(photon.hcalTowerSumEtConeDR04());
-      HcalDepth1           -> push_back(photon.hcalDepth1TowerSumEtConeDR04());
-      HcalDepth2           -> push_back(photon.hcalDepth2TowerSumEtConeDR04());
+      HcalDR04             -> push_back(photon.hcalTowerSumEtConeDR04());
+      HcalDepth1DR04       -> push_back(photon.hcalDepth1TowerSumEtConeDR04());
+      HcalDepth2DR04       -> push_back(photon.hcalDepth2TowerSumEtConeDR04());
+
       R9   -> push_back(photon.r9());
       e1x5 -> push_back(photon.e1x5());
       e2x5 -> push_back(photon.e2x5());
@@ -365,11 +380,16 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(isEEGap                 , prefix + "IsEEGap"                    + suffix);
   iEvent.put(isEBEEGap               , prefix + "IsEBEEGap"                  + suffix);
   				     
+  iEvent.put(trkSumPtHolConeDR03     , prefix + "TrkSumPtHollowConeDR03"     + suffix);
+  iEvent.put(EcalrechitEtConeDR03    , prefix + "EcalRecHitEtConeDR03"       + suffix);
+  iEvent.put(HcalDR03                , prefix + "HcalTowSumEtConeDR03"       + suffix);
+
   iEvent.put(trkSumPtHolConeDR04     , prefix + "TrkSumPtHollowConeDR04"     + suffix);
   iEvent.put(EcalrechitEtConeDR04    , prefix + "EcalRecHitEtConeDR04"       + suffix);
-  iEvent.put(Hcal                    , prefix + "HcalTowSumEtConeDR04"       + suffix);
-  iEvent.put(HcalDepth1              , prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
-  iEvent.put(HcalDepth2              , prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
+  iEvent.put(HcalDR04                , prefix + "HcalTowSumEtConeDR04"       + suffix);
+  iEvent.put(HcalDepth1DR04          , prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
+  iEvent.put(HcalDepth2DR04          , prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
+
   iEvent.put(R9                      , prefix + "R9"                         + suffix);
   iEvent.put(e1x5                    , prefix + "e1x5"                       + suffix);
   iEvent.put(e2x5                    , prefix + "e2x5"                       + suffix);

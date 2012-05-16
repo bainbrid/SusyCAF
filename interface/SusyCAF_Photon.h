@@ -27,12 +27,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include "DataFormats/PatCandidates/interface/Conversion.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include <TMath.h>
 #include <Math/ProbFuncMathCore.h>
 #include <Math/VectorUtil.h>
 
@@ -165,10 +159,6 @@ void SusyCAF_Photon<T>::initPAT()
   produces <std::vector<float> >(prefix + "HcalIso"       + suffix);
   produces <std::vector<float> >(prefix + "SigmaEtaEta"   + suffix);
   produces <std::vector<float> >(prefix + "SigmaIetaIeta" + suffix);
-  produces <std::vector<double> >(prefix + "ConversionVtxProb" + suffix);
-  produces <std::vector<double> >(prefix + "ConversionLxy" + suffix);
-  produces <std::vector<int> >(prefix + "ConversionNHitsMax" + suffix);
-  produces <std::vector<int> >(prefix + "ConversionEleInd" + suffix);
 }
 
 template< typename T >
@@ -360,7 +350,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bestConvEoverP ->push_back(bestConv.isNull() ? 0 : bestConv->EoverP());
       bestConvMass   ->push_back(bestConv.isNull() ? 0 : bestConv->pairInvariantMass());
     }
-  } //collection is Valid
+  }
   
   iEvent.put(isHandleValid           , prefix + "HandleValid"                + suffix);
   iEvent.put(p4                      , prefix + "P4"                         + suffix);
@@ -412,23 +402,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  sigmaEtaEta   ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  sigmaIetaIeta ( new std::vector<float>() );
   
-  std::auto_ptr<std::vector<double> >  ConversionVtxProb ( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> >  ConversionLxy ( new std::vector<double>() );
-  std::auto_ptr<std::vector<int> >  ConversionNHitsMax ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >  ConversionEleInd ( new std::vector<int>() );
-
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByLabel("offlineBeamSpot", bsHandle);
-  const reco::BeamSpot &beamspot = *bsHandle.product();
-
-  edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel("allConversions", hConversions);
-
-  edm::Handle<reco::GsfElectronCollection> hElectrons;
-  iEvent.getByLabel("gsfElectrons", hElectrons);
-
-
-
   if (collection.isValid()){
     for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const pat::Photon& photon = *it;
@@ -441,47 +414,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       sigmaEtaEta  ->push_back(photon.sigmaEtaEta  ());
       sigmaIetaIeta->push_back(photon.sigmaIetaIeta());
     }
-      //taken from: https://twiki.cern.ch/twiki/bin/view/CMS/ConversionTools
-    double conv_vtxProb[50];
-    double conv_lxy[50];
-    int conv_nHitsMax[50];
-    int conv_eleind[50];
-
-    int iconv=-1;
-    for (reco::ConversionCollection::const_iterator conv = hConversions->begin(); conv!= hConversions->end(); ++conv) {
-	  iconv++;
-	  conv_vtxProb[iconv]=0.;
-	  conv_lxy[iconv]=0.;
- 	  conv_nHitsMax[iconv]=99;
-	  conv_eleind[iconv] = -1;
-
-	  reco::Vertex vtx = conv->conversionVertex();
-	  if (vtx.isValid()) {
-	    int iel=-1;
-	    for(reco::GsfElectronCollection::const_iterator gsfEle = hElectrons->begin(); gsfEle!=hElectrons->end(); ++gsfEle) {
-		  iel++;
-		  if (ConversionTools::matchesConversion(*gsfEle, *conv)) {
-		    conv_eleind[iconv] = iel;
-		    conv_vtxProb[iconv] = TMath::Prob( vtx.chi2(), vtx.ndof() );
-		    math::XYZVector mom(conv->refittedPairMomentum());
-		    double dbsx = vtx.x() - beamspot.position().x();
-		    double dbsy = vtx.y() - beamspot.position().y();
-		    conv_lxy[iconv] = (mom.x()*dbsx + mom.y()*dbsy)/mom.rho();
-		    conv_nHitsMax[iconv]=0;
-		    for (std::vector<uint8_t>::const_iterator it = conv->nHitsBeforeVtx().begin(); it!=conv->nHitsBeforeVtx().end(); ++it) {
-			  if ((*it)>conv_nHitsMax[iconv]) conv_nHitsMax[iconv] = (*it);
-		    }
-		    break;
-		  }
-	    }
-	  }
-
-	  ConversionVtxProb	->push_back(conv_vtxProb[iconv]);
-	  ConversionLxy		->push_back(conv_lxy[iconv]);
-	  ConversionNHitsMax->push_back(conv_nHitsMax[iconv]);
-	  ConversionEleInd	->push_back(conv_eleind[iconv]);
-    } //conv
-  } //isValid
+  }
   
   iEvent.put(idLoose      , prefix + "IDLoose"        + suffix);
   iEvent.put(idTight      , prefix + "IDTight"        + suffix);
@@ -491,12 +424,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(hcalIso      , prefix + "HcalIso"        + suffix);
   iEvent.put(sigmaEtaEta  , prefix + "SigmaEtaEta"    + suffix);
   iEvent.put(sigmaIetaIeta, prefix + "SigmaIetaIeta"  + suffix);
-
-  iEvent.put(ConversionVtxProb	, prefix + "ConversionVtxProb" + suffix);
-  iEvent.put(ConversionLxy	, prefix + "ConversionLxy" + suffix);
-  iEvent.put(ConversionNHitsMax	, prefix + "ConversionNHitsMax" + suffix);
-  iEvent.put(ConversionEleInd	, prefix + "ConversionEleInd" + suffix);
-
 }
 
 template< typename T >

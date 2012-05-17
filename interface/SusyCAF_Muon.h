@@ -60,6 +60,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<double> > (  Prefix + "GlobalTracknormalizedChi2" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidHits" + Suffix);
   produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidTrackerHits" + Suffix);
+  produces <std::vector<unsigned> > (  Prefix + "GlobalTracknumberOfValidMuonHits" + Suffix);
 
   produces <std::vector<int> > (Prefix + "Selected" + Suffix );
 
@@ -109,6 +110,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<int> > (  Prefix + "IsStandAloneMuon" + Suffix);
   produces <std::vector<int> > (  Prefix + "HasOverlap" + Suffix);
   produces <std::vector<unsigned> > ( Prefix + "NumberOfMatches" + Suffix );
+  produces <std::vector<unsigned> > ( Prefix + "NumberOfMatchedStations" + Suffix );
   produces <std::vector<double> > (  Prefix + "SigmaPt" + Suffix);
 
    //AGB - add EcalVetoDep and HcalVetoDep 

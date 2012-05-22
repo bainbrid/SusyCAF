@@ -99,7 +99,7 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04PUPt" + Suffix);
-  produces <std::vector<float> > (  Prefix + "PfIsolationDeltaB" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR04DeltaBCorrected" + Suffix);
 
   produces <std::vector<math::XYZPoint> > (  Prefix + "Vertex" + Suffix);
   produces <std::vector<double> > (  Prefix + "VertexChi2" + Suffix);
@@ -214,7 +214,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> >  pfIsolationR04NeuHadHiThrEt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04GamHiThrEt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04PUPt	( new std::vector<float>() ) ;
-  std::auto_ptr<std::vector<float> >  pfIsolationDeltaB		(new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR04DeltaB	( new std::vector<float>() ) ;
 
   std::auto_ptr<std::vector<math::XYZPoint> > vertex   ( new std::vector<math::XYZPoint>()  ) ;
   std::auto_ptr<std::vector<double> >  vertexChi2   ( new std::vector<double>()  ) ;
@@ -264,23 +264,25 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isolationR03emEt->push_back(it->isolationR03().emEt);
       isolationR03hadEt->push_back(it->isolationR03().hadEt);
 
-      float sumChgHadPt,sumNeuHadEt,sumGamEt,sumPUPt, isoDelB;
+      {
+	const reco::MuonPFIsolation& pfIso04 = it->pfIsolationR04();
+	float sumChgHadPt = pfIso04.sumChargedHadronPt;
+	float sumNeuHadEt = pfIso04.sumNeutralHadronEt;
+	float sumGamEt    = pfIso04.sumPhotonEt;
+	float sumPUPt     = pfIso04.sumPUPt;
+	float isoDelB     = (sumChgHadPt + std::max(0., (sumNeuHadEt + sumGamEt - 0.5*sumPUPt)))/(it->p4()).Pt();
 
-      sumChgHadPt 	= it->pfIsolationR04().sumChargedHadronPt;
-      sumNeuHadEt 	= it->pfIsolationR04().sumNeutralHadronEt;
-      sumGamEt 		= it->pfIsolationR04().sumPhotonEt;
-      sumPUPt 		= it->pfIsolationR04().sumPUPt;
+	pfIsolationR04ChgHadPt->push_back(sumChgHadPt);
+	pfIsolationR04ChgParPt->push_back(pfIso04.sumChargedParticlePt);
 
-      isoDelB = (sumChgHadPt + std::max(0., (sumNeuHadEt + sumGamEt - 0.5*sumPUPt)))/(it->p4()).Pt();
+	pfIsolationR04GamEt->push_back(sumGamEt);
+	pfIsolationR04GamHiThrEt->push_back(pfIso04.sumPhotonEtHighThreshold);
 
-      pfIsolationR04ChgHadPt->push_back(sumChgHadPt);
-      pfIsolationR04ChgParPt->push_back(it->pfIsolationR04().sumChargedParticlePt);
-      pfIsolationR04NeuHadEt->push_back(sumNeuHadEt);
-      pfIsolationR04GamEt->push_back(sumGamEt);
-      pfIsolationR04NeuHadHiThrEt->push_back(it->pfIsolationR04().sumNeutralHadronEtHighThreshold);
-      pfIsolationR04GamHiThrEt->push_back(it->pfIsolationR04().sumPhotonEtHighThreshold);
-      pfIsolationR04PUPt->push_back(sumPUPt);
-      pfIsolationDeltaB->push_back(isoDelB);
+	pfIsolationR04NeuHadEt->push_back(sumNeuHadEt);
+	pfIsolationR04NeuHadHiThrEt->push_back(pfIso04.sumNeutralHadronEtHighThreshold);
+	pfIsolationR04PUPt->push_back(sumPUPt);
+	pfIsolationR04DeltaB->push_back(isoDelB);
+      }
 
       vertex->push_back(it->vertex());
       vertexChi2->push_back(it->vertexChi2());
@@ -381,7 +383,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( pfIsolationR04NeuHadHiThrEt, Prefix + "PfIsolationR04NeuHadHiThrEt" + Suffix);
   iEvent.put( pfIsolationR04GamHiThrEt, Prefix + "PfIsolationR04GamHiThrEt" + Suffix);
   iEvent.put( pfIsolationR04PUPt, Prefix + "PfIsolationR04PUPt" + Suffix);
-  iEvent.put( pfIsolationDeltaB, Prefix + "PfIsolationDeltaB" + Suffix);
+  iEvent.put( pfIsolationR04DeltaB, Prefix + "PfIsolationR04DeltaBCorrected" + Suffix);
 
   iEvent.put( vertex,      Prefix + "Vertex" + Suffix );
   iEvent.put( vertexChi2,  Prefix + "VertexChi2" + Suffix );

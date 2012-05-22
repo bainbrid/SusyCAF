@@ -392,7 +392,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isStandAloneMuon,  Prefix + "IsStandAloneMuon" + Suffix );
   iEvent.put( hasOverlap,  Prefix + "HasOverlap" + Suffix );
   iEvent.put( numberOfMatches, Prefix + "NumberOfMatches" + Suffix );
-  iEvent.put( numberOfMatches, Prefix + "NumberOfMatchedStations" + Suffix );
+  iEvent.put( numberOfMatchedStations, Prefix + "NumberOfMatchedStations" + Suffix );
   iEvent.put(sigmapt,Prefix + "SigmaPt" + Suffix );
 
   iEvent.put(EcalVetoDep, Prefix + "EcalVetoDep" + Suffix);
@@ -413,7 +413,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  ecalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  hcalIso( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  trackIso( new std::vector<float>() );
-
 
   std::auto_ptr<std::vector<int> > TrackerMuonArbitrated_( new std::vector<int>() );
   std::auto_ptr<std::vector<int> > AllArbitrated_( new std::vector<int>() );
@@ -459,26 +458,19 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
       TMLastStationAngLoose_->push_back(it->muonID("TMLastStationAngLoose"));
       TMOneStationAngLoose_->push_back(it->muonID("TMOneStationAngLoose"));
       TMOneStationAngTight_->push_back(it->muonID("TMOneStationAngTight"));
-      
+
       ecalIso->push_back(it->ecalIso());
       hcalIso->push_back(it->hcalIso());
       trackIso->push_back(it->trackIso());
       
-    
-
- //pf
-      ispf->push_back(it->pfCandidateRef().isAvailable()); //just for safety, could be removed later
-      
-      if(it->pfCandidateRef().isAvailable()){
-
-	partIso->push_back(it->particleIso());
-	charHadIso->push_back(it->chargedHadronIso());
-	neutHadIso->push_back(it->neutralHadronIso());
-	photIso->push_back(it->photonIso());
-      }
+      ispf->push_back(it->pfCandidateRef().isAvailable());
+      partIso->push_back(it->particleIso());
+      charHadIso->push_back(it->chargedHadronIso());
+      neutHadIso->push_back(it->neutralHadronIso());
+      photIso->push_back(it->photonIso());
     }
   }
-  
+
   iEvent.put(IDGlobalMuonPromptTight, Prefix + "IDGlobalMuonPromptTight" + Suffix );
   iEvent.put(TMLastStationAngTight, Prefix + "TMLastStationAngTight" + Suffix);
   iEvent.put(TMLastStationOptimLowPtTight, Prefix + "TMLastStationOptimizedLowPtTight" + Suffix);
@@ -505,7 +497,6 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(ecalIso, Prefix + "EcalIso" + Suffix);
   iEvent.put(hcalIso, Prefix + "HcalIso" + Suffix);
   iEvent.put(trackIso, Prefix + "TrackIso" + Suffix);
- //pf stuff
   iEvent.put(ispf, Prefix + "ProducedFromPF" + Suffix);
   iEvent.put(partIso, Prefix + "ParticleIso" + Suffix);
   iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);

@@ -7,13 +7,21 @@ cmsrel $CMSSW
 cd $CMSSW/src
 cmsenv
 
-# susypat (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SusyPatLayer1DefV12)
+# susypat
+# (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SusyPatLayer1DefV12)
+# (https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes52X)
 addpkg DataFormats/PatCandidates   V06-05-01
-addpkg PhysicsTools/PatAlgos       V08-09-06
+addpkg PhysicsTools/PatAlgos       V08-09-09
 addpkg CommonTools/ParticleFlow    V00-03-11
 
-addpkg PhysicsTools/Configuration  V00-12-02
+# MET Type I (https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis)
+addpkg JetMETCorrections/Type1MET  V04-06-05
+addpkg PhysicsTools/PatUtils
+cvs co -r b5_2_X_cvMEtCorr_2012May08 PhysicsTools/PatUtils/plugins
+cvs up -r b5_2_X_cvMEtCorr_2012May08 PhysicsTools/PatUtils
+cvs co -r V00-00-08      CommonTools/RecoUtils
 
+addpkg PhysicsTools/Configuration  V00-12-02
 
 #MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters)
 cvs co -r V00-00-01 RecoMET/METFilters
@@ -21,9 +29,8 @@ cvs co -r V00-00-01 RecoMET/METFilters
 # functions to compute electron IDs
 cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 
-#cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-cvs co -rV17-pre4 -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-
+cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cp -p SUSYBSMAnalysis/SusyCAF/python/SUSY_pattuple_cff.py PhysicsTools/Configuration/python/SUSY_pattuple_cff.py
 
 ## TODO ##
 # taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)

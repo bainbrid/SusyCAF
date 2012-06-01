@@ -135,6 +135,21 @@ def rho25(process) :
     process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
     return cms.Path( process.kt6PFJetsForIsolation )
 
+def typeIMet(process,options) :
+    if options.doTypeIMetReco :
+        #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis
+        process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+        process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+        process.load("JetMETCorrections.Type1MET.caloMETCorrections_cff")
+
+        if options.isData :
+            process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3Residual")
+            process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL1FastL2L3Residual")
+        
+        return cms.Path(process.producePFMETCorrections + process.produceCaloMETCorrections)
+    else :
+        return cms.Path()
+
 def tauReco(process,options) :
     if options.doTauReco :
         #https://hypernews.cern.ch/HyperNews/CMS/get/physTools/2710/1/1/2/1.html

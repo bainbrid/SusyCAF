@@ -29,6 +29,7 @@ def options() :
     options.register('taus', default = True, info = "store tau information in the ntuple")
     options.register('dqm', default = False, info = "store dqm information in the ntuple")
     options.register('doTauReco', default = False, info = "redo tau recostruction (needed in order to read 51X files with 52X recipe)")
+    options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction (not produced in 52X reco)")
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     
     __hack_ListVarparsingBug__( options, 'jetCollections')

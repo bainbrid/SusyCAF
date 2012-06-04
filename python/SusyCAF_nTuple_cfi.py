@@ -19,7 +19,6 @@ class SusyCAF(object) :
         self.process.susyTree = cms.EDAnalyzer("SusyTree", outputCommands = cms.untracked.vstring(
             'drop *',
             'keep *_susycaf*_*_*',
-            'keep double_kt6PFJets_rho_%s'%self.process.name_(),
             'keep *_*FilterFlag__*',
             'keep double_susyScan*_*_*') + (
             ["drop %s"%s for s in SusyCAF_Drop_cfi.drop(self.options.dropMore)] +
@@ -43,7 +42,7 @@ class SusyCAF(object) :
                        ['Event','Track','Triggers','L1Triggers', 'L1Extra',
                         'BeamSpot','BeamHaloSummary','LogError','Vertex',
                         'HcalRecHit','EcalRecHit','PFRecHit','MET','SumP4',
-                        'HcalDeadChannels','EcalDeadChannels','CaloTowers'] +
+                        'HcalDeadChannels','EcalDeadChannels','CaloTowers','Double'] +
                        [['Gen','Scan','PileupSummary'],['DQMFlags','DCSBits']][self.options.isData]) :
             self.process.load('SUSYBSMAnalysis.SusyCAF.SusyCAF_%s_cfi'%module)
 
@@ -52,7 +51,7 @@ class SusyCAF(object) :
         self.process.susycaftriggers.SourceName  = self.options.SourceName
 
         return ( self.evalSequence('susycafhcalnoise%s', ['filter','filternoiso','rbx','summary']) +
-                 self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','logerror','vertex','calotowers'] +
+                 self.evalSequence('susycaf%s', (['event','track','pfsump4','beamspot','logerror','vertex','calotowers','rho','rho25'] +
                                                  (['beamhalosummary'] if self.options.beamHaloVars else [] ) +
                                                  (['triggers','L1triggers','l1extra'] if self.options.triggers else [])) ) +
                  self.process.susycafmet + self.process.susycafmetnohf +

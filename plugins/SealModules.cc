@@ -39,7 +39,7 @@
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_CaloTowers.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_EcalDeadChannels.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_HcalDeadChannels.h"
-
+#include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Double.h"
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_PFTau.h"
 
 #include "SUSYBSMAnalysis/SusyCAF/interface/SusyCAF_Gen.h"
@@ -84,6 +84,7 @@ DEFINE_FWK_MODULE(SusyCAF_CaloMET);
 DEFINE_FWK_MODULE(SusyCAF_PFMET);
 DEFINE_FWK_MODULE(SusyCAF_PatMET);
 DEFINE_FWK_MODULE(SusyCAF_SumP4);
+DEFINE_FWK_MODULE(SusyCAF_Double);
 DEFINE_FWK_MODULE(SusyCAF_PFJet);
 DEFINE_FWK_MODULE(SusyCAF_JPTJet);
 DEFINE_FWK_MODULE(SusyCAF_CaloJet);

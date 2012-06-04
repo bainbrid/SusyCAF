@@ -27,7 +27,7 @@ cvs co -r V00-00-07 RecoMET/METFilters
 # functions to compute electron IDs
 cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 
-cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-0 UserCode/SusyCAF
 
 unalias cp
 cp -p SUSYBSMAnalysis/SusyCAF/python/mods/SUSY_pattuple_cff.py PhysicsTools/Configuration/python/SUSY_pattuple_cff.py

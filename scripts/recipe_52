@@ -10,16 +10,14 @@ cmsenv
 # susypat
 # (https://twiki.cern.ch/twiki/bin/viewauth/CMS/SusyPatLayer1DefV12)
 # (https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes52X)
-addpkg DataFormats/PatCandidates   V06-05-01
-addpkg PhysicsTools/PatAlgos       V08-09-09
-addpkg CommonTools/ParticleFlow    V00-03-11
-
 # MET Type I (https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis)
-addpkg JetMETCorrections/Type1MET  V04-06-05
-addpkg PhysicsTools/PatUtils
-cvs co -r b5_2_X_cvMEtCorr_2012May08 PhysicsTools/PatUtils/plugins
-cvs up -r b5_2_X_cvMEtCorr_2012May08 PhysicsTools/PatUtils
-cvs co -r V00-00-08      CommonTools/RecoUtils
+
+addpkg DataFormats/PatCandidates V06-05-01
+addpkg PhysicsTools/PatAlgos V08-09-11
+addpkg CommonTools/ParticleFlow V00-03-14
+addpkg JetMETCorrections/Type1MET V04-06-07
+addpkg PhysicsTools/PatUtils V03-09-22
+addpkg CommonTools/RecoUtils V00-00-09
 
 addpkg PhysicsTools/Configuration  V00-12-02
 
@@ -34,7 +32,6 @@ cp -p SUSYBSMAnalysis/SusyCAF/python/mods/SUSY_pattuple_cff.py PhysicsTools/Conf
 cp -p SUSYBSMAnalysis/SusyCAF/python/mods/jetTools.py PhysicsTools/PatAlgos/python/tools/
  
 ## TODO ##
-# taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)
+# taus
 # consider conversion module
-# store multiple rhos
 # check severity level adjustments

@@ -24,14 +24,15 @@ cvs co -r V00-00-08      CommonTools/RecoUtils
 addpkg PhysicsTools/Configuration  V00-12-02
 
 #MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters)
-cvs co -r V00-00-01 RecoMET/METFilters
+cvs co -r V00-00-07 RecoMET/METFilters
 
 # functions to compute electron IDs
 cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 
 cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
-cp -p SUSYBSMAnalysis/SusyCAF/python/SUSY_pattuple_cff.py PhysicsTools/Configuration/python/SUSY_pattuple_cff.py
-
+cp -p SUSYBSMAnalysis/SusyCAF/python/mods/SUSY_pattuple_cff.py PhysicsTools/Configuration/python/SUSY_pattuple_cff.py
+cp -p SUSYBSMAnalysis/SusyCAF/python/mods/jetTools.py PhysicsTools/PatAlgos/python/tools/
+ 
 ## TODO ##
 # taus (https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12)
 # consider conversion module

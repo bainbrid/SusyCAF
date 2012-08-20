@@ -36,6 +36,10 @@ SusyCAF_L1Extra::SusyCAF_L1Extra(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > ( Prefix + "isoEmeta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "isoEmphi"   + Suffix);
   produces <std::vector<double> > ( Prefix + "isoEmbx"   + Suffix);
+  produces <std::vector<double> > ( Prefix + "nonisoEmet"   + Suffix);
+  produces <std::vector<double> > ( Prefix + "nonisoEmeta"   + Suffix);
+  produces <std::vector<double> > ( Prefix + "nonisoEmphi"   + Suffix);
+  produces <std::vector<double> > ( Prefix + "nonisoEmbx"   + Suffix);
 
 }
 
@@ -90,7 +94,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     mht->push_back(it->et());
     mhtphi->push_back(it->phi());
   }
-
+  
   //FwdJets
   edm::Handle<l1extra::L1JetParticleCollection> fwdJet;
   iEvent.getByLabel(inputTag.label(),"Forward",fwdJet);
@@ -100,7 +104,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     fwdJetphi->push_back(it->phi());
     fwdJetbx->push_back(it->bx());
     }
-
+   
   //TauJets
   edm::Handle<l1extra::L1JetParticleCollection> tauJet;
   iEvent.getByLabel(inputTag.label(),"Tau",tauJet);
@@ -120,27 +124,27 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     cenJetphi->push_back(it->phi());
     cenJetbx->push_back(it->bx());
     }
-
+  
   //IsoEMJets
-  edm::Handle<l1extra::L1JetParticleCollection> isoEm;
+  edm::Handle<l1extra::L1EmParticleCollection> isoEm;
   iEvent.getByLabel(inputTag.label(),"Isolated",isoEm);
-  for(l1extra::L1JetParticleCollection::const_iterator it = isoEm->begin(); it != isoEm->end(); ++it){
+  for(l1extra::L1EmParticleCollection::const_iterator it = isoEm->begin(); it != isoEm->end(); ++it){
     isoEmet->push_back(it->et());
     isoEmeta->push_back(it->eta());
     isoEmphi->push_back(it->phi());
     isoEmbx->push_back(it->bx());
     }
-
+  
   //nonIsoEMJets
-  edm::Handle<l1extra::L1JetParticleCollection> nonisoEm;
-  iEvent.getByLabel(inputTag.label(),"NonIsolated",isoEm);
-  for(l1extra::L1JetParticleCollection::const_iterator it = nonisoEm->begin(); it != nonisoEm->end(); ++it){
+  edm::Handle<l1extra::L1EmParticleCollection> nonisoEm;
+  iEvent.getByLabel(inputTag.label(),"NonIsolated",nonisoEm);
+  for(l1extra::L1EmParticleCollection::const_iterator it = nonisoEm->begin(); it != nonisoEm->end(); ++it){
     nonisoEmet->push_back(it->et());
     nonisoEmeta->push_back(it->eta());
     nonisoEmphi->push_back(it->phi());
     nonisoEmbx->push_back(it->bx());
     }
-
+    
   
   iEvent.put( ht,     Prefix + "ht"         + Suffix);
   iEvent.put( et,     Prefix + "et"         + Suffix);
@@ -156,10 +160,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( tauJeteta, Prefix + "tauJeteta" + Suffix);
   iEvent.put( tauJetphi, Prefix + "tauJetphi" + Suffix);
   iEvent.put( tauJetbx, Prefix + "tauJetbx" + Suffix);
-  iEvent.put( tauJetet, Prefix + "fwdJetet" + Suffix);
-  iEvent.put( tauJeteta, Prefix + "fwdJeteta" + Suffix);
-  iEvent.put( tauJetphi, Prefix + "fwdJetphi" + Suffix);
-  iEvent.put( tauJetbx, Prefix + "fwdJetbx" + Suffix);
+  iEvent.put( fwdJetet, Prefix + "fwdJetet" + Suffix);
+  iEvent.put( fwdJeteta, Prefix + "fwdJeteta" + Suffix);
+  iEvent.put( fwdJetphi, Prefix + "fwdJetphi" + Suffix);
+  iEvent.put( fwdJetbx, Prefix + "fwdJetbx" + Suffix);
   iEvent.put( isoEmet, Prefix + "isoEmet" + Suffix);
   iEvent.put( isoEmeta, Prefix + "isoEmeta" + Suffix);
   iEvent.put( isoEmphi, Prefix + "isoEmphi" + Suffix);

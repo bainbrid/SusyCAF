@@ -128,6 +128,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   } //collection
 
+// taken from the discussion here: https://hypernews.cern.ch/HyperNews/CMS/get/generators/1234/1/1/1.html
+
   if(product.isValid()){ 
     //gen Parton HT
     double htEvent=0.;

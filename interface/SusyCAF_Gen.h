@@ -7,6 +7,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+// LHE Event headers
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
 #include <map>
 
 template< typename T >
@@ -51,6 +57,8 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <std::vector<int> > (Prefix + "MotherIndex" + Suffix);
   produces <std::vector<int> > (Prefix + "MotherPdgId" + Suffix);
 
+  produces <double> (Prefix + "PartonHT" + Suffix);
+
   for(unsigned i=0; i<jetCollections.size(); ++i)
     produces<std::vector<LorentzVector> >(Prefix + jetCollections[i].label() +"P4" + Suffix);
 }
@@ -69,8 +77,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<T> > collection;   iEvent.getByLabel(inputTag,collection);
   edm::Handle<GenEventInfoProduct> geninfo;  iEvent.getByLabel("generator",geninfo);
 
-  
-  
+  //add handle for LHE event
+  edm::Handle<LHEEventProduct> product;
+  iEvent.getByLabel("source", product);
+
   std::auto_ptr<unsigned int> signalProcessID(new unsigned int(geninfo->signalProcessID()));
   std::auto_ptr<float> Q (new float(geninfo->pdf()->scalePDF));
   std::auto_ptr<int> id1 (new int( geninfo->pdf()->id.first));
@@ -89,11 +99,16 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherIndex ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherPdgId ( new std::vector<int>() ) ;
+  
+  std::auto_ptr<double> gHT ( new double(0) );
+
   std::vector<const T*> self;
   std::vector<const reco::Candidate*> mom;
 
+  //make some new LHE based variables
+  const lhef::HEPEUP hepeup_ = product->hepeup();
+  const std::vector<lhef::HEPEUP::FiveVector> pup_ = hepeup_.PUP;
   
-
   if(collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       if ( it->status() == 3         // any status 3 genParticle
@@ -111,7 +126,24 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	mom.push_back( it->numberOfMothers() ? it->mother(): 0);
       }
     }
-  }
+  } //collection
+
+  if(product.isValid()){ 
+    //gen Parton HT
+    double htEvent=0.;
+    size_t iMax = hepeup_.NUP;
+    for(size_t i = 2; i < iMax; ++i) {
+       if( hepeup_.ISTUP[i] != 1 ) continue;
+       int idabs = abs( hepeup_.IDUP[i] );
+       if( idabs != 21 && (idabs<1 || idabs>6) ) continue;
+       double ptPart = sqrt( pow(hepeup_.PUP[i][0],2) + pow(hepeup_.PUP[i][1],2) );
+       //std::cout << ">>>>>>>> Pt Parton: " << ptPart << std::endl;
+       htEvent += ptPart;
+    } // iMax
+
+    *gHT=htEvent;
+  } //product
+  
   for(typename std::vector<const reco::Candidate*>::const_iterator it = mom.begin(); it!=mom.end(); ++it)
     motherIndex->push_back( index(*it,self) );
 
@@ -132,6 +164,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( pdf2,         Prefix + "pdf2" + Suffix );
   iEvent.put( id1,          Prefix + "id1" + Suffix );
   iEvent.put( id2,          Prefix + "id2" + Suffix );
+  iEvent.put( gHT, 		Prefix + "PartonHT" + Suffix );
 }
 
 template< typename T > void SusyCAF_Gen<T>::

@@ -157,3 +157,29 @@ def tauReco(process,options) :
         return cms.Path(process.PFTau)
     else :
         return cms.Path()
+
+
+def pfMetPhiCorrections(process,options) :
+    if options.doPfMetPhiCorrections :
+        #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis#MET_x_y_Shift_Correction_for_mod
+        process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+        process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+        
+        if options.isData :
+            process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+        else :
+            process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
+             
+        process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(
+            cms.InputTag('pfJetMETcorr','type1'),
+            cms.InputTag('pfMEtSysShiftCorr')
+            )
+        
+        process.pfType1p2CorrectedMet.srcType1Corrections = cms.VInputTag(
+            cms.InputTag('pfJetMETcorr','type1'),
+            cms.InputTag('pfMEtSysShiftCorr')
+            )
+            
+        return cms.Path(process.pfMEtSysShiftCorrSequence + process.producePFMETCorrections)
+    else :
+        return cms.Path()

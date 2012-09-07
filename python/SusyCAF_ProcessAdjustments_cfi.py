@@ -95,6 +95,7 @@ def addMetFilterFlags(process, options) :
     from RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi import greedyMuonPFCandidateFilter
     from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import EcalDeadCellTriggerPrimitiveFilter
     from RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi import EcalDeadCellBoundaryEnergyFilter
+    from RecoMET.METFilters.eeBadScFilter_cfi import eeBadScFilter
 
     process.trackingFailureFilterFlag = trackingFailureFilter.clone(taggingMode = True)#, quiet = True)
     process.hcalLaserEventFilterFlag = hcalLaserEventFilter.clone(taggingMode = True)
@@ -109,6 +110,8 @@ def addMetFilterFlags(process, options) :
                                                                               enableGap = False,
                                                                               limitDeadCellToChannelStatusEB = cms.vint32(12,14),
                                                                               limitDeadCellToChannelStatusEE = cms.vint32(12,14))
+    process.eeBadScFilterFlag = eeBadScFilter.clone(taggingMode = True)
+
     process.goodVertices = cms.EDFilter("VertexSelector",
                                         filter = cms.bool(False),
                                         src = cms.InputTag("offlinePrimaryVertices"),
@@ -119,7 +122,8 @@ def addMetFilterFlags(process, options) :
                      process.hcalLaserEventFilterFlag *
                      process.greedyMuonPFCandidateFilterFlag *
                      process.inconsistentMuonPFCandidateFilterFlag *
-                     process.ecalDeadCellTPFilterFlag
+                     process.ecalDeadCellTPFilterFlag *
+                     process.eeBadScFilterFlag
                      # * process.ecalDeadCellBEFilterFlag # product not found : EcalRecHitsEB
                      )
 

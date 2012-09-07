@@ -98,7 +98,9 @@ def addMetFilterFlags(process, options) :
     from RecoMET.METFilters.eeBadScFilter_cfi import eeBadScFilter
 
     process.trackingFailureFilterFlag = trackingFailureFilter.clone(taggingMode = True)#, quiet = True)
-    process.hcalLaserEventFilterFlag = hcalLaserEventFilter.clone(taggingMode = True)
+    process.hcalLaserEventFilterFlag = hcalLaserEventFilter.clone(taggingMode = True,
+                                                                  vetoByRunEventNumber=False,
+                                                                  vetoByHBHEOccupancy=True)
     process.greedyMuonPFCandidateFilterFlag = greedyMuonPFCandidateFilter.clone(taggingMode = True)
     process.inconsistentMuonPFCandidateFilterFlag = inconsistentMuonPFCandidateFilter.clone(taggingMode = True)
     process.ecalDeadCellTPFilterFlag = EcalDeadCellTriggerPrimitiveFilter.clone(taggingMode = True)

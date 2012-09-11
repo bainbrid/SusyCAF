@@ -32,6 +32,7 @@ def options() :
     options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction (not produced in 52X reco)")
     options.register('doPfMetPhiCorrections', default = False, info = "do phi corrections in pfMET")
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
+    options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')

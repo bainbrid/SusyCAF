@@ -9,6 +9,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
@@ -26,6 +28,9 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
+#include "EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h"
+
 
 #include <Math/ProbFuncMathCore.h>
 #include <Math/VectorUtil.h>
@@ -47,7 +52,6 @@ private:
   void produceRECO(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void producePAT(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
   void produceExtra(edm::Event &, const edm::EventSetup &, edm::Handle<std::vector<T> > &);
-
   void produceExtraSpikeVarsFunc(edm::Event &, const edm::EventSetup &,
 				 edm::Handle<std::vector<T> > &,
 				 edm::ESHandle<CaloTopology> &,
@@ -56,14 +60,14 @@ private:
 				 );
 
   double ebEeBoundary() const {return 1.479;}
-
+  
   const edm::InputTag   inputTag;
   const std::string     prefix,suffix;
 
   const bool produceExtraSpikeVars;
   const std::string ebRecHitCollection;
   const std::string eeRecHitCollection;
-
+  const edm::InputTag   chIsoInputTag_, phIsoInputTag_, nhIsoInputTag_ ;
   typedef reco::Candidate::LorentzVector  LorentzVector;
   typedef reco::Candidate::Vector         Vector;
   typedef math::XYZVectorF                VectorF;
@@ -80,6 +84,9 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
   , produceExtraSpikeVars(iConfig.getParameter<bool>("ProduceExtraSpikeVars"))
   , ebRecHitCollection(iConfig.getParameter<std::string>("EbRecHitCollection"))
   , eeRecHitCollection(iConfig.getParameter<std::string>("EeRecHitCollection"))
+  , chIsoInputTag_(iConfig.getParameter<edm::InputTag>("chIsoInputTag")) 
+  , phIsoInputTag_(iConfig.getParameter<edm::InputTag>("phIsoInputTag")) 
+  , nhIsoInputTag_(iConfig.getParameter<edm::InputTag>("nhIsoInputTag")) 
 {
   initTemplate();
 }
@@ -115,18 +122,28 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<float> >  (prefix + "e2x5" + suffix);
   produces <std::vector<float> >  (prefix + "e3x3" + suffix);
   produces <std::vector<float> >  (prefix + "e5x5" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterEnergy" + suffix);
-  produces <std::vector<Point> >  (prefix + "SuperClusterPos" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterEtaWidth" + suffix);
-  produces <std::vector<double> > (prefix + "SuperClusterPhiWidth" + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterEnergy"         + suffix);
+  produces <std::vector<Point> >  (prefix + "SuperClusterPos"            + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterEtaWidth"       + suffix);
+  produces <std::vector<double> > (prefix + "SuperClusterPhiWidth"       + suffix);
 
-  produces <std::vector<int   > >(prefix + "NConversions"         + suffix);
-  produces <std::vector<float > >(prefix + "AllConversionTracksSumPt" + suffix);
-  produces <std::vector<VectorF> >(prefix + "BestConversionTrack0P3" + suffix);
-  produces <std::vector<VectorF> >(prefix + "BestConversionTrack1P3" + suffix);
-  produces <std::vector<Point > >(prefix + "BestConversionVertex" + suffix);
-  produces <std::vector<float > >(prefix + "BestConversionEoverP" + suffix);
-  produces <std::vector<float > >(prefix + "BestConversionMass"   + suffix);
+  produces <std::vector<int   > >(prefix + "NConversions"                + suffix);
+  produces <std::vector<float > >(prefix + "AllConversionTracksSumPt"    + suffix);
+  produces <std::vector<VectorF> >(prefix + "BestConversionTrack0P3"     + suffix);
+  produces <std::vector<VectorF> >(prefix + "BestConversionTrack1P3"     + suffix);
+  produces <std::vector<Point > >(prefix + "BestConversionVertex"        + suffix);
+  produces <std::vector<float > >(prefix + "BestConversionEoverP"        + suffix);
+  produces <std::vector<float > >(prefix + "BestConversionMass"          + suffix);
+  
+  produces <std::vector<double> >   (prefix + "ChPFIso"                  + suffix);
+  produces <std::vector<double> >   (prefix + "PhPFIso"                  + suffix);
+  produces <std::vector<double> >   (prefix + "NhPFIso"                  + suffix);
+
+  produces <std::vector<float> >  (prefix + "HcalSingleTowSumEtConeDR03" + suffix);
+  produces <std::vector<float> >  (prefix + "HcalSingleTowSumEtConeDR04" + suffix);
+  produces <std::vector<bool> >   (prefix + "PassConvSafeElectronVeto"   + suffix); 
+  
+  produces <std::vector<float  > >(prefix + "HadronicTowOverEm"          + suffix);
 
 }
 
@@ -164,9 +181,9 @@ template< typename T >
 void SusyCAF_Photon<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   edm::Handle<std::vector<T> > collection;
-  iEvent.getByLabel(inputTag,collection);
+  iEvent.getByLabel(inputTag, collection);
   produceTemplate(iEvent, iSetup, collection);
-}
+  }
 // produce method in case of RECO data
 template< typename T >
 void SusyCAF_Photon<T>::produceTemplate(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::vector<reco::Photon> >& collection) {
@@ -226,15 +243,41 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float  > > bestConvEoverP     ( new std::vector<float >() ); 
   std::auto_ptr<std::vector<float  > > bestConvMass       ( new std::vector<float >() );
 
+  std::auto_ptr<std::vector<double > > chPFIso            ( new std::vector<double >() );
+  std::auto_ptr<std::vector<double > > phPFIso            ( new std::vector<double >() );
+  std::auto_ptr<std::vector<double > > nhPFIso            ( new std::vector<double >() );
+
+  std::auto_ptr<std::vector<float> > HcalSingleTowSumEtConeDR03( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > HcalSingleTowSumEtConeDR04( new std::vector<float>() );
+  std::auto_ptr<std::vector<bool> >  passConvSafeElectronVeto( new std::vector<bool>() );
+  std::auto_ptr<std::vector<float> > hadronicTowOverEm      ( new std::vector<float>() );
+
+
+
+  //from https://twiki.cern.ch/twiki/bin/view/CMS/ConversionTools
+  Handle<reco::PhotonCollection> recoCollection;
+  iEvent.getByLabel("photons", recoCollection);  
+
+  edm::Handle<reco::BeamSpot> bsHandle;
+  iEvent.getByLabel("offlineBeamSpot", bsHandle);
+  const reco::BeamSpot &beamspot = *bsHandle.product();
+
+  edm::Handle<reco::ConversionCollection> hConversions;
+  iEvent.getByLabel("allConversions", hConversions);
+  
+  edm::Handle<reco::GsfElectronCollection> hElectrons;
+  iEvent.getByLabel("gsfElectrons", hElectrons);     
+
+  
   if (collection.isValid()) {
-    for (typename std::vector<T>::const_iterator it = collection->begin(); 
-	 it != collection->end(); ++it) {
+    for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const reco::Photon& photon = *it;
       p4                  ->push_back(photon.p4                   ());
       caloPosition        ->push_back(photon.caloPosition         ());
       hadronicDepth1OverEm->push_back(photon.hadronicDepth1OverEm ());
       hadronicDepth2OverEm->push_back(photon.hadronicDepth2OverEm ());
       hadronicOverEm      ->push_back(photon.hadronicOverEm       ());
+      hadronicTowOverEm   ->push_back(photon.hadTowOverEm         ());
       hasPixelSeed        ->push_back(photon.hasPixelSeed         ());
       isEB                ->push_back(photon.isEB                 ());
       isEE                ->push_back(photon.isEE                 ());
@@ -258,12 +301,24 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       e3x3 -> push_back(photon.e3x3());
       e5x5 -> push_back(photon.e5x5());
       
+
       reco::SuperClusterRef scluster = photon.superCluster();
       SCenergy   -> push_back(scluster->energy());
       SCpoint    -> push_back(scluster->position());
       SCetaWidth -> push_back(scluster->etaWidth());
       SCphiWidth -> push_back(scluster->phiWidth());
 
+      float hcalIsoConeDR03_2012 = photon.hcalTowerSumEtConeDR03() 
+	                           + (photon.hadronicOverEm() - photon.hadTowOverEm())
+	                           * scluster->energy()/cosh(scluster->eta());
+
+      float hcalIsoConeDR04_2012 = photon.hcalTowerSumEtConeDR04()  
+				   + (photon.hadronicOverEm() - photon.hadTowOverEm())
+	                           * scluster->energy()/cosh(scluster->eta());
+																		  
+      HcalSingleTowSumEtConeDR03 -> push_back(hcalIsoConeDR03_2012);
+      HcalSingleTowSumEtConeDR04 -> push_back(hcalIsoConeDR04_2012);
+    
       
       reco::ConversionRef bestConv;
       float tracksSumPt = 0;
@@ -301,50 +356,89 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       bestConvVertex ->push_back(bestConv.isNull() ? Point() : bestConv->conversionVertex().position());
       bestConvEoverP ->push_back(bestConv.isNull() ? 0 : bestConv->EoverP());
       bestConvMass   ->push_back(bestConv.isNull() ? 0 : bestConv->pairInvariantMass());
+
+      bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(scluster, hElectrons, hConversions, beamspot.position());    
+      passConvSafeElectronVeto->push_back(passelectronveto);
+       
     }
   }
-  
-  iEvent.put(isHandleValid           , prefix + "HandleValid"                + suffix);
-  iEvent.put(p4                      , prefix + "P4"                         + suffix);
-  iEvent.put(caloPosition            , prefix + "CaloPosition"               + suffix);
-  iEvent.put(hadronicDepth1OverEm    , prefix + "HadronicDepth1OverEm"       + suffix);
-  iEvent.put(hadronicDepth2OverEm    , prefix + "HadronicDepth2OverEm"       + suffix);
-  iEvent.put(hadronicOverEm          , prefix + "HadronicOverEm"             + suffix);
-  iEvent.put(hasPixelSeed            , prefix + "HasPixelSeed"               + suffix);
-  iEvent.put(isEB                    , prefix + "IsEB"                       + suffix);
-  iEvent.put(isEE                    , prefix + "IsEE"                       + suffix);
-  iEvent.put(isEBGap                 , prefix + "IsEBGap"                    + suffix);
-  iEvent.put(isEEGap                 , prefix + "IsEEGap"                    + suffix);
-  iEvent.put(isEBEEGap               , prefix + "IsEBEEGap"                  + suffix);
+  if (recoCollection.isValid()) {  //loop over photons in reco::PhotonCollection to store ISO values from ValueMap. 
+            
+      unsigned nphot=recoCollection->size();
+      for(unsigned iphot=0; iphot<nphot;++iphot) {
+
+	edm::Handle<edm::ValueMap<double> > isoValch;
+	iEvent.getByLabel(chIsoInputTag_, isoValch);
+	edm::ValueMap<double> chIsoValues = *(isoValch.product());
+
+	edm::Handle<edm::ValueMap<double> > isoValph;
+	iEvent.getByLabel(phIsoInputTag_, isoValph);
+	edm::ValueMap<double> phIsoValues = *(isoValph.product());
+
+	edm::Handle<edm::ValueMap<double> > isoValnh;
+	iEvent.getByLabel(nhIsoInputTag_, isoValnh);
+	edm::ValueMap<double> nhIsoValues = *(isoValnh.product());
+
+	reco::PhotonRef myPhotonRef(recoCollection, iphot); 
+	
+	chPFIso->push_back(chIsoValues[myPhotonRef]);
+	phPFIso->push_back(phIsoValues[myPhotonRef]);
+	nhPFIso->push_back(nhIsoValues[myPhotonRef]);
+
+      }
+  }
+    
+  iEvent.put(isHandleValid             , prefix + "HandleValid"                + suffix);
+  iEvent.put(p4                        , prefix + "P4"                         + suffix);
+  iEvent.put(caloPosition              , prefix + "CaloPosition"               + suffix);
+  iEvent.put(hadronicDepth1OverEm      , prefix + "HadronicDepth1OverEm"       + suffix);
+  iEvent.put(hadronicDepth2OverEm      , prefix + "HadronicDepth2OverEm"       + suffix);
+  iEvent.put(hadronicOverEm            , prefix + "HadronicOverEm"             + suffix);
+  iEvent.put(hasPixelSeed              , prefix + "HasPixelSeed"               + suffix);
+  iEvent.put(isEB                      , prefix + "IsEB"                       + suffix);
+  iEvent.put(isEE                      , prefix + "IsEE"                       + suffix);
+  iEvent.put(isEBGap                   , prefix + "IsEBGap"                    + suffix);
+  iEvent.put(isEEGap                   , prefix + "IsEEGap"                    + suffix);
+  iEvent.put(isEBEEGap                 , prefix + "IsEBEEGap"                  + suffix);
   				     
-  iEvent.put(trkSumPtHolConeDR03     , prefix + "TrkSumPtHollowConeDR03"     + suffix);
-  iEvent.put(EcalrechitEtConeDR03    , prefix + "EcalRecHitEtConeDR03"       + suffix);
-  iEvent.put(HcalDR03                , prefix + "HcalTowSumEtConeDR03"       + suffix);
+  iEvent.put(trkSumPtHolConeDR03       , prefix + "TrkSumPtHollowConeDR03"     + suffix);
+  iEvent.put(EcalrechitEtConeDR03      , prefix + "EcalRecHitEtConeDR03"       + suffix);
+  iEvent.put(HcalDR03                  , prefix + "HcalTowSumEtConeDR03"       + suffix);
 
-  iEvent.put(trkSumPtHolConeDR04     , prefix + "TrkSumPtHollowConeDR04"     + suffix);
-  iEvent.put(EcalrechitEtConeDR04    , prefix + "EcalRecHitEtConeDR04"       + suffix);
-  iEvent.put(HcalDR04                , prefix + "HcalTowSumEtConeDR04"       + suffix);
-  iEvent.put(HcalDepth1DR04          , prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
-  iEvent.put(HcalDepth2DR04          , prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
+  iEvent.put(trkSumPtHolConeDR04       , prefix + "TrkSumPtHollowConeDR04"     + suffix);
+  iEvent.put(EcalrechitEtConeDR04      , prefix + "EcalRecHitEtConeDR04"       + suffix);
+  iEvent.put(HcalDR04                  , prefix + "HcalTowSumEtConeDR04"       + suffix);
+  iEvent.put(HcalDepth1DR04            , prefix + "HcalDepth1TowSumEtConeDR04" + suffix);
+  iEvent.put(HcalDepth2DR04            , prefix + "HcalDepth2TowSumEtConeDR04" + suffix);
 
-  iEvent.put(R9                      , prefix + "R9"                         + suffix);
-  iEvent.put(e1x5                    , prefix + "e1x5"                       + suffix);
-  iEvent.put(e2x5                    , prefix + "e2x5"                       + suffix);
-  iEvent.put(e3x3                    , prefix + "e3x3"                       + suffix);
-  iEvent.put(e5x5                    , prefix + "e5x5"                       + suffix);
-  iEvent.put(SCenergy                , prefix + "SuperClusterEnergy"         + suffix);
-  iEvent.put(SCpoint                 , prefix + "SuperClusterPos"            + suffix);
-  iEvent.put(SCetaWidth              , prefix + "SuperClusterEtaWidth"       + suffix);
-  iEvent.put(SCphiWidth              , prefix + "SuperClusterPhiWidth"       + suffix);
+  iEvent.put(R9                        , prefix + "R9"                         + suffix);
+  iEvent.put(e1x5                      , prefix + "e1x5"                       + suffix);
+  iEvent.put(e2x5                      , prefix + "e2x5"                       + suffix);
+  iEvent.put(e3x3                      , prefix + "e3x3"                       + suffix);
+  iEvent.put(e5x5                      , prefix + "e5x5"                       + suffix);
+  iEvent.put(SCenergy                  , prefix + "SuperClusterEnergy"         + suffix);
+  iEvent.put(SCpoint                   , prefix + "SuperClusterPos"            + suffix);
+  iEvent.put(SCetaWidth                , prefix + "SuperClusterEtaWidth"       + suffix);
+  iEvent.put(SCphiWidth                , prefix + "SuperClusterPhiWidth"       + suffix);
 
-  iEvent.put(nConversions            , prefix + "NConversions"               + suffix);
-  iEvent.put(allConversionTracksSumPt, prefix + "AllConversionTracksSumPt"   + suffix);
-  iEvent.put(bestConvTrack0P3        , prefix + "BestConversionTrack0P3"     + suffix);
-  iEvent.put(bestConvTrack1P3        , prefix + "BestConversionTrack1P3"     + suffix);
-  iEvent.put(bestConvVertex          , prefix + "BestConversionVertex"       + suffix);
-  iEvent.put(bestConvEoverP          , prefix + "BestConversionEoverP"       + suffix);
-  iEvent.put(bestConvMass            , prefix + "BestConversionMass"         + suffix);
-}
+  iEvent.put(nConversions              , prefix + "NConversions"               + suffix);
+  iEvent.put(allConversionTracksSumPt  , prefix + "AllConversionTracksSumPt"   + suffix);
+  iEvent.put(bestConvTrack0P3          , prefix + "BestConversionTrack0P3"     + suffix);
+  iEvent.put(bestConvTrack1P3          , prefix + "BestConversionTrack1P3"     + suffix);
+  iEvent.put(bestConvVertex            , prefix + "BestConversionVertex"       + suffix);
+  iEvent.put(bestConvEoverP            , prefix + "BestConversionEoverP"       + suffix);
+  iEvent.put(bestConvMass              , prefix + "BestConversionMass"         + suffix);
+  iEvent.put(chPFIso                   , prefix + "ChPFIso"                    + suffix);
+  iEvent.put(phPFIso                   , prefix + "PhPFIso"                    + suffix);
+  iEvent.put(nhPFIso                   , prefix + "NhPFIso"                    + suffix);
+  iEvent.put(HcalSingleTowSumEtConeDR03, prefix + "HcalSingleTowSumEtConeDR03" + suffix);
+  iEvent.put(HcalSingleTowSumEtConeDR04, prefix + "HcalSingleTowSumEtConeDR04" + suffix);
+  iEvent.put(passConvSafeElectronVeto  , prefix + "PassConvSafeElectronVeto"   + suffix);
+  iEvent.put(hadronicTowOverEm         , prefix + "HadronicTowOverEm"          + suffix);
+}  
+
+
+
 
 // extra information stored for PAT data
 template< typename T >
@@ -358,7 +452,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> >  hcalIso       ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  sigmaEtaEta   ( new std::vector<float>() );
   std::auto_ptr<std::vector<float> >  sigmaIetaIeta ( new std::vector<float>() );
-  
+
   if (collection.isValid()){
     for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const pat::Photon& photon = *it;
@@ -403,6 +497,7 @@ produceExtra(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std:
       produceExtraSpikeVarsFunc(iEvent, iSetup, photons, topology, ebRecHits, eeRecHits);
   }
 }
+
 
 template< typename T >
 void SusyCAF_Photon<T>::
@@ -488,5 +583,6 @@ produceExtraSpikeVarsFunc(edm::Event& iEvent, const edm::EventSetup& iSetup,
   iEvent.put(SCetaPhiWidth           , prefix + "SuperClusterEtaPhiWidth"    + suffix);
   iEvent.put(SCnXtals                , prefix + "SuperClusterNXtals"         + suffix);
 }
+
 
 #endif

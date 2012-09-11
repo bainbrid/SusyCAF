@@ -189,3 +189,11 @@ def pfMetPhiCorrections(process,options) :
         return cms.Path(process.pfMEtSysShiftCorrSequence + process.producePFMETCorrections)
     else :
         return cms.Path()
+
+def photonPFIso(process,options) :
+    if options.doPhotonPFIso :
+        #https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonID2012
+        process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
+        return cms.Path(process.phoPFIso)
+    else :
+        return cms.Path()

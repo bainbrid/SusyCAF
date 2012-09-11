@@ -7,6 +7,9 @@ susycafphotonreco = cms.EDProducer( "SusyCAF_RecoPhoton"
                                   , ProduceExtraSpikeVars = cms.bool(True)
                                   , EbRecHitCollection = cms.string('reducedEcalRecHitsEB')
                                   , EeRecHitCollection = cms.string('reducedEcalRecHitsEE')
+                                  , chIsoInputTag =  cms.InputTag('phoPFIso','chIsoForGsfEle')
+                                  , phIsoInputTag = cms.InputTag("phoPFIso","phIsoForGsfEle")
+                                  , nhIsoInputTag = cms.InputTag("phoPFIso","nhIsoForGsfEle")
                                   )
 
 susycafphoton     = cms.EDProducer( "SusyCAF_PatPhoton"
@@ -16,4 +19,7 @@ susycafphoton     = cms.EDProducer( "SusyCAF_PatPhoton"
                                   , ProduceExtraSpikeVars = cms.bool(True)
                                   , EbRecHitCollection = cms.string('reducedEcalRecHitsEB')
                                   , EeRecHitCollection = cms.string('reducedEcalRecHitsEE')
+                                  , chIsoInputTag = cms.InputTag("phoPFIso","chIsoForGsfEle")
+                                  , phIsoInputTag = cms.InputTag("phoPFIso","phIsoForGsfEle")
+                                  , nhIsoInputTag = cms.InputTag("phoPFIso","nhIsoForGsfEle")
                                   )

@@ -33,7 +33,8 @@ def options() :
     options.register('doPfMetPhiCorrections', default = False, info = "do phi corrections in pfMET")
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
-    
+    options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
+
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')
     options.parseArguments()

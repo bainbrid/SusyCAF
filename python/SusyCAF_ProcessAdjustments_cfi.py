@@ -197,3 +197,12 @@ def photonPFIso(process,options) :
         return cms.Path(process.phoPFIso)
     else :
         return cms.Path()
+
+def poolOutput(process,options) :
+    if options.doPoolOutput :
+        process.out = cms.OutputModule("PoolOutputModule",
+                                       outputCommands = cms.untracked.vstring('drop *','keep *'),
+                                       fileName = cms.untracked.string('eventContents.root')
+                                       )
+
+        process.outp = cms.EndPath(process.out)

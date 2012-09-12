@@ -67,7 +67,8 @@ private:
   const bool produceExtraSpikeVars;
   const std::string ebRecHitCollection;
   const std::string eeRecHitCollection;
-  const edm::InputTag   chIsoInputTag_, phIsoInputTag_, nhIsoInputTag_ ;
+  const edm::InputTag chIsoInputTag_, phIsoInputTag_, nhIsoInputTag_;
+  const edm::InputTag PFIsoOfflineBeamSpot_, PFIsoConversions_, PFIsoElectrons_, PFIsoPhotons_;
   typedef reco::Candidate::LorentzVector  LorentzVector;
   typedef reco::Candidate::Vector         Vector;
   typedef math::XYZVectorF                VectorF;
@@ -87,6 +88,15 @@ SusyCAF_Photon<T>::SusyCAF_Photon(const edm::ParameterSet& iConfig)
   , chIsoInputTag_(iConfig.getParameter<edm::InputTag>("chIsoInputTag")) 
   , phIsoInputTag_(iConfig.getParameter<edm::InputTag>("phIsoInputTag")) 
   , nhIsoInputTag_(iConfig.getParameter<edm::InputTag>("nhIsoInputTag")) 
+  , PFIsoOfflineBeamSpot_(iConfig.getParameter<edm::InputTag>("PFIsoOfflineBeamSpot"))
+  , PFIsoConversions_(iConfig.getParameter<edm::InputTag>("PFIsoConversions"))
+  , PFIsoElectrons_(iConfig.getParameter<edm::InputTag>("PFIsoElectrons"))
+  , PFIsoPhotons_(iConfig.getParameter<edm::InputTag>("PFIsoPhotons"))
+
+                                 
+
+
+
 {
   initTemplate();
 }
@@ -139,11 +149,11 @@ void SusyCAF_Photon<T>::initRECO()
   produces <std::vector<double> >   (prefix + "PhPFIso"                  + suffix);
   produces <std::vector<double> >   (prefix + "NhPFIso"                  + suffix);
 
-  produces <std::vector<float> >  (prefix + "HcalSingleTowSumEtConeDR03" + suffix);
-  produces <std::vector<float> >  (prefix + "HcalSingleTowSumEtConeDR04" + suffix);
+  produces <std::vector<float> >  (prefix + "HcalIsoConeDR03" + suffix);
+  produces <std::vector<float> >  (prefix + "HcalIsoConeDR04" + suffix);
   produces <std::vector<bool> >   (prefix + "PassConvSafeElectronVeto"   + suffix); 
   
-  produces <std::vector<float  > >(prefix + "HadronicTowOverEm"          + suffix);
+  produces <std::vector<float  > >(prefix + "HadronicSingleTowerOverEm"  + suffix);
 
 }
 
@@ -247,43 +257,43 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<double > > phPFIso            ( new std::vector<double >() );
   std::auto_ptr<std::vector<double > > nhPFIso            ( new std::vector<double >() );
 
-  std::auto_ptr<std::vector<float> > HcalSingleTowSumEtConeDR03( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > HcalSingleTowSumEtConeDR04( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > HcalIsoConeDR03( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > HcalIsoConeDR04( new std::vector<float>() );
   std::auto_ptr<std::vector<bool> >  passConvSafeElectronVeto( new std::vector<bool>() );
-  std::auto_ptr<std::vector<float> > hadronicTowOverEm      ( new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > hadronicSingleTowerOverEm      ( new std::vector<float>() );
 
 
 
   //from https://twiki.cern.ch/twiki/bin/view/CMS/ConversionTools
   Handle<reco::PhotonCollection> recoCollection;
-  iEvent.getByLabel("photons", recoCollection);  
+  iEvent.getByLabel(PFIsoPhotons_, recoCollection);  
 
   edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByLabel("offlineBeamSpot", bsHandle);
+  iEvent.getByLabel(PFIsoOfflineBeamSpot_, bsHandle);
   const reco::BeamSpot &beamspot = *bsHandle.product();
 
   edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel("allConversions", hConversions);
+  iEvent.getByLabel(PFIsoConversions_, hConversions);
   
   edm::Handle<reco::GsfElectronCollection> hElectrons;
-  iEvent.getByLabel("gsfElectrons", hElectrons);     
+  iEvent.getByLabel(PFIsoElectrons_, hElectrons);     
 
   
   if (collection.isValid()) {
     for (typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       const reco::Photon& photon = *it;
-      p4                  ->push_back(photon.p4                   ());
-      caloPosition        ->push_back(photon.caloPosition         ());
-      hadronicDepth1OverEm->push_back(photon.hadronicDepth1OverEm ());
-      hadronicDepth2OverEm->push_back(photon.hadronicDepth2OverEm ());
-      hadronicOverEm      ->push_back(photon.hadronicOverEm       ());
-      hadronicTowOverEm   ->push_back(photon.hadTowOverEm         ());
-      hasPixelSeed        ->push_back(photon.hasPixelSeed         ());
-      isEB                ->push_back(photon.isEB                 ());
-      isEE                ->push_back(photon.isEE                 ());
-      isEBGap             ->push_back(photon.isEBGap              ());
-      isEEGap             ->push_back(photon.isEEGap              ());
-      isEBEEGap           ->push_back(photon.isEBEEGap            ());
+      p4                          ->push_back(photon.p4                   ());
+      caloPosition                ->push_back(photon.caloPosition         ());
+      hadronicDepth1OverEm        ->push_back(photon.hadronicDepth1OverEm ());
+      hadronicDepth2OverEm        ->push_back(photon.hadronicDepth2OverEm ());
+      hadronicOverEm              ->push_back(photon.hadronicOverEm       ());
+      hadronicSingleTowerOverEm   ->push_back(photon.hadTowOverEm         ());
+      hasPixelSeed                ->push_back(photon.hasPixelSeed         ());
+      isEB                        ->push_back(photon.isEB                 ());
+      isEE                        ->push_back(photon.isEE                 ());
+      isEBGap                     ->push_back(photon.isEBGap              ());
+      isEEGap                     ->push_back(photon.isEEGap              ());
+      isEBEEGap                   ->push_back(photon.isEBEEGap            ());
       
       trkSumPtHolConeDR03  -> push_back(photon.trkSumPtHollowConeDR03());
       EcalrechitEtConeDR03 -> push_back(photon.ecalRecHitSumEtConeDR03());
@@ -316,10 +326,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
 				   + (photon.hadronicOverEm() - photon.hadTowOverEm())
 	                           * scluster->energy()/cosh(scluster->eta());
 																		  
-      HcalSingleTowSumEtConeDR03 -> push_back(hcalIsoConeDR03_2012);
-      HcalSingleTowSumEtConeDR04 -> push_back(hcalIsoConeDR04_2012);
+      HcalIsoConeDR03 -> push_back(hcalIsoConeDR03_2012);
+      HcalIsoConeDR04 -> push_back(hcalIsoConeDR04_2012);
     
-      
       reco::ConversionRef bestConv;
       float tracksSumPt = 0;
       unsigned nConv = 0;
@@ -431,13 +440,11 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put(chPFIso                   , prefix + "ChPFIso"                    + suffix);
   iEvent.put(phPFIso                   , prefix + "PhPFIso"                    + suffix);
   iEvent.put(nhPFIso                   , prefix + "NhPFIso"                    + suffix);
-  iEvent.put(HcalSingleTowSumEtConeDR03, prefix + "HcalSingleTowSumEtConeDR03" + suffix);
-  iEvent.put(HcalSingleTowSumEtConeDR04, prefix + "HcalSingleTowSumEtConeDR04" + suffix);
+  iEvent.put(HcalIsoConeDR03           , prefix + "HcalIsoConeDR03"            + suffix);
+  iEvent.put(HcalIsoConeDR04           , prefix + "HcalIsoConeDR04"            + suffix);
   iEvent.put(passConvSafeElectronVeto  , prefix + "PassConvSafeElectronVeto"   + suffix);
-  iEvent.put(hadronicTowOverEm         , prefix + "HadronicTowOverEm"          + suffix);
+  iEvent.put(hadronicSingleTowerOverEm , prefix + "HadronicSingleTowerOverEm"  + suffix);
 }  
-
-
 
 
 // extra information stored for PAT data

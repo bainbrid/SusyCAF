@@ -40,19 +40,6 @@ schedule = cms.Schedule( process.p_tauReco,
                          process.p_susyCAF )
 
 
-
-process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('drop *',
-                                                                      'keep *',
-                                                                      ),
-                               fileName = cms.untracked.string('eventContents.root')
-                               )
-
-
-
-process.outp = cms.EndPath(process.out)
-
-
 # write this config as a single file
 file = open(options.output.replace('.root','_cfg.py'),'w')
 file.write(str(process.dumpPython()))

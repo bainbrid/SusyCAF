@@ -1,35 +1,37 @@
-#!/bin/bash
+#!/bin/bash 
+export SCRAM_ARCH=slc5_amd64_gcc462 
+CMSSW=CMSSW_5_3_3_patch2 
+cmsrel $CMSSW 
+cd $CMSSW/src 
+cmsenv 
 
-export SCRAM_ARCH=slc5_amd64_gcc462
-CMSSW=CMSSW_5_3_2_patch4
+# SusyPat
+addpkg CommonTools/ParticleFlow V00-03-16
+addpkg CommonTools/RecoAlgos V00-03-23
+addpkg CommonTools/RecoUtils V00-00-13
+addpkg DataFormats/ParticleFlowCandidate V15-03-03
+addpkg DataFormats/StdDictionaries V00-02-14
+addpkg DataFormats/TrackReco V10-02-02
+addpkg DataFormats/VertexReco V02-00-04
+addpkg DataFormats/PatCandidates V06-05-06
+addpkg PhysicsTools/PatAlgos V08-09-31
+addpkg PhysicsTools/PatUtils V03-09-26
+addpkg RecoParticleFlow/PFProducer V15-01-11                    
+addpkg JetMETCorrections/Type1MET V04-06-09
+addpkg PhysicsTools/Configuration V00-12-06
 
-cmsrel $CMSSW
-cd $CMSSW/src
-cmsenv
+#MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters) 
+addpkg RecoMET/METAnalyzers V00-00-08 
+addpkg RecoMET/METFilters V00-00-08
 
-addpkg DataFormats/PatCandidates       V06-05-01
-addpkg PhysicsTools/PatAlgos           V08-09-21
-addpkg PhysicsTools/PatUtils           V03-09-23
-addpkg CommonTools/ParticleFlow        V00-03-15
-addpkg CommonTools/RecoUtils           V00-00-12
-addpkg JetMETCorrections/Type1MET      V04-06-09
-addpkg RecoParticleFlow/PFProducer     V15-01-11
+# functions to compute electron and photon IDs 
+cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
+cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
 
-addpkg PhysicsTools/Configuration        V00-12-03
 
-#MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters)
-cvs co -r V00-00-07 RecoMET/METFilters
-#Add? This is for CSC beam halo
-cvs co -r V00-00-08 RecoMET/METAnalyzers
- 
+###TAG correctly###
+cvs co -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF 
 
-# functions to compute electron IDs
-cvs co -r CutBasedId_V00-00-02 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 
-cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-0 UserCode/SusyCAF
-
-#unalias cp
-cp -p SUSYBSMAnalysis/SusyCAF/python/mods/SUSY_pattuple_cff.py PhysicsTools/Configuration/python/SUSY_pattuple_cff.py
-cp -p SUSYBSMAnalysis/SusyCAF/python/mods/jetTools.py PhysicsTools/PatAlgos/python/tools/
- 
-
+scram b -j12

@@ -206,4 +206,6 @@ def poolOutput(process,options) :
                                        fileName = cms.untracked.string('eventContents.root')
                                        )
 
-        process.outp = cms.EndPath(process.out)
+        return cms.EndPath(process.out)
+    else :
+        return cms.Path()

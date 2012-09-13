@@ -29,12 +29,13 @@ def options() :
     options.register('taus', default = True, info = "store tau information in the ntuple")
     options.register('dqm', default = False, info = "store dqm information in the ntuple")
     options.register('doTauReco', default = False, info = "redo tau recostruction (needed in order to read 51X files with 52X recipe)")
-    options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction (not produced in 52X reco)")
+    options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction")
+    options.register('doTypeIMetPat', default = False, info = "do type I MET Pat (53X using L1Fastjet and will lose un-corrected MET)")
     options.register('doPfMetPhiCorrections', default = False, info = "do phi corrections in pfMET")
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
-
+                      
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')
     options.parseArguments()
@@ -42,7 +43,7 @@ def options() :
 
     #eos ls /eos/cms/store/relval/CMSSW_5_2_2/RelValTTbar/GEN-SIM-RECO/PU_START52_V4-v1/0256
     defaultGT,defaultFile = {
-        "53X" : [('START53_V10::All','/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/ECDEFDB7-AAE1-E111-B576-003048C68A88.root'),               
+        "53X" : [('START53_V10::All','/store/mc/Summer12_DR53X/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v1/0000/FEFF0D8E-91D2-E111-9BEA-001E673976ED.root'),               
 		('GR_P_V41_AN1::All' ,'/store/data/Run2012C/SingleMu/AOD/PromptReco-v2/000/201/624/F40EFD20-9CF0-E111-8F16-5404A63886C4.root')],
 	"52X" : [('START52_V4::All','/store/relval/CMSSW_5_2_5_cand1/RelValTTbar/GEN-SIM-RECO/START52_V9-v1/0261/249F81B9-8C91-E111-AE72-003048679236.root'),               
 		('GR_R_52_V4::All' ,'/store/relval/CMSSW_5_2_5_cand1/SingleMu/RECO/GR_R_52_V7_RelVal_mu2011B-v1/0262/7425B24B-9E91-E111-BA46-002618943800.root')],

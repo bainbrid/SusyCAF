@@ -73,7 +73,8 @@ def susyPat(process,options) :
     else:
         from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
         jetAlgoList = filter(lambda s: s.lower() in options.jetCollections, ['AK7Calo','AK5PF','AK7PF'])
-        addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
+        addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList ,
+                          doType1MetCorrection = options.doTypeIMetPat)
         for algo in ['']+jetAlgoList :
             setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.7 if '7' in algo else 0.5) )
         __patOutput__(process, options.secondaryOutput)
@@ -151,7 +152,7 @@ def typeIMet(process,options) :
         if options.isData :
             process.pfJetMETcorr.jetCorrLabel = cms.string("ak5PFL1FastL2L3Residual")
             process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL1FastL2L3Residual")
-        
+ 
         return cms.Path(process.producePFMETCorrections + process.produceCaloMETCorrections)
     else :
         return cms.Path()

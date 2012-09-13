@@ -10,6 +10,10 @@ susycafphotonreco = cms.EDProducer( "SusyCAF_RecoPhoton"
                                   , chIsoInputTag = cms.InputTag('phoPFIso','chIsoForGsfEle')
                                   , phIsoInputTag = cms.InputTag("phoPFIso","phIsoForGsfEle")
                                   , nhIsoInputTag = cms.InputTag("phoPFIso","nhIsoForGsfEle")
+                                  , PFIsoOfflineBeamSpot = cms.InputTag("offlineBeamSpot")
+                                  , PFIsoConversions = cms.InputTag("allConversions")
+                                  , PFIsoElectrons = cms.InputTag("gsfElectrons")
+                                  , PFIsoPhotons = cms.InputTag("photons")
                                   )
 
 susycafphoton     = cms.EDProducer( "SusyCAF_PatPhoton"
@@ -22,4 +26,8 @@ susycafphoton     = cms.EDProducer( "SusyCAF_PatPhoton"
                                   , chIsoInputTag = cms.InputTag("phoPFIso","chIsoForGsfEle")
                                   , phIsoInputTag = cms.InputTag("phoPFIso","phIsoForGsfEle")
                                   , nhIsoInputTag = cms.InputTag("phoPFIso","nhIsoForGsfEle")
-                                  )
+                                  , PFIsoOfflineBeamSpot = cms.InputTag("offlineBeamSpot")
+                                  , PFIsoConversions = cms.InputTag("allConversions")
+                                  , PFIsoElectrons = cms.InputTag("gsfElectrons")
+                                  , PFIsoPhotons = cms.InputTag("photons")
+                                  )  

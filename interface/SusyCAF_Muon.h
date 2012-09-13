@@ -92,6 +92,15 @@ void SusyCAF_Muon<T>::initRECO()
   produces <std::vector<float> > (  Prefix + "IsolationR03emEt" + Suffix);
   produces <std::vector<float> > (  Prefix + "IsolationR03hadEt" + Suffix);
 
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03ChgHadPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03ChgParPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03NeuHadEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03GamEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03NeuHadHiThrEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03GamHiThrEt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03PUPt" + Suffix);
+  produces <std::vector<float> > (  Prefix + "PfIsolationR03DeltaBCorrected" + Suffix);
+
   produces <std::vector<float> > (  Prefix + "PfIsolationR04ChgHadPt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04ChgParPt" + Suffix);
   produces <std::vector<float> > (  Prefix + "PfIsolationR04NeuHadEt" + Suffix);
@@ -207,6 +216,15 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   std::auto_ptr<std::vector<float> >  isolationR03emEt   ( new std::vector<float>()  ) ;
   std::auto_ptr<std::vector<float> >  isolationR03hadEt   ( new std::vector<float>()  ) ;
 
+  std::auto_ptr<std::vector<float> >  pfIsolationR03ChgHadPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03ChgParPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03NeuHadEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03GamEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03NeuHadHiThrEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03GamHiThrEt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03PUPt	( new std::vector<float>() ) ;
+  std::auto_ptr<std::vector<float> >  pfIsolationR03DeltaB	( new std::vector<float>() ) ;
+
   std::auto_ptr<std::vector<float> >  pfIsolationR04ChgHadPt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04ChgParPt	( new std::vector<float>() ) ;
   std::auto_ptr<std::vector<float> >  pfIsolationR04NeuHadEt	( new std::vector<float>() ) ;
@@ -265,6 +283,25 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
       isolationR03hadEt->push_back(it->isolationR03().hadEt);
 
       {
+
+	const reco::MuonPFIsolation& pfIso03 = it->pfIsolationR03();
+	float sumChgHadPt03 = pfIso03.sumChargedHadronPt;
+	float sumNeuHadEt03 = pfIso03.sumNeutralHadronEt;
+	float sumGamEt03    = pfIso03.sumPhotonEt;
+	float sumPUPt03     = pfIso03.sumPUPt;
+	float isoDelB03     = (sumChgHadPt03 + std::max(0., (sumNeuHadEt03 + sumGamEt03 - 0.5*sumPUPt03)))/(it->p4()).Pt();
+
+	pfIsolationR03ChgHadPt->push_back(sumChgHadPt03);
+	pfIsolationR03ChgParPt->push_back(pfIso03.sumChargedParticlePt);
+
+	pfIsolationR03GamEt->push_back(sumGamEt03);
+	pfIsolationR03GamHiThrEt->push_back(pfIso03.sumPhotonEtHighThreshold);
+
+	pfIsolationR03NeuHadEt->push_back(sumNeuHadEt03);
+	pfIsolationR03NeuHadHiThrEt->push_back(pfIso03.sumNeutralHadronEtHighThreshold);
+	pfIsolationR03PUPt->push_back(sumPUPt03);
+	pfIsolationR03DeltaB->push_back(isoDelB03);
+
 	const reco::MuonPFIsolation& pfIso04 = it->pfIsolationR04();
 	float sumChgHadPt = pfIso04.sumChargedHadronPt;
 	float sumNeuHadEt = pfIso04.sumNeutralHadronEt;
@@ -375,6 +412,15 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
   iEvent.put( isolationR03sumPt,  Prefix + "IsolationR03sumPt" + Suffix );
   iEvent.put( isolationR03emEt,  Prefix + "IsolationR03emEt" + Suffix );
   iEvent.put( isolationR03hadEt,  Prefix + "IsolationR03hadEt" + Suffix );
+
+  iEvent.put( pfIsolationR03ChgHadPt, Prefix + "PfIsolationR03ChgHadPt" + Suffix);
+  iEvent.put( pfIsolationR03ChgParPt, Prefix + "PfIsolationR03ChgParPt" + Suffix);
+  iEvent.put( pfIsolationR03NeuHadEt, Prefix + "PfIsolationR03NeuHadEt" + Suffix);
+  iEvent.put( pfIsolationR03GamEt, Prefix + "PfIsolationR03GamEt" + Suffix);
+  iEvent.put( pfIsolationR03NeuHadHiThrEt, Prefix + "PfIsolationR03NeuHadHiThrEt" + Suffix);
+  iEvent.put( pfIsolationR03GamHiThrEt, Prefix + "PfIsolationR03GamHiThrEt" + Suffix);
+  iEvent.put( pfIsolationR03PUPt, Prefix + "PfIsolationR03PUPt" + Suffix);
+  iEvent.put( pfIsolationR03DeltaB, Prefix + "PfIsolationR03DeltaBCorrected" + Suffix);
 
   iEvent.put( pfIsolationR04ChgHadPt, Prefix + "PfIsolationR04ChgHadPt" + Suffix);
   iEvent.put( pfIsolationR04ChgParPt, Prefix + "PfIsolationR04ChgParPt" + Suffix);

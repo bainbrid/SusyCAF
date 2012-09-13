@@ -77,7 +77,7 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
   //  const edm::InputTag pfCandidatesTag_;
   const edm::InputTag vertexInputTag_;
   const std::string Prefix,Suffix;
-  double minPt_, dzcut_, dR_;
+  double dR_, dzcut_, minPt_;
   const reco::PFCandidateCollection *pfCandidates;
 
 

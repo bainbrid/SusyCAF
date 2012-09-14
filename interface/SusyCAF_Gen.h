@@ -105,10 +105,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<const T*> self;
   std::vector<const reco::Candidate*> mom;
 
-  //make some new LHE based variables
-  const lhef::HEPEUP hepeup_ = product->hepeup();
-  const std::vector<lhef::HEPEUP::FiveVector> pup_ = hepeup_.PUP;
-  
   if(collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
       if ( it->status() == 3         // any status 3 genParticle
@@ -132,6 +128,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if(product.isValid()){ 
     //gen Parton HT
+
+    //make some new LHE based variables
+    const lhef::HEPEUP hepeup_ = product->hepeup();
+    const std::vector<lhef::HEPEUP::FiveVector> pup_ = hepeup_.PUP;
+
     double htEvent=0.;
     size_t iMax = hepeup_.NUP;
     for(size_t i = 2; i < iMax; ++i) {
@@ -166,7 +167,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( pdf2,         Prefix + "pdf2" + Suffix );
   iEvent.put( id1,          Prefix + "id1" + Suffix );
   iEvent.put( id2,          Prefix + "id2" + Suffix );
-  iEvent.put( gHT, 		Prefix + "PartonHT" + Suffix );
+  iEvent.put( gHT,          Prefix + "PartonHT" + Suffix );
 }
 
 template< typename T > void SusyCAF_Gen<T>::

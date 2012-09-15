@@ -25,6 +25,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 
+
 template< typename T >
 class SusyCAF_Electron : public edm::EDProducer {
 public:
@@ -103,6 +104,8 @@ void SusyCAF_Electron<T>::initRECO()
  produces <std::vector<double> > (  Prefix + "GsfTrackDxyError" + Suffix);
  produces <std::vector<double> > (  Prefix + "GsfTrackDzError" + Suffix);
 
+ produces <std::vector<int> > (  Prefix + "IsEB" + Suffix);
+ produces <std::vector<int> > (  Prefix + "IsEE" + Suffix);
  produces <std::vector<float> > (  Prefix + "E1x5" + Suffix);
  produces <std::vector<float> > (  Prefix + "E5x5" + Suffix);
  produces <std::vector<float> > (  Prefix + "E2x5Max" + Suffix);
@@ -171,16 +174,19 @@ std::string SusyCAF_Electron<T>::underscoreless(std::string s) {
 template< typename T >
 void SusyCAF_Electron<T>::initPAT()
 {
- produces <std::vector<float> > (Prefix + "EcalIso"          + Suffix);
- produces <std::vector<float> > (Prefix + "HcalIso"          + Suffix);
- produces <std::vector<float> > (Prefix + "TrackIso"         + Suffix);
- produces <std::vector<float> > (Prefix + "EcalIsoDep"       + Suffix);
- produces <std::vector<float> > (Prefix + "HcalIsoDep"       + Suffix);
- produces <std::vector<int> >   (Prefix + "ProducedFromPF"   + Suffix);
- produces <std::vector<float> > (Prefix + "ParticleIso"      + Suffix);
- produces <std::vector<float> > (Prefix + "ChargedHadronIso" + Suffix);
- produces <std::vector<float> > (Prefix + "NeutralHadronIso" + Suffix);
- produces <std::vector<float> > (Prefix + "PhotonIso"        + Suffix);
+ produces <std::vector<float> > (Prefix + "EcalIso"             + Suffix);
+ produces <std::vector<float> > (Prefix + "HcalIso"             + Suffix);
+ produces <std::vector<float> > (Prefix + "TrackIso"            + Suffix);
+ produces <std::vector<float> > (Prefix + "EcalIsoDep"          + Suffix);
+ produces <std::vector<float> > (Prefix + "HcalIsoDep"          + Suffix);
+ produces <std::vector<int> >   (Prefix + "ProducedFromPF"      + Suffix);
+ produces <std::vector<float> > (Prefix + "ParticleIso"         + Suffix);
+ produces <std::vector<float> > (Prefix + "ChargedHadronIso"    + Suffix);
+ produces <std::vector<float> > (Prefix + "NeutralHadronIso"    + Suffix);
+ produces <std::vector<float> > (Prefix + "PhotonIso"           + Suffix);
+ produces <std::vector<float> > (Prefix + "ChargedHadronIsoRA4" + Suffix);
+ produces <std::vector<float> > (Prefix + "NeutralHadronIsoRA4" + Suffix);
+ produces <std::vector<float> > (Prefix + "PhotonIsoRA4"        + Suffix);
 
  if(!IdFromReco) {
    produces <std::vector<int> >   (Prefix + "IdVeto"          + Suffix);
@@ -224,6 +230,8 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  std::auto_ptr<std::vector<double> >  gsfTrack_dxyError( new std::vector<double>()  ) ;
  std::auto_ptr<std::vector<double> >  gsfTrack_dzError ( new std::vector<double>()  ) ;
 
+ std::auto_ptr<std::vector<int> > isEB (new std::vector<int>() );
+ std::auto_ptr<std::vector<int> > isEE (new std::vector<int>() );
  std::auto_ptr<std::vector<float> > gsfTrkChargeMode (new std::vector<float>() );
  std::auto_ptr<std::vector<float> > gsfTrkPtMode (new std::vector<float>() );
  std::auto_ptr<std::vector<float> > gsfTrkQoverPErrMode (new std::vector<float>() );
@@ -315,6 +323,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      charge->push_back(it->charge());
      gsfTrack_normalizedChi2->push_back(it->gsfTrack()->normalizedChi2());
      gsfTrack_numberOfValidHits->push_back(it->gsfTrack()->numberOfValidHits());
+
+     isEB->push_back(it->isEB());
+     isEE->push_back(it->isEE());
 
      selected->push_back(selectedHandle.isValid() && isInCollection(*it, *selectedHandle) ) ;
 
@@ -412,6 +423,9 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
  iEvent.put( selected, Prefix + "Selected" + Suffix );
  iEvent.put( gsfTrack_normalizedChi2,  Prefix + "GsfTracknormalizedChi2" + Suffix );
  iEvent.put( gsfTrack_numberOfValidHits,  Prefix + "GsfTracknumberOfValidHits" + Suffix );
+
+ iEvent.put( isEB,  Prefix + "IsEB" + Suffix );
+ iEvent.put( isEE,  Prefix + "IsEE" + Suffix );
 
  iEvent.put( gsfTrack_dxy,  Prefix + "GsfTrackDxy" + Suffix );
  iEvent.put( gsfTrack_dz,   Prefix + "GsfTrackDz" + Suffix );
@@ -515,10 +529,29 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> > partIso (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > charHadIso (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > neutHadIso (new std::vector<float>() );
-  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() );
-  
+  std::auto_ptr<std::vector<float> > photIso (new std::vector<float>() ); 
+  std::auto_ptr<std::vector<float> > charHadIsoRA4 (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > neutHadIsoRA4 (new std::vector<float>() );
+  std::auto_ptr<std::vector<float> > photIsoRA4 (new std::vector<float>() ); 
+
+
   if (collection.isValid()){
     for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
+
+
+      // -- store pfIso values as described below Twiki apply 2012 electron id by hand
+      edm::Ptr< reco::GsfElectron > ele = (edm::Ptr< reco::GsfElectron >) it->originalObjectRef();
+
+      std::vector< edm::Handle< edm::ValueMap<double> > > isoVals(isoValInputTags_.size());
+      for (size_t j = 0; j < isoValInputTags_.size(); ++j) {
+	iEvent.getByLabel(isoValInputTags_[j], isoVals[j]);
+      }
+
+      charHadIsoRA4->push_back((*(isoVals)[0])[ele]);
+      photIsoRA4->push_back((*(isoVals)[1])[ele]);
+      neutHadIsoRA4->push_back((*(isoVals)[2])[ele]);
+
+
 
       //old-style IDs
       for(std::map< std::string, std::vector<int> >::const_iterator id=idsOld.begin(); id!=idsOld.end(); ++id) {
@@ -573,6 +606,9 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(charHadIso, Prefix + "ChargedHadronIso" + Suffix);
   iEvent.put(neutHadIso, Prefix + "NeutralHadronIso" + Suffix);
   iEvent.put(photIso, Prefix + "PhotonIso" + Suffix);
+  iEvent.put(charHadIsoRA4, Prefix + "ChargedHadronIsoRA4" + Suffix);
+  iEvent.put(neutHadIsoRA4, Prefix + "NeutralHadronIsoRA4" + Suffix);
+  iEvent.put(photIsoRA4, Prefix + "PhotonIsoRA4" + Suffix);
 }
 
 //2012 ID helper functions
@@ -607,16 +643,19 @@ pogIdReco(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::GsfElectronRe
   iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h);
   double rhoIso = *(rhoIso_h.product());
 
+
   // particle flow isolation
   double iso_ch =  (*(isoVals)[0])[ele];
   double iso_em = (*(isoVals)[1])[ele];
   double iso_nh = (*(isoVals)[2])[ele];
+
   
   // working points
   veto   = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO,   ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
   loose  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE,  ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
   medium = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
   tight  = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT,  ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+
  }
 
 template< typename T >

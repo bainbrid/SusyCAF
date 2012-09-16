@@ -187,7 +187,7 @@ void SusyCAF_Electron<T>::initPAT()
  produces <std::vector<float> > (Prefix + "ChargedHadronIsoRA4" + Suffix);
  produces <std::vector<float> > (Prefix + "NeutralHadronIsoRA4" + Suffix);
  produces <std::vector<float> > (Prefix + "PhotonIsoRA4"        + Suffix);
-
+ produces <std::vector<int> > (  Prefix + "ConversionRejection" + Suffix);
  if(!IdFromReco) {
    produces <std::vector<int> >   (Prefix + "IdVeto"          + Suffix);
    produces <std::vector<int> >   (Prefix + "IdLoose"         + Suffix);
@@ -385,6 +385,7 @@ produceRECO(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::
      vertex->push_back(it->vertex());
      vertexChi2->push_back(it->vertexChi2());
      vertexNdof->push_back(it->vertexNdof());
+
      if(StoreConversionInfo && ctfTracks.isValid() && gsfTracks.isValid()){
 	*conversionInfoStored = true;
 	
@@ -533,11 +534,25 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   std::auto_ptr<std::vector<float> > charHadIsoRA4 (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > neutHadIsoRA4 (new std::vector<float>() );
   std::auto_ptr<std::vector<float> > photIsoRA4 (new std::vector<float>() ); 
-
+  std::auto_ptr<std::vector<int> >  conversionRejection ( new std::vector<int>() );
 
   if (collection.isValid()){
     for(std::vector<pat::Electron>::const_iterator it = collection->begin(); it!=collection->end(); it++) {
 
+
+     // -- converion rejection store bool
+      // beam spot
+      edm::Handle<reco::BeamSpot> beamspot_h;
+      iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+      const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+
+     // conversions
+     edm::Handle<reco::ConversionCollection> conversions_h;
+     iEvent.getByLabel(conversionsInputTag_, conversions_h);
+     
+     //     bool tmpConvRej = ConversionTools::hasMatchedConversion((const reco::GsfElectron)*it, conversions_h, beamSpot.position());
+     //     conversionRejection->push_back(tmpConvRej);
+     conversionRejection->push_back(ConversionTools::hasMatchedConversion((const reco::GsfElectron)*it, conversions_h, beamSpot.position()));
 
       // -- store pfIso values as described below Twiki apply 2012 electron id by hand
       edm::Ptr< reco::GsfElectron > ele = (edm::Ptr< reco::GsfElectron >) it->originalObjectRef();
@@ -609,6 +624,7 @@ producePAT(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<std::v
   iEvent.put(charHadIsoRA4, Prefix + "ChargedHadronIsoRA4" + Suffix);
   iEvent.put(neutHadIsoRA4, Prefix + "NeutralHadronIsoRA4" + Suffix);
   iEvent.put(photIsoRA4, Prefix + "PhotonIsoRA4" + Suffix);
+  iEvent.put(conversionRejection, Prefix + "ConversionRejection" + Suffix );
 }
 
 //2012 ID helper functions

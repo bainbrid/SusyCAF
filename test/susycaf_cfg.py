@@ -23,7 +23,6 @@ process.p_fltrFlgs = adjust.addMetFilterFlags(process,options)
 process.p_rho25    = adjust.rho25(process)
 process.p_typeIMet = adjust.typeIMet(process,options)
 process.p_typeIMetPat = adjust.typeIMetPat(process,options)
-process.p_pfMetPhiCor = adjust.pfMetPhiCorrections(process,options)
 process.p_phoPFIso = adjust.photonPFIso(process,options)
 process.p_lumi     = adjust.lumiTree(process)
 process.p_poolout  = adjust.poolOutput(process,options)
@@ -38,7 +37,6 @@ schedule = cms.Schedule( process.p_tauReco,
                          process.p_rho25,
                          process.p_typeIMet,
                          process.p_typeIMetPat,
-                         process.p_pfMetPhiCor,
                          process.p_phoPFIso,
                          process.p_susyCAF)
 

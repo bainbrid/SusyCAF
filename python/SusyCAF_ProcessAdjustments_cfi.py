@@ -157,18 +157,24 @@ def typeIMet(process,options) :
         return cms.Path()
 
 def typeIMetPat(process,options) :
+    #RA4 links
+    #MET phi link: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis#MET_x_y_Shift_Correction_for_mod
     if options.doTypeIMetPat :
         process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
         process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
         process.load("JetMETCorrections.Type1MET.caloMETCorrections_cff")
-        #process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+        if options.doPfMetPhiCorrections :
+            process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
         if not options.isData:
             process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3"
-            #process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
+            process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL1FastL2L3")
+            if options.doPfMetPhiCorrections :
+                process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
         else:
             process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3Residual"
             process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL1FastL2L3Residual")
-            #process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+            if options.doPfMetPhiCorrections :
+                process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
         process.patPFMETs = process.patMETs.clone(
             metSource = cms.InputTag('pfMet'),
             addMuonCorrections = cms.bool(False),
@@ -176,16 +182,27 @@ def typeIMetPat(process,options) :
             #adAdGenMET = cms.bool(True)
                 )
         process.pfType1CorrectedMet.applyType0Corrections = cms.bool(False)
-        process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(
-            cms.InputTag('pfJetMETcorr', 'type1') ,
-         #   cms.InputTag('pfMEtSysShiftCorr')
-            )
+        
+        args = [cms.InputTag('pfJetMETcorr', 'type1')]
+        if options.doPfMetPhiCorrections :
+            args.append(cms.InputTag('pfMEtSysShiftCorr'))
+            process.pfType1p2CorrectedMet.srcType1Corrections = cms.VInputTag(
+                cms.InputTag('pfJetMETcorr','type1'),
+                cms.InputTag('pfMEtSysShiftCorr')
+                )
+
+        process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(*tuple(args))
+
         process.patPFMETsTypeIcorrected = process.patPFMETs.clone(
             metSource = cms.InputTag('pfType1CorrectedMet'),
             )
-            
-        #return cms.Path(process.pfMEtSysShiftCorrSequence + process.producePFMETCorrections + process.patPFMETsTypeIcorrected)
-        return cms.Path(process.producePFMETCorrections + process.produceCaloMETCorrections + process.patPFMETsTypeIcorrected)  #modified at Loukas' request on 14.09.12
+
+        process.empty2 = cms.Sequence()
+        modules  = [process.pfMEtSysShiftCorrSequence] if options.doPfMetPhiCorrections else []
+        modules += [process.producePFMETCorrections,
+                    process.produceCaloMETCorrections,
+                    process.patPFMETsTypeIcorrected]
+        return cms.Path(sum(modules, process.empty2))
     else :
         return cms.Path()
 
@@ -195,32 +212,6 @@ def tauReco(process,options) :
         #https://hypernews.cern.ch/HyperNews/CMS/get/physTools/2710/1/1/2/1.html
         process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
         return cms.Path(process.PFTau)
-    else :
-        return cms.Path()
-
-
-def pfMetPhiCorrections(process,options) :
-    if options.doPfMetPhiCorrections :
-        #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis#MET_x_y_Shift_Correction_for_mod
-        process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
-        process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
-        
-        if options.isData :
-            process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
-        else :
-            process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
-             
-        process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(
-            cms.InputTag('pfJetMETcorr','type1'),
-            cms.InputTag('pfMEtSysShiftCorr')
-            )
-        
-        process.pfType1p2CorrectedMet.srcType1Corrections = cms.VInputTag(
-            cms.InputTag('pfJetMETcorr','type1'),
-            cms.InputTag('pfMEtSysShiftCorr')
-            )
-            
-        return cms.Path(process.pfMEtSysShiftCorrSequence + process.producePFMETCorrections)
     else :
         return cms.Path()
 

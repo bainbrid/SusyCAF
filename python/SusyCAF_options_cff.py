@@ -30,7 +30,7 @@ def options() :
     options.register('dqm', default = False, info = "store dqm information in the ntuple")
     options.register('doTauReco', default = False, info = "redo tau recostruction (needed in order to read 51X files with 52X recipe)")
     options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction")
-    options.register('doTypeIMetPat', default = True, info = "do type I MET Pat (RA4 Recipe with caloMET added)")
+    options.register('doTypeIMetPat', default = True, info = "do type I MET Pat (RA4 Recipe + also caloMET)")
     options.register('doPfMetPhiCorrections', default = False, info = "do phi corrections in pfMET")
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")

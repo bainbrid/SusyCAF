@@ -9,16 +9,16 @@ cmsenv
 addpkg CommonTools/ParticleFlow V00-03-16
 addpkg CommonTools/RecoAlgos V00-03-23
 addpkg CommonTools/RecoUtils V00-00-13
-addpkg DataFormats/ParticleFlowCandidate V15-03-03
+addpkg DataFormats/ParticleFlowCandidate V15-03-02
 addpkg DataFormats/StdDictionaries V00-02-14
 addpkg DataFormats/TrackReco V10-02-02
 addpkg DataFormats/VertexReco V02-00-04
 addpkg DataFormats/PatCandidates V06-05-06
-addpkg PhysicsTools/PatAlgos V08-09-31
-addpkg PhysicsTools/PatUtils V03-09-26
+addpkg PhysicsTools/PatAlgos V08-09-23
+addpkg PhysicsTools/PatUtils V03-09-23
 addpkg RecoParticleFlow/PFProducer V15-01-11                    
 addpkg JetMETCorrections/Type1MET V04-06-09
-addpkg PhysicsTools/Configuration V00-12-06
+addpkg PhysicsTools/Configuration V00-12-03
 
 #MET filters (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFilters) 
 addpkg RecoMET/METAnalyzers V00-00-08 

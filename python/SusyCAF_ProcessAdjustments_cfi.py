@@ -73,8 +73,7 @@ def susyPat(process,options) :
     else:
         from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT
         jetAlgoList = filter(lambda s: s.lower() in options.jetCollections, ['AK7Calo','AK5PF','AK7PF'])
-        addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList ,
-                          doType1MetCorrection = options.doTypeIMetPat)
+        addDefaultSUSYPAT(process, mcInfo = not options.isData, HLTMenu = 'HLT', jetMetCorrections = options.jetCorrections, theJetNames = jetAlgoList)
         for algo in ['']+jetAlgoList :
             setattr( getattr( process, 'patJetGenJetMatch'+algo), 'maxDeltaR', cms.double(0.7 if '7' in algo else 0.5) )
         __patOutput__(process, options.secondaryOutput)
@@ -156,6 +155,40 @@ def typeIMet(process,options) :
         return cms.Path(process.producePFMETCorrections + process.produceCaloMETCorrections)
     else :
         return cms.Path()
+
+def typeIMetPat(process,options) :
+    if options.doTypeIMetPat :
+        process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+        process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+        process.load("JetMETCorrections.Type1MET.caloMETCorrections_cff")
+        #process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+        if not options.isData:
+            process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3"
+            #process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
+        else:
+            process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3Residual"
+            process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL1FastL2L3Residual")
+            #process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+        process.patPFMETs = process.patMETs.clone(
+            metSource = cms.InputTag('pfMet'),
+            addMuonCorrections = cms.bool(False),
+            #genMETSource = cms.InputTag('genMetTrue'),
+            #adAdGenMET = cms.bool(True)
+                )
+        process.pfType1CorrectedMet.applyType0Corrections = cms.bool(False)
+        process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(
+            cms.InputTag('pfJetMETcorr', 'type1') ,
+         #   cms.InputTag('pfMEtSysShiftCorr')
+            )
+        process.patPFMETsTypeIcorrected = process.patPFMETs.clone(
+            metSource = cms.InputTag('pfType1CorrectedMet'),
+            )
+            
+        #return cms.Path(process.pfMEtSysShiftCorrSequence + process.producePFMETCorrections + process.patPFMETsTypeIcorrected)
+        return cms.Path(process.producePFMETCorrections + process.produceCaloMETCorrections + process.patPFMETsTypeIcorrected)  #modified at Loukas' request on 14.09.12
+    else :
+        return cms.Path()
+
 
 def tauReco(process,options) :
     if options.doTauReco :

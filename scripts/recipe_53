@@ -25,7 +25,7 @@ addpkg RecoMET/METAnalyzers V00-00-08
 addpkg RecoMET/METFilters V00-00-08
 
 # functions to compute electron and photon IDs 
-cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+cvs co -r V00-00-24 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
 cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
 

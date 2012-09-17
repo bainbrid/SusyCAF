@@ -64,6 +64,8 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
     dzcut_(conf.getParameter<double>("dz_CutValue")), // cut value for dz(trk,vtx) for track to include in iso sum (default 0.05)
     minPt_(conf.getParameter<double>("minPt_PFCandidate")) // store PFCandidates with pt above this cut
       {
+	produces <std::vector<LorentzVector> > ( Prefix + "PFCandsP4" + Suffix );
+        produces <std::vector<int> > ("PFCandsParticleId");
 	produces <std::vector<float> > ("PFCandsTrkIso");
 	produces <std::vector<float> > ("PFCandsDzPV");
 	produces <std::vector<float> > ("PFCandsPt");
@@ -91,10 +93,12 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
     event.getByLabel(vertexInputTag_, vertex_h);
     const reco::VertexCollection *vertices = vertex_h.product();
 
-    std::auto_ptr<std::vector<float> > pfCandsTrkIso ( new std::vector<float>() );
-    std::auto_ptr<std::vector<float> > pfCandsDzPV ( new std::vector<float>() );
-    std::auto_ptr<std::vector<float> > pfCandsPt ( new std::vector<float>() );
-    std::auto_ptr<std::vector<int> >   pfCandsChrg ( new std::vector<int>() );
+    std::auto_ptr<std::vector<LorentzVector> > pfCandsP4 ( new std::vector<LorentzVector>() );
+    std::auto_ptr<std::vector<int> >           pfCandsParticleId ( new std::vector<int>() );
+    std::auto_ptr<std::vector<float> >         pfCandsTrkIso ( new std::vector<float>() );
+    std::auto_ptr<std::vector<float> >         pfCandsDzPV ( new std::vector<float>() );
+    std::auto_ptr<std::vector<float> >         pfCandsPt ( new std::vector<float>() );
+    std::auto_ptr<std::vector<int> >           pfCandsChrg ( new std::vector<int>() );
 
 
 
@@ -120,6 +124,12 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
     //-------------------------------------------------------------------------------------
     // only store PFCandidate values if pt > minPt
     //-------------------------------------------------------------------------------------
+
+    if ((pf_it->pt())>5.) {
+      pfCandsP4->push_back(pf_it->p4());
+      pfCandsParticleId->push_back(pf_it->particleId());
+    }
+
 
     if( pf_it->pt() < minPt_ ) continue;
 
@@ -198,6 +208,8 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
     
   }
 
+  event.put(pfCandsP4,"PFCandsP4");
+  event.put(pfCandsParticleId,"PFCandsParticleId");
   event.put(pfCandsTrkIso,"PFCandsTrkIso");
   event.put(pfCandsDzPV,"PFCandsDzPV");
   event.put(pfCandsPt,"PFCandsPt");

@@ -30,6 +30,6 @@ cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
 cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
 
 
-cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-2 UserCode/SusyCAF
+cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-3 UserCode/SusyCAF
 
 scram b -j12

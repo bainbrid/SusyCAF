@@ -26,8 +26,9 @@ scanFormats = {'T1_xCHI' : r"# model T1_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\
                'TGQ' : r"# model TGQ_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'TGQ2' : r"# model TGQ2_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",                   
                'T5zz' : r"# model T5zz_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
-               'T5zzInc' : r"# model T5zzInc_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s"}
-
+               'T5zzInc' : r"# model T5zzInc_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
+               'T3lh' : r"# model T3lh_(\\d*\.\\d*)_(\\d*)_(\\d*)\\s*(\\d*.\\d*E-\\d*).*"}
+               
 scanParameters = {"T1_xCHI" : ['xCHI', 'mGL', 'mLSP'],
                   "T1" : ['mGL', 'mLSP'],
                   "T2" : [ 'mGL', 'mLSP'],
@@ -52,9 +53,8 @@ scanParameters = {"T1_xCHI" : ['xCHI', 'mGL', 'mLSP'],
                   "TGQ" : ['xCHI', 'mGL', 'mLSP'],
                   "TGQ2" : ['xCHI','mGL','mLSP'],
                   "T5zz" : ['xCHI', 'mGL', 'mLSP'],
-                  "T5zzInc" : ['xCHI', 'mGL', 'mLSP']}
-
-
+                  "T5zzInc" : ['xCHI', 'mGL', 'mLSP'],
+                  "T3lh" : ['xCHI','mGL', 'mLSP', 'xSEC']}
 
 #scanFormats = {"msugra": r"# model msugra_(\\d*)_(\\d*)_(m?\\d*)_(m?\\d*)_(m?\\d)\\s" }
 #scanParameters = {"msugra": ('M0', 'M12', 'tanbeta', 'A0', 'Mu')}

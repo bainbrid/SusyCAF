@@ -35,16 +35,15 @@ def options() :
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
-                      
+    options.register('doPdfWeights', default = False, info = "store pdf weights in ntuples") 
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')
     options.parseArguments()
     options._tagOrder =[] # weird, but something to do with options.output
 
-    #eos ls /eos/cms/store/relval/CMSSW_5_2_2/RelValTTbar/GEN-SIM-RECO/PU_START52_V4-v1/0256
     defaultGT,defaultFile = {
-        "53X" : [('START53_V10::All','/store/mc/Summer12_DR53X/ZZ_TuneZ2star_8TeV_pythia6_tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FEEB0275-24FA-E111-B9A6-00266CF9B970.root'),
-		('GR_P_V41_AN1::All' ,'/store/data/Run2012C/SingleMu/AOD/PromptReco-v2/000/201/624/F40EFD20-9CF0-E111-8F16-5404A63886C4.root')],
+        "53X" : [('START53_V7F::All','/store/mc/Summer12/SMS-T1tttt_Mgluino-350to2000_mLSP-0to1650_8TeV-Pythia6Z/AODSIM/START52_V9_FSIM-v3/0000/86A2ED8E-DEED-E111-8F9F-20CF300E9EDD.root'),
+                ('GR_P_V41_AN2::All','/store//hidata/data/PARun2012/PAPhysics/RECO/PromptReco-v2/000/202/792/04A29D1F-05FF-E111-B21F-003048D373F6.root')],
 	"52X" : [('START52_V4::All','/store/relval/CMSSW_5_2_5_cand1/RelValTTbar/GEN-SIM-RECO/START52_V9-v1/0261/249F81B9-8C91-E111-AE72-003048679236.root'),               
 		('GR_R_52_V4::All' ,'/store/relval/CMSSW_5_2_5_cand1/SingleMu/RECO/GR_R_52_V7_RelVal_mu2011B-v1/0262/7425B24B-9E91-E111-BA46-002618943800.root')],
         "51X" : [('START50_V15::All','/store/relval/CMSSW_5_1_2/RelValTTbar/GEN-SIM-RECO/PU_START50_V15A-v1/0003/0AB02E79-7C61-E111-8594-002481E0D73C.root'),
@@ -53,7 +52,7 @@ def options() :
                  ('GR_R_44_V13::All','/../user/b/bbetchar/data/Run2011A/SingleMu/AOD/08Nov2011-v1/0001/80D61727-200D-E111-B7F4-1CC1DE0571C8.root')],
         "42X" : [('START42_V17::All','/../user/b/bbetchar/CMSSW_4_2_8/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v1/0026/9C0E8835-9ABB-E011-95B0-0026189438BA.root'),
                  ('GR_R_42_V24::All','/store/data/Run2011B/MultiJet/AOD/PromptReco-v1/000/175/832/485ABBC8-10DC-E011-980B-BCAEC518FF8E.root')]
-        }["53X"] [options.isData]
+        }["53X"][options.isData]
     options.files = options.files if options.files else defaultFile
     options.GlobalTag = options.GlobalTag if options.GlobalTag else defaultGT
 
@@ -65,3 +64,4 @@ def options() :
         options.jetCorrections = jecs
 
     return options
+

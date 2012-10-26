@@ -3,6 +3,7 @@ export SCRAM_ARCH=slc5_amd64_gcc462
 CMSSW=CMSSW_5_3_3_patch2 
 cmsrel $CMSSW 
 cd $CMSSW/src 
+scram setup lhapdffull
 cmsenv 
 
 # SusyPat
@@ -29,7 +30,11 @@ cvs co -r V00-00-24 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysis
 cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
 cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
 
+# pdf reweighting utilities ( needed for proper setup of lhapdffull https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEWKUtilities#Code_and_tags)
+cvs co -r CMSSW_5_3_3_patch2 ElectroWeakAnalysis/Utilities
 
-cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-9 UserCode/SusyCAF
+cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-10 UserCode/SusyCAF
 
+
+touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml #to ensure recompilation of the whole package
 scram b -j12

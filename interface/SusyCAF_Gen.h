@@ -41,6 +41,7 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   GenJetPtCut(iConfig.getParameter<double>("GenJetPtCut")) {
   produces <unsigned int> (Prefix + "signalProcessID" + Suffix);
   produces <bool>   (Prefix + "GenInfoHandleValid" + Suffix);
+  produces <bool >  (Prefix + "HandleValid" + Suffix);
   produces <double> (Prefix + "pthat" + Suffix);
   produces <int> (Prefix + "id1" + Suffix);
   produces <int> (Prefix + "id2" + Suffix);
@@ -48,16 +49,18 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <double> (Prefix + "x2" + Suffix);
   produces <double> (Prefix + "pdf1" + Suffix);
   produces <double> (Prefix + "pdf2" + Suffix);
-  produces <float> (Prefix + "Q" + Suffix);
+  produces <double> (Prefix + "PartonHT" + Suffix);  
+  produces <std::vector<double> > (Prefix + "cteq66" + Suffix);
+  produces <std::vector<double> > (Prefix + "NNPDF10" + Suffix);
+  produces <std::vector<double> > (Prefix + "MRST2006nnlo" + Suffix);
   produces <std::vector<double> > (Prefix + "BinningValues" + Suffix);
-  produces <bool >  (Prefix + "HandleValid" + Suffix);
+  produces <float> (Prefix + "Q" + Suffix);
   produces <std::vector<LorentzVector> > ( Prefix + "P4"  + Suffix );
   produces <std::vector<int> > (Prefix + "PdgId" + Suffix);
   produces <std::vector<int> > (Prefix + "Status" + Suffix);
   produces <std::vector<int> > (Prefix + "MotherIndex" + Suffix);
   produces <std::vector<int> > (Prefix + "MotherPdgId" + Suffix);
-
-  produces <double> (Prefix + "PartonHT" + Suffix);
+  
 
   for(unsigned i=0; i<jetCollections.size(); ++i)
     produces<std::vector<LorentzVector> >(Prefix + jetCollections[i].label() +"P4" + Suffix);
@@ -76,6 +79,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<std::vector<T> > collection;   iEvent.getByLabel(inputTag,collection);
   edm::Handle<GenEventInfoProduct> geninfo;  iEvent.getByLabel("generator",geninfo);
+  edm::Handle<std::vector<double> > cteqHandle;
+  edm::Handle<std::vector<double> > nnpdfHandle;
+  edm::Handle<std::vector<double> > mrstHandle;
+  iEvent.getByLabel("pdfWeights", "cteq66", cteqHandle);
+  iEvent.getByLabel("pdfWeights", "NNPDF10", nnpdfHandle);
+  iEvent.getByLabel("pdfWeights", "MRST2006nnlo", mrstHandle);
 
   //add handle for LHE event
   edm::Handle<LHEEventProduct> product;
@@ -99,11 +108,28 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > pdgId ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherIndex ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherPdgId ( new std::vector<int>() ) ;
-  
+  std::auto_ptr<std::vector<double> > cteq ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> > nnpdf ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> > mrst ( new std::vector<double>() ) ;
   std::auto_ptr<double> gHT ( new double(0) );
 
   std::vector<const T*> self;
   std::vector<const reco::Candidate*> mom;
+
+  if(cteqHandle.isValid()){
+  for(std::vector<double>::const_iterator it = cteqHandle->begin(); it != cteqHandle->end(); ++it) {
+    cteq->push_back(*it);
+  }}
+  if(nnpdfHandle.isValid()){
+  for(std::vector<double>::const_iterator it = nnpdfHandle->begin(); it != nnpdfHandle->end(); ++it) {
+    nnpdf->push_back(*it);
+  }}
+  if(mrstHandle.isValid()){
+  for(std::vector<double>::const_iterator it = mrstHandle->begin(); it != mrstHandle->end(); ++it) {
+    mrst->push_back(*it);
+  }}
+ 
+
 
   if(collection.isValid()){
     for(typename std::vector<T>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
@@ -168,6 +194,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( id1,          Prefix + "id1" + Suffix );
   iEvent.put( id2,          Prefix + "id2" + Suffix );
   iEvent.put( gHT,          Prefix + "PartonHT" + Suffix );
+  iEvent.put( cteq,         Prefix + "cteq66" + Suffix);
+  iEvent.put( nnpdf,        Prefix + "NNPDF10" + Suffix);
+  iEvent.put( mrst,         Prefix + "MRST2006nnlo" + Suffix);
+
 }
 
 template< typename T > void SusyCAF_Gen<T>::

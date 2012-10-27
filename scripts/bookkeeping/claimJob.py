@@ -44,8 +44,6 @@ cvs co -r %(susycaf)s -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
 addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+''.join(['''
 cvs up -r '''+f for f in job['cvsup'].split(',')] if job['cvsup'] else [''])   +'''
 '''+'\n'.join( job['cmds'].split(';') if job['cmds'] else [''])+'''
-scram setup lhapdffull
-touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
 scram b -j 8
 echo "\n\n\nCheck that everything built:"
 scram b

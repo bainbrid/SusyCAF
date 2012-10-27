@@ -3,7 +3,6 @@ export SCRAM_ARCH=slc5_amd64_gcc462
 CMSSW=CMSSW_5_3_3_patch2 
 cmsrel $CMSSW 
 cd $CMSSW/src 
-scram setup lhapdffull
 cmsenv 
 
 # SusyPat
@@ -35,6 +34,7 @@ cvs co -r CMSSW_5_3_3_patch2 ElectroWeakAnalysis/Utilities
 
 cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-10 UserCode/SusyCAF
 
-
+scram setup lhapdffull
 touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml #to ensure recompilation of the whole package
+
 scram b -j12

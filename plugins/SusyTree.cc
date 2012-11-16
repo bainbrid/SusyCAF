@@ -104,6 +104,7 @@ beginJob() {
 	EXPAND(  STRING_BOOL_M, fTypes::mapStringBool   , "");
 	EXPAND(   STRING_INT_M, fTypes::mapStringInt    , "");
 	EXPAND(STRING_STRING_M, fTypes::mapStringString , "");
+	EXPAND(       STRING_V, std::vector<std::string>, "");
 #undef EXPAND
       default: 
 	{

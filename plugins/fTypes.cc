@@ -12,7 +12,8 @@ std::map<std::string,fTypes::LEAFTYPE> fTypes::dict() {
   dict["double"]    = DOUBLE;     dict["doubles"]   = DOUBLE_V;
   dict["lint"]      = LONG;       dict["longs"]     = LONG_V;
   dict["ulint"]     = U_LONG;     dict["ulongs"]    = U_LONG_V;
-  dict["String"] = STRING;
+  dict["String"] = STRING;        dict["Strings"]   = STRING_V;
+  
   dict["Stringboolstdmap"] = STRING_BOOL_M;
   dict["Stringintstdmap"]  = STRING_INT_M;
   dict["StringStringstdmap"]  = STRING_STRING_M;

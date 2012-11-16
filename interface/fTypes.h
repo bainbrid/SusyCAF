@@ -38,7 +38,7 @@ struct fTypes {
 		 POINTD,   VECTORD,
 		 POINTD_V, VECTORD_V,
 		 POINTF, POINTF_V, VECTORF, VECTORF_V,
-		 STRING,     STRING_BOOL_M, STRING_INT_M, STRING_STRING_M };
+		 STRING,     STRING_BOOL_M, STRING_INT_M, STRING_STRING_M, STRING_V};
 
   static std::map<std::string,LEAFTYPE> dict();
 };

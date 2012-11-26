@@ -35,7 +35,8 @@ def options() :
     options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
-    options.register('doPdfWeights', default = False, info = "store pdf weights in ntuples") 
+    options.register('pdfSets', default = "", info = "pdf Sets to use for pdf Uncertainty weights", mytype = VP.varType.string)
+    
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')
     options.parseArguments()

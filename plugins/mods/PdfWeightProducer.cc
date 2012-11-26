@@ -58,7 +58,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
       if (fixPOWHEG_ != "") pdfSetNames_.insert(pdfSetNames_.begin(),fixPOWHEG_);
 
       if (pdfSetNames_.size()>3) {
-            edm::LogWarning("") << pdfSetNames_.size() << " PDF sets requested on input. Using only the first 3 sets and ignoring the rest!!";
+	edm::LogWarning("") << pdfSetNames_.size() << " PDF sets requested on input. ONLY WORKS with MAX 3 Sets!!";//Using only the first 3 sets and ignoring the rest!!";
             pdfSetNames_.erase(pdfSetNames_.begin()+3,pdfSetNames_.end());
       }
 
@@ -82,8 +82,8 @@ void PdfWeightProducer::beginJob() {
       for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
             LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
       }
-       pdfGenName = "cteq6ll.LHpdf";
-       LHAPDF::initPDFSet(0,pdfGenName);
+      pdfGenName = "cteq6ll.LHpdf";
+      LHAPDF::initPDFSet(0,pdfGenName);
 
 }
 

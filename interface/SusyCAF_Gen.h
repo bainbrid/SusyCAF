@@ -53,6 +53,7 @@ SusyCAF_Gen(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > (Prefix + "cteq66" + Suffix);
   produces <std::vector<double> > (Prefix + "ct10" + Suffix);
   produces <std::vector<double> > (Prefix + "NNPDF21" + Suffix);
+  produces <std::vector<double> > (Prefix + "NNPDF20" + Suffix);
   produces <std::vector<double> > (Prefix + "MSTW2008nlo68cl" + Suffix);
   produces <std::vector<double> > (Prefix + "BinningValues" + Suffix);
   produces <float> (Prefix + "Q" + Suffix);
@@ -83,11 +84,13 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<double> > cteq66Handle;
   edm::Handle<std::vector<double> > ct10Handle;
   edm::Handle<std::vector<double> > nnpdfHandle;
+  edm::Handle<std::vector<double> > nnpdf20Handle;
   edm::Handle<std::vector<double> > mstwHandle;
-  iEvent.getByLabel("pdfWeightsDefault", "cteq66", cteq66Handle);
-  iEvent.getByLabel("pdfWeightsDefault", "CT10", ct10Handle);
-  iEvent.getByLabel("pdfWeightsDefault", "NNPDF21", nnpdfHandle);
-  iEvent.getByLabel("pdfWeightsDefault", "MSTW2008nlo68cl", mstwHandle);
+  iEvent.getByLabel("pdfWeights", "cteq66", cteq66Handle);
+  iEvent.getByLabel("pdfWeights", "CT10", ct10Handle);
+  iEvent.getByLabel("pdfWeights", "NNPDF21", nnpdfHandle);
+  iEvent.getByLabel("pdfWeights", "NNPDF20", nnpdf20Handle);
+  iEvent.getByLabel("pdfWeights", "MSTW2008nlo68cl", mstwHandle);
   
 //add handle for LHE event
   edm::Handle<LHEEventProduct> product;
@@ -112,14 +115,14 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<int> > motherIndex ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<int> > motherPdgId ( new std::vector<int>() ) ;
   std::auto_ptr<std::vector<double> > cteq66 ( new std::vector<double>() ) ;
-  std::auto_ptr<std::vector<double> > ct10 ( new std::vector<double>() ) ;
-  std::auto_ptr<std::vector<double> > nnpdf ( new std::vector<double>() ) ;
-  std::auto_ptr<std::vector<double> > mstw ( new std::vector<double>() ) ;
+  std::auto_ptr<std::vector<double> > ct10 ( new std::vector<double>() ) ; 
+  std::auto_ptr<std::vector<double> > nnpdf ( new std::vector<double>() ) ; 
+  std::auto_ptr<std::vector<double> > nnpdf20 ( new std::vector<double>() ) ; 
+  std::auto_ptr<std::vector<double> > mstw ( new std::vector<double>() ) ; 
   std::auto_ptr<double> gHT ( new double(0) );
 
   std::vector<const T*> self;
   std::vector<const reco::Candidate*> mom;
-
   if(cteq66Handle.isValid()){
   for(std::vector<double>::const_iterator it = cteq66Handle->begin(); it != cteq66Handle->end(); ++it) {
     cteq66->push_back(*it);
@@ -132,6 +135,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(std::vector<double>::const_iterator it = nnpdfHandle->begin(); it != nnpdfHandle->end(); ++it) {
     nnpdf->push_back(*it);
   }}
+  if(nnpdf20Handle.isValid()){
+  for(std::vector<double>::const_iterator it = nnpdf20Handle->begin(); it != nnpdf20Handle->end(); ++it) {
+    nnpdf20->push_back(*it);
+  }}
+
   if(mstwHandle.isValid()){
   for(std::vector<double>::const_iterator it = mstwHandle->begin(); it != mstwHandle->end(); ++it) {
     mstw->push_back(*it);
@@ -202,10 +210,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( id1,          Prefix + "id1" + Suffix );
   iEvent.put( id2,          Prefix + "id2" + Suffix );
   iEvent.put( gHT,          Prefix + "PartonHT" + Suffix );
-  iEvent.put( cteq66,       Prefix + "cteq66" + Suffix);
-  iEvent.put( ct10,         Prefix + "ct10" + Suffix);
-  iEvent.put( nnpdf,        Prefix + "NNPDF21" + Suffix);
-  iEvent.put( mstw,         Prefix + "MSTW2008nlo68cl" + Suffix);
+  iEvent.put( cteq66,    Prefix + "cteq66" + Suffix)         ; 
+  iEvent.put( ct10,      Prefix + "ct10" + Suffix)           ; 
+  iEvent.put( nnpdf,     Prefix + "NNPDF21" + Suffix)        ; 
+  iEvent.put( nnpdf20,   Prefix + "NNPDF20" + Suffix)        ; 
+  iEvent.put( mstw,      Prefix + "MSTW2008nlo68cl" + Suffix); 
 
 }
 

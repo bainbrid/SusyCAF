@@ -15,6 +15,7 @@ scanFormats = {'T1_xCHI' : r"# model T1_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\
                'T2tttt' : r"# model T2tttt_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T2bbbb' : r"# model T2bbbb_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T2bb' : r"# model T2bb_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
+	       'T2cc' : r"# model T2cc_(\\d*)_(\\d*)\\s*(\\d*.\\d*)\\s*",
                'T2tt' : r"# model T2tt_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T2ttww' : r"# model T2ttww_(\\d*\.\\d*)_(\\d*\)_(\\d*\)\\s",
                'T3w' : r"# model T3w_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
@@ -37,11 +38,21 @@ scanParameters = {"T1_xCHI" : ['xCHI', 'mGL', 'mLSP'],
                   "T1tttt" : ['mGL', 'mLSP', 'xSEC'],
                   "T2bbbb" : ['xCHI', 'mGL', 'mLSP'],
                   "T2tttt" : ['xCHI', 'mGL', 'mLSP'],
+<<<<<<< SusyCAF_Scan_cfi.py
+		  "T1bb" : ['mGL', 'mLSP'],
+=======
                   "T1bb" : ['mGL', 'mLSP'],
+>>>>>>> 1.24
                   "T1tt" : ['mGL', 'mLSP'],
                   "T2bw" : ['xCHI', 'mGL', 'mLSP'],
+<<<<<<< SusyCAF_Scan_cfi.py
+		  "T2bb" : ['mGL', 'mLSP'],
+                  "T2cc" : ['mGL', 'mLSP'],
+ 	          "T2tt" : ['mGL', 'mLSP'],
+=======
                   "T2bb" : ['mGL', 'mLSP'],
                   "T2tt" : ['mGL', 'mLSP'],
+>>>>>>> 1.24
                   "T2ttww" : ['xCHI', 'mGL', 'mLSP'],
                   "T3w" : ['xCHI', 'mGL', 'mLSP'],
                   "T3wb" : ['xCHI', 'mGL', 'mLSP'],

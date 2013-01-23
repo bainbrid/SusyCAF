@@ -38,21 +38,12 @@ scanParameters = {"T1_xCHI" : ['xCHI', 'mGL', 'mLSP'],
                   "T1tttt" : ['mGL', 'mLSP', 'xSEC'],
                   "T2bbbb" : ['xCHI', 'mGL', 'mLSP'],
                   "T2tttt" : ['xCHI', 'mGL', 'mLSP'],
-<<<<<<< SusyCAF_Scan_cfi.py
 		  "T1bb" : ['mGL', 'mLSP'],
-=======
-                  "T1bb" : ['mGL', 'mLSP'],
->>>>>>> 1.24
                   "T1tt" : ['mGL', 'mLSP'],
                   "T2bw" : ['xCHI', 'mGL', 'mLSP'],
-<<<<<<< SusyCAF_Scan_cfi.py
 		  "T2bb" : ['mGL', 'mLSP'],
                   "T2cc" : ['mGL', 'mLSP'],
  	          "T2tt" : ['mGL', 'mLSP'],
-=======
-                  "T2bb" : ['mGL', 'mLSP'],
-                  "T2tt" : ['mGL', 'mLSP'],
->>>>>>> 1.24
                   "T2ttww" : ['xCHI', 'mGL', 'mLSP'],
                   "T3w" : ['xCHI', 'mGL', 'mLSP'],
                   "T3wb" : ['xCHI', 'mGL', 'mLSP'],

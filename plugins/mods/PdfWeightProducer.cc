@@ -33,6 +33,7 @@ class PdfWeightProducer : public edm::EDProducer {
       std::vector<std::string> pdfSetNames_;
       std::vector<std::string> pdfShortNames_;
       std::string pdfGenName;
+      std::string defaultPdfName_;
 };
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -53,7 +54,8 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  fixPOWHEG_(pset.getUntrackedParameter<std::string> ("FixPOWHEG", "")),
  genTag_(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"))),
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
- pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
+ pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames")),
+ defaultPdfName_(pset.getUntrackedParameter<std::string> ("DefaultPdfName", ""))
 {
       if (fixPOWHEG_ != "") pdfSetNames_.insert(pdfSetNames_.begin(),fixPOWHEG_);
 
@@ -82,7 +84,8 @@ void PdfWeightProducer::beginJob() {
       for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
             LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
       }
-      pdfGenName = "cteq6ll.LHpdf";
+      //pdfGenName = "cteq6ll.LHpdf";
+      pdfGenName = defaultPdfName_;
       LHAPDF::initPDFSet(0,pdfGenName);
 
 }

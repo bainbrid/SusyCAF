@@ -237,6 +237,7 @@ def poolOutput(process,options) :
 def pdfWeights(process,options) :
     if not len(options.pdfSets) == 0 :
         pdfSets = options.pdfSets.split(",")
+        defPdf = options.defPdf
         # Produce PDF weights (maximum is 3)
         process.pdfWeights = cms.EDProducer("PdfWeightProducer",
                                             # Fix POWHEG if buggy (this PDF set will also appear on output,
@@ -244,6 +245,7 @@ def pdfWeights(process,options) :
                                             #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
                                             #GenTag = cms.untracked.InputTag("genParticles"),
                                             PdfInfoTag = cms.untracked.InputTag("generator"),
+                                            DefaultPdfName = cms.untracked.string(defPdf),
                                             PdfSetNames = cms.untracked.vstring(pdfSets))
 
         return cms.Path(process.pdfWeights)

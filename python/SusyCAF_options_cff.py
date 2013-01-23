@@ -36,6 +36,7 @@ def options() :
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
     options.register('pdfSets', default = "", info = "pdf Sets to use for pdf Uncertainty weights", mytype = VP.varType.string)
+    options.register('defPdf', default = "cteq6ll.LHpdf", info = "pdf set used when producing sample", mytype = VP.varType.string)
     
     __hack_ListVarparsingBug__( options, 'jetCollections')
     __hack_ListVarparsingBug__( options, 'jetCorrections')

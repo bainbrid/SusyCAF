@@ -50,7 +50,7 @@ produce(edm::Event& event, const edm::EventSetup&) {
   if(lhe.isValid()) {
     const std::vector<std::string> comments(lhe->comments_begin(),lhe->comments_end());
     BOOST_FOREACH(const std::string& comment, comments) {
-      if (boost::regex_match(comment, matches, scanFormat)) break;
+    	if (boost::regex_match(comment, matches, scanFormat)) break;
     }
   }
   

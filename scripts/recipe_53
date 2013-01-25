@@ -32,7 +32,7 @@ cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
 # pdf reweighting utilities ( needed for proper setup of lhapdffull https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEWKUtilities#Code_and_tags)
 cvs co -r CMSSW_5_3_3_patch2 ElectroWeakAnalysis/Utilities
 
-cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-11 UserCode/SusyCAF
+cvs co -dSUSYBSMAnalysis/SusyCAF -r V17-12 UserCode/SusyCAF
 # adding nominal pdf
 unalias cp
 cp -p SUSYBSMAnalysis/SusyCAF/plugins/mods/PdfWeightProducer.cc ElectroWeakAnalysis/Utilities/src/

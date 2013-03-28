@@ -14,7 +14,7 @@ def options() :
 
     options.register('GlobalTag', mytype = VP.varType.string)
     options.register('quiet', default = True )
-    options.register('isData', default = True )
+    options.register('isData', default = False ) #was True
     options.register('dropMore', default = False , info = "drop more for a smaller event size")
     options.register('leptonPtMin', default = 0 )
     options.register('patify', default = True,  info = "run SUSYPAT on the fly")
@@ -24,15 +24,15 @@ def options() :
                      info = "jet types to store", mult = VP.multiplicity.list, mytype = VP.varType.string)
     options.register('jetCorrections', default = ['L1FastJet','L2Relative','L3Absolute','L2L3Residual'], #L2L3Residual removed from options for simulation (below)
                      info = "jet correction levels to apply", mult = VP.multiplicity.list, mytype = VP.varType.string)
-    options.register('scan', default = "", info = "code for CMSSM or SMS scan", mytype = VP.varType.string)
+    options.register('scan', default = "T1tttt", info = "code for CMSSM or SMS scan", mytype = VP.varType.string)
     options.register('triggers', default = -1, info = "store trigger information in the ntuple") # defaults to isData (below)
-    options.register('taus', default = True, info = "store tau information in the ntuple")
+    options.register('taus', default = False, info = "store tau information in the ntuple")
     options.register('dqm', default = False, info = "store dqm information in the ntuple")
     options.register('doTauReco', default = False, info = "redo tau recostruction (needed in order to read 51X files with 52X recipe)")
     options.register('doTypeIMetReco', default = False, info = "do type I MET recostruction")
     options.register('doTypeIMetPat', default = True, info = "do type I MET Pat (RA4 Recipe + also caloMET)")
     options.register('doPfMetPhiCorrections', default = False, info = "do phi corrections in pfMET")
-    options.register('beamHaloVars', default = True, info = "store beam halo information in the ntuple")
+    options.register('beamHaloVars', default = False, info = "store beam halo information in the ntuple")
     options.register('doPhotonPFIso', default = True, info = "include simple cut based Photon IDs 2012 in the ntuple")
     options.register('doPoolOutput', default = False, info = "Output edm file with full event content")
     options.register('pdfSets', default = "", info = "pdf Sets to use for pdf Uncertainty weights", mytype = VP.varType.string)
@@ -44,7 +44,7 @@ def options() :
     options._tagOrder =[] # weird, but something to do with options.output
 
     defaultGT,defaultFile = {
-        "53X" : [('START53_V10::All','/store/mc/Summer12_DR53X/ZZ_TuneZ2star_8TeV_pythia6_tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FEEB0275-24FA-E111-B9A6-00266CF9B970.root'),
+        "53X" : [('START53_V7F::All','file:/afs/cern.ch/work/g/gouskos/private/tmpArea/T1tttt_MG.root'),
 		('GR_P_V41_AN1::All' ,'/store/data/Run2012C/SingleMu/AOD/PromptReco-v2/000/201/624/F40EFD20-9CF0-E111-8F16-5404A63886C4.root')],
 	"52X" : [('START52_V4::All','/store/relval/CMSSW_5_2_5_cand1/RelValTTbar/GEN-SIM-RECO/START52_V9-v1/0261/249F81B9-8C91-E111-AE72-003048679236.root'),               
 		('GR_R_52_V4::All' ,'/store/relval/CMSSW_5_2_5_cand1/SingleMu/RECO/GR_R_52_V7_RelVal_mu2011B-v1/0262/7425B24B-9E91-E111-BA46-002618943800.root')],

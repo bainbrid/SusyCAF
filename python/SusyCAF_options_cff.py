@@ -44,7 +44,7 @@ def options() :
     options._tagOrder =[] # weird, but something to do with options.output
 
     defaultGT,defaultFile = {
-        "53X" : [(('START53_V10::All','/store/mc/Summer12_DR53X/ZZ_TuneZ2star_8TeV_pythia6_tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FEEB0275-24FA-E111-B9A6-00266CF9B970.root'),
+        "53X" : [('START53_V10::All','/store/mc/Summer12_DR53X/ZZ_TuneZ2star_8TeV_pythia6_tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FEEB0275-24FA-E111-B9A6-00266CF9B970.root'),
 		('GR_P_V41_AN1::All' ,'/store/data/Run2012C/SingleMu/AOD/PromptReco-v2/000/201/624/F40EFD20-9CF0-E111-8F16-5404A63886C4.root')],
 	"52X" : [('START52_V4::All','/store/relval/CMSSW_5_2_5_cand1/RelValTTbar/GEN-SIM-RECO/START52_V9-v1/0261/249F81B9-8C91-E111-AE72-003048679236.root'),               
 		('GR_R_52_V4::All' ,'/store/relval/CMSSW_5_2_5_cand1/SingleMu/RECO/GR_R_52_V7_RelVal_mu2011B-v1/0262/7425B24B-9E91-E111-BA46-002618943800.root')],

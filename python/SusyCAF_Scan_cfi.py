@@ -12,7 +12,7 @@ scanFormats = {'T1_xCHI' : r"# model T1_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\
                'T1tt1_Madgraph' : r"# model T1tt1_(\\d*)_(\\d*)\\s*(\\d*.\\d*)\\s*",
                'T1bbbb_xCHI' : r"# model T1bbbb_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T1bbbb' : r"# model T1bbbb_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
-	       'T1bbbb_Madgraph' : r"# model T1tttt_(\\d*)_(\\d*)\\s*(\\d*.\\d*)\\s*",
+	       'T1bbbb_Madgraph' : r"# model T1bbbb_(\\d*)_(\\d*)\\s*(\\d*.\\d*)\\s*",
                'T1bb' : r"# model T1bb_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T1tt' : r"# model T1tt_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",
                'T2bw' : r"# model T2bw_(\\d*\.\\d*)_(\\d*\.\\d*)_(\\d*\.\\d*)\\s",

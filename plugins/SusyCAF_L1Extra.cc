@@ -18,28 +18,30 @@ SusyCAF_L1Extra::SusyCAF_L1Extra(const edm::ParameterSet& iConfig) :
   produces <std::vector<double> > ( Prefix + "et"         + Suffix);
   produces <std::vector<double> > ( Prefix + "met"        + Suffix);
   produces <std::vector<double> > ( Prefix + "metphi"     + Suffix);
+  produces <std::vector<int> > ( Prefix + "metbx"     + Suffix);
   produces <std::vector<double> > ( Prefix + "mht"        + Suffix);
   produces <std::vector<double> > ( Prefix + "mhtphi"     + Suffix);
+  produces <std::vector<int> > ( Prefix + "mhtbx"     + Suffix);
   produces <std::vector<double> > ( Prefix + "cenJetet"   + Suffix);
   produces <std::vector<double> > ( Prefix + "cenJeteta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "cenJetphi"   + Suffix);
-  produces <std::vector<double> > ( Prefix + "cenJetbx"   + Suffix);
+  produces <std::vector<int> > ( Prefix + "cenJetbx"   + Suffix);
   produces <std::vector<double> > ( Prefix + "tauJetet"   + Suffix);
   produces <std::vector<double> > ( Prefix + "tauJeteta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "tauJetphi"   + Suffix);
-  produces <std::vector<double> > ( Prefix + "tauJetbx"   + Suffix);
+  produces <std::vector<int> > ( Prefix + "tauJetbx"   + Suffix);
   produces <std::vector<double> > ( Prefix + "fwdJetet"   + Suffix);
   produces <std::vector<double> > ( Prefix + "fwdJeteta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "fwdJetphi"   + Suffix);
-  produces <std::vector<double> > ( Prefix + "fwdJetbx"   + Suffix);
+  produces <std::vector<int> > ( Prefix + "fwdJetbx"   + Suffix);
   produces <std::vector<double> > ( Prefix + "isoEmet"   + Suffix);
   produces <std::vector<double> > ( Prefix + "isoEmeta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "isoEmphi"   + Suffix);
-  produces <std::vector<double> > ( Prefix + "isoEmbx"   + Suffix);
+  produces <std::vector<int> > ( Prefix + "isoEmbx"   + Suffix);
   produces <std::vector<double> > ( Prefix + "nonisoEmet"   + Suffix);
   produces <std::vector<double> > ( Prefix + "nonisoEmeta"   + Suffix);
   produces <std::vector<double> > ( Prefix + "nonisoEmphi"   + Suffix);
-  produces <std::vector<double> > ( Prefix + "nonisoEmbx"   + Suffix);
+  produces <std::vector<int> > ( Prefix + "nonisoEmbx"   + Suffix);
 
 }
 
@@ -49,28 +51,30 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> > et      ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > met     ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > metphi  ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > metbx  ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > mht     ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > mhtphi  ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > mhtbx  ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > cenJetet ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > cenJeteta ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > cenJetphi( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> > cenJetbx ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > cenJetbx ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > tauJetet ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > tauJeteta ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > tauJetphi( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> > tauJetbx ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > tauJetbx ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > fwdJetet ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > fwdJeteta ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > fwdJetphi( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> > fwdJetbx ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > fwdJetbx ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > isoEmet ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > isoEmeta ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > isoEmphi( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> > isoEmbx ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > isoEmbx ( new std::vector<int>() );
   std::auto_ptr<std::vector<double> > nonisoEmet ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > nonisoEmeta ( new std::vector<double>() );
   std::auto_ptr<std::vector<double> > nonisoEmphi( new std::vector<double>() );
-  std::auto_ptr<std::vector<double> > nonisoEmbx ( new std::vector<double>() );
+  std::auto_ptr<std::vector<int> > nonisoEmbx ( new std::vector<int>() );
 
   //todo (possibly):
   //include the rest of the extra collections (see UserCode/L1TriggerDPG)
@@ -84,6 +88,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     et->push_back(it->etTotal());
     met->push_back(it->et());
     metphi->push_back(it->phi());
+    metbx->push_back(it->bx());
+
   }
   
   //MHT
@@ -93,6 +99,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ht->push_back(it->etTotal());
     mht->push_back(it->et());
     mhtphi->push_back(it->phi());
+    mhtbx->push_back(it->bx());
+
   }
   
   //FwdJets
@@ -150,8 +158,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( et,     Prefix + "et"         + Suffix);
   iEvent.put( met,    Prefix + "met"        + Suffix);
   iEvent.put( metphi, Prefix + "metphi"     + Suffix);
+  iEvent.put( metphi, Prefix + "metbx"     + Suffix);
   iEvent.put( mht,    Prefix + "mht"        + Suffix);
   iEvent.put( mhtphi, Prefix + "mhtphi"     + Suffix);
+  iEvent.put( mhtphi, Prefix + "mhtbx"     + Suffix);
   iEvent.put( cenJetet, Prefix + "cenJetet" + Suffix);
   iEvent.put( cenJeteta, Prefix + "cenJeteta" + Suffix);
   iEvent.put( cenJetphi, Prefix + "cenJetphi" + Suffix);

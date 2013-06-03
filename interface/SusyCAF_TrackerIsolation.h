@@ -125,14 +125,14 @@ class SusyCAF_TrackerIsolation : public edm::EDProducer {
     // only store PFCandidate values if pt > minPt
     //-------------------------------------------------------------------------------------
 
-    if ((pf_it->pt())>5.) {
-      pfCandsP4->push_back(pf_it->p4());
-      pfCandsParticleId->push_back(pf_it->particleId());
-    }
-
-
     if( pf_it->pt() < minPt_ ) continue;
+    
+    //-------------------------------------------------------------------------------------
+    // store four-momenta and particle ID of PFCandidate
+    //-------------------------------------------------------------------------------------
 
+    pfCandsP4->push_back(pf_it->p4());
+    pfCandsParticleId->push_back(pf_it->particleId());
 
     //-------------------------------------------------------------------------------------
     // store pt and charge of PFCandidate

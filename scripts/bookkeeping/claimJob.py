@@ -93,7 +93,7 @@ def setup_crab(job,option) :
               "FNAL" : {"SE":"cmssrm.fnal.gov",
               		"FULL_RPATH":"/pnfs/cms/WAX/11/store/user/lpcsusyra1/%(USER)s/%(RPATH)s" % option,
               		"USER_REMOTE":"/store/user/lpcsusyra1/%(USER)s/%(RPATH)s",
-              		"SCHEDULER":"glidein",
+              		"SCHEDULER":"glite",
                         "DBS_URL": option["DBS_URL"],
                         "EXTRA":""}
              }

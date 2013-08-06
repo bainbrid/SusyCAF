@@ -158,10 +158,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put( et,     Prefix + "et"         + Suffix);
   iEvent.put( met,    Prefix + "met"        + Suffix);
   iEvent.put( metphi, Prefix + "metphi"     + Suffix);
-  iEvent.put( metphi, Prefix + "metbx"     + Suffix);
+  iEvent.put( metbx, Prefix + "metbx"     + Suffix);
   iEvent.put( mht,    Prefix + "mht"        + Suffix);
   iEvent.put( mhtphi, Prefix + "mhtphi"     + Suffix);
-  iEvent.put( mhtphi, Prefix + "mhtbx"     + Suffix);
+  iEvent.put( mhtbx, Prefix + "mhtbx"     + Suffix);
   iEvent.put( cenJetet, Prefix + "cenJetet" + Suffix);
   iEvent.put( cenJeteta, Prefix + "cenJeteta" + Suffix);
   iEvent.put( cenJetphi, Prefix + "cenJetphi" + Suffix);

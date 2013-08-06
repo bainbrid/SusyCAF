@@ -7,7 +7,9 @@ options = options()
 
 process.maxEvents.input = options.maxEvents
 process.GlobalTag.globaltag = options.GlobalTag
-process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
+#process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(options.files) )
+process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/y/yeshaq/private/WJetsToLNu_150To200_Madgraph.root') )
+process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/y/yeshaq/private/SingleMu_Jan22.root') )
 process.add_( cms.Service( "TFileService", fileName = cms.string( options.output ), closeFileFast = cms.untracked.bool(True) ) )
 
 from SUSYBSMAnalysis.SusyCAF.SusyCAF_nTuple_cfi import SusyCAF

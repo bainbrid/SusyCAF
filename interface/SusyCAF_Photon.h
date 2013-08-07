@@ -29,8 +29,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include "EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h"
-
+#include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
 
 #include <Math/ProbFuncMathCore.h>
 #include <Math/VectorUtil.h>

@@ -28,10 +28,11 @@ cvs co -r V00-00-13-01 RecoMET/METFilters
 cvs co -r V00-00-08 RecoMET/METAnalyzers
 
 # functions to compute electron and photon IDs (https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#Example_for_photons)
-cvs co -r V00-00-24 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
-cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
-cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc
-
+cvs co -r V09-00-01 RecoEgamma/EgammaTools       
+cvs co -r SE_PhotonIsoProducer_MovedIn EgammaAnalysis/ElectronTools
+cvs co -r SE_PhotonIsoProducer_MovedOut UserCode/EGamma/EGammaAnalysisTools/python/photonIsoProducer_cfi.py
+cp UserCode/EGamma/EGammaAnalysisTools/python/photonIsoProducer_cfi.py EgammaAnalysis/ElectronTools/python/
+rm -rf UserCode/
 # pdf reweighting utilities ( needed for proper setup of lhapdffull https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEWKUtilities#Code_and_tags)
 cvs co -r CMSSW_5_3_3_patch2 ElectroWeakAnalysis/Utilities
 

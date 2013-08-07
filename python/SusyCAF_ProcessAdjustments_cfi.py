@@ -218,7 +218,7 @@ def tauReco(process,options) :
 def photonPFIso(process,options) :
     if options.doPhotonPFIso :
         #https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonID2012
-        process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
+        process.load('EgammaAnalysis.ElectronTools.photonIsoProducer_cfi')
         return cms.Path(process.phoPFIso)
     else :
         return cms.Path()

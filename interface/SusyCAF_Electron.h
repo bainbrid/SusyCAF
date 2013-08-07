@@ -23,7 +23,7 @@
 
 // ID computation
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 
 
 template< typename T >

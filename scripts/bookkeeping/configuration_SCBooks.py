@@ -1,5 +1,5 @@
 import webpage_SCBooks,sqlite3,os,sys,getpass,time
-db_version = 4
+db_version = 5
 ICF = {"db_location": "/afs/cern.ch/user/d/dburton/www/web/ICF_Database",
        "db_file": 'sqlite%d.db'%(db_version),
        "db_lock": 'sqlite%d.lock'%(db_version),

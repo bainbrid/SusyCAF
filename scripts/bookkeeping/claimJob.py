@@ -241,14 +241,14 @@ find . -type f -iname CMSSW.sh -exec sed -i '/lhapdffull/a scramv1 b' {} \;
       "crab" : "multicrab" if MULTI else "crab",
       "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
       })
-while 'asking to submit 500 jobs, but only' not in open('submitOutput.log').read():
-    print_and_execute('''
+    while 'asking to submit 500 jobs, but only' not in open('submitOutput.log').read():
+        print_and_execute('''
 #!/usr/bin/env bash
 %(crab)s -submit 500 | tee submitOutput.log
 '''%{ "crab" : "multicrab" if MULTI else "crab",
       })
-else :
-    print_and_execute('''
+    else :
+        print_and_execute('''
 #!/usr/bin/env bash   
 %(crab)s -status &> crab.status
 rm -f submitOutput.log

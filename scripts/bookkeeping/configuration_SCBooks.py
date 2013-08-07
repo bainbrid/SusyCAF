@@ -54,7 +54,7 @@ def valid_addpkg(connection) :
         if not row[0] : continue
         pkgs = row[0].split(',')
         for pkg in pkgs:
-            if len(pkg.split()) != 2 :
+            if len(pkg.split()) < 1 :
                 print 'Incorrect addpkg format'
                 return False
     return True

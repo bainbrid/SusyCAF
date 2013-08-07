@@ -38,7 +38,7 @@ export SCRAM_ARCH=%(arch)s
 scram project CMSSW %(cmssw)s
 cd %(cmssw)s/src/
 eval `scram runtime -sh`
-cvs co -r %(susycaf)s -dSUSYBSMAnalysis/SusyCAF UserCode/SusyCAF
+git clone https://github.com/bainbrid/SusyCAF.git -b %(susycaf)s SUSYBSMAnalysis/SusyCAF
 '''%{ "path":path, "arch":job["scram_arch"] if job["scram_arch"] else "$SCRAM_ARCH",
       "cmssw":job['cmssw'], "susycaf":job['susycaf'] } +''.join(['''
 addpkg '''+pkg for pkg in job['addpkg'].split(',')] if job['addpkg'] else [''])+''.join(['''
@@ -93,7 +93,7 @@ def setup_crab(job,option) :
               "FNAL" : {"SE":"cmssrm.fnal.gov",
               		"FULL_RPATH":"/pnfs/cms/WAX/11/store/user/lpcsusyra1/%(USER)s/%(RPATH)s" % option,
               		"USER_REMOTE":"/store/user/lpcsusyra1/%(USER)s/%(RPATH)s",
-              		"SCHEDULER":"glite",
+              		"SCHEDULER":"remoteGlidein",
                         "DBS_URL": option["DBS_URL"],
                         "EXTRA":""}
              }
@@ -232,8 +232,7 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/susycaf_cfg.py isData
 %(crab)s -create
 find . -type f -iname CMSSW.sh -exec sed -i '/eval `scram/a scramv1 setup lhapdffull' {} \;
 find . -type f -iname CMSSW.sh -exec sed -i '/lhapdffull/a scramv1 b' {} \;
-%(crab)s -submit
-%(crab)s -status &> crab.status
+%(crab)s -submit 500 | tee submitOutput.log
 '''%{ "path" : path,
       "cmssw" : job['cmssw'],
       "isData" : job['isData'],
@@ -241,6 +240,19 @@ find . -type f -iname CMSSW.sh -exec sed -i '/lhapdffull/a scramv1 b' {} \;
       "other" : job['nonDefault'] if job['nonDefault'] else '',
       "crab" : "multicrab" if MULTI else "crab",
       "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
+      })
+while 'asking to submit 500 jobs, but only' not in open('submitOutput.log').read():
+    print_and_execute('''
+#!/usr/bin/env bash
+%(crab)s -submit 500 | tee submitOutput.log
+'''%{ "crab" : "multicrab" if MULTI else "crab",
+      })
+else :
+    print_and_execute('''
+#!/usr/bin/env bash   
+%(crab)s -status &> crab.status
+rm -f submitOutput.log
+'''%{ "crab" : "multicrab" if MULTI else "crab",
       })
     return
 

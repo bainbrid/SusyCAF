@@ -104,11 +104,11 @@ def setup_crab(job,option) :
         option[key] = eval('\'\'\''+val+'\'\'\'%option')
 
     option["EVENTS"] = '''
-lumis_per_job=30
+lumis_per_job=25
 total_number_of_lumis=-1
 %s'''%('lumi_mask=%(PATH)s/jsonls.txt'%option if job['jsonls'] else '') if job['isData'] else '''
 total_number_of_events=-1
-events_per_job=20000'''
+events_per_job=16000'''
     
     option["DBS_URL"] = ("dbs_url="+option["DBS_URL"]) if option["DBS_URL"] else ""
 
@@ -232,7 +232,9 @@ python %(path)s/%(cmssw)s/src/SUSYBSMAnalysis/SusyCAF/test/susycaf_cfg.py isData
 %(crab)s -create
 find . -type f -iname CMSSW.sh -exec sed -i '/eval `scram/a scramv1 setup lhapdffull' {} \;
 find . -type f -iname CMSSW.sh -exec sed -i '/lhapdffull/a scramv1 b' {} \;
-%(crab)s -submit 500 | tee submitOutput.log
+echo Redirecting crab -status output to submitOuput.log, will display log when command executed
+%(crab)s -submit 500 &> %(path)s/submitOutput.log
+cat %(path)s/submitOutput.log
 '''%{ "path" : path,
       "cmssw" : job['cmssw'],
       "isData" : job['isData'],
@@ -241,18 +243,38 @@ find . -type f -iname CMSSW.sh -exec sed -i '/lhapdffull/a scramv1 b' {} \;
       "crab" : "multicrab" if MULTI else "crab",
       "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
       })
-    while 'asking to submit 500 jobs, but only' not in open('submitOutput.log').read():
+    while 'Total of 500 jobs submitted' in open('%s/submitOutput.log' % path).read():
         print_and_execute('''
 #!/usr/bin/env bash
-%(crab)s -submit 500 | tee submitOutput.log
-'''%{ "crab" : "multicrab" if MULTI else "crab",
+
+source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
+cd %(path)s/%(cmssw)s/src/
+eval `scram runtime -sh`
+source %(crab_setup)s
+cd %(path)s
+echo Redirecting crab -status output to submitOuput.log, will display log when command executed
+%(crab)s -submit 500 &> %(path)s/submitOutput.log
+cat %(path)s/submitOutput.log
+'''%{ "path" : path,
+      "cmssw" : job['cmssw'],
+      "crab" : "multicrab" if MULTI else "crab",
+      "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
       })
+        sys.stdout.flush()
     else :
         print_and_execute('''
-#!/usr/bin/env bash   
+#!/usr/bin/env bash
+
+source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
+cd %(path)s/%(cmssw)s/src/
+eval `scram runtime -sh`
+source %(crab_setup)s
+cd %(path)s
 %(crab)s -status &> crab.status
-rm -f submitOutput.log
-'''%{ "crab" : "multicrab" if MULTI else "crab",
+'''%{ "path" : path,
+      "cmssw" : job['cmssw'],
+      "crab" : "multicrab" if MULTI else "crab",
+      "crab_setup" : "/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh"
       })
     return
 

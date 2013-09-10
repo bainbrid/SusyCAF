@@ -95,7 +95,7 @@ for path, shortName, xsec in zip(paths, shortNames, xsecs) :
 
 
 
-  prefix = '\n' + '\t' +  "\"root://cmsxrootd.fnal.gov/"# + path + '/'
+  prefix = '\n' + '\t' +  "\"root://xrootd.unl.edu/"# + path + '/'
 #  prefix = '\n' + '\t' +  "\"dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11"# + path + '/'
   suffix = '\" ,'
 
